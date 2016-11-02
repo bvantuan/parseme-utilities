@@ -8,7 +8,7 @@ if test "${1:-}" = "--help" || test "${1:-}" = "-h" || test -t 0; then
     echo '' >&2
     echo 'The PARSEME TSV format contains 4 columns: WordID,Surface,nsp,MWE.' >&2
     echo 'This script also outputs an extra 5th column with a "V" for verbs.' >&2
-    echo 'This 5-column TSV can be uploaded to FoLiA for annotation.' >&2
+    echo 'This 5-column TSV can be uploaded to FLAT for annotation.' >&2
     exit 0
 fi
 
