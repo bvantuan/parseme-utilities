@@ -104,6 +104,40 @@ def convertConllSentenceSpanish(conllSentence):
     removeSubtokens(parsemeTsvSentence)
     return parsemeTsvSentence
 
+#-----------------------------
+# fileds in conllSentence:
+# 0: rank
+# 1: surface
+# 3: coarse PoS (V for verbs) see http://www.corpusitaliano.it/static/documents/POS_ISST-TANL-tagset-web.pdf
+# 4: fine PoS (for nsp)
+#
+# output should have the following fields: 
+# 0: rank
+# 1: surface
+# 2: nsp
+# 3: mwe
+# 4: pos
+#
+# For nsp we check if the current or following surface token is a specific punctuation char  
+##-----------------------------
+def convertConllSentenceFrench(conllSentence):
+    parsemeTsvSentence = []
+    for row in conllSentence:
+        rank = row[0]
+        surface = row[1]
+        output_row = [rank, surface, '', '']
+        if row[3]=='VERB':
+            output_row.append('V')
+        # if current ends with apostrophe or previous is [(]+ the current word should have nsp
+        if surface.endswith("'") or re.match('[(]',surface):
+            output_row[2]='nsp'
+        # if current is [,;:.?!)]+ the previous word should have nsp         
+        if parsemeTsvSentence and re.match('[,;:.?!)]+',row[1]):
+            parsemeTsvSentence[-1][2]='nsp'           
+        parsemeTsvSentence.append(output_row)
+    removeSubtokens(parsemeTsvSentence)
+    return parsemeTsvSentence
+
 def writeParsemeTsvSentence(parsemeTsvSentence, output_mwe_content):    
     # make sure the rank is correct
     for i in range(len(parsemeTsvSentence)):
@@ -136,7 +170,8 @@ def convertConll2Parseme(inputFile, language, number_of_files, sentences_per_fil
 
 LANG_CONVERSION_FUNC = {
     'italian': convertConllSentenceItalian,
-    'spanish': convertConllSentenceSpanish
+    'spanish': convertConllSentenceSpanish,
+    'french': convertConllSentenceFrench,
 }
 
 #####################################################
@@ -148,7 +183,7 @@ def valid_input_file(file_name):
 
 parser = argparse.ArgumentParser(description="Convert from CONLL to parseme-tsv-pos format.")
 parser.add_argument("FILE", type=valid_input_file, help="An input CONLL file")
-parser.add_argument("--language", type = str.lower, choices = ['italian','spanish'], help="The input language", required=True) 
+parser.add_argument("--language", type = str.lower, choices = LANG_CONVERSION_FUNC.keys(), help="The input language", required=True) 
 parser.add_argument("--NoF", type = int, default=1, help="The number of output files")
 parser.add_argument("--SpF", type = int, default=-1, help="The number of sentences per file")
 
