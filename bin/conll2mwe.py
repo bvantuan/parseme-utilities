@@ -101,7 +101,6 @@ def convertConllSentenceSpanish(conllSentence):
         if parsemeTsvSentence and re.match('[,;:.?!)]+',row[1]):
             parsemeTsvSentence[-1][2]='nsp'           
         parsemeTsvSentence.append(output_row)
-    removeSubtokens(parsemeTsvSentence)
     return parsemeTsvSentence
 
 #-----------------------------
@@ -147,7 +146,7 @@ def writeParsemeTsvSentence(parsemeTsvSentence, output_mwe_content):
     # write to output file
     output_mwe_content.writelines('\t'.join(row)+'\n' for row in parsemeTsvSentence)
 
-def convertConll2Parseme(inputFile, language, number_of_files, sentences_per_file):
+def convertConll2Parseme(inputFile, language, number_of_files, sentences_per_file, remove_subtok):
     with open(inputFile, 'rt') as f_conll_in:    
         file_index = 0        
         while True:
@@ -164,6 +163,8 @@ def convertConll2Parseme(inputFile, language, number_of_files, sentences_per_fil
                     i += 1
                     convertConllSentenceLanguage = LANG_CONVERSION_FUNC[language]          
                     parsemeTsvSentence = convertConllSentenceLanguage(conllSentence)
+                    if remove_subtok:
+                        parsemeTsvSentence = removeSubtokens(parsemeTsvSentence)
                     writeParsemeTsvSentence(parsemeTsvSentence, f_mwe_out)                
                     if i==sentences_per_file:
                         break
@@ -186,6 +187,7 @@ parser.add_argument("FILE", type=valid_input_file, help="An input CONLL file")
 parser.add_argument("--language", type = str.lower, choices = LANG_CONVERSION_FUNC.keys(), help="The input language", required=True) 
 parser.add_argument("--NoF", type = int, default=1, help="The number of output files")
 parser.add_argument("--SpF", type = int, default=-1, help="The number of sentences per file")
+parser.add_argument("--no_subtok", action="store_true", help="Use if you want to remove subtokens")
 
 class Main(object):
     def __init__(self, args):
@@ -195,8 +197,9 @@ class Main(object):
         filename = self.args.FILE
         language = self.args.language
         number_of_files = self.args.NoF
-        sentences_per_file = self.args.SpF        
-        convertConll2Parseme(filename, language, number_of_files, sentences_per_file)
+        sentences_per_file = self.args.SpF 
+        remove_subtok = self.args.no_subtok
+        convertConll2Parseme(filename, language, number_of_files, sentences_per_file, remove_subtok)
 
 def main():
     Main(parser.parse_args()).run()
