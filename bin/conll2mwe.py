@@ -43,9 +43,9 @@ def convertConllSentenceItalian(conllSentence):
         if row[3]=='V':
             output_row.append('V')
         # if current is clitic pronoun (PC) and previous ends with '-' join them together
-        if row[4]=="PC" and parsemeTsvSentence and parsemeTsvSentence[-1][1].endswith('-'):
-            parsemeTsvSentence[-1][1] = parsemeTsvSentence[-1][1][:-1] + surface
-            continue
+        #if row[4]=="PC" and parsemeTsvSentence and parsemeTsvSentence[-1][1].endswith('-'):
+        #    parsemeTsvSentence[-1][1] = parsemeTsvSentence[-1][1][:-1] + surface
+        #    continue
         # if current ends with apostrophe or previous is [(]+ the current word should have nsp
         if surface.endswith("'") or re.match('[(]',surface):
             output_row[2]='nsp'
