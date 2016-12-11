@@ -389,7 +389,7 @@ class AbstractFileIterator:
     def make_comment(self, line):
         if self.curr_sent:
             self.err("Comment in the middle of a sentence is not allowed")
-        yield Comment(self.file_path, self.lineno, line[1:].strip())
+        return Comment(self.file_path, self.lineno, line[1:].strip())
 
     def append_token(self, line):
         if not self.curr_sent:
