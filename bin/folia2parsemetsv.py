@@ -10,6 +10,8 @@ parser.add_argument("--debug", action="store_true",
         help="""Print extra debug information in stderr""")
 parser.add_argument("--lang", choices=sorted(dataalign.LANGS), metavar="LANG", required=True,
         help="""Name of the target language (e.g. EN, FR, PL, DE...)""")
+parser.add_argument("--keep-non-vmwes", action="store_true",
+        help="""Keep NonVMWE entries in the output (by default, they are removed)""")
 parser.add_argument("--input", type=str, nargs="+", required=True,
         help="""Path to input files (in FoLiA XML or PARSEME TSV format)""")
 parser.add_argument("--conllu", type=str, nargs="+",
@@ -22,15 +24,16 @@ class Main:
 
     def run(self):
         conllu_path = self.args.conllu or dataalign.calculate_conllu_paths(self.args.input)
-        for elem in dataalign.iter_aligned_files(self.args.input, conllu_path, debug=self.args.debug):
+        for elem in dataalign.iter_aligned_files(self.args.input, conllu_path,
+                keep_nvmwes=self.args.keep_non_vmwes, debug=self.args.debug):
             if isinstance(elem, dataalign.Comment):
                 print("#", elem.text)
             else:
-                for word in elem.tokens:
-                    surface_form = word.surface or dataalign.EMPTY
-                    nsp = "nsp" if word.nsp else dataalign.EMPTY
-                    mwe_ids = ";".join(word.mwe_codes) or dataalign.EMPTY
-                    print(word.rank, surface_form, nsp, mwe_ids, sep="\t")
+                for token, mwecodes in elem.tokens_and_mwecodes():
+                    surface_form = token.surface or dataalign.EMPTY
+                    nsp = "nsp" if token.nsp else dataalign.EMPTY
+                    mwe_ids = ";".join(mwecodes) or dataalign.EMPTY
+                    print(token.rank, surface_form, nsp, mwe_ids, sep="\t")
                 print()
 
 

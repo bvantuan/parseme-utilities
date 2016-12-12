@@ -43,11 +43,18 @@ LANGS_WITH_REFL_PRON_ON_LEFT = set("DE FR RO".split())
 
 ############################################################
 
-class Comment(collections.namedtuple('Comment', 'file_path, lineno, text')):
+class Comment(collections.namedtuple('Comment', 'file_path lineno text')):
     r"""Represents a comment in the CoNLL-U file."""
 
 
-class Token(collections.namedtuple('Token', 'rank surface nsp mwe_codes lemma univ_pos')):
+class MWEAnnot(collections.namedtuple('MWEAnnot', 'indexes category')):
+    r"""Represents an MWE annotation.
+    @type indexes: tuple[int]
+    @type category: str
+    """
+
+
+class Token(collections.namedtuple('Token', 'rank surface nsp lemma univ_pos')):
     r"""Represents a token in an input file.
 
     Arguments:
@@ -69,34 +76,50 @@ class Sentence:
         self.nth_sent = nth_sent
         self.lineno = lineno
         self.tokens = []
+        self.mweannots = []  # list[MWEAnnot]
         self.mwe_id2folia = {}  # extra info per MWE from FoLiA file
 
     def mwe_occurs(self, lang):
         r"""Yield MWEOccur instances for all MWEs in self."""
-        assert lang in LANGS
-        mwe_id2categ = {}
-        mwe_id2indexes = {}
-        for i, word in enumerate(self.tokens):
-            for mwe_code in word.mwe_codes:
-                mwe_id = int(mwe_code.split(":", 1)[0])
-                mwe_id2indexes.setdefault(mwe_id, []).append(i)
-                if ":" in mwe_code:
-                    mwe_id2categ[mwe_id] = mwe_code.split(":", 1)[1]
-
-        for mwe_id, mwe_indexes in sorted(mwe_id2indexes.items()):
+        for mwe_id, mweannot in enumerate(self.mweannots, 1):
             annotator, confidence, datetime, comments = None, None, None, []
             if mwe_id in self.mwe_id2folia:
                 F = self.mwe_id2folia[mwe_id]
                 annotator, confidence, datetime = F.annotator, F.confidence, F.datetime
                 comments = [c.value for c in F.select(folia.Comment)]
 
-            yield MWEOccur(lang, self, mwe_indexes, mwe_id2categ.get(mwe_id, None),
+            yield MWEOccur(lang, self, mweannot.indexes, mweannot.category,
                     comments, annotator, confidence, datetime)
+
+    def tokens_and_mwecodes(self):
+        r"""Yield pairs (token, mwecode)."""
+        tokenindex2mweindex = collections.defaultdict(list)
+        for mweindex, mweannot in enumerate(self.mweannots):
+            for index in mweannot.indexes:
+                tokenindex2mweindex[index].append(mweindex)
+
+        for i, token in enumerate(self.tokens):
+            mwe_is = tokenindex2mweindex[i]
+            yield token, [self._mwecode(i, mwe_i) for mwe_i in mwe_is]
+
+    def _mwecode(self, token_i, mwe_i):
+        r"""Return a string with mweid:category (or just mweid in some cases)."""
+        mweannot = self.mweannots[mwe_i]
+        if mweannot.category and mweannot.indexes[0] == token_i:
+            return "{}:{}".format(mwe_i+1, mweannot.category)
+        return str(mwe_i+1)
+
+    def remove_non_vmwes(self):
+        r"""Change the mwe_codes in `self.tokens` so as to remove all NonVMWE tags."""
+        self.mweannots = [m for m in self.mweannots if m.category != "NonVMWE"]
+
+
 
 
 class MWEOccur:
     r"""Represents an instance of a MWE in text."""
     def __init__(self, lang, sentence, indexes, category, comments, annotator, confidence, datetime):
+        assert lang in LANGS
         self.lang = lang
         self.sentence = sentence
         self.indexes = indexes
@@ -206,6 +229,8 @@ def calculate_conllu_paths(file_paths, warn=True):
             base = file_path.rsplit(".", 2)[0]
         elif any(file_path.endswith(x) for x in [".tsv", ".parsemetsv", ".xml"]):
             base = file_path.rsplit(".", 1)[0]
+        else:
+            exit("ERROR: unknown file extension for `{}`".format(file_path))
 
         ret_path = base + ".conllu"
         if os.path.exists(ret_path):
@@ -219,7 +244,7 @@ def calculate_conllu_paths(file_paths, warn=True):
     return ret
 
 
-def iter_aligned_files(file_paths, conllu_paths=None, debug=False):
+def iter_aligned_files(file_paths, conllu_paths=None, keep_nvmwes=False, debug=False):
     r"""iter_aligned_files(list[str], list[str]) -> Iterable[Either[Sentence,Comment]]
     Yield Sentence's & Comment's based on file_paths and conllu_paths.
     """
@@ -227,13 +252,19 @@ def iter_aligned_files(file_paths, conllu_paths=None, debug=False):
     main_iterator = chain_iter(_iter_parseme_file(p) for p in file_paths)
     if conllu_paths:
         conllu_iterator = chain_iter(ConllIterator(p) for p in conllu_paths)
-        return AlignedIterator(main_iterator, conllu_iterator, debug)
-    return main_iterator
+        main_iterator = AlignedIterator(main_iterator, conllu_iterator, debug)
+
+    for sentence in main_iterator:
+        if not keep_nvmwes:
+            sentence.remove_non_vmwes()
+        yield sentence
 
 
 def _iter_parseme_file(file_path):
     if file_path.endswith('.xml'):
         return FoliaIterator(file_path)
+    if "Platinum" in file_path:
+        return ParsemePlatinumIterator(file_path)
     else:
         return ParsemeTSVIterator(file_path)
 
@@ -359,35 +390,43 @@ class FoliaIterator:
                 current_sentence = Sentence(self.file_path, nth, None)
                 folia_mwe_layers = folia_sentence.layers(folia.EntitiesLayer)
                 mwes = [mwe for mlayer in folia_mwe_layers for mwe in mlayer]
-                wordID2mwecodes = self.calc_wordID2mwecodes(mwes)
+                current_sentence.mweannots = list(self.calc_mweannots(mwes))
 
                 for rank, word in enumerate(folia_sentence.words(), 1):
-                    mwe_codes = tuple(wordID2mwecodes.get(word.id, []))
-                    token = Token(str(rank), word.text(), (not word.space), mwe_codes, None, None)
+                    token = Token(str(rank), word.text(), (not word.space), None, None)
                     current_sentence.tokens.append(token)
 
                 current_sentence.mwe_id2folia = dict(enumerate(mwes, 1))
                 yield current_sentence
 
 
-    def calc_wordID2mwecodes(self, mwes):
-        wordID2mwecodes = {}  # dict: word ID -> list of "mweid:category"
-        for mwe_id, mwe in enumerate(mwes, 1):
-            for index_in_mwe, word in enumerate(mwe.select(folia.Word)):
-                mwecodes = wordID2mwecodes.setdefault(word.id, [])
-                m = "{}:{}".format(mwe_id, mwe.cls) \
-                        if index_in_mwe == 0 else str(mwe_id)
-                mwecodes.append(m)
-        return wordID2mwecodes
+    def calc_mweannots(self, mwes):
+        for mwe in mwes:
+            words = mwe.select(folia.Word)
+            indexes = [int(w.id.rsplit(".",1)[-1]) - 1 for w in words]
+            yield MWEAnnot(indexes, mwe.cls)
 
 
 
 class AbstractFileIterator:
     def __init__(self, file_path):
         self.file_path = file_path
-        self.curr_sent = None
         self.nth_sent = 0
         self.lineno = 0
+        self._new_sent()
+
+    def _new_sent(self):
+        self.curr_sent = None
+        self.id2mwe_categ = {}
+        self.id2mwe_indexes = collections.defaultdict(list)
+
+    def finish_sentence(self):
+        r"""Return finished `self.curr_sent`."""
+        s = self.curr_sent
+        s.mweannots = [MWEAnnot(tuple(self.id2mwe_indexes[id]),
+            self.id2mwe_categ[id]) for id in sorted(self.id2mwe_indexes)]
+        self._new_sent()
+        return s
 
     def err(self, msg):
         err_badline(self.file_path, self.lineno, msg)
@@ -402,40 +441,73 @@ class AbstractFileIterator:
             self.nth_sent += 1
             self.curr_sent = Sentence(self.file_path, self.nth_sent, self.lineno)
         data = [(d if d != EMPTY else None) for d in line.split("\t")]
-        token = self.calc_token(data)  # `calc_token` defined in subclass
+        token, mwecodes = self.get_token_and_mwecodes(data)  # method defined in subclass
+
+        for mwecode in mwecodes:
+            index_and_categ = mwecode.split(":")
+            self.id2mwe_indexes[index_and_categ[0]].append(len(self.curr_sent.tokens))
+            if len(index_and_categ) == 2:
+                self.id2mwe_categ[index_and_categ[0]] = index_and_categ[1]
         self.curr_sent.tokens.append(token)
 
     def __iter__(self):
         with open(self.file_path, 'r') as f:
+            yield from self.iter_header(f)
             for self.lineno, line in enumerate(f, 1):
                 line = line.strip("\n")
                 if line.startswith("#"):
                     yield self.make_comment(line)
                 elif not line.strip():
-                    yield self.curr_sent
-                    self.curr_sent = None
+                    yield self.finish_sentence()
                 else:
                     self.append_token(line)
+            yield from self.iter_footer(f)
 
-            if self.curr_sent and self.curr_sent.tokens:
-                self.err("Missing empty line at the end of the file")
+    def iter_header(self, f):
+        return []  # Nothing to yield on header
+
+    def iter_footer(self, f):
+        if self.curr_sent:
+            self.err("Missing empty line at the end of the file")
+        return []  # Nothing to yield on footer
 
 
 class ConllIterator(AbstractFileIterator):
-    def calc_token(self, data):
+    def get_token_and_mwecodes(self, data):
         if len(data) != 10:
             self.err("Line has {} columns, not 10".format(len(data)))
         rank, surface, lemma, upos = data[:4]
-        return Token(rank, surface, False, [], lemma, upos)
+        return Token(rank, surface, False, lemma, upos), []
 
 
 class ParsemeTSVIterator(AbstractFileIterator):
-    def calc_token(self, data):
+    def get_token_and_mwecodes(self, data):
         if len(data) != 4:
             self.err("Line has {} columns, not 4".format(len(data)))
         rank, surface, nsp, mwe_codes = data
         m = mwe_codes.split(";") if mwe_codes else []
-        return Token(rank, surface, (nsp == "nsp"), tuple(m), None, None)
+        return Token(rank, surface, (nsp == "nsp"), None, None), m
+
+
+class ParsemePlatinumIterator(AbstractFileIterator):
+    def get_token_and_mwecodes(self, data):
+        if len(data) < 6:
+            self.err("Line has {} columns, not 6+".format(len(data)))
+        rank, surface = data[0], data[1]
+        nsp = (data[2] == 'nsp')
+        # Ignore MTW in data[3]
+        mwe_codes = ["{}:{}".format(data[i], data[i+1]) if data[i+1] else data[i]
+                for i in range(4, len(data)-1, 2) if data[i] not in EMPTY]
+        # Ignore free comments in data[-1], present if len(data)%2==1
+        return Token(rank, surface, nsp, None, None), mwe_codes
+
+    def iter_header(self, f):
+        next(f); next(f)  # skip the 2-line header
+        return super().iter_header(f)
+
+    def iter_footer(self, f):
+        if self.curr_sent:
+            yield self.finish_sentence()
 
 
 
