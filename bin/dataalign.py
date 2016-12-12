@@ -291,7 +291,8 @@ class TokenAligner:
         main_surf = [t.surface for t in main_sentence.tokens]
         conllu_surf = [t.surface for t in conllu_sentence.tokens]
         sm = difflib.SequenceMatcher(None, main_surf, conllu_surf)
-        self.matches = sm.get_matching_blocks()
+        self.matches_end = sm.get_matching_blocks()
+        self.matches_beg = [(0, 0, 0)] + self.matches_end
 
 
     def __iter__(self):
@@ -299,19 +300,23 @@ class TokenAligner:
         # Main: [ok ok ok ok ok...ok ok ok] gap_main [ok ok ok ok...
         #       ^position=main1                      ^position=main2
         #       ^-------------size1-------^
-        for (main1,conll1,size1), (main2,conll2,_) in zip(self.matches, self.matches[1:]):
+        for (main1,conll1,size1), (main2,conll2,_) in zip(self.matches_beg, self.matches_end):
             yield ("EQUAL", list(self._merge(conll1, conll1+size1, main1, main1+size1)))
             gap_main = (main2 - (main1+size1))
             gap_conll = (conll2 - (conll1+size1))
             range_gap_main = range(main1+size1, main2)
             range_gap_conll = range(conll1+size1, conll2)
 
+            if gap_main:
+                all_mwe_codes = set(mc for i in range_gap_main for mc in self.main_sentence.tokens[i].mwe_codes)
+                self.warn_gap_main(range_gap_main, range_gap_conll, all_mwe_codes)
+                if gap_conll:
+                    self.conllu_sentence.tokens[range_gap_conll.start] = \
+                            self.conllu_sentence.tokens[range_gap_conll.start]._replace(mwe_codes=all_mwe_codes)
+
             if gap_conll:
                 # Probably a range, or a sub-word inside a range
                 yield ("CONLL:EXTRA", [self.conllu_sentence.tokens[i] for i in range_gap_conll])
-
-            if gap_main:
-                self.warn_gap_main(range_gap_main, range_gap_conll)
 
     def _merge(self, c_beg, c_end, m_beg, m_end):
         for c, m in zip(range(c_beg, c_end), range(m_beg, m_end)):
@@ -321,7 +326,7 @@ class TokenAligner:
                     mwe_codes=m_tok.mwe_codes)
 
 
-    def warn_gap_main(self, main_range, conllu_range):
+    def warn_gap_main(self, main_range, conllu_range, all_mwe_codes):
         r"""Warn when there are unmapped characters in main file."""
         lineno_str = " (line {})".format(self.main_sentence.lineno) \
                 if self.main_sentence.lineno else ""
@@ -334,9 +339,10 @@ class TokenAligner:
         main_toks = [self.main_sentence.tokens[i].surface for i in main_range]
         #conllu_toks = [self.conllu_sentence.tokens[i].surface for i in conllu_range]
 
-        print("{}{}: WARNING: Ignoring extra tokens in sentence #{}: {!r}"
+        mwe_codes_info = " (MWECodes={})".format(all_mwe_codes) if all_mwe_codes else ""
+        print("{}{}: WARNING: Ignoring extra tokens in sentence #{}: {!r}{}"
                 .format(self.main_sentence.file_path, lineno_str,
-                self.main_sentence.nth_sent, main_toks), file=sys.stderr)
+                self.main_sentence.nth_sent, main_toks, mwe_codes_info), file=sys.stderr)
 
 
 ############################################################
