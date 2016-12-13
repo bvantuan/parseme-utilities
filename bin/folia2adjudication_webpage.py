@@ -286,15 +286,16 @@ p { margin-bottom: 5px; }  /* used inside mwe-occur-comment */
       This is a graphical interface with all the annotated VMWEs and their contexts. For example:
       <ol>
       <li>Click on a VMWE to expand its box (or <a href="javascript:toggleExpandAll();">expand all</a>) and see all the sentences where it was annotated.</li>
-      <li>Click on the <span class="example-glyphbox"><span style="margin-left:2px; margin-right:2px;" class="glyphicon glyphicon-edit"></span></span> icon close to one of these sentences.</li>
+      <li>Mouse over a tag (to the left of a sentence), to see where this sentence comes from.</li>
+      <li>Click on the <span class="example-glyphbox"><span style="margin-left:2px; margin-right:2px;" class="glyphicon glyphicon-edit"></span></span> icon to the right of a sentence.</li>
       <li>Mark this VMWE occurrence for re-annotation (e.g. by clicking on "Annotate as LVC").</li>
       <ul>
           <li>You can also mark something for non-annotation or as a "special case".</li>
-          <li>In the future, notes that are not "special case" may be automatically re-annotated.</li>
       </ul>
       <li>Generate a list of VMWEs marked for re-annotation by clicking on "Generate JSON" on the right.</li>
       <ul>
           <li>The VMWEs are stored <strong>locally</strong> on your browser (not on a server). To avoid problems, generate the JSON file often.</li>
+          <li>In the future, this JSON file may be used to re-annotate your files automatically.</li>
       </ul>
       </ol>
   </div>
@@ -438,9 +439,11 @@ $(".mwe-canonic").click(function() {
 function toggleExpandAll() {
     if (window.allExpanded) {
         $(".mwe-occurs").hide();
+        $(".mwe-label-header").show();
         window.allExpanded = false;
     } else {
         $(".mwe-occurs").show();
+        $(".mwe-label-header").hide();
         window.allExpanded = true;
     }
 }
