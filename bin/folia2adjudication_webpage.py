@@ -87,10 +87,12 @@ class Main:
         print('  <a class="mwe-canonic" data-toggle="tooltip" title="{title}">{canonic}</a>'.format(
                 canonic=ESC(" ".join(canonic)), title=tooltip))
 
-        # Print label; e.g. [ID (5)]
+        # Print labels; e.g. [ID (5) LVC(3)]
         counter = collections.Counter(o.category for o in occurs)
-        print('  ' + ' '.join('<span> </span><span class="label mwe-label mwe-label-{0}">{0} ({1})</span>' \
+        print('<span class="mwe-label-header">')
+        print('  ' + ' '.join('<span class="label mwe-label mwe-label-{0}">{0} ({1})</span>' \
                 .format(ESC(mwe), n) for (mwe, n) in counter.most_common()))
+        print('</span>')
 
         # Print examples
         print('  <div class="mwe-occurs">')
@@ -113,7 +115,7 @@ class Main:
         # Yield a label; e.g. [LVC]  -- the label contains a tooltip
         file_info = 'Annotated in file &quot;{}&quot;, sentence #{}, by &quot;{}&quot; on {}'.format(
                 ESC(occur.sentence.file_path), ESC(str(occur.sentence.nth_sent)),
-                ESC(occur.annotator or "<unknown>"), ESC(str(occur.datetime)))
+                ESC(occur.annotator or "<unknown>"), ESC(str(occur.datetime or "<unknown-date>")))
         confidence_info = '' if occur.confidence is None else ' {}%'.format(int(occur.confidence*100))
         yield '<span class="label mwe-label mwe-label-{0}" data-toggle="tooltip" title="{1}">{0}{2}</span><span> </span>' \
                 .format(ESC(occur.category), file_info, confidence_info)
@@ -391,6 +393,8 @@ function noteCustom() {
     var reply = prompt("Describe the special case below", "???");
     if (reply != null) {
         addNote(null, {type: "SPECIAL-CASE", text: reply});
+    } else {
+        killDropdown();
     }
 }
 function addNote(glyphboxOrNull, annotEntry) {
@@ -428,6 +432,7 @@ $(".mwe-glyphbox").click(function(e) {
 
 $(".mwe-canonic").click(function() {
     $(this).siblings(".mwe-occurs").toggle();
+    $(this).siblings(".mwe-label-header").toggle();
 });
 
 function toggleExpandAll() {
