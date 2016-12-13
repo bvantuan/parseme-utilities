@@ -47,11 +47,19 @@ class Comment(collections.namedtuple('Comment', 'file_path lineno text')):
     r"""Represents a comment in the CoNLL-U file."""
 
 
-class MWEAnnot(collections.namedtuple('MWEAnnot', 'indexes category')):
+class MWEAnnot(collections.namedtuple('MWEAnnot', 'ranks category')):
     r"""Represents an MWE annotation.
-    @type indexes: tuple[int]
+    @type ranks: tuple[str]
     @type category: str
     """
+    def indexes(self, rank2index):
+        r"""Return all indexes of this MWEAnnot inside a `rank2index` dict.
+        Missing entries are SILENTLY IGNORED (useful for AlignedIterator).
+
+        @type rank2index: dict[str, int]
+        @rtype: tuple[int]
+        """
+        return tuple(rank2index[r] for r in self.ranks if (r in rank2index))
 
 
 class Token(collections.namedtuple('Token', 'rank surface nsp lemma univ_pos')):
@@ -78,8 +86,13 @@ class Sentence:
         self.mweannots = []  # list[MWEAnnot]
         self.mwe_id2folia = {}  # extra info per MWE from FoLiA file
 
+    def rank2index(self):
+        r"""Return a dictionary mapping string ranks to indexes."""
+        return {t.rank: index for (index, t) in enumerate(self.tokens)}
+
     def mwe_occurs(self, lang):
         r"""Yield MWEOccur instances for all MWEs in self."""
+        rank2index = self.rank2index()
         for mwe_id, mweannot in enumerate(self.mweannots, 1):
             annotator, confidence, datetime, comments = None, None, None, []
             if mwe_id in self.mwe_id2folia:
@@ -87,30 +100,46 @@ class Sentence:
                 annotator, confidence, datetime = F.annotator, F.confidence, F.datetime
                 comments = [c.value for c in F.select(folia.Comment)]
 
-            yield MWEOccur(lang, self, mweannot.indexes, mweannot.category,
+            indexes = mweannot.indexes(rank2index)
+            assert indexes, (mweannot, rank2index)
+            yield MWEOccur(lang, self, indexes, mweannot.category,
                     comments, annotator, confidence, datetime)
 
     def tokens_and_mwecodes(self):
         r"""Yield pairs (token, mwecode)."""
+        rank2index = self.rank2index()
         tokenindex2mweindex = collections.defaultdict(list)
         for mweindex, mweannot in enumerate(self.mweannots):
-            for index in mweannot.indexes:
+            for index in mweannot.indexes(rank2index):
                 tokenindex2mweindex[index].append(mweindex)
 
         for i, token in enumerate(self.tokens):
             mwe_is = tokenindex2mweindex[i]
-            yield token, [self._mwecode(i, mwe_i) for mwe_i in mwe_is]
+            yield token, [self._mwecode(token, mwe_i) for mwe_i in mwe_is]
 
-    def _mwecode(self, token_i, mwe_i):
+    def _mwecode(self, token, mwe_i):
         r"""Return a string with mweid:category (or just mweid in some cases)."""
         mweannot = self.mweannots[mwe_i]
-        if mweannot.category and mweannot.indexes[0] == token_i:
+        if mweannot.category and mweannot.ranks[0] == token.rank:
             return "{}:{}".format(mwe_i+1, mweannot.category)
         return str(mwe_i+1)
 
     def remove_non_vmwes(self):
         r"""Change the mwe_codes in `self.tokens` so as to remove all NonVMWE tags."""
         self.mweannots = [m for m in self.mweannots if m.category != "NonVMWE"]
+
+
+    def re_tokenize(self, new_tokens, indexmap):
+        r"""Replace `self.tokens` with given tokens and fix `self.mweannot` based on `indexmap`"""
+        rank2index = self.rank2index()
+        self.tokens = [t._replace(nsp=t.nsp or self.tokens[i].nsp) for (i, t) in enumerate(new_tokens)]
+        self.mweannots = [self._remap(m, rank2index, indexmap) for m in self.mweannots]
+
+    def _remap(self, mweannot, rank2index, indexmap):
+        r"""Remap `mweannot` using new `self.tokens`."""
+        new_indexes = [i_new for i_old in mweannot.indexes(rank2index)
+                for i_new in indexmap[i_old]]  # Python's syntax for a flatmap...
+        return MWEAnnot(tuple(self.tokens[i].rank for i in new_indexes), mweannot.category)
 
 
 
@@ -284,12 +313,16 @@ class AlignedIterator:
                 break
             main_s = self.main.popleft()
             conllu_s = self.conllu.popleft()
-            main_s.tokens = list(self.merge_sentences(main_s, conllu_s))
+            tok_aligner = TokenAligner(main_s, conllu_s)
+            indexmap = tok_aligner.index_mapping(main_s, conllu_s)
+            main_s.re_tokenize(conllu_s.tokens, indexmap)
             yield main_s
 
 
     def merge_sentences(self, main_sentence, conllu_sentence):
-        for (info, tokens) in TokenAligner(main_sentence, conllu_sentence):
+        r"""Return a dict {main_i -> list[conllu_i]}"""
+        tok_aligner = TokenAligner(main_sentence, conllu_sentence)
+        for (info, tokens) in tok_aligner:
             if info in ["EQUAL", "CONLL:EXTRA"]:
                 yield from tokens
 
@@ -326,26 +359,45 @@ class TokenAligner:
         self.matches_beg = [(0, 0, 0)] + self.matches_end
 
 
-    def __iter__(self):
-        r"""Yield pairs (str, list[Token])."""
+    def index_mapping(self, main_sentence, conllu_sentence):
+        r"""Return a dict {i_main -> list[i_conllu]}"""
+        indexmap = collections.defaultdict(list)
+        for info, range_main, range_conllu in self._triples():
+            if info == "EQUAL":
+                for iM, iC in zip(range_main, range_conllu):
+                    indexmap[iM].append(iC)
+            else:
+                for iM in range_main:
+                    indexmap[iM].extend(range_conllu)
+                self.warn_mismatch(range_main, range_conllu)
+        return indexmap
+
+
+    def _triples(self):
+        r"""Yield tuples (str, range_main, range_conll)."""
         # Main: [ok ok ok ok ok...ok ok ok] gap_main [ok ok ok ok...
         #       ^position=main1                      ^position=main2
         #       ^-------------size1-------^
         for (main1,conll1,size1), (main2,conll2,_) in zip(self.matches_beg, self.matches_end):
-            yield ("EQUAL", self.conllu_sentence.tokens[conll1:conll1+size1])
-            gap_main = (main2 - (main1+size1))
-            gap_conll = (conll2 - (conll1+size1))
-            range_gap_main = range(main1+size1, main2)
-            range_gap_conll = range(conll1+size1, conll2)
+            yield ("EQUAL", range(main1, main1+size1), range(conll1, conll1+size1))
+            yield ("MISMATCH", range(main1+size1, main2), range(conll1+size1, conll2))
 
-            if gap_main:
-                affected_mweids = [i+1 for (i, m) in enumerate(self.main_sentence.mweannots) \
-                        if any((gapword_index in m.indexes) for gapword_index in range_gap_main)]
-                self.warn_gap_main(range_gap_main, range_gap_conll, affected_mweids)
 
-            if gap_conll:
-                # Probably a range, or a sub-word inside a range
-                yield ("CONLL:EXTRA", [self.conllu_sentence.tokens[i] for i in range_gap_conll])
+
+    def warn_mismatch(self, range_gap_main, range_gap_conllu):
+        r"""Warn users when the two ranges do not match (one or both ranges may be empty)."""
+        if range_gap_main:
+            affected_mweids = [mwe_i+1 for (mwe_i, m) in enumerate(self.main_sentence.mweannots) \
+                    if any((self.tokens[token_i].rank in m.ranks) for token_i in range_gap_main)]
+            self.warn_gap_main(range_gap_main, range_gap_conllu, affected_mweids)
+
+        if range_gap_conllu:
+            # Probably a range, or a sub-word inside a range
+            if self.debug:
+                print("{}:{}: DEBUG: Adding tokens from CoNLL: {!r} with rank {!r}".format(
+                        conllu_sentence.file_path, conllu_sentence.lineno,
+                        [t.surface for t in tokens], [t.rank for t in tokens]),
+                        file=sys.stderr)
 
 
     def warn_gap_main(self, main_range, conllu_range, all_mwe_codes):
@@ -394,8 +446,8 @@ class FoliaIterator:
     def calc_mweannots(self, mwes):
         for mwe in mwes:
             words = mwe.select(folia.Word)
-            indexes = [int(w.id.rsplit(".",1)[-1]) - 1 for w in words]
-            yield MWEAnnot(indexes, mwe.cls)
+            ranks = [w.id.rsplit(".",1)[-1] for w in words]
+            yield MWEAnnot(ranks, mwe.cls)
 
 
 
@@ -409,13 +461,13 @@ class AbstractFileIterator:
     def _new_sent(self):
         self.curr_sent = None
         self.id2mwe_categ = {}
-        self.id2mwe_indexes = collections.defaultdict(list)
+        self.id2mwe_ranks = collections.defaultdict(list)
 
     def finish_sentence(self):
         r"""Return finished `self.curr_sent`."""
         s = self.curr_sent
-        s.mweannots = [MWEAnnot(tuple(self.id2mwe_indexes[id]),
-            self.id2mwe_categ[id]) for id in sorted(self.id2mwe_indexes)]
+        s.mweannots = [MWEAnnot(tuple(self.id2mwe_ranks[id]),
+            self.id2mwe_categ[id]) for id in sorted(self.id2mwe_ranks)]
         self._new_sent()
         return s
 
@@ -436,7 +488,7 @@ class AbstractFileIterator:
 
         for mwecode in mwecodes:
             index_and_categ = mwecode.split(":")
-            self.id2mwe_indexes[index_and_categ[0]].append(len(self.curr_sent.tokens))
+            self.id2mwe_ranks[index_and_categ[0]].append(token.rank)
             if len(index_and_categ) == 2:
                 self.id2mwe_categ[index_and_categ[0]] = index_and_categ[1]
         self.curr_sent.tokens.append(token)
