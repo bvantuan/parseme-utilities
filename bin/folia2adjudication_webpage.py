@@ -333,7 +333,7 @@ HTML_FOOTER = """
       <li role="presentation"><a role="menuitem" tabindex="-1" href="javascript:noteQ('OTH')">Annotate as OTH</a></li>
       <li role="presentation"><a role="menuitem" tabindex="-1" href="javascript:noteQ('VPC')">Annotate as VPC</a></li>
       <li role="presentation" class="divider"></li>
-      <li role="presentation"><a role="menuitem" tabindex="-1" href="javascript:noteQ('NonVMWE')">Do not annotate</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="javascript:noteQ('NonVMWE')">Mark as Non-VMWE</a></li>
       <li role="presentation"><a role="menuitem" tabindex="-1" href="javascript:noteCustom()">Mark as special case</a></li>
     </ul>
   </span>
