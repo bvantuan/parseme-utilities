@@ -344,8 +344,10 @@ HTML_FOOTER = """
 window.parsemeData = {};
 window.havePendingParsemeNotes = false;
 
+
 window.onload = function() {
     window.addEventListener("beforeunload", function (e) {
+        try { saveStateInLocalStorage(); } catch(e) { }
         if (!window.havePendingParsemeNotes) {
             return undefined;
         } else {
@@ -438,14 +440,16 @@ $(".mwe-canonic").click(function() {
 });
 
 function toggleExpandAll() {
+    window.allExpanded = !window.allExpanded;
+    honorExpansionVariable();
+}
+function honorExpansionVariable() {
     if (window.allExpanded) {
-        $(".mwe-occurs").hide();
-        $(".mwe-label-header").show();
-        window.allExpanded = false;
-    } else {
         $(".mwe-occurs").show();
         $(".mwe-label-header").hide();
-        window.allExpanded = true;
+    } else {
+        $(".mwe-occurs").hide();
+        $(".mwe-label-header").show();
     }
 }
 
@@ -496,6 +500,25 @@ updateCounter();
 
 
 $('[data-toggle="tooltip"]').tooltip();
+
+
+/********** Handle localStorage **************/
+function saveStateInLocalStorage() {
+    window.localStorage.allExpanded = window.allExpanded;
+}
+
+function loadStateFromLocalStorage() {
+    try {
+        allExpanded = window.localStorage.allExpanded;
+    } catch(e) {
+        return;  // we can't really load it
+    }
+    window.allExpanded = (allExpanded == "true");
+    honorExpansionVariable();
+}
+loadStateFromLocalStorage();
+
+
 </script>
 </body>
 </html>
