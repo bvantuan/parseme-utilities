@@ -249,26 +249,35 @@ class MWETokens:
 
 ############################################################
 
+# Leave the preferable PATH_FMT in PATH_FMTS[-1]
+PATH_FMTS = ["{d}/{b}.conllu", "{d}/conllu/{b}.conllu"]
+
+
 def calculate_conllu_paths(file_paths, warn=True):
     r"""Return CoNLL-U paths, or None on failure to find some of them."""
     ret = []
     for file_path in file_paths:
-        if file_path.endswith(".folia.xml"):
-            base = file_path.rsplit(".", 2)[0]
-        elif any(file_path.endswith(x) for x in [".tsv", ".parsemetsv", ".xml"]):
-            base = file_path.rsplit(".", 1)[0]
+        dirname, basename = os.path.split(file_path)
+
+        if basename.endswith(".folia.xml"):
+            basename = basename.rsplit(".", 2)[0]
+        elif any(basename.endswith(x) for x in [".tsv", ".parsemetsv", ".xml"]):
+            basename = basename.rsplit(".", 1)[0]
         else:
             exit("ERROR: unknown file extension for `{}`".format(file_path))
 
-        ret_path = base + ".conllu"
-        if os.path.exists(ret_path):
-            print("INFO: Using CoNNL-U file `{}`".format(ret_path), file=sys.stderr)
-            ret.append(ret_path)
+        for path_fmt in ["{d}/{b}.conllu", "{d}/conllu/{b}.conllu"]:
+            ret_path = path_fmt.format(d=dirname, b=basename)
+            if os.path.exists(ret_path):
+                print("INFO: Using CoNNL-U file `{}`".format(ret_path), file=sys.stderr)
+                ret.append(ret_path)
+                break
 
-        elif warn:
-            print("WARNING: CoNLL-U file `{}` not found".format(ret_path), file=sys.stderr)
-            print("WARNING: not using any CoNLL-U file", file=sys.stderr)
-            return None
+        else:
+            if warn:
+                print("WARNING: CoNLL-U file `{}` not found".format(ret_path), file=sys.stderr)
+                print("WARNING: not using any CoNLL-U file", file=sys.stderr)
+                return None
     return ret
 
 
