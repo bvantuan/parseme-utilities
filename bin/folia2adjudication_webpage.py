@@ -30,7 +30,7 @@ class Main:
 
     def run(self):
         conllu_path = self.args.conllu or dataalign.calculate_conllu_paths(self.args.input)
-        for elem in dataalign.iter_aligned_files(self.args.input, conllu_path, debug=True):
+        for elem in dataalign.iter_aligned_files(self.args.input, conllu_path, keep_nvmwes=True, debug=True):
             if isinstance(elem, dataalign.Sentence):
                 for mwe_occur in elem.mwe_occurs(self.args.lang):
                     canonic = tuple(mwe_occur.reordered.mwe_canonical_form)
@@ -402,8 +402,10 @@ function noteCustom() {
     }
 }
 function addNote(glyphboxOrNull, annotEntry) {
-    var glyphtext = annotEntryToGlyphtext(annotEntry);
     var gbox = glyphboxOrNull || $("#glyphbox-with-dropdown");
+    annotEntry.source_mwe = gbox.siblings(".mwe-occur-sentence")
+            .find(".mwe-elem").map(function() { return $(this).text(); }).get();
+    var glyphtext = annotEntryToGlyphtext(annotEntry);
     window.havePendingParsemeNotes = true;
     var mweoccur_id = "MODIF:" + gbox.siblings(".mwe-occur-id").text();
     window.parsemeData[mweoccur_id] = annotEntry;
