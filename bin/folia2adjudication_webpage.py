@@ -64,11 +64,12 @@ class Main:
             for canonic in verbinfo.verbbased_canonics:
                 self.print_html_mwe_entry(canonic, verb, None, canonic2occurs[canonic])
 
-            print(' <div class="noun-subblock">')
-            for canonic in verbinfo.nounbased_canonics:
-                i = vic.canonic2isubhead[canonic]
-                self.print_html_mwe_entry(canonic, verb, canonic[i], canonic2occurs[canonic])
-            print(' </div>') # noun-subblock
+            for noun, canonics in sorted(verbinfo.nounbased_canonics.items()):
+                print(' <div class="noun-subblock">')
+                for canonic in canonics:
+                    i = vic.canonic2isubhead[canonic]
+                    self.print_html_mwe_entry(canonic, verb, canonic[i], canonic2occurs[canonic])
+                print(' </div>') # noun-subblock
             print('</div>')  # verb-block
         print('</div>')  # mwe-list
 
@@ -156,11 +157,11 @@ class VerbInfoCalculator:
             most_common_verb = collections.Counter(all_heads).most_common(1)[0][0]
             canonics_a = list(sorted(c for c in canonics if most_common_verb in c))
             canonics_b = list(sorted(c for c in canonics if most_common_verb not in c))
-            self.verb2info[most_common_verb].nounbased_canonics.extend(canonics_a + canonics_b)
+            self.verb2info[most_common_verb.lower()].nounbased_canonics[noun.lower()].extend(canonics_a + canonics_b)
 
         # Update verb2info with verb-based canonics
         for canonic, i_head in self.canonic2ihead.items():
-            self.verb2info[canonic[i_head]].verbbased_canonics.append(canonic)
+            self.verb2info[canonic[i_head].lower()].verbbased_canonics.append(canonic)
         for verbinfo in self.verb2info.values():
             verbinfo.verbbased_canonics.sort()
 
@@ -192,8 +193,8 @@ class VerbInfoCalculator:
 
 class VerbInfo:
     def __init__(self):
-        self.nounbased_canonics = []
-        self.verbbased_canonics = []
+        self.nounbased_canonics = collections.defaultdict(list)  # noun -> list[canonic_form]
+        self.verbbased_canonics = []  # list[canonic_form]
 
 
 
@@ -210,8 +211,8 @@ HTML_HEADER_1and2 = """\
 a:hover { cursor:pointer; }
 
 .mwe-list { }
-.verb-block { }
-.noun-subblock { }
+.verb-block { margin-bottom: -1px; }  /* fix tiny Bootstrap weirdness */
+.noun-subblock { margin-bottom: -1px; }  /* fix tiny Bootstrap weirdness */
 .mwe-entry { }
 .mwe-canonic { }
 .mwe-occurs { display: none; margin-left: 10px; margin-top: 2px; margin-bottom: 10px; }
