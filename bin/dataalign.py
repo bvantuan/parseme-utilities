@@ -132,7 +132,8 @@ class Sentence:
     def re_tokenize(self, new_tokens, indexmap):
         r"""Replace `self.tokens` with given tokens and fix `self.mweannot` based on `indexmap`"""
         rank2index = self.rank2index()
-        self.tokens = [t._replace(nsp=t.nsp or self.tokens[i].nsp) for (i, t) in enumerate(new_tokens)]
+        self_nsps = set(i for (i, t) in enumerate(self.tokens) if t.nsp)
+        self.tokens = [t._replace(nsp=t.nsp or (i in self_nsps)) for (i, t) in enumerate(new_tokens)]
         self.mweannots = [self._remap(m, rank2index, indexmap) for m in self.mweannots]
 
     def _remap(self, mweannot, rank2index, indexmap):
@@ -322,7 +323,7 @@ class AlignedIterator:
                 break
             main_s = self.main.popleft()
             conllu_s = self.conllu.popleft()
-            tok_aligner = TokenAligner(main_s, conllu_s)
+            tok_aligner = TokenAligner(main_s, conllu_s, debug=self.debug)
             indexmap = tok_aligner.index_mapping(main_s, conllu_s)
             main_s.re_tokenize(conllu_s.tokens, indexmap)
             yield main_s
@@ -357,9 +358,10 @@ class AlignedIterator:
 
 
 class TokenAligner:
-    def __init__(self, main_sentence, conllu_sentence):
+    def __init__(self, main_sentence, conllu_sentence, debug=False):
         self.main_sentence = main_sentence
         self.conllu_sentence = conllu_sentence
+        self.debug = debug
         import difflib
         main_surf = [t.surface for t in main_sentence.tokens]
         conllu_surf = [t.surface for t in conllu_sentence.tokens]
@@ -397,14 +399,15 @@ class TokenAligner:
         r"""Warn users when the two ranges do not match (one or both ranges may be empty)."""
         if range_gap_main:
             affected_mweids = [mwe_i+1 for (mwe_i, m) in enumerate(self.main_sentence.mweannots) \
-                    if any((self.tokens[token_i].rank in m.ranks) for token_i in range_gap_main)]
+                    if any((self.main_sentence.tokens[token_i].rank in m.ranks) for token_i in range_gap_main)]
             self.warn_gap_main(range_gap_main, range_gap_conllu, affected_mweids)
 
         if range_gap_conllu:
             # Probably a range, or a sub-word inside a range
             if self.debug:
+                tokens = [self.conllu_sentence.tokens[i] for i in range_gap_conllu]
                 print("{}:{}: DEBUG: Adding tokens from CoNLL: {!r} with rank {!r}".format(
-                        conllu_sentence.file_path, conllu_sentence.lineno,
+                        self.conllu_sentence.file_path, self.conllu_sentence.lineno,
                         [t.surface for t in tokens], [t.rank for t in tokens]),
                         file=sys.stderr)
 
@@ -423,9 +426,11 @@ class TokenAligner:
         #conllu_toks = [self.conllu_sentence.tokens[i].surface for i in conllu_range]
 
         mwe_codes_info = " (MWEs={})".format(";".join(all_mwe_codes)) if all_mwe_codes else ""
-        print("{}{}: WARNING: Ignoring extra tokens in sentence #{}: {!r}{}"
+        print("{}{}: WARNING: Ignoring extra tokens in sentence #{} ({}:{}): {!r}{}"
                 .format(self.main_sentence.file_path, lineno_str,
-                self.main_sentence.nth_sent, main_toks, mwe_codes_info), file=sys.stderr)
+                self.main_sentence.nth_sent,
+                self.conllu_sentence.file_path, self.conllu_sentence.lineno,
+                main_toks, mwe_codes_info), file=sys.stderr)
 
 
 ############################################################
