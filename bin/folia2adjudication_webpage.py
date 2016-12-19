@@ -229,6 +229,12 @@ p { margin-bottom: 5px; }  /* used inside mwe-occur-comment */
     font-weight: bold;
     max-width: 800px;
 }
+.tooltip-on-text {
+    color: #555;
+}
+.tooltip-on-text:hover {
+    color: black;
+}
 
 .mwe-label { cursor: default; }
 .mwe-label-LVC { background-color: #9AA6FF; }
@@ -296,6 +302,7 @@ p { margin-bottom: 5px; }  /* used inside mwe-occur-comment */
       <li>Generate a list of VMWEs marked for re-annotation by clicking on "Generate JSON" on the right.</li>
       <ul>
           <li>The VMWEs are stored <strong>locally</strong> on your browser (not on a server). To avoid problems, generate the JSON file often.</li>
+          <li>This JSON file can then be <a data-toggle="tooltip" class="tooltip-on-text" title="See the script bin/jsonNotes2humanNotes_webpage.py">converted to a webpage <span class="info-hint glyphicon glyphicon-info-sign"></span></a> that describes what needs to be annotated in each file.</li>
           <li>In the future, this JSON file may be used to re-annotate your files automatically.</li>
       </ul>
       </ol>
@@ -386,9 +393,7 @@ $(document).click(function() {
 
 
 function noteQ(categ) {
-    var g = $("#glyphbox-with-dropdown");
-    var prev_categ = g.siblings(".mwe-label").text();
-    addNote(null, {type: "RE-ANNOT", from: prev_categ, to: categ});
+    addNote(null, {type: "RE-ANNOT", to: categ});
 }
 function noteCustom() {
     // TODO: collect txt from user using a popover with an input field and
@@ -403,6 +408,7 @@ function noteCustom() {
 }
 function addNote(glyphboxOrNull, annotEntry) {
     var gbox = glyphboxOrNull || $("#glyphbox-with-dropdown");
+    annotEntry.source_categ = gbox.siblings(".mwe-label").text();
     annotEntry.source_mwe = gbox.siblings(".mwe-occur-sentence")
             .find(".mwe-elem").map(function() { return $(this).text(); }).get();
     var glyphtext = annotEntryToGlyphtext(annotEntry);
@@ -415,7 +421,7 @@ function addNote(glyphboxOrNull, annotEntry) {
 }
 function annotEntryToGlyphtext(annotEntry) {
     switch(annotEntry.type) {
-        case "RE-ANNOT": return annotEntry.to;
+        case "RE-ANNOT": return annotEntry.target_categ;
         case "SPECIAL-CASE": return "SPECIAL-CASE: " + annotEntry.text;
     }
 }
@@ -484,9 +490,22 @@ function uploadData(filePath) {
       $(".mwe-occur-id").each(function() {
           var mweoccur_id = "MODIF:" + $(this).text();
           if (data[mweoccur_id]) {
-              var annotData = data[mweoccur_id];
+              var annotEntry = data[mweoccur_id];
+              if (annotEntry.to) {
+                // 2016-12-19 hack to rename `to` => `target_categ`
+                // (this can be removed in the future)
+                annotEntry.target_categ = annotEntry.to;
+                delete annotEntry.to;
+                delete annotEntry.from;
+              }
+              if (annotEntry.text) {
+                // 2016-12-19 hack to rename `text` => `human_note`
+                // (this can be removed in the future)
+                annotEntry.human_note = annotEntry.text;
+                delete annotEntry.text;
+              }
               glyphbox = $(this).siblings(".mwe-glyphbox");
-              addNote(glyphbox, annotData);
+              addNote(glyphbox, annotEntry);
           }
       });
       window.havePendingParsemeNotes = havePending;
