@@ -13,7 +13,7 @@ parser = argparse.ArgumentParser(description="""
 parser.add_argument("--debug", action="store_true",
         help="""Print extra debug information in stderr""")
 parser.add_argument("--tgz", action="store_true",
-        help="""Generate a TGZ file with the PARSEME TSV and CoNLL-U data""")
+        help="""Generate a DATA.tgz file (to be sent to the SharedTask leaders)""")
 parser.add_argument("--lang", choices=sorted(dataalign.LANGS), metavar="LANG", required=True,
         help="""Name of the target language (e.g. EN, FR, PL, DE...)""")
 parser.add_argument("--keep-non-vmwes", action="store_true",
