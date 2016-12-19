@@ -8,7 +8,7 @@ import subprocess
 import dataalign
 
 parser = argparse.ArgumentParser(description="""
-        Split input files into {train,test}.{parsemetsv,conllu}.""")
+        Split input files into OUT/{train,test}.{parsemetsv,conllu}.""")
 parser.add_argument("--lang", choices=sorted(dataalign.LANGS), metavar="LANG", required=True,
         help="""Name of the target language (e.g. EN, FR, PL, DE...)""")
 parser.add_argument("--test-mwesize", type=int, default=500,
