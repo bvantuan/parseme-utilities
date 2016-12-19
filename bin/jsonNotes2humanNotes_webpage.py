@@ -88,14 +88,15 @@ HTML_HEADER = '''
 
 <div class="panel-heading">Overview</div>
 <div class="panel-body">
-  This webpage was built from a JSON file describing re-annotations.
+  This webpage was built from a JSON file describing re-annotations. In order to re-annotate a file:
   <ol>
-  <li>Look at one file that you want to re-annotate.</li>
-  <li>Search for each MWE in the order that they are displayed here.</li>
+  <li>Open the FLAT interface and start editing the XML file you want to re-annotate.</li>
+  <li>Look for the name of this XML file in the list of files below.</li>
+  <li>For each MWE, in the order that they are displayed here:</li>
   <ul>
-      <li>There is an indication of the <span class="label label-default sent-id">sentence number</span> for each MWE.</li>
+      <li>Re-annotate this <strong>MWE</strong> in FLAT according to the <span class="what-to-do">instructions</span>.</li>
+      <li>(Note: There is an indication of the <span class="label label-default sent-id">sentence number</span> for each MWE).</li>
   </ul>
-  <li>Follow the <span class="what-to-do">instructions</span> for this MWE.</li>
   </ol>
 </div>
 '''
