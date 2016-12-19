@@ -259,6 +259,7 @@ def calculate_conllu_paths(file_paths, warn=True):
     ret = []
     for file_path in file_paths:
         dirname, basename = os.path.split(file_path)
+        if not dirname: dirname = "."  # seriously, python...
 
         if basename.endswith(".folia.xml"):
             basename = basename.rsplit(".", 2)[0]
