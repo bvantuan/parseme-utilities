@@ -303,7 +303,7 @@ def iter_aligned_files(file_paths, conllu_paths=None, keep_nvmwes=False, debug=F
     Yield Sentence's & Comment's based on file_paths and conllu_paths.
     """
     for sentence in AlignedIterator.from_paths(file_paths, conllu_paths, debug):
-        if not keep_nvmwes:
+        if not keep_nvmwes and isinstance(sentence, Sentence):
             sentence.remove_non_vmwes()
         yield sentence
 
