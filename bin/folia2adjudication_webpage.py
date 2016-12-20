@@ -393,7 +393,7 @@ $(document).click(function() {
 
 
 function noteQ(categ) {
-    addNote(null, {type: "RE-ANNOT", to: categ});
+    addNote(null, {type: "RE-ANNOT", target_categ: categ});
 }
 function noteCustom() {
     // TODO: collect txt from user using a popover with an input field and
@@ -401,7 +401,7 @@ function noteCustom() {
     // with the content of the input field.
     var reply = prompt("Describe the special case below", "???");
     if (reply != null) {
-        addNote(null, {type: "SPECIAL-CASE", text: reply});
+        addNote(null, {type: "SPECIAL-CASE", human_note: reply});
     } else {
         killDropdown();
     }

@@ -16,6 +16,7 @@ This library requires PyNLPl to be installed.
 
 
 import collections
+import difflib
 import itertools
 import os
 import sys
@@ -141,6 +142,20 @@ class Sentence:
         new_indexes = [i_new for i_old in mweannot.indexes(rank2index)
                 for i_new in indexmap[i_old]]  # Python's syntax for a flatmap...
         return MWEAnnot(tuple(self.tokens[i].rank for i in new_indexes), mweannot.category)
+
+
+    def id(self):
+        r"""Return an ID, such as "foo.xml:13"."""
+        if self.lineno is not None:
+            return "{}:{}".format(self.file_path, self.lineno)
+        return self.file_path
+
+    def msg_stderr(self, msg, header=True, die=False):
+        r"""Print a warning message; e.g. "foo.xml:13: blablabla"."""
+        final_msg = "{}: {}".format(self.id(), msg)
+        if not header: final_msg = "\x1b[37m{}\x1b[m".format(final_msg)
+        print(final_msg, file=sys.stderr)
+        if die: exit(1)
 
 
 
@@ -287,13 +302,7 @@ def iter_aligned_files(file_paths, conllu_paths=None, keep_nvmwes=False, debug=F
     r"""iter_aligned_files(list[str], list[str]) -> Iterable[Either[Sentence,Comment]]
     Yield Sentence's & Comment's based on file_paths and conllu_paths.
     """
-    chain_iter = itertools.chain.from_iterable
-    main_iterator = chain_iter(_iter_parseme_file(p) for p in file_paths)
-    if conllu_paths:
-        conllu_iterator = chain_iter(ConllIterator(p) for p in conllu_paths)
-        main_iterator = AlignedIterator(main_iterator, conllu_iterator, debug)
-
-    for sentence in main_iterator:
+    for sentence in AlignedIterator.from_paths(file_paths, conllu_paths, debug):
         if not keep_nvmwes:
             sentence.remove_non_vmwes()
         yield sentence
@@ -319,7 +328,7 @@ class AlignedIterator:
 
     def __iter__(self):
         while True:
-            yield from self.align_sents()
+            yield from self._align_sents()
             if not self.main and not self.conllu:
                 break
             main_s = self.main.popleft()
@@ -338,23 +347,99 @@ class AlignedIterator:
                 yield from tokens
 
             if self.debug and info == "CONLL:EXTRA":
-                print("{}:{}: DEBUG: Adding tokens from CoNLL: {!r} with rank {!r}".format(
-                        conllu_sentence.file_path, conllu_sentence.lineno,
-                        [t.surface for t in tokens], [t.rank for t in tokens]),
-                        file=sys.stderr)
+                conllu_sentence.msg_stderr(
+                        "DEBUG: Adding tokens from CoNLL: {!r} with rank {!r}".format(
+                        [t.surface for t in tokens], [t.rank for t in tokens]))
 
 
-    def align_sents(self):
+    def _align_sents(self):
         while self.conllu and isinstance(self.conllu[0], Comment):
             yield self.conllu.popleft()
-        if self.conllu and not self.main:
-            err_badline(self.conllu[0].file_path, self.conllu[0].lineno,
-                    "CoNLL-U sentence #{} found, but there is no matching PARSEME input file"
-                    .format(self.conllu[0].nth_sent))
-        if self.main and not self.conllu:
-            err_badline(self.main[0].file_path, "??",
-                    "PARSEME sentence #{} found, but there is no matching CoNLL-U input file"
-                    .format(self.main[0].nth_sent))
+        if self.conllu or self.main:
+            _check_both_exist(self.main[0] if self.main else None,
+                    self.conllu[0] if self.conllu else None)
+
+    @staticmethod
+    def from_paths(main_paths, conllu_paths, debug=False):
+        r"""Return an AlignedIterator for the given paths.
+        (Special case: if conllu_paths is None, return a simpler kind of iterator)."""
+        chain_iter = itertools.chain.from_iterable
+        main_iterator = chain_iter(_iter_parseme_file(p) for p in main_paths)
+        if not conllu_paths:
+            return main_iterator
+        conllu_iterator = chain_iter(ConllIterator(p) for p in conllu_paths)
+        return AlignedIterator(main_iterator, conllu_iterator, debug)
+
+
+def _check_both_exist(main_sentence, conllu_sentence):
+    assert conllu_sentence or main_sentence
+
+    if not main_sentence:
+        conllu_sentence.msg_stderr("ERROR: CoNLL-U sentence #{} found, but there is " \
+                "no matching PARSEME-TSV input file".format(conllu_sentence.nth_sent), die=True)
+    if not conllu_sentence:
+        main_sentence.msg_stderr("ERROR: PARSEME-TSV sentence #{} found, but there is " \
+                "no matching CoNLL-U input file".format(main_sentence.nth_sent), die=True)
+
+
+class SentenceAligner:
+    def __init__(self, main_sentences, conllu_sentences, debug=False):
+        self.main_sentences = _filter_sentences(main_sentences)
+        self.conllu_sentences = _filter_sentences(conllu_sentences)
+        self.debug = debug
+        main_surfs = [tuple(t.surface for t in sent.tokens) for sent in main_sentences]
+        conllu_surfs = [tuple(t.surface for t in sent.tokens) for sent in conllu_sentences]
+        sm = difflib.SequenceMatcher(None, main_surfs, conllu_surfs)
+        self.matches_end = sm.get_matching_blocks()
+        self.matches_beg = [(0, 0, 0)] + self.matches_end
+
+    def print_mismatches(self):
+        for mismatch_main, mismatch_conllu in self.mismatches():
+            if mismatch_main or mismatch_conllu:
+                first_conllu_sent = self.conllu_sentences[mismatch_conllu.start] \
+                    if mismatch_conllu.start < len(self.conllu_sentences) else None
+                first_main_sent = self.main_sentences[mismatch_main.start] \
+                    if mismatch_main.start < len(self.main_sentences) else None
+                _check_both_exist(first_main_sent, first_conllu_sent)
+
+                m, c = mismatch_main.start-1, mismatch_conllu.start-1
+                for m, c in zip(mismatch_main, mismatch_conllu):
+                    tokalign = TokenAligner(self.main_sentences[m], self.conllu_sentences[c])
+                    if not tokalign.is_alignable():
+                        tokalign.msg_unalignable(die=False)
+                        self.print_context(m, c)
+                        break
+                else:
+                    # zipped ranges are OK, the error is in the end of one of the ranges
+                    end_mismatch_main = range(m+1, mismatch_main.stop)
+                    end_mismatch_conllu = range(c+1, mismatch_conllu.stop)
+                    assert not end_mismatch_main or not end_mismatch_conllu
+                    for m in end_mismatch_main:
+                        self.main_sentences[m].msg_stderr("ERROR: PARSEME sentence #{} does not match anything in CoNLL-U"
+                                .format(self.main_sentences[m].nth_sent, None))
+                        self.print_context(m, end_mismatch_conllu.start)
+                    for c in end_mismatch_conllu:
+                        self.conllu_sentences[c].msg_stderr("ERROR: CoNLL-U sentence #{} does not match anything in PARSEME"
+                                .format(self.conllu_sentences[c].nth_sent, None))
+                        self.print_context(end_mismatch_main.start, c)
+
+    def print_context(self, main_index, conllu_index):
+        self.print_context_sents("PARSEME", self.main_sentences[main_index-1:main_index+2])
+        self.print_context_sents("CoNLL-U", self.conllu_sentences[conllu_index-1:conllu_index+2])
+
+    def print_context_sents(self, info, sentences):
+        for sent in sentences:
+            sent.msg_stderr("{} sentence #{} = {} ...".format(info, sent.nth_sent,
+                    " ".join(t.surface for t in sent.tokens[:7])), header=False)
+
+    def mismatches(self):
+        r"""@rtype: Iterable[(mismatch_main_range, mismatch_conllu_range)]"""
+        for (main1,conll1,size1), (main2,conll2,_) in zip(self.matches_beg, self.matches_end):
+            yield range(main1+size1, main2), range(conll1+size1, conll2)
+
+
+def _filter_sentences(elements):
+    return [e for e in elements if isinstance(e, Sentence)]
 
 
 
@@ -363,7 +448,6 @@ class TokenAligner:
         self.main_sentence = main_sentence
         self.conllu_sentence = conllu_sentence
         self.debug = debug
-        import difflib
         main_surf = [t.surface for t in main_sentence.tokens]
         conllu_surf = [t.surface for t in conllu_sentence.tokens]
         sm = difflib.SequenceMatcher(None, main_surf, conllu_surf)
@@ -373,6 +457,8 @@ class TokenAligner:
 
     def index_mapping(self, main_sentence, conllu_sentence):
         r"""Return a dict {i_main -> list[i_conllu]}"""
+        if not self.is_alignable():
+            self.msg_unalignable(die=True)
         indexmap = collections.defaultdict(list)
         for info, range_main, range_conllu in self._triples():
             if info == "EQUAL":
@@ -395,6 +481,13 @@ class TokenAligner:
             yield ("MISMATCH", range(main1+size1, main2), range(conll1+size1, conll2))
 
 
+    def is_alignable(self):
+        r"""Return True iff the sentences are alignable."""
+        for info, main_range, conllu_range in self._triples():
+            if info == "MISMATCH" and len(main_range) > 10:
+                return False
+        return True
+
 
     def warn_mismatch(self, range_gap_main, range_gap_conllu):
         r"""Warn users when the two ranges do not match (one or both ranges may be empty)."""
@@ -407,31 +500,28 @@ class TokenAligner:
             # Probably a range, or a sub-word inside a range
             if self.debug:
                 tokens = [self.conllu_sentence.tokens[i] for i in range_gap_conllu]
-                print("{}:{}: DEBUG: Adding tokens from CoNLL: {!r} with rank {!r}".format(
-                        self.conllu_sentence.file_path, self.conllu_sentence.lineno,
-                        [t.surface for t in tokens], [t.rank for t in tokens]),
-                        file=sys.stderr)
+                self.conllu_sentence.msg_stderr(
+                        "DEBUG: Adding tokens from CoNLL: {!r} with rank {!r}".format(
+                        [t.surface for t in tokens], [t.rank for t in tokens]))
+
+
+    def msg_unalignable(self, die=False):
+        r"""Error issued if we cannot align tokens."""
+        self.conllu_sentence.msg_stderr("CoNLL-U sentence #{} does not match {} sentence #{}" \
+                .format(self.conllu_sentence.nth_sent, self.main_sentence.id(),
+                self.main_sentence.nth_sent), die=die)
 
 
     def warn_gap_main(self, main_range, conllu_range, all_mwe_codes):
         r"""Warn when there are unmapped characters in main file."""
-        lineno_str = " (line {})".format(self.main_sentence.lineno) \
-                if self.main_sentence.lineno else ""
-
-        if len(main_range) > 10:  # hard-coded magic to detect missing sentences
-            err_badline(self.conllu_sentence.file_path, self.conllu_sentence.lineno,
-                    "CoNLL-U sentence does not match sentence #{} in `{}`{}" \
-                    .format(self.main_sentence.nth_sent, self.main_sentence.file_path, lineno_str))
-
         main_toks = [self.main_sentence.tokens[i].surface for i in main_range]
         #conllu_toks = [self.conllu_sentence.tokens[i].surface for i in conllu_range]
 
         mwe_codes_info = " (MWEs={})".format(";".join(all_mwe_codes)) if all_mwe_codes else ""
-        print("{}{}: WARNING: Ignoring extra tokens in sentence #{} ({}:{}): {!r}{}"
-                .format(self.main_sentence.file_path, lineno_str,
-                self.main_sentence.nth_sent,
-                self.conllu_sentence.file_path, self.conllu_sentence.lineno,
-                main_toks, mwe_codes_info), file=sys.stderr)
+        self.main_sentence.msg_stderr(
+                "WARNING: Ignoring extra tokens in sentence #{} ({}): {!r}{}",
+                self.main_sentence.nth_sent, self.conllu_sentence.id(),
+                main_toks, mwe_codes_info)
 
 
 ############################################################
