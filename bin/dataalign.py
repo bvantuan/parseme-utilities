@@ -387,8 +387,8 @@ class SentenceAligner:
         self.main_sentences = _filter_sentences(main_sentences)
         self.conllu_sentences = _filter_sentences(conllu_sentences)
         self.debug = debug
-        main_surfs = [tuple(t.surface for t in sent.tokens) for sent in main_sentences]
-        conllu_surfs = [tuple(t.surface for t in sent.tokens) for sent in conllu_sentences]
+        main_surfs = [tuple(t.surface for t in sent.tokens) for sent in self.main_sentences]
+        conllu_surfs = [tuple(t.surface for t in sent.tokens) for sent in self.conllu_sentences]
         sm = difflib.SequenceMatcher(None, main_surfs, conllu_surfs)
         self.matches_end = sm.get_matching_blocks()
         self.matches_beg = [(0, 0, 0)] + self.matches_end
