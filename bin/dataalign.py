@@ -25,8 +25,7 @@ import sys
 try:
     from pynlpl.formats import folia
 except ImportError:
-    print("ERROR: PyNLPl not found, please install pynlpl (pip install pynlpl)", file=sys.stderr)
-    sys.exit(2)
+    exit("ERROR: PyNLPl not found, please run this code: pip3 install pynlpl")
 
 
 # The `empty` field in CoNLL-U and PARSEME-TSV
