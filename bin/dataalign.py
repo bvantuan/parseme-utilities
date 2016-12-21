@@ -506,7 +506,7 @@ class TokenAligner:
 
     def msg_unalignable(self, die=False):
         r"""Error issued if we cannot align tokens."""
-        self.conllu_sentence.msg_stderr("CoNLL-U sentence #{} does not match {} sentence #{}" \
+        self.conllu_sentence.msg_stderr("ERROR: CoNLL-U sentence #{} does not match {} sentence #{}" \
                 .format(self.conllu_sentence.nth_sent, self.main_sentence.id(),
                 self.main_sentence.nth_sent), die=die)
 
@@ -518,9 +518,9 @@ class TokenAligner:
 
         mwe_codes_info = " (MWEs={})".format(";".join(all_mwe_codes)) if all_mwe_codes else ""
         self.main_sentence.msg_stderr(
-                "WARNING: Ignoring extra tokens in sentence #{} ({}): {!r}{}",
-                self.main_sentence.nth_sent, self.conllu_sentence.id(),
-                main_toks, mwe_codes_info)
+                "WARNING: Ignoring extra tokens in sentence #{} ({}): {!r}{}"
+                .format(self.main_sentence.nth_sent, self.conllu_sentence.id(),
+                main_toks, mwe_codes_info))
 
 
 ############################################################
