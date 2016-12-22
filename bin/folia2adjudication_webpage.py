@@ -422,7 +422,7 @@ function addNote(glyphboxOrNull, annotEntry) {
 function annotEntryToGlyphtext(annotEntry) {
     switch(annotEntry.type) {
         case "RE-ANNOT": return annotEntry.target_categ;
-        case "SPECIAL-CASE": return "SPECIAL-CASE: " + annotEntry.text;
+        case "SPECIAL-CASE": return "SPECIAL-CASE: " + annotEntry.human_note;
     }
 }
 
