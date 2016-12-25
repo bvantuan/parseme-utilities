@@ -302,6 +302,7 @@ p { margin-bottom: 5px; }  /* used inside mwe-occur-comment */
       <li>Click on the <span class="example-glyphbox"><span style="margin-left:2px; margin-right:2px;" class="glyphicon glyphicon-edit"></span></span> icon to the right of a sentence.</li>
       <li>Mark this VMWE occurrence for re-annotation (e.g. by clicking on "Annotate as LVC").</li>
       <ul>
+          <li>If you want to add/remove tokens to the MWE, use "custom annotation".</li>
           <li>You can also mark something for non-annotation, or as a "special case".</li>
       </ul>
       <li>Generate a list of VMWEs marked for re-annotation by clicking on "Generate JSON" on the right.</li>
@@ -414,8 +415,8 @@ function escapeRegExp(str) {
 }
 /** Return whether the space-separated tokens in innerText appears inside fullText */
 function areTokensInside(fullText, innerText) {
-    var regex = escapeRegExp(innerText).replace(/ +/, ".*");
-    return new RegExp(regex).test(fullText);
+    var regex = escapeRegExp(innerText).replace(/ +/g, ".*");
+    return new RegExp(regex, "g").test(fullText);
 }
 
 
@@ -435,7 +436,7 @@ function noteCustom() {
             var source_categ_noPercent = g.siblings(".mwe-label").text().split(/ /)[0];
             var reply_categ = prompt("Indicate the VMWE label to use", source_categ_noPercent);
             if (reply_categ != null && reply_categ.trim() != "") {
-                addNote(null, {type: "RE-ANNOT", target_categ: reply_categ, target_mwe: reply_mwe});
+                addNote(null, {type: "RE-ANNOT", target_categ: reply_categ, target_mwe: reply_mwe.split(/ +/)});
             }
         } else {
             alert("ERROR: MWE sub-text " + JSON.stringify(reply_mwe) + " not found in sentence\\n(You can mark this as a \\"special case\\" if you want).");
@@ -458,6 +459,8 @@ function addNote(glyphboxOrNull, annotEntry) {
     annotEntry.source_categ = gbox.siblings(".mwe-label").text();
     annotEntry.source_mwe = gbox.siblings(".mwe-occur-sentence")
             .find(".mwe-elem").map(function() { return $(this).text(); }).get();
+    if (JSON.stringify(annotEntry.target_mwe) == JSON.stringify(annotEntry.source_mwe))
+        delete annotEntry.target_mwe;  // remove target_mwe if it's useless
     var glyphtext = annotEntryToGlyphtext(annotEntry);
     window.havePendingParsemeNotes = true;
     var mweoccur_id = "MODIF:" + gbox.siblings(".mwe-occur-id").text();
@@ -470,7 +473,7 @@ function addNote(glyphboxOrNull, annotEntry) {
 function annotEntryToGlyphtext(annotEntry) {
     switch(annotEntry.type) {
         case "RE-ANNOT":
-            var as_info = annotEntry.target_mwe ? JSON.stringify(annotEntry.target_mwe) + " as " : "";
+            var as_info = annotEntry.target_mwe ? JSON.stringify(annotEntry.target_mwe.join(" ")) + " as " : "";
             return as_info + annotEntry.target_categ;
         case "SPECIAL-CASE":
             return "SPECIAL-CASE: " + annotEntry.human_note;
