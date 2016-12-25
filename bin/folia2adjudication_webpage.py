@@ -210,6 +210,9 @@ HTML_HEADER_1and2 = """\
 <style>
 a:hover { cursor:pointer; }
 
+.panel-pre-load { }  /* display at the beginning */
+.panel-post-load { display: none; }
+
 .mwe-list { }
 .verb-block { margin-bottom: -1px; }  /* fix tiny Bootstrap weirdness */
 .noun-subblock { margin-bottom: -1px; }  /* fix tiny Bootstrap weirdness */
@@ -245,11 +248,13 @@ p { margin-bottom: 5px; }  /* used inside mwe-occur-comment */
 .mwe-label-NonVMWE { background-color: #DCC8C8; }
 .mwe-label-Skipped { background-color: #DDDDDD; }
 
-.mwe-glyphtext { margin-left: 3px; font-style: italic; }
+.show-only-if-deletable { display: none; }
+
 .mwe-glyphbox { margin-left: 5px; color: #AAA; cursor: pointer; }
 .mwe-glyphbox:hover { color: #88f; }
+.mwe-glyphbox-marked { color: #6BE24D; }
+.mwe-glyphtext { margin-left: 3px; font-style: italic; }
 .glyphicon { color: inherit; }
-.glyph-marked { color: #6BE24D; }
 .example-glyphbox { color: #AAA; }
 
 .global-box {
@@ -297,7 +302,7 @@ p { margin-bottom: 5px; }  /* used inside mwe-occur-comment */
       <li>Click on the <span class="example-glyphbox"><span style="margin-left:2px; margin-right:2px;" class="glyphicon glyphicon-edit"></span></span> icon to the right of a sentence.</li>
       <li>Mark this VMWE occurrence for re-annotation (e.g. by clicking on "Annotate as LVC").</li>
       <ul>
-          <li>You can also mark something for non-annotation or as a "special case".</li>
+          <li>You can also mark something for non-annotation, or as a "special case".</li>
       </ul>
       <li>Generate a list of VMWEs marked for re-annotation by clicking on "Generate JSON" on the right.</li>
       <ul>
@@ -309,8 +314,18 @@ p { margin-bottom: 5px; }  /* used inside mwe-occur-comment */
   </div>
 </div>
 
+<script>
+/* Enable tooltips in Overview (above) */
+$('[data-toggle="tooltip"]').tooltip();
+</script>
 
-<div class="panel panel-default">
+
+<div class="panel panel-warning panel-pre-load">
+  <div class="panel-heading"><strong>Loading VMWEs. Please wait.</strong></div>
+</div> <!-- div panel -->
+
+
+<div class="panel panel-default panel-post-load">
   <div class="panel-heading">2. VMWEs</div>
   <div class="panel-body">
 """
@@ -319,7 +334,7 @@ HTML_HEADER_3 = """
   </div> <!-- div panel-body -->
 </div> <!-- div panel -->
 
-<div class="panel panel-default">
+<div class="panel panel-default panel-post-load">
   <div class="panel-heading">3. NonVMWEs</div>
   <div class="panel-body">
 """
@@ -339,9 +354,12 @@ HTML_FOOTER = """
       <li role="presentation"><a role="menuitem" tabindex="-1" href="javascript:noteQ('LVC')">Annotate as LVC</a></li>
       <li role="presentation"><a role="menuitem" tabindex="-1" href="javascript:noteQ('OTH')">Annotate as OTH</a></li>
       <li role="presentation"><a role="menuitem" tabindex="-1" href="javascript:noteQ('VPC')">Annotate as VPC</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="javascript:noteCustom()">Custom annotation</a></li>
       <li role="presentation" class="divider"></li>
       <li role="presentation"><a role="menuitem" tabindex="-1" href="javascript:noteQ('NonVMWE')">Mark as Non-VMWE</a></li>
-      <li role="presentation"><a role="menuitem" tabindex="-1" href="javascript:noteCustom()">Mark as special case</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="javascript:noteSpecialCase()">Mark as special case</a></li>
+      <li role="presentation" class="divider show-only-if-deletable"></li>
+      <li role="presentation" class="show-only-if-deletable"><a style="color:#FB2222" role="menuitem" tabindex="-1" href="javascript:deleteNote()">Delete current note</a></li>
     </ul>
   </span>
 </div>
@@ -352,32 +370,34 @@ window.parsemeData = {};
 window.havePendingParsemeNotes = false;
 
 
-window.onload = function() {
-    window.addEventListener("beforeunload", function (e) {
-        try { saveStateInLocalStorage(); } catch(e) { }
-        if (!window.havePendingParsemeNotes) {
-            return undefined;
-        } else {
-            var msg = 'You must download your VMWEs before quitting!';
-            (e || window.event).returnValue = msg; //Gecko + IE
-            return msg; //Gecko + Webkit, Safari, Chrome etc.
-        }
+/** Mark glyphicon object as mwe-glyphbox-marked */
+function markGlyphbox(glyphbox, glyphtext) {
+    eachTwinGlyphbox(glyphbox, function(twinGlyphbox) {
+        g = twinGlyphbox.siblings(".mwe-glyphbox");  // a sibling glyphbox
+        g.addClass("mwe-glyphbox-marked");
+        glyph = g.find(".glyphicon");
+        glyph.addClass("glyphicon-check");
+        glyph.removeClass("glyphicon-edit");
+        g.find(".mwe-glyphtext").text(glyphtext);
     });
 }
-
-
-/* Mark glyphicon object as glyph-marked */
-function markGlyphbox(glyphbox, glyphtext) {
-    // Extra convoluted code to find all siblings with same ID and mark them all
+/** Mark glyphicon object as NOT mwe-glyphbox-marked */
+function unmarkGlyphbox(glyphbox) {
+    eachTwinGlyphbox(glyphbox, function(twinGlyphbox) {
+        g = twinGlyphbox.siblings(".mwe-glyphbox");  // a sibling glyphbox
+        g.removeClass("mwe-glyphbox-marked");
+        glyph = g.find(".glyphicon");
+        glyph.addClass("glyphicon-edit");
+        glyph.removeClass("glyphicon-check");
+        g.find(".mwe-glyphtext").text("");
+    });
+}
+/** Run code for all siblings with same ID (e.g. for adjudication) */
+function eachTwinGlyphbox(glyphbox, func) {
     var mwe_occur_id = glyphbox.siblings(".mwe-occur-id").text();
     glyphbox.parents(".mwe-occurs").find(".mwe-occur-id").each(function() {
         if ($(this).text() == mwe_occur_id) {
-            g = $(this).siblings(".mwe-glyphbox");  // a sibling glyphbox
-            glyph = g.find(".glyphicon");
-            g.addClass("glyph-marked");
-            glyph.addClass("glyphicon-check");
-            glyph.removeClass("glyphicon-edit");
-            g.find(".mwe-glyphtext").text(glyphtext);
+            func($(this));
         }
     });
 }
@@ -387,25 +407,52 @@ function killDropdown() {
     g.removeAttr("id");
     g.siblings(".dropdown").remove();
 }
-$(document).click(function() {
-    killDropdown();
-});
+
+
+function escapeRegExp(str) {
+    return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+}
+/** Return whether the space-separated tokens in innerText appears inside fullText */
+function areTokensInside(fullText, innerText) {
+    var regex = escapeRegExp(innerText).replace(/ +/, ".*");
+    return new RegExp(regex).test(fullText);
+}
 
 
 function noteQ(categ) {
     addNote(null, {type: "RE-ANNOT", target_categ: categ});
 }
+
 function noteCustom() {
-    // TODO: collect txt from user using a popover with an input field and
-    // an [OK] button. When the button is clicked, it calls addNote
-    // with the content of the input field.
-    var reply = prompt("Describe the special case below", "???");
-    if (reply != null) {
-        addNote(null, {type: "SPECIAL-CASE", human_note: reply});
-    } else {
-        killDropdown();
+    g = $("#glyphbox-with-dropdown");
+    sent = g.siblings(".mwe-occur-sentence");
+    source_mwe = sent.find(".mwe-elem").map(function() { return $(this).text(); }).get().join(" ");
+    var reply_mwe = prompt("Type below the MWE tokens, separated by whitespace\\n(You can add/remove tokens to correct the MWE):", source_mwe);
+
+    if (reply_mwe != null && reply_mwe.trim() != "") {
+        current_sent = sent.text().trim();
+        if (areTokensInside(current_sent, reply_mwe)) {
+            var source_categ_noPercent = g.siblings(".mwe-label").text().split(/ /)[0];
+            var reply_categ = prompt("Indicate the VMWE label to use", source_categ_noPercent);
+            if (reply_categ != null && reply_categ.trim() != "") {
+                addNote(null, {type: "RE-ANNOT", target_categ: reply_categ, target_mwe: reply_mwe});
+            }
+        } else {
+            alert("ERROR: MWE sub-text " + JSON.stringify(reply_mwe) + " not found in sentence\\n(You can mark this as a \\"special case\\" if you want).");
+        }
     }
+    killDropdown();
 }
+
+function noteSpecialCase() {
+    var reply = prompt("Describe the special case below", "???");
+    if (reply != null && reply.trim() != "") {
+        addNote(null, {type: "SPECIAL-CASE", human_note: reply});
+    }
+    killDropdown();
+}
+
+/** Add note to window.parsemeData and update GUI */
 function addNote(glyphboxOrNull, annotEntry) {
     var gbox = glyphboxOrNull || $("#glyphbox-with-dropdown");
     annotEntry.source_categ = gbox.siblings(".mwe-label").text();
@@ -419,33 +466,27 @@ function addNote(glyphboxOrNull, annotEntry) {
     updateCounter();
     killDropdown();
 }
+
 function annotEntryToGlyphtext(annotEntry) {
     switch(annotEntry.type) {
-        case "RE-ANNOT": return annotEntry.target_categ;
-        case "SPECIAL-CASE": return "SPECIAL-CASE: " + annotEntry.human_note;
+        case "RE-ANNOT":
+            var as_info = annotEntry.target_mwe ? JSON.stringify(annotEntry.target_mwe) + " as " : "";
+            return as_info + annotEntry.target_categ;
+        case "SPECIAL-CASE":
+            return "SPECIAL-CASE: " + annotEntry.human_note;
     }
 }
 
-
-$(".mwe-glyphbox").click(function(e) {
+/** Remove note from window.parsemeData and update GUI */
+function deleteNote(glyphboxOrNull) {
+    var gbox = glyphboxOrNull || $("#glyphbox-with-dropdown");
+    window.havePendingParsemeNotes = true;
+    var mweoccur_id = "MODIF:" + gbox.siblings(".mwe-occur-id").text();
+    delete window.parsemeData[mweoccur_id];
+    unmarkGlyphbox(gbox);
+    updateCounter();
     killDropdown();
-    e.stopPropagation();
-
-    $(this).prop("id", "glyphbox-with-dropdown");
-    $(this).after($("#mwe-dropdown-template").html());
-    let d = $(this).siblings(".dropdown");
-    d.find(".dropdown-toggle").dropdown("toggle");
-
-    $(this).siblings(".dropdown").click(function(e) {
-        e.stopPropagation();  /* keep it alive */
-    });
-});
-
-
-$(".mwe-canonic").click(function() {
-    $(this).siblings(".mwe-occurs").toggle();
-    $(this).siblings(".mwe-label-header").toggle();
-});
+}
 
 function toggleExpandAll() {
     window.allExpanded = !window.allExpanded;
@@ -517,10 +558,7 @@ function uploadData(filePath) {
 function updateCounter() {
     $("#global-counter").text(Object.keys(window.parsemeData).length);
 }
-updateCounter();
 
-
-$('[data-toggle="tooltip"]').tooltip();
 
 
 /********** Handle localStorage **************/
@@ -537,7 +575,59 @@ function loadStateFromLocalStorage() {
     window.allExpanded = (allExpanded == "true");
     honorExpansionVariable();
 }
-loadStateFromLocalStorage();
+
+
+
+/********* Post-load actions *******/
+
+$(document).ready(function() {
+    window.addEventListener("beforeunload", function (e) {
+        try { saveStateInLocalStorage(); } catch(e) { }
+        if (!window.havePendingParsemeNotes) {
+            return undefined;
+        } else {
+            var msg = 'You must download your VMWEs before quitting!';
+            (e || window.event).returnValue = msg; //Gecko + IE
+            return msg; //Gecko + Webkit, Safari, Chrome etc.
+        }
+    });
+
+    $('[data-toggle="tooltip"]').tooltip();
+
+    $(document).click(function() {
+        killDropdown();
+    });
+
+    $(".mwe-glyphbox").click(function(e) {
+        killDropdown();
+        e.stopPropagation();
+
+        $(this).prop("id", "glyphbox-with-dropdown");
+        $(this).after($("#mwe-dropdown-template").html());
+        let d = $(this).siblings(".dropdown");
+        d.find(".dropdown-toggle").dropdown("toggle");
+        if ($(this).hasClass("mwe-glyphbox-marked")) {
+            d.find(".show-only-if-deletable").show();
+        }
+
+        $(this).siblings(".dropdown").click(function(e) {
+            e.stopPropagation();  /* keep it alive */
+        });
+    });
+
+
+    $(".mwe-canonic").click(function() {
+        $(this).siblings(".mwe-occurs").toggle();
+        $(this).siblings(".mwe-label-header").toggle();
+    });
+
+    loadStateFromLocalStorage();
+    updateCounter();
+
+    $(".panel-pre-load").hide();
+    $(".panel-post-load").show();
+
+});  // finish $(document).ready
 
 
 </script>
