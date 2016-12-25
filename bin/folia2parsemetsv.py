@@ -56,6 +56,7 @@ class Main:
         if self.args.tgz:
             from pipes import quote
             sys.stdin.close()
+            sys.stdout.close()
             if self.conllu_paths:
                 shell("cat {} >/tmp/parsemetgz/data.conllu"
                         .format(" ".join(quote(c) for c in self.conllu_paths)))
