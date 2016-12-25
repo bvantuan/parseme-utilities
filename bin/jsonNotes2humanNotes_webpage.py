@@ -11,6 +11,8 @@ parser = argparse.ArgumentParser(description="""
         Read JSON notes and output a pretty page that indicates what should be annotated.""")
 parser.add_argument("--json", metavar="ParsemeNotesJson", type=argparse.FileType('r'), required=True,
         help="""Path to a JSON file with adjudication/homogenization information""")
+parser.add_argument("--onlyspecial", action='store_true', required=False,
+        help="""Outputs only corrections corresponding to special cases.""")
 
 AnnotEntry = collections.namedtuple('AnnotEntry', 'filename sent_id indexes json_data')
 
@@ -58,10 +60,13 @@ class Main(object):
         J = json.load(self.args.json)
         for coded_key, json_data in J.items():
             if coded_key.startswith("MODIF:"):
-                # Decode the key (it's a JSON inside a JSON string)
-                key = json.loads(re.sub("^MODIF:", "", coded_key))
-                annot_entry = AnnotEntry(*(key + [json_data]))
-                self.fname2annots[annot_entry.filename].append(annot_entry)
+                #import pdb
+                #pdb.set_trace()
+                if not self.args.onlyspecial or ( self.args.onlyspecial and json_data["type"] == "SPECIAL-CASE") :
+                    # Decode the key (it's a JSON inside a JSON string)
+                    key = json.loads(re.sub("^MODIF:", "", coded_key))
+                    annot_entry = AnnotEntry(*(key + [json_data]))
+                    self.fname2annots[annot_entry.filename].append(annot_entry)
             else:
                 raise Exception("Unknown coded-key: " + coded_key)
 
