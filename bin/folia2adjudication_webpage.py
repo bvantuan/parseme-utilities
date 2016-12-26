@@ -212,7 +212,7 @@ class VerbInfoCalculator:
 
         for sentence in sentences:
             for i, w in enumerate(sentence.tokens):
-                for canonic in head2canonics.get((w.lemma or w.surface).lower(), []):
+                for canonic in head2canonics.get((w.lemma or w.surface or "").lower(), []):
                     self._find_skipped_in_sentence(sentence, i, canonic)
 
     def _find_skipped_in_sentence(self, sentence, i_head, canonic):

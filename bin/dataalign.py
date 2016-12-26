@@ -625,7 +625,7 @@ class ConllIterator(AbstractFileIterator):
         if len(data) != 10:
             self.err("Line has {} columns, not 10".format(len(data)))
         rank, surface, lemma, upos = data[:4]
-        return Token(rank, surface, False, lemma, upos), []
+        return Token(rank, surface or "_", False, lemma, upos), []
 
 
 class ParsemeTSVIterator(AbstractFileIterator):
@@ -634,7 +634,7 @@ class ParsemeTSVIterator(AbstractFileIterator):
             self.err("Line has {} columns, not 4".format(len(data)))
         rank, surface, nsp, mwe_codes = data
         m = mwe_codes.split(";") if mwe_codes else []
-        return Token(rank, surface, (nsp == "nsp"), None, None), m
+        return Token(rank, surface or "_", (nsp == "nsp"), None, None), m
 
 
 class ParsemePlatinumIterator(AbstractFileIterator):
@@ -647,7 +647,7 @@ class ParsemePlatinumIterator(AbstractFileIterator):
         mwe_codes = ["{}:{}".format(data[i], data[i+1]) if data[i+1] else data[i]
                 for i in range(4, len(data)-1, 2) if data[i] not in EMPTY]
         # Ignore free comments in data[-1], present if len(data)%2==1
-        return Token(rank, surface, nsp, None, None), mwe_codes
+        return Token(rank, surface or "_", nsp, None, None), mwe_codes
 
     def iter_header(self, f):
         next(f); next(f)  # skip the 2-line header
