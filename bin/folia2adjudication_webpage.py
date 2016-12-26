@@ -302,7 +302,7 @@ p { margin-bottom: 5px; }  /* used inside mwe-occur-comment */
       <li>Click on the <span class="example-glyphbox"><span style="margin-left:2px; margin-right:2px;" class="glyphicon glyphicon-edit"></span></span> icon to the right of a sentence.</li>
       <li>Mark this VMWE occurrence for re-annotation (e.g. by clicking on "Annotate as LVC").</li>
       <ul>
-          <li>If you want to add/remove tokens to the MWE, use "custom annotation".</li>
+          <li>If you want to add/remove tokens from the MWE, use "custom annotation".</li>
           <li>You can also mark something for non-annotation, or as a "special case".</li>
       </ul>
       <li>Generate a list of VMWEs marked for re-annotation by clicking on "Generate JSON" on the right.</li>
