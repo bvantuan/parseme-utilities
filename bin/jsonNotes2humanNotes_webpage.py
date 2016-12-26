@@ -170,6 +170,7 @@ class Main(object):
                 mid = target_mwe.index(kept_words[0])
                 left, right = target_mwe[:mid], target_mwe[mid+1:]
                 sentence = list(entity.parent.parent.words())
+                # TODO implement re-annotation of tokens
                 return annot.warn("Automatic token re-annotation not yet implemented")
 
             entity.cls = annot.json_data["target_categ"]

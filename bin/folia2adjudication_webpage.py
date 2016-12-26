@@ -16,10 +16,14 @@ parser = argparse.ArgumentParser(description="""
         """)
 parser.add_argument("--lang", choices=sorted(dataalign.LANGS), metavar="LANG", required=True,
         help="""ID of the target language (e.g. EN, FR, PL, DE...)""")
+parser.add_argument("--find-skipped", action="store_true",
+        help="""Also find possibly missed MWEs, using the `Skipped` label""")
 parser.add_argument("--input", type=str, nargs="+", required=True,
         help="""Path to input files (preferably in FoLiA XML format, but PARSEME TSV works too)""")
 parser.add_argument("--conllu", type=str, nargs="+",
         help="""Path to parallel input CoNLL files""")
+
+MAX_SKIPS = 5
 
 
 class Main:
@@ -29,14 +33,20 @@ class Main:
         self.del_canonic2occurs = collections.defaultdict(list)
 
     def run(self):
-        conllu_path = self.args.conllu or dataalign.calculate_conllu_paths(self.args.input)
-        for elem in dataalign.iter_aligned_files(self.args.input, conllu_path, keep_nvmwes=True, debug=True):
-            if isinstance(elem, dataalign.Sentence):
-                for mwe_occur in elem.mwe_occurs(self.args.lang):
-                    canonic = tuple(mwe_occur.reordered.mwe_canonical_form)
-                    self.canonic2occurs[canonic].append(mwe_occur)
+        for sentence in self.iter_sentences():
+            for mwe_occur in sentence.mwe_occurs(self.args.lang):
+                canonic = tuple(mwe_occur.reordered.mwe_canonical_form)
+                self.canonic2occurs[canonic].append(mwe_occur)
         self.delete_purely_nonvmwe_canonics()
         self.print_html()
+
+
+    def iter_sentences(self, verbose=True):
+        r"""Yield all sentences in `self.args.input` (aligned, if CoNLL-U was provided)"""
+        conllu_path = self.args.conllu or dataalign.calculate_conllu_paths(self.args.input, warn=verbose)
+        for elem in dataalign.iter_aligned_files(self.args.input, conllu_path, keep_nvmwes=True, debug=verbose):
+            if isinstance(elem, dataalign.Sentence):
+                yield elem
 
 
     def delete_purely_nonvmwe_canonics(self):
@@ -48,16 +58,17 @@ class Main:
 
     def print_html(self):
         print(HTML_HEADER_1and2)
-        self.print_html_mwes(self.canonic2occurs)
+        skip_sents = self.iter_sentences(False) if self.args.find_skipped else ()
+        self.print_html_mwes(self.canonic2occurs, skip_sents=skip_sents)
         print(HTML_HEADER_3)
         self.print_html_mwes(self.del_canonic2occurs)
         print(HTML_FOOTER)
 
 
-    def print_html_mwes(self, canonic2occurs):
+    def print_html_mwes(self, canonic2occurs, skip_sents=()):
         r"""Print a big list with all MWEs."""
         print('<div class="mwe-list list-group">')
-        vic = VerbInfoCalculator(canonic2occurs)
+        vic = VerbInfoCalculator(self.args.lang, canonic2occurs, skip_sents)
 
         for verb, verbinfo in sorted(vic.verb2info.items()):
             print('<div class="verb-block">')
@@ -140,15 +151,17 @@ class Main:
 
 
 class VerbInfoCalculator:
-    def __init__(self, canonic2occurs):
+    def __init__(self, lang, canonic2occurs, sentences_to_discover_skipped):
+        self.lang = lang
         self.canonic2occurs = canonic2occurs
         self.canonic2ihead = dict(self._all_canonics())
+        self._find_skipped(sentences_to_discover_skipped)
         self.noun2canonic2isubhead = dict(self._nounbased_canonics())
         self.canonic2isubhead = {c: i for c2i in
                 self.noun2canonic2isubhead.values() for (c,i) in c2i.items()}
         self.verb2info = collections.defaultdict(VerbInfo)
 
-        # Update verb2info with verb-based canonics
+        # Update verb2info with noun-based canonics
         for noun, canonic2isubhead in self.noun2canonic2isubhead.items():
             canonics = canonic2isubhead.keys()
             for c in canonics: self.canonic2ihead.pop(c)  # leave only the verb-based ones there
@@ -189,6 +202,48 @@ class VerbInfoCalculator:
         # (We skip subheads where only one canonical form contains the noun)
         return {noun: canonic2isubhead for (noun, canonic2isubhead) \
                 in noun2canonic2isubhead.items() if len(canonic2isubhead) > 1}
+
+
+    def _find_skipped(self, sentences):
+        r"""For every sentence, add Skipped MWEs to self.canonic2occurs."""
+        head2canonics = collections.defaultdict(list)
+        for canonic, i_head in self.canonic2ihead.items():
+            head2canonics[canonic[i_head].lower()].append(canonic)
+
+        for sentence in sentences:
+            for i, w in enumerate(sentence.tokens):
+                for canonic in head2canonics.get((w.lemma or w.surface).lower(), []):
+                    self._find_skipped_in_sentence(sentence, i, canonic)
+
+    def _find_skipped_in_sentence(self, sentence, i_head, canonic):
+        r"""For a given sentence, add Skipped MWEs to self.canonic2occurs[canonic]."""
+        canonic_set = collections.Counter(canonic)
+        matched_indexes = []
+
+        def matched(wordform, i):
+            canonic_set[wordform] -= 1
+            if canonic_set[wordform] == 0:
+                del canonic_set[wordform]
+            matched_indexes.append(i)
+
+        for range_obj in [range(i_head, len(sentence.tokens)), range(i_head-1, -1, -1)]:
+            gaps = 0
+            for i in range_obj:
+                word = sentence.tokens[i]
+                if gaps >= MAX_SKIPS or not canonic_set: break
+                if word.surface in canonic_set:
+                    matched(word.surface, i)
+                elif word.lemma in canonic_set:
+                    matched(word.lemma, i)
+                else:
+                    gaps += 1
+
+        if not canonic_set:
+            matched_indexes.sort()
+            occurs = self.canonic2occurs[canonic]
+            if all(o.indexes != tuple(matched_indexes) for o in occurs):
+                occurs.append(dataalign.MWEOccur(self.lang, sentence, matched_indexes,
+                        "Skipped", [], "autodetect", None, None))
 
 
 class VerbInfo:
@@ -308,8 +363,7 @@ p { margin-bottom: 5px; }  /* used inside mwe-occur-comment */
       <li>Generate a list of VMWEs marked for re-annotation by clicking on "Generate JSON" on the right.</li>
       <ul>
           <li>The VMWEs are stored <strong>locally</strong> on your browser (not on a server). To avoid problems, generate the JSON file often.</li>
-          <li>This JSON file can then be <a data-toggle="tooltip" class="tooltip-on-text" title="See the script bin/jsonNotes2humanNotes_webpage.py">converted to a webpage <span class="info-hint glyphicon glyphicon-info-sign"></span></a> that describes what needs to be annotated in each file.</li>
-          <li>In the future, this JSON file may be used to re-annotate your files automatically.</li>
+          <li>This JSON file can then be <a data-toggle="tooltip" class="tooltip-on-text" title="See the script bin/jsonNotes2humanNotes_webpage.py, which can also be used to automatically re-annotate some of the MWEs.">converted to a webpage <span class="info-hint glyphicon glyphicon-info-sign"></span></a> that describes what needs to be annotated in each file.</li>
       </ul>
       </ol>
   </div>
