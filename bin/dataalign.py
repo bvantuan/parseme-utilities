@@ -257,6 +257,8 @@ class MWETokens:
             iPron, iVerb = ((0,-1) if (lang in LANGS_WITH_REFL_PRON_ON_LEFT) else (-1,0))
             if T[iVerb].univ_pos == "PRON" and T[iPron].univ_pos == "VERB":
                 newT[iVerb], newT[iPron] = T[iPron], T[iVerb]
+            elif lang == "PT" and (T[iVerb].univ_pos == "PART" or T[iVerb].univ_pos == "CONJ") and T[iPron].univ_pos == "VERB":
+                newT[iVerb], newT[iPron] = T[iPron], T[iVerb]
 
         return MWETokens(self.mwe_occur, newT)
 
