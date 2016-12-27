@@ -34,11 +34,11 @@ EMPTY = "_"
 # Set of all valid languages in PARSEME'2016
 LANGS = set("BG CS DE EL EN ES FA FR HE HR HU IT LT MT PL PT RO SE SL TR YI".split())
 
-# Languages where the LVC is "VERB NOUN", and "NOUN blabla VERB" should be re-ordered
-LANGS_WITH_STANDARD_LVCS = set("BG CS DE EL EN ES FA FR HE HR HU IT LT MT PL PT RO SE SL TR YI".split())  # XXX CHEKME
-
 # Languages where the pronoun in IReflV is on the left
 LANGS_WITH_REFL_PRON_ON_LEFT = set("DE FR RO".split())
+
+# Languages where the main verb is normally on the right
+LANGS_WITH_DEFAULT_VERB_ON_RIGHT = set("TR".split())
 
 
 ############################################################
@@ -203,7 +203,8 @@ class MWETokens:
     def _i_head(self):
         r"""Index of head verb in `mwe_canonical_form`
         (First word if there is no POS info available)."""
-        i_verbs = [i for (i, t) in enumerate(self.tokens) if t.univ_pos == "VERB"] or [0]
+        i_verbs = [i for (i, t) in enumerate(self.tokens) if t.univ_pos == "VERB"] \
+                or [(-1 if LANGS_WITH_DEFAULT_VERB_ON_RIGHT else 0)]
         return i_verbs[0]  # just take first verb that appears
 
     def _i_subhead(self):
@@ -252,8 +253,10 @@ class MWETokens:
         lang, category = self.mwe_occur.lang, self.mwe_occur.category
         T, newT, iH, iS = self.tokens, list(self.tokens), self.i_head, self.i_subhead
         if category == "LVC":
-            if iS is None: iS = len(T)-1
-            if iS < iH and lang in LANGS_WITH_STANDARD_LVCS:
+            nounverb = (lang in LANGS_WITH_DEFAULT_VERB_ON_RIGHT)
+            if iS is None:
+                iS = 0 if nounverb else len(T)-1
+            if (nounverb and iH < iS) or (not nounverb and iS < iH):
                 newT[iH], newT[iS] = T[iS], T[iH]
 
         if category == "IReflV":
