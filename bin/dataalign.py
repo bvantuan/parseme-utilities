@@ -181,6 +181,9 @@ class MWEOccur:
         assert set(self.reordered.tokens) == set(self.fixed.tokens), \
                 "BUG: _with_reordered_tokens must not change word attributes"
 
+    def id(self):
+        r"""Return an ID that uniquely identifies the file&sentence&indexes."""
+        return (self.sentence.file_path, self.sentence.nth_sent, tuple(self.indexes))
 
     def __repr__(self):
         return "MWEOccur<{}>".format(" ".join(self.reordered.mwe_canonical_form))

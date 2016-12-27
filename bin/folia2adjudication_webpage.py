@@ -154,6 +154,7 @@ class VerbInfoCalculator:
     def __init__(self, lang, canonic2occurs, sentences_to_discover_skipped):
         self.lang = lang
         self.canonic2occurs = canonic2occurs
+        self.seen_occur_ids = set(o.id() for occurs in canonic2occurs.values() for o in occurs)
         self.canonic2ihead = dict(self._all_canonics())
         self._find_skipped(sentences_to_discover_skipped)
         self.noun2canonic2isubhead = dict(self._nounbased_canonics())
@@ -240,10 +241,12 @@ class VerbInfoCalculator:
 
         if not canonic_set:
             matched_indexes.sort()
-            occurs = self.canonic2occurs[canonic]
-            if all(o.indexes != tuple(matched_indexes) for o in occurs):
-                occurs.append(dataalign.MWEOccur(self.lang, sentence, matched_indexes,
-                        "Skipped", [], "autodetect", None, None))
+            new_occur = dataalign.MWEOccur(self.lang, sentence,
+                    matched_indexes, "Skipped", [], "autodetect", None, None)
+            if new_occur.id() not in self.seen_occur_ids:
+                self.seen_occur_ids.add(new_occur.id())
+                occurs = self.canonic2occurs[canonic]
+                occurs.append(new_occur)
 
 
 class VerbInfo:
