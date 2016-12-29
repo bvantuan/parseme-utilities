@@ -144,10 +144,10 @@ class Sentence:
 
 
     def id(self):
-        r"""Return an ID, such as "foo.xml:13"."""
-        if self.lineno is not None:
-            return "{}:{}".format(self.file_path, self.lineno)
-        return self.file_path
+        r"""Return an ID, such as "foo.xml(s.13):78"."""
+        ret = self.file_path
+        ret += "(s.{})".format(self.nth_sent) if self.nth_sent else ""
+        return ret + (":{}".format(self.lineno) if self.lineno else "")
 
     def msg_stderr(self, msg, header=True, die=False):
         r"""Print a warning message; e.g. "foo.xml:13: blablabla"."""
@@ -546,7 +546,7 @@ class FoliaIterator:
                 current_sentence = Sentence(self.file_path, nth, None)
                 folia_mwe_layers = folia_sentence.layers(folia.EntitiesLayer)
                 mwes = [mwe for mlayer in folia_mwe_layers for mwe in mlayer]
-                current_sentence.mweannots = list(self.calc_mweannots(mwes))
+                self.calc_mweannots(mwes, current_sentence)
 
                 for rank, word in enumerate(folia_sentence.words(), 1):
                     token = Token(str(rank), word.text(), (not word.space), None, None)
@@ -556,12 +556,14 @@ class FoliaIterator:
                 yield current_sentence
 
 
-    def calc_mweannots(self, mwes):
+    def calc_mweannots(self, mwes, output_sentence):
         for mwe in mwes:
             words = mwe.select(folia.Word)
             ranks = [w.id.rsplit(".",1)[-1] for w in words]
-            if ranks:  # ignore empty Entities produced by FLAT
-                yield MWEAnnot(ranks, mwe.cls)
+            if not ranks:  # ignore empty Entities produced by FLAT
+                output_sentence.msg_stderr('Ignoring empty MWE')
+            else:
+                output_sentence.mweannots.append(MWEAnnot(ranks, mwe.cls))
 
 
 
