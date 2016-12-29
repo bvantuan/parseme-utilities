@@ -560,7 +560,8 @@ class FoliaIterator:
         for mwe in mwes:
             words = mwe.select(folia.Word)
             ranks = [w.id.rsplit(".",1)[-1] for w in words]
-            yield MWEAnnot(ranks, mwe.cls)
+            if ranks:  # ignore empty Entities produced by FLAT
+                yield MWEAnnot(ranks, mwe.cls)
 
 
 
