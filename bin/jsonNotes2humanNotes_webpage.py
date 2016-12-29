@@ -27,11 +27,11 @@ KNOWN_CATEGS = "ID IReflV LVC OTH VPC NonVMWE".split()
 ISOTIME = datetime.datetime.now().isoformat()
 
 class AnnotEntry(collections.namedtuple('AnnotEntry', 'filename sent_id indexes json_data')):
-    def warn(self, msg, *args, **kwargs):
+    r"""`sent_id` is 0-based, `indexes` is 0-based."""
+    def err(self, msg, *args, **kwargs):
         r"""Assign self._bad with a warning message (to show in output)"""
         self._bad = msg.format(*args, J=self.json_data, **kwargs)
-        print("{}:#{}: WARNING:".format(self.filename, self.sent_id), self._bad, file=sys.stderr)
-        return False
+        return NoteError(msg=self._bad, fname=self.filename, sent_id=self.sent_id)
 
 
 class Main(object):
@@ -127,58 +127,124 @@ class Main(object):
 
     def split_corrections(self, fname, annots):
         r"""Split `annots` in two lists: (manual_annots, auto_annots)"""
-        indexinfo2entity = dict(self.make_indexinfo2entity(fname))
+        try:
+            id2foliasent = dict(enumerate(self.fname2foliadoc[fname].sentences(), 1))
+        except KeyError:
+            print('WARNING: File {} not passed in as argument'.format(fname), file=sys.stderr)
+            id2foliasent = None  # We cannot shortcut here, because we still need to filter `only_special`
+
         manual, auto = [], []
         for annot in sorted(annots):
-            to_ignore = self.args.only_special and annot.json_data["type"] != "SPECIAL-CASE"
-            if (indexinfo2entity and self.folia_modify(indexinfo2entity, annot)) or to_ignore:
+            if self.args.only_special and annot.json_data["type"] != "SPECIAL-CASE":
                 auto.append(annot)
-            else:
-                manual.append(annot)
+                continue
+
+            try:
+                if id2foliasent and self.folia_modify(id2foliasent.get(annot.sent_id), annot):
+                    auto.append(annot)
+                    continue
+            except NoteError as e:
+                print(e, file=sys.stderr)  # fallback on manual below
+            manual.append(annot)
         return manual, auto
 
-    def make_indexinfo2entity(self, fname):
-        if fname in self.fname2foliadoc:
-            foliadoc = self.fname2foliadoc[fname]
-            for sent_id, sentence in enumerate(foliadoc.sentences(), 1):
-                for entity in sentence.select(self.folia.Entity):
-                    indexes = tuple(int(w.id.rsplit(".", 1)[-1])-1 for w in entity.wrefs())
-                    yield (sent_id, indexes), entity
 
-    def folia_modify(self, indexinfo2entity, annot):
-        r"""Return True iff we can modify the FoliA data."""
+    def folia_modify(self, foliasent, annot):
+        r"""Modify the FoliA data (raise NoteError on failure)."""
+        if foliasent is None:
+            raise annot.err("File {} does not have sentence #{}!", annot.filename, annot.sent_id)
+
         if annot.json_data["type"] == "RE-ANNOT":
-            try:
-                entity = indexinfo2entity[(annot.sent_id, annot.indexes)]
-            except KeyError:
-                return annot.warn("MWE not found in input XML")
+            entity = self.folia_get_entity(foliasent, annot)
+            if entity is None:
+                raise annot.err("MWE not found in input XML")
 
-            if entity.cls != annot.json_data["source_categ"].split()[0]:
-                return annot.warn("XML has unexpected category {}", entity.cls)
+            expected_categ = annot.json_data["source_categ"].split()[0]
+            if entity.cls != expected_categ:
+                raise annot.err("XML has unexpected category {} (not {})", entity.cls, expected_categ)
             if annot.json_data["target_categ"] not in KNOWN_CATEGS:
-                return annot.warn("Target VMWE category is either language-specific or a typo")
+                raise annot.err("Target VMWE category is either language-specific or a typo")
 
             folia_mwe = [w.text() for w in entity.wrefs()]
             if folia_mwe != annot.json_data["source_mwe"]:
-                return annot.warn("MWE mismatch: JSON {J[source_mwe]} vs XML {}", folia_mwe)
+                raise annot.err("MWE mismatch: JSON {J[source_mwe]} vs XML {}", folia_mwe)
 
-            if "target_mwe" in annot.json_data:
-                target_mwe = annot.json_data["target_mwe"]
-                kept_words = [w for w in target_mwe if w in folia_mwe]
-                if not kept_words:
-                    return annot.warn("Unable to automatically annotate, all words changed")
-                mid = target_mwe.index(kept_words[0])
-                left, right = target_mwe[:mid], target_mwe[mid+1:]
-                sentence = list(entity.parent.parent.words())
-                # TODO implement re-annotation of tokens
-                return annot.warn("Automatic token re-annotation not yet implemented")
-
+            self.folia_reannot_tokens(entity, annot)
+            # WARNING: First call folia_reannot_tokens, which may fail before changing `entity`
+            # .......: Then, you can change it further (must not `raise` from here on)
             entity.cls = annot.json_data["target_categ"]
             entity.append(self.folia.Comment, annotatortype="auto", datetime=ISOTIME,
                     value="[AUTO RE-ANNOT CATEGORY: {} → {}]".format(
                     annot.json_data["source_categ"], annot.json_data["target_categ"]))
             return True
-        return False
+
+
+    def folia_get_entity(self, foliasent, annot):
+        r"""Find folia.Entity object. Creates one if Skipped. Returns None on failure."""
+        foliaentity = self.folia_find_entity(foliasent, annot.indexes)
+        if not foliaentity and annot.json_data["source_categ"] == "Skipped":
+            layers = list(foliasent.select(self.folia.EntitiesLayer))
+            if not layers:
+                layers = [foliasent.append(self.folia.EntitiesLayer)]
+            foliaentity = layers[0].append(self.folia.Entity, cls="Skipped")
+            self.folia_entity_set_indexes(annot, foliaentity, annot.indexes)
+        return foliaentity  # may be None
+
+
+    def folia_find_entity(self, foliasent, target_indexes):
+        r"""Find folia.Entity object. Returns None on failure."""
+        for foliaentity in foliasent.select(self.folia.Entity):
+            indexes = tuple(int(w.id.rsplit(".", 1)[-1])-1 for w in foliaentity.wrefs())
+            if indexes == target_indexes:
+                return foliaentity
+
+
+    def folia_entity_set_indexes(self, annot, foliaentity, target_indexes):
+        r"""Make sure `foliaentity` points to given MWEAnnot's indexes"""
+        try:
+            sentence = list(foliaentity.parent.parent.words())
+            foliaentity.setspan(*[sentence[i] for i in target_indexes])
+        except IndexError:  # python does not give us the index value, and I'm not in the mood for that...
+            raise annot.err('Index out of bounds in {}', list(target_indexes))
+
+    def folia_reannot_tokens(self, foliaentity, annot):
+        r"""Change `foliaentity` according to annot.json_data["target_mwe"]."""
+        if "target_mwe" in annot.json_data:
+            source_words = foliaentity.wrefs()
+            target_mwe = annot.json_data["target_mwe"]
+            kept_words = [w for w in source_words if w.text() in target_mwe]
+            if not kept_words:
+                raise annot.err("Unable to automatically annotate, all words changed")
+            mwemid = target_mwe.index(kept_words[0].text())
+            sentmid = int(kept_words[0].id.split(".")[-1])-1
+            sent_surfaces = list(w.text() for w in foliaentity.parent.parent.words())
+            sent_words = list(w for w in foliaentity.parent.parent.words())
+            left_i = self.find_words(annot, reversed(sent_words[:sentmid]),
+                    reversed(sent_surfaces[:sentmid]), reversed(target_mwe[:mwemid]))
+            right_i = self.find_words(annot, sent_words[sentmid:],
+                    sent_surfaces[sentmid:], target_mwe[mwemid:])
+            target_words = list(reversed(list(left_i))) + list(right_i)
+            foliaentity.setspan(*target_words)
+            foliaentity.append(self.folia.Comment, annotatortype="auto", datetime=ISOTIME,
+                    value="[AUTO RE-ANNOT TOKENS: \"{}\" → \"{}\"]".format(
+                    " ".join(annot.json_data["source_mwe"]), " ".join(annot.json_data["target_mwe"])))
+
+    def find_words(self, annot, foliawords, surfaces, mwe):
+        foliawords, surfaces = list(foliawords), list(surfaces)
+        base_i = -1
+        for word in mwe:
+            try:
+                base_i = surfaces.index(word, base_i+1)
+                yield foliawords[base_i]
+            except ValueError:
+                raise annot.err('Target MWE tokens not found in XML sentence')
+
+
+class NoteError(Exception):
+    r"""Exception raised for errors in this library."""
+    def __init__(self, fname, sent_id, msg):
+        super().__init__("{}:#{}: WARNING: {}".format(fname, sent_id, msg))
+
 
 
 HTML_HEADER = '''
