@@ -29,7 +29,8 @@ MAX_SKIPS = 5
 class Main:
     def __init__(self, args):
         self.args = args
-        self.canonic2occurs = collections.defaultdict(list)  # canonicized_tuple -> [MWEOccur]
+        self.seen_occur_ids = set()  # type: Set[mwe-occur-ID]
+        self.canonic2occurs = collections.defaultdict(list)  # type: canonicized_tuple -> [MWEOccur]
         self.del_canonic2occurs = collections.defaultdict(list)
 
     def run(self):
@@ -37,6 +38,7 @@ class Main:
             for mwe_occur in sentence.mwe_occurs(self.args.lang):
                 canonic = tuple(mwe_occur.reordered.mwe_canonical_form)
                 self.canonic2occurs[canonic].append(mwe_occur)
+                self.seen_occur_ids.add(mwe_occur.id())
         self.delete_purely_nonvmwe_canonics()
         self.print_html()
 
@@ -68,7 +70,7 @@ class Main:
     def print_html_mwes(self, canonic2occurs, skip_sents=()):
         r"""Print a big list with all MWEs."""
         print('<div class="mwe-list list-group">')
-        vic = VerbInfoCalculator(self.args.lang, canonic2occurs, skip_sents)
+        vic = VerbInfoCalculator(self.args.lang, canonic2occurs, self.seen_occur_ids, skip_sents)
 
         for verb, verbinfo in sorted(vic.verb2info.items()):
             print('<div class="verb-block">')
@@ -151,10 +153,10 @@ class Main:
 
 
 class VerbInfoCalculator:
-    def __init__(self, lang, canonic2occurs, sentences_to_discover_skipped):
+    def __init__(self, lang, canonic2occurs, seen_occur_ids, sentences_to_discover_skipped):
         self.lang = lang
         self.canonic2occurs = canonic2occurs
-        self.seen_occur_ids = set(o.id() for occurs in canonic2occurs.values() for o in occurs)
+        self.seen_occur_ids = seen_occur_ids
         self.canonic2ihead = dict(self._all_canonics())
         self._find_skipped(sentences_to_discover_skipped)
         self.noun2canonic2isubhead = dict(self._nounbased_canonics())
