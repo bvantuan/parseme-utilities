@@ -159,9 +159,14 @@ class Main(object):
             if entity is None:
                 raise annot.err("MWE not found in input XML")
 
-            expected_categ = annot.json_data["source_categ"].split()[0]
-            if entity.cls != expected_categ:
-                raise annot.err("XML has unexpected category {} (not {})", entity.cls, expected_categ)
+            RE_SOURCEINFO = re.compile(r"^(?P<categ>\S+)( (?P<confid>[0-9]+)%)?$")
+            sourceinfo = RE_SOURCEINFO.match(annot.json_data["source_categ"]).groupdict()
+            expected_categ, categ = sourceinfo["categ"], entity.cls
+            expected_confid, confid = int(sourceinfo["confid"] or 100), int((entity.confidence or 1)*100)
+            if expected_categ != categ:
+                raise annot.err("XML has unexpected category {} (not {})", categ, expected_categ)
+            if expected_confid != confid:
+                raise annot.err("XML has unexpected confidence {}% (not {}%)", confid, expected_confid)
             if annot.json_data["target_categ"] not in KNOWN_CATEGS:
                 raise annot.err("Target VMWE category is either language-specific or a typo")
 
