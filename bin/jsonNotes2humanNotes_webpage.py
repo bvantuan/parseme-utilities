@@ -172,10 +172,11 @@ class Main(object):
             self.folia_reannot_tokens(entity, annot)
             # WARNING: First call folia_reannot_tokens, which may fail before changing `entity`
             # .......: Then, you can change it further (must not `raise` from here on)
-            entity.cls = annot.json_data["target_categ"]
-            entity.append(self.folia.Comment, annotatortype="auto", datetime=ISOTIME,
-                    value="[AUTO RE-ANNOT CATEGORY: {} → {}]".format(
-                    annot.json_data["source_categ"], annot.json_data["target_categ"]))
+            if annot.json_data["source_categ"] != annot.json_data["target_categ"]:
+                entity.cls, entity.confidence = annot.json_data["target_categ"], None
+                entity.append(self.folia.Comment, annotatortype="auto", datetime=ISOTIME,
+                        value="[AUTO RE-ANNOT CATEGORY: {} → {}]".format(
+                        annot.json_data["source_categ"], annot.json_data["target_categ"]))
             return True
 
 
