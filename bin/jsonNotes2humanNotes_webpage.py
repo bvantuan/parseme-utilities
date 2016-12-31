@@ -56,12 +56,15 @@ class Main(object):
         print(HTML_HEADER)
         for fname, annots in sorted(self.fname2annots.items()):
             self.print_panel(fname, annots)
-            if fname in self.fname2foliadoc:
-                subprocess.check_call("mkdir -p ./AfterAutoAdjudic", shell=True)
-                output = "./AfterAutoAdjudic/" + os.path.basename(fname)
-                self.fname2foliadoc[fname].save(output)
-                print("INFO: saving to \"{}\"".format(output), file=sys.stderr)
         print(HTML_FOOTER)
+
+        if self.args.generate_xml:
+            subprocess.check_call("rm -rf ./AfterAutoAdjudic", shell=True)
+            subprocess.check_call("mkdir -p ./AfterAutoAdjudic", shell=True)
+            for fname, foliadoc in sorted(self.fname2foliadoc.items()):
+                output = "./AfterAutoAdjudic/" + os.path.basename(fname)
+                print("INFO: saving to \"{}\"".format(output), file=sys.stderr)
+                foliadoc.save(output)
 
     def print_panel(self, fname, annots):
         manual, auto = self.split_corrections(fname, annots)
