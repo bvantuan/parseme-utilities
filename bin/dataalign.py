@@ -581,6 +581,8 @@ class AbstractFileIterator:
 
     def finish_sentence(self):
         r"""Return finished `self.curr_sent`."""
+        if not self.curr_sent:
+            self.err("File starts with empty line")
         s = self.curr_sent
         s.mweannots = [MWEAnnot(tuple(self.id2mwe_ranks[id]),
             self.id2mwe_categ[id]) for id in sorted(self.id2mwe_ranks)]
