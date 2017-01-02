@@ -27,6 +27,7 @@ parser.add_argument("--conllu", type=str, nargs="+",
 class Main:
     def __init__(self, args):
         self.args = args
+        self.counter = {}
 
     def run(self):
         self.tgz_begin()
@@ -40,11 +41,28 @@ class Main:
                     surface_form = token.surface or dataalign.EMPTY
                     nsp = "nsp" if token.nsp else dataalign.EMPTY
                     mwe_ids = ";".join(mwecodes) or dataalign.EMPTY
+                    self.counter_increment(mwecodes)
                     print(token.rank, surface_form, nsp, mwe_ids, sep="\t")
                 print()
+        self.counter_print()
         self.tgz_end()
 
-
+    def counter_increment(self,mwecodes):
+        for mwecode in mwecodes:
+            if ":" in mwecode:
+                mweid,mwetype = mwecode.split(":")
+                if mwetype not in self.counter.keys():
+                    self.counter[mwetype] = 1
+                else:
+                    self.counter[mwetype] += 1
+                    
+    def counter_print(self):
+        total = 0
+        for k,v in self.counter.items():
+            print("  * `{}`: {}".format(k,v),file=sys.stderr)
+            total += v
+        print("  * **Total**: {} VMWEs".format(total),file=sys.stderr)
+        
     def tgz_begin(self):
         if self.args.tgz:
             shell("rm -rf /tmp/parsemetgz")
