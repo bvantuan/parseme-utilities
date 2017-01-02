@@ -27,6 +27,7 @@ class Main:
     def run(self):
         info_train, info_gold = self.split_train_gold()
         subprocess.check_call("mkdir -p ./OUT", shell=True)
+        print("Statistics\n==========\n",file=sys.stderr)        
         for name, info in (("gold", info_gold), ("train", info_train)):
             self.process_fileinfo(name, info)
 
@@ -44,12 +45,12 @@ class Main:
 
 
     def stats(self, mwe_count, doing_gold):
-        print("STATS:", "OUT/"+ ("gold.*" if doing_gold else "train.*"), file=sys.stderr)
+        print("### OUT/"+ ("gold.*" if doing_gold else "train.*"), file=sys.stderr)
         total = 0
         for mwetype,count in sorted(mwe_count.items()) :
             if mwetype != "TOTAL" :
-                print("  * {}: {}".format(mwetype,count), file=sys.stderr)
-        print("  * **TOTAL: {} VMWEs**".format(mwe_count["TOTAL"]), file=sys.stderr)
+                print("  * `{}`: {}".format(mwetype,count), file=sys.stderr)
+        print("  * **TOTAL**: {} VMWEs\n".format(mwe_count["TOTAL"]), file=sys.stderr)
 
 
     def split_train_gold(self):
