@@ -1,18 +1,19 @@
 #! /usr/bin/env python3
 
 import argparse
-import io
 import sys
 import subprocess
 
 import dataalign
 
 parser = argparse.ArgumentParser(description="""
-        Split input files into OUT/{train,test}.{parsemetsv,conllu}.""")
+        Split input files into OUT/{train,gold}.{parsemetsv,conllu}.""")
 parser.add_argument("--lang", choices=sorted(dataalign.LANGS), metavar="LANG", required=True,
         help="""Name of the target language (e.g. EN, FR, PL, DE...)""")
-parser.add_argument("--test-mwesize", type=int, default=500,
-        help="""Number of MWEs to leave in test files""")
+parser.add_argument("--gold-first-sentence", type=int, default=1,
+        help="""Desired first sentence to use as blind & gold data (default: sentence 1)""")
+parser.add_argument("--gold-mwesize", type=int, default=500,
+        help="""Desired number of MWEs in blind & gold data""")
 parser.add_argument("--input", type=str, required=True,
         help="""Path to input files (in FoLiA XML or PARSEME TSV format)""")
 parser.add_argument("--conllu", type=str,
@@ -24,38 +25,72 @@ class Main:
         self.args = args
 
     def run(self):
+        info_train, info_gold = self.split_train_gold()
         subprocess.check_call("mkdir -p ./OUT", shell=True)
-        self.iter_conllu = open(self.args.conllu) if self.args.conllu else None
-        self.tsv_output = open("./OUT/test.parsemetsv", "w+")
-        self.conllu_output = open("./OUT/test.conllu", "w+") if self.iter_conllu else None
+        for name, info in (("gold", info_gold), ("train", info_train)):
+            self.process_fileinfo(name, info)
 
-        mwe_count = 0
-        doing_test = True
-        with open(self.args.input) as tsv_file:
-            for tsv_line in tsv_file:
-                tsv_fields = tsv_line.strip().split("\t")
-                conllu_line = next(self.iter_conllu) if self.iter_conllu else None
+    def process_fileinfo(self, name, info):
+        r"""Example: process_fileinfo("train", FileInfo(...))"""
+        self.generate_file(name, "parsemetsv", info.tsv_lines)
+        if info.conllu_lines:
+            self.generate_file(name, "conllu", info.conllu_lines)
+        self.stats(info.mwecount, (name == "gold"))
 
-                print(tsv_line, end="", file=self.tsv_output)
-                if conllu_line: print(conllu_line, end="", file=self.conllu_output)
+    def generate_file(self, name, ext, lines):
+        with open("./OUT/{}.{}".format(name, ext), "w+") as output:
+            for line in lines:
+                print(line, end="", file=output)
 
-                if doing_test:
-                    if not tsv_line.strip() and mwe_count >= self.args.test_mwesize:
-                        self.tsv_output.close()
-                        if self.conllu_output: self.conllu_output.close()
-                        self.tsv_output = open("./OUT/train.parsemetsv", "w+")
-                        self.conllu_output = open("./OUT/train.conllu", "w+") if self.iter_conllu else None
-                        self.stats(mwe_count, doing_test)
-                        mwe_count = 0
-                        doing_test = False
 
-                if ":" in tsv_fields[-1]:
-                    mwe_count += sum((":" in x) for x in tsv_fields[-1].split(";"))
-        self.stats(mwe_count, doing_test)
-
-    def stats(self, mwe_count, doing_test):
-        print("STATS:", "OUT/"+ ("test.*" if doing_test else "train.*"),
+    def stats(self, mwe_count, doing_gold):
+        print("STATS:", "OUT/"+ ("gold.*" if doing_gold else "train.*"),
                 "with {} MWEs".format(mwe_count), file=sys.stderr)
+
+
+    def split_train_gold(self):
+        r"""Return a pair (train: FileInfo, gold: FileInfo)"""
+        info_train, info_gold = FileInfo(), FileInfo()
+        info = info_train
+
+        for sent_id, (tsv, conllu) in enumerate(self.iter_sentences(), 1):
+            if sent_id == self.args.gold_first_sentence:
+                info = info_gold
+            if info.mwecount >= self.args.gold_mwesize:
+                info = info_train
+
+            info.tsv_lines.extend(tsv)
+            info.conllu_lines.extend(conllu)
+
+            for tsv_line in tsv:
+                tsv_fields = tsv_line.strip().split("\t")
+                info.mwecount += sum((":" in x) for x in tsv_fields[-1].split(";"))
+        return info_train, info_gold
+
+
+    def iter_sentences(self):
+        r"""Yield pairs (tsv: List[str], conllu: List[str])."""
+        tsv, conllu = [], []
+        iter_conllu = open(self.args.conllu) if self.args.conllu else None
+        with open(self.args.input) as iter_parsemetsv:
+            for tsv_line in iter_parsemetsv:
+                tsv.append(tsv_line)
+                if iter_conllu:
+                    conllu.append(next(iter_conllu))
+
+                if not tsv_line.strip():
+                    yield tsv, conllu
+                    tsv, conllu = [], []
+        if tsv:
+            yield tsv, conllu
+
+
+class FileInfo:
+    r"""Mutable namedtuple (tsv_lines, conllu_lines, mwecount)."""
+    def __init__(self):
+        self.tsv_lines = []
+        self.conllu_lines = []
+        self.mwecount = 0
 
 
 #####################################################
