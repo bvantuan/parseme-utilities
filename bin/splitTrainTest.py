@@ -44,8 +44,12 @@ class Main:
 
 
     def stats(self, mwe_count, doing_gold):
-        print("STATS:", "OUT/"+ ("gold.*" if doing_gold else "train.*"),
-                "with {} MWEs".format(mwe_count), file=sys.stderr)
+        print("STATS:", "OUT/"+ ("gold.*" if doing_gold else "train.*"), file=sys.stderr)
+        total = 0
+        for mwetype,count in sorted(mwe_count.items()) :
+            if mwetype != "TOTAL" :
+                print("  * {}: {}".format(mwetype,count), file=sys.stderr)
+        print("  * **TOTAL: {} VMWEs**".format(mwe_count["TOTAL"]), file=sys.stderr)
 
 
     def split_train_gold(self):
@@ -56,15 +60,18 @@ class Main:
         for sent_id, (tsv, conllu) in enumerate(self.iter_sentences(), 1):
             if sent_id == self.args.gold_first_sentence:
                 info = info_gold
-            if info.mwecount >= self.args.gold_mwesize:
+            if info.mwecount["TOTAL"] >= self.args.gold_mwesize:
                 info = info_train
 
             info.tsv_lines.extend(tsv)
             info.conllu_lines.extend(conllu)
 
             for tsv_line in tsv:
-                tsv_fields = tsv_line.strip().split("\t")
-                info.mwecount += sum((":" in x) for x in tsv_fields[-1].split(";"))
+                for x in tsv_line.strip().split("\t")[-1].split(";") :
+                    if ":" in x :
+                        mweid,mwetype = x.split(":")
+                        info.mwecount[mwetype] = info.mwecount.get(mwetype,0) + 1
+                        info.mwecount["TOTAL"] += 1
         return info_train, info_gold
 
 
@@ -90,7 +97,7 @@ class FileInfo:
     def __init__(self):
         self.tsv_lines = []
         self.conllu_lines = []
-        self.mwecount = 0
+        self.mwecount = {"TOTAL":0}
 
 
 #####################################################
