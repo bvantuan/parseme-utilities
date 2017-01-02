@@ -544,8 +544,7 @@ class FoliaIterator:
         for text in doc:
             for nth,folia_sentence in enumerate(text, 1):
                 current_sentence = Sentence(self.file_path, nth, None)
-                folia_mwe_layers = folia_sentence.layers(folia.EntitiesLayer)
-                mwes = [mwe for mlayer in folia_mwe_layers for mwe in mlayer]
+                mwes = list(folia_sentence.select(folia.Entity))
                 self.calc_mweannots(mwes, current_sentence)
 
                 for rank, word in enumerate(folia_sentence.words(), 1):
@@ -558,8 +557,7 @@ class FoliaIterator:
 
     def calc_mweannots(self, mwes, output_sentence):
         for mwe in mwes:
-            words = mwe.select(folia.Word)
-            ranks = [w.id.rsplit(".",1)[-1] for w in words]
+            ranks = [w.id.rsplit(".",1)[-1] for w in mwe.wrefs()]
             if not ranks:  # ignore empty Entities produced by FLAT
                 output_sentence.msg_stderr('Ignoring empty MWE')
             else:
