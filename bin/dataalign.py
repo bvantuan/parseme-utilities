@@ -32,7 +32,7 @@ except ImportError:
 EMPTY = "_"
 
 # Set of all valid languages in PARSEME'2016
-LANGS = set("BG CS DE EL EN ES FA FR HE HR HU IT LT MT PL PT RO SE SL TR YI".split())
+LANGS = set("BG CS DE EL EN ES FA FR HE HR HU IT LT MT PL PT RO SV SL TR YI".split())
 
 # Languages where the pronoun in IReflV is on the left
 LANGS_WITH_REFL_PRON_ON_LEFT = set("DE FR RO".split())
