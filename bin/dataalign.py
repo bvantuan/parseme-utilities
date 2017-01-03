@@ -361,8 +361,10 @@ class AlignedIterator:
 
 
     def _align_sents(self):
+        while self.main and isinstance(self.main[0], Comment):
+            self.main.popleft()  # Ignore all comments in TSV (do NOT yield them)
         while self.conllu and isinstance(self.conllu[0], Comment):
-            yield self.conllu.popleft()
+            yield self.conllu.popleft()  # Output comments from CoNLL-U
         if self.conllu or self.main:
             _check_both_exist(self.main[0] if self.main else None,
                     self.conllu[0] if self.conllu else None)
