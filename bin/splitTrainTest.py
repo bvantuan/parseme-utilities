@@ -68,11 +68,12 @@ class Main:
             info.conllu_lines.extend(conllu)
 
             for tsv_line in tsv:
-                for x in tsv_line.strip().split("\t")[-1].split(";") :
-                    if ":" in x :
-                        mweid,mwetype = x.split(":")
-                        info.mwecount[mwetype] = info.mwecount.get(mwetype,0) + 1
-                        info.mwecount["TOTAL"] += 1
+                if not tsv_line.startswith("#"):
+                    for x in tsv_line.strip().split("\t")[-1].split(";") :
+                        if ":" in x :
+                            mweid,mwetype = x.split(":")
+                            info.mwecount[mwetype] = info.mwecount.get(mwetype,0) + 1
+                            info.mwecount["TOTAL"] += 1
         return info_train, info_gold
 
 
