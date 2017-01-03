@@ -14,15 +14,16 @@ parser.add_argument("--gold-first-sentence", type=int, default=1,
         help="""Desired first sentence to use as blind & gold data (default: sentence 1)""")
 parser.add_argument("--gold-mwesize", type=int, default=500,
         help="""Desired number of MWEs in blind & gold data""")
-parser.add_argument("--input", type=str, required=True,
+parser.add_argument("--input", nargs="+", type=str, required=True,
         help="""Path to input files (in FoLiA XML or PARSEME TSV format)""")
-parser.add_argument("--conllu", type=str,
+parser.add_argument("--conllu", nargs="+", type=str,
         help="""Path to parallel input CoNLL files""")
 
 
 class Main:
     def __init__(self, args):
         self.args = args
+        self.conllu_paths = self.args.conllu or dataalign.calculate_conllu_paths(self.args.input)
 
     def run(self):
         info_train, info_gold = self.split_train_gold()
@@ -79,19 +80,20 @@ class Main:
 
     def iter_sentences(self):
         r"""Yield pairs (tsv: List[str], conllu: List[str])."""
-        tsv, conllu = [], []
-        iter_conllu = open(self.args.conllu) if self.args.conllu else None
-        with open(self.args.input) as iter_parsemetsv:
-            for tsv_line in iter_parsemetsv:
-                tsv.append(tsv_line)
-                if iter_conllu:
-                    conllu.append(next(iter_conllu))
+        for tsvname in self.args.input:
+            tsv, conllu = [], []
+            iter_conllu = open(self.conllu_paths.pop(0)) if self.conllu_paths else None
+            with open(tsvname) as iter_parsemetsv:
+                for tsv_line in iter_parsemetsv:
+                    tsv.append(tsv_line)
+                    if iter_conllu:
+                        conllu.append(next(iter_conllu))
 
-                if not tsv_line.strip():
-                    yield tsv, conllu
-                    tsv, conllu = [], []
-        if tsv:
-            yield tsv, conllu
+                    if not tsv_line.strip():
+                        yield tsv, conllu
+                        tsv, conllu = [], []
+            if tsv:
+                yield tsv, conllu
 
 
 class FileInfo:
