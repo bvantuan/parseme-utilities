@@ -294,7 +294,7 @@ def calculate_conllu_paths(file_paths, warn=True):
             ret_path = path_fmt.format(d=dirname, b=basename)
             if os.path.exists(ret_path):
                 if warn:
-                    print("INFO: Using CoNNL-U file `{}`".format(ret_path), file=sys.stderr)
+                    print("INFO: Using CoNLL-U file `{}`".format(ret_path), file=sys.stderr)
                 ret.append(ret_path)
                 break
 
