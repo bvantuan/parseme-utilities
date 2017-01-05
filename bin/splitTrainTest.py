@@ -28,14 +28,14 @@ class Main:
     def run(self):
         info_train, info_gold = self.split_train_gold()
         subprocess.check_call("mkdir -p ./OUT", shell=True)
-        print("Statistics\n==========\n",file=sys.stderr)        
+        print("Statistics\n==========\n", file=sys.stderr)
         for name, info in (("gold", info_gold), ("train", info_train)):
             self.process_fileinfo(name, info)
 
     def process_fileinfo(self, name, info):
         r"""Example: process_fileinfo("train", FileInfo(...))"""
         self.generate_file(name, "parsemetsv", info.tsv_lines)
-        if info.conllu_lines:
+        if self.conllu_paths:
             self.generate_file(name, "conllu", info.conllu_lines)
         self.stats(info.mwecount, (name == "gold"))
 
@@ -80,9 +80,10 @@ class Main:
 
     def iter_sentences(self):
         r"""Yield pairs (tsv: List[str], conllu: List[str])."""
+        conllu_paths = self.conllu_paths[:]  # make a copy
         for tsvname in self.args.input:
             tsv, conllu = [], []
-            iter_conllu = open(self.conllu_paths.pop(0)) if self.conllu_paths else None
+            iter_conllu = open(conllu_paths.pop(0)) if conllu_paths else None
             with open(tsvname) as iter_parsemetsv:
                 for tsv_line in iter_parsemetsv:
                     tsv.append(tsv_line)
