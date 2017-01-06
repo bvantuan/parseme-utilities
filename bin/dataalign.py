@@ -128,6 +128,15 @@ class Sentence:
         r"""Change the mwe_codes in `self.tokens` so as to remove all NonVMWE tags."""
         self.mweannots = [m for m in self.mweannots if m.category != "NonVMWE"]
 
+    def remove_duplicate_mwes(self):
+        r"""Uniqs self.mweannots (keeps only first occurrence)"""
+        old_mweannots = self.mweannots
+        self.mweannots = [m for (i, m) in enumerate(self.mweannots) if m not in self.mweannots[:i]]
+        if len(self.mweannots) != len(old_mweannots):
+            duplicates = [m for m in old_mweannots if old_mweannots.count(m) > 1]
+            for mweannot in duplicates:
+                self.msg_stderr("Removed duplicate MWE: {}".format(mweannot))
+
 
     def re_tokenize(self, new_tokens, indexmap):
         r"""Replace `self.tokens` with given tokens and fix `self.mweannot` based on `indexmap`"""
@@ -306,13 +315,16 @@ def calculate_conllu_paths(file_paths, warn=True):
     return ret
 
 
-def iter_aligned_files(file_paths, conllu_paths=None, keep_nvmwes=False, debug=False):
+def iter_aligned_files(file_paths, conllu_paths=None, keep_nvmwes=False, keep_dup_mwes=False, debug=False):
     r"""iter_aligned_files(list[str], list[str]) -> Iterable[Either[Sentence,Comment]]
     Yield Sentence's & Comment's based on file_paths and conllu_paths.
     """
     for sentence in AlignedIterator.from_paths(file_paths, conllu_paths, debug):
-        if not keep_nvmwes and isinstance(sentence, Sentence):
-            sentence.remove_non_vmwes()
+        if isinstance(sentence, Sentence):
+            if not keep_nvmwes:
+                sentence.remove_non_vmwes()
+            if not keep_dup_mwes:
+                sentence.remove_duplicate_mwes()
         yield sentence
 
 
@@ -559,6 +571,7 @@ class FoliaIterator:
 
     def calc_mweannots(self, mwes, output_sentence):
         for mwe in mwes:
+            # XXX FIXME BUG: this assumes that wrefs will be ordered, which is not the case
             ranks = [w.id.rsplit(".",1)[-1] for w in mwe.wrefs()]
             if not ranks:  # ignore empty Entities produced by FLAT
                 output_sentence.msg_stderr('Ignoring empty MWE')
@@ -611,7 +624,7 @@ class AbstractFileIterator:
             index_and_categ = mwecode.split(":")
             self.id2mwe_ranks[index_and_categ[0]].append(token.rank)
             if len(index_and_categ) == 2:
-                self.id2mwe_categ[index_and_categ[0]] = index_and_categ[1]
+                self.id2mwe_categ.setdefault(index_and_categ[0], index_and_categ[1])
         self.curr_sent.tokens.append(token)
 
     def __iter__(self):
