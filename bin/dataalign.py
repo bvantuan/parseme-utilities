@@ -577,7 +577,7 @@ class FoliaIterator:
 
     def calc_mweannots(self, mwes, output_sentence):
         for mwe in mwes:
-            ranks = [w.id.rsplit(".",1)[-1] for w in mwe.wrefs())]
+            ranks = [w.id.rsplit(".",1)[-1] for w in mwe.wrefs()]
             if not ranks:  # ignore empty Entities produced by FLAT
                 output_sentence.msg_stderr('Ignoring empty MWE')
             else:
