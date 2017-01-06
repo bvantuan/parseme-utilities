@@ -27,16 +27,18 @@ class Main:
                 or dataalign.calculate_conllu_paths(self.args.input, warn=False)
         for elem in dataalign.iter_aligned_files(self.args.input, self.conllu_paths,
                 keep_nvmwes=False, debug=False):
-            for mweannot in elem.mweannots:
-                self.counter[mweannot.category] += 1
-            self.sents += 1
-            self.tokens += len(elem.tokens)
-
+            if not isinstance(elem, dataalign.Comment):
+                for mweannot in elem.mweannots:
+                    self.counter[mweannot.category] += 1
+                self.sents += 1
+                self.tokens += len(elem.tokens)
+        #print("### {}".format(" ".join(self.args.input)))
+        print("* Sentences: {}".format(self.sents))
+        print("* Tokens: {}".format(self.tokens))
+        print("* Total VMWEs: {}".format(sum(self.counter.values())))        
         for name, count in sorted(self.counter.items()):
             print("  * `{}`: {}".format(name, count))
-        print("  * **TOTAL**: {}".format(sum(self.counter.values())))
-        print("  * Sentences: {}".format(self.sents))
-        print("  * Tokens: {}".format(self.tokens))
+
 
 
 #####################################################
