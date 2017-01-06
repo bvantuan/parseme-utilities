@@ -80,7 +80,7 @@ class Main:
 
     def iter_sentences(self):
         r"""Yield pairs (tsv: List[str], conllu: List[str])."""
-        conllu_paths = self.conllu_paths[:]  # make a copy
+        conllu_paths = self.conllu_paths[:] if self.conllu_paths is not None else None  # make a copy
         for tsvname in self.args.input:
             tsv, conllu = [], []
             iter_conllu = open(conllu_paths.pop(0)) if conllu_paths else None
