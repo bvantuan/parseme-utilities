@@ -571,8 +571,9 @@ class FoliaIterator:
 
     def calc_mweannots(self, mwes, output_sentence):
         for mwe in mwes:
-            # XXX FIXME BUG: this assumes that wrefs will be ordered, which is not the case
             ranks = [w.id.rsplit(".",1)[-1] for w in mwe.wrefs()]
+            # FoLiA ranks may be in random order, so we sort them numerically
+            ranks.sort(key=lambda r: tuple(int(i) for i in r.split("-")))
             if not ranks:  # ignore empty Entities produced by FLAT
                 output_sentence.msg_stderr('Ignoring empty MWE')
             else:
