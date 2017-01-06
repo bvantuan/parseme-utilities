@@ -52,6 +52,12 @@ class MWEAnnot(collections.namedtuple('MWEAnnot', 'ranks category')):
     @type ranks: tuple[str]
     @type category: str
     """
+    def __new__(cls, ranks, category):
+        new_ranks = list(set(ranks))
+        new_ranks.sort(key=lambda r: tuple(int(i) for i in r.split("-")))
+        return super().__new__(cls, tuple(new_ranks), category)
+
+
     def indexes(self, rank2index):
         r"""Return all indexes of this MWEAnnot inside a `rank2index` dict.
         Missing entries are SILENTLY IGNORED (useful for AlignedIterator).
@@ -571,9 +577,7 @@ class FoliaIterator:
 
     def calc_mweannots(self, mwes, output_sentence):
         for mwe in mwes:
-            ranks = [w.id.rsplit(".",1)[-1] for w in mwe.wrefs()]
-            # FoLiA ranks may be in random order, so we sort them numerically
-            ranks.sort(key=lambda r: tuple(int(i) for i in r.split("-")))
+            ranks = [w.id.rsplit(".",1)[-1] for w in mwe.wrefs())]
             if not ranks:  # ignore empty Entities produced by FLAT
                 output_sentence.msg_stderr('Ignoring empty MWE')
             else:
