@@ -321,7 +321,8 @@ def calculate_conllu_paths(file_paths, warn=True):
     return ret
 
 
-def iter_aligned_files(file_paths, conllu_paths=None, keep_nvmwes=False, keep_dup_mwes=False, debug=False):
+def iter_aligned_files(file_paths, conllu_paths=None, keep_nvmwes=False,
+        keep_dup_mwes=False, keep_mwe_random_order=False, debug=False):
     r"""iter_aligned_files(list[str], list[str]) -> Iterable[Either[Sentence,Comment]]
     Yield Sentence's & Comment's based on file_paths and conllu_paths.
     """
@@ -331,6 +332,8 @@ def iter_aligned_files(file_paths, conllu_paths=None, keep_nvmwes=False, keep_du
                 sentence.remove_non_vmwes()
             if not keep_dup_mwes:
                 sentence.remove_duplicate_mwes()
+            if not keep_mwe_random_order:
+                sentence.mweannots.sort()
         yield sentence
 
 
