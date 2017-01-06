@@ -23,7 +23,8 @@ parser.add_argument("--conllu", nargs="+", type=str,
 class Main:
     def __init__(self, args):
         self.args = args
-        self.conllu_paths = self.args.conllu or dataalign.calculate_conllu_paths(self.args.input)
+        self.conllu_paths = self.args.conllu \
+                or dataalign.calculate_conllu_paths(self.args.input) or []
 
     def run(self):
         info_train, info_test = self.split_train_test()
