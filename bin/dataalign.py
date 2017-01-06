@@ -584,8 +584,11 @@ class AbstractFileIterator:
         if not self.curr_sent:
             self.err("Unexpected empty line")
         s = self.curr_sent
-        s.mweannots = [MWEAnnot(tuple(self.id2mwe_ranks[id]),
-            self.id2mwe_categ[id]) for id in sorted(self.id2mwe_ranks)]
+        try:
+            s.mweannots = [MWEAnnot(tuple(self.id2mwe_ranks[id]),
+                self.id2mwe_categ[id]) for id in sorted(self.id2mwe_ranks)]
+        except KeyError as e:
+            self.err("MWE has no category: {}".format(e.args[0]))
         self._new_sent()
         return s
 
