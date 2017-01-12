@@ -127,9 +127,13 @@ class Main:
         | | Some comment typed by an annotator.
         """
         # Yield a label; e.g. [LVC]  -- the label contains a tooltip
-        file_info = 'Annotated in file &quot;{}&quot;, sentence #{}, by &quot;{}&quot; on {}'.format(
-                ESC(occur.sentence.file_path), ESC(str(occur.sentence.nth_sent)),
-                ESC(occur.annotator or "<unknown>"), ESC(str(occur.datetime or "<unknown-date>")))
+        if occur.category == "Skipped":
+            file_info = 'Possible VMWE seen in file &quot;{}&quot;, sentence #{}'.format(
+                ESC(occur.sentence.file_path), ESC(str(occur.sentence.nth_sent)))
+        else:  # occur.category != "Skipped":
+            file_info = 'Annotated in file &quot;{}&quot;, sentence #{}, by &quot;{}&quot; on {}'.format(
+                    ESC(occur.sentence.file_path), ESC(str(occur.sentence.nth_sent)),
+                    ESC(occur.annotator or "<unknown>"), ESC(str(occur.datetime or "<unknown-date>")))
         confidence_info = '' if occur.confidence is None else ' {}%'.format(int(occur.confidence*100))
         yield '<span class="label mwe-label mwe-label-{0}" data-toggle="tooltip" title="{1}">{0}{2}</span><span> </span>' \
                 .format(ESC(occur.category), file_info, confidence_info)
