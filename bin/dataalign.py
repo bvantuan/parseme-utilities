@@ -631,7 +631,7 @@ class AbstractFileIterator:
         for mwecode in mwecodes:
             index_and_categ = mwecode.split(":")
             self.id2mwe_ranks[index_and_categ[0]].append(token.rank)
-            if len(index_and_categ) == 2:
+            if len(index_and_categ) == 2 and index_and_categ[1]:
                 self.id2mwe_categ.setdefault(index_and_categ[0], index_and_categ[1])
         self.curr_sent.tokens.append(token)
 
