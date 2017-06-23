@@ -14,9 +14,10 @@
 #	Each of them should contain the parsemetgz/OUT/test.parsemetsv file with the gold version of the test data.
 #
 
-CHECK_PARSEMETSV="./checkParsemeTsvFormat.py"
-EVALUATE="./evaluate.py"
-LANGUAGES=(BG CS DE EL ES FA FR HE HU IT LT MT PL PT RO SL SV TR)
+source ../../lib/parseme_st_data_dev_path.bash
+CHECK_PARSEMETSV="$PARSEME_SHAREDTASK_DATA_DEV/checkParsemeTsvFormat.py"
+EVALUATE="$PARSEME_SHAREDTASK_DATA_DEV/evaluate.py"
+LANGUAGES=(AR BG CS DE EL EN ES EU FA FR HE HR HU HI IT LT MT PL PT RO SL SV TR)
 
 export LC_ALL="en_US.UTF-8" #Needed by evaluate.py
 
