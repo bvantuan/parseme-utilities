@@ -7,7 +7,7 @@ cd "${PARSEME_SHAREDTASK_DATA_DEV:?}"
 
 
 if test "${1:-}" = "-h"; then
-    echo "Usage: ./prepare_languages.sh:"
+    echo "Usage: ./prepare_languages.sh"
     echo ""
     echo "Prepare all languages:"
     echo "  * generate test.blind"
@@ -35,6 +35,11 @@ gen_stats() {
         fi
     done   
 }
+
+
+# Export path to splitTrainTest, to be used by genOUT.sh
+export SPLIT_TRAIN_TEST="$HERE/splitTrainTest.py"
+
 
 for LANG in ${LANGUAGES:-??}; do
     echo "==> $LANG/parsemetgz" >&2
