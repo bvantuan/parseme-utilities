@@ -14,7 +14,10 @@ if test "${1:-}" = "-h"; then
     echo "  * generate OUT directory"
     echo "  * generate stats.md"
     echo ""
-    echo "To run for specific languages, run LANGUAGES='XX YY' ./prepare_languages.sh"
+    echo "For each language, there should be a script \$LANG/parsemetgz/genOUT.sh"
+    echo "to generate the OUT directory. If genOUT.sh is missing, the language will be skipped."
+    echo ""
+    echo "To run for specific languages: LANGUAGES='XX YY' ./prepare_languages.sh"
     echo "By default, runs for all two-letter folders (languages)"
     exit 0
 fi
@@ -35,7 +38,10 @@ gen_stats() {
 
 for LANG in ${LANGUAGES:-??}; do
     echo "==> $LANG/parsemetgz" >&2
-    if test -f $LANG/parsemetgz/genOUT.sh; then
+    if ! test -f $LANG/parsemetgz/genOUT.sh; then
+        echo "WARNING: $LANG/parsemetgz/genOUT.sh is missing"
+    else
+        echo "Running $LANG/parsemetgz/genOUT.sh"
         pushd "$LANG/parsemetgz" >/dev/null
         rm -rf ./OUT
         mkdir -p ./OUT
