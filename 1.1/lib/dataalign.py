@@ -32,13 +32,13 @@ except ImportError:
 EMPTY = "_"
 
 # Set of all valid languages in PARSEME'2016
-LANGS = set("BG CS DE EL EN ES FA FR HE HR HU IT LT MT PL PT RO SV SL TR YI".split())
+LANGS = set("AR BG CS DE EL EN ES EU FA FR HE HR HU HI IT LT MT PL PT RO SL SV TR".split())
 
 # Languages where the pronoun in IReflV is on the left
-LANGS_WITH_REFL_PRON_ON_LEFT = set("DE FR RO".split())
+LANGS_WITH_REFL_PRON_ON_LEFT = set("DE EU FR RO".split())
 
-# Languages where the main verb is normally on the right
-LANGS_WITH_DEFAULT_VERB_ON_RIGHT = set("TR".split())
+# Languages where the verb normally appears to the right of the object complement (SOV/OSV/OVS)
+LANGS_WITH_DEFAULT_VERB_ON_RIGHT = set("EU HI TR".split())
 
 
 ############################################################
