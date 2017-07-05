@@ -548,7 +548,7 @@ class TokenAligner:
         main_toks = [self.main_sentence.tokens[i].surface for i in main_range]
         #conllu_toks = [self.conllu_sentence.tokens[i].surface for i in conllu_range]
 
-        mwe_codes_info = " (MWEs={})".format(";".join(all_mwe_codes)) if all_mwe_codes else ""
+        mwe_codes_info = " (MWEs={})".format(";".join(map(str,all_mwe_codes))) if all_mwe_codes else ""
         self.main_sentence.msg_stderr(
                 "WARNING: Ignoring extra tokens in sentence #{} ({}): {!r}{}"
                 .format(self.main_sentence.nth_sent, self.conllu_sentence.id(),
