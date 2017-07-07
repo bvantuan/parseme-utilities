@@ -172,6 +172,18 @@ class Sentence:
         if die: exit(1)
 
 
+    def check_token_data(self):
+        r"""Check token data and emit warnings if they are malformed
+        (e.g. if a token contains spaces inside the surface form).
+        """
+        for token in self.tokens:
+            nonspace_forms = ['rank', 'surface', 'nsp', 'lemma', 'univ_pos']
+            for nonspace_form in nonspace_forms:
+                if " " in (str(getattr(token, nonspace_form)) or ""):
+                    self.msg_stderr("Token #{} contains spaces in `{}` form"
+                                    .format(token.rank, nonspace_form))
+
+
 
 
 class MWEOccur:
@@ -611,6 +623,7 @@ class AbstractFileIterator:
         except KeyError as e:
             self.err("MWE has no category: {}".format(e.args[0]))
         self._new_sent()
+        s.check_token_data()
         return s
 
     def err(self, msg):
