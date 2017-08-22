@@ -21,30 +21,40 @@ parser.add_argument("--lang", choices=sorted(dataalign.LANGS), metavar="LANG", r
         help="""ID of the target language (e.g. EN, FR, PL, DE...)""")
 parser.add_argument("--find-skipped", action="store_true",
         help="""Also find possibly missed MWEs, using the `Skipped` label""")
+parser.add_argument("--output-skipped-info", action='store_true',
+        help="""Output info about skipped MWEs at given path (instead of normal HTML output)""")  # XXX this is a hack
 parser.add_argument("--input", type=str, nargs="+", required=True,
         help="""Path to input files (preferably in FoLiA XML format, but PARSEME TSV works too)""")
 parser.add_argument("--conllu", type=str, nargs="+",
         help="""Path to parallel input CoNLL files""")
 
-MAX_SKIPS = 5
+MAX_GAPS = 5
 
 
 class Main:
     def __init__(self, args):
         self.args = args
-        self.canonicform2mwe_mixed = collections.OrderedDict()  # type: dict[tuple[str], MWEDesc]
-        self.canonicform2mwe_nvmwe = collections.OrderedDict()  # type: dict[tuple[str], MWEDesc]
+        self.canonicform2mwe_mixed = collections.OrderedDict()  # type: dict[tuple[str], MWELexicalItem]
+        self.canonicform2mwe_nvmwe = collections.OrderedDict()  # type: dict[tuple[str], MWELexicalItem]
 
     def run(self):
         cf2mweoccurs = self._canonicform2mweoccurs()
         for canonicform, mweoccurs in cf2mweoccurs.items():
-            mwedesc = MWEDesc(canonicform, mweoccurs)
-            if mwedesc.only_non_vmwes():
-                self.canonicform2mwe_nvmwe[canonicform] = mwedesc
+            mwe = dataalign.MWELexicalItem(canonicform, mweoccurs)
+            if mwe.only_non_vmwes():
+                self.canonicform2mwe_nvmwe[canonicform] = mwe
             else:
-                self.canonicform2mwe_mixed[canonicform] = mwedesc
+                self.canonicform2mwe_mixed[canonicform] = mwe
 
-        self.print_html()
+        if self.args.output_skipped_info:  # XXX this is a hack
+            global MAX_GAPS
+            MAX_GAPS = 1  # XXX HACK
+            skip_sents = self.iter_sentences(verbose=False)
+            vic = VerbInfoCalculator(self.args.lang, self.canonicform2mwe_mixed, skip_sents)
+            vic.print_skipped_info()
+            exit(0)
+        else:
+            self.print_html()
 
 
     def _canonicform2mweoccurs(self):
@@ -82,13 +92,13 @@ class Main:
 
         for verb, verbinfo in sorted(vic.verb2info.items()):
             print('<div class="verb-block">')
-            for mwedesc in verbinfo.verbbased_mwedescs:
-                self.print_html_mwe_entry(verb, None, mwedesc)
+            for mwe in verbinfo.verbbased_mwes:
+                self.print_html_mwe_entry(verb, None, mwe)
 
-            for noun, mwedescs in sorted(verbinfo.nounbased_mwedescs.items()):
+            for noun, mwes in sorted(verbinfo.nounbased_mwes.items()):
                 print(' <div class="noun-subblock">')
-                for mwedesc in mwedescs:
-                    self.print_html_mwe_entry(verb, mwedesc.subhead(), mwedesc)
+                for mwe in mwes:
+                    self.print_html_mwe_entry(verb, mwe.subhead(), mwe)
                 print(' </div>') # noun-subblock
             print('</div>')  # verb-block
         print('</div>')  # mwe-list
@@ -163,153 +173,93 @@ class Main:
             yield '<div class="mwe-occur-comment">{}</div>'.format(c)
 
 
-class MWEDesc:
-    r'''Augmented version of the MWE class.
-    
-    Parameters:
-    @type  canonicform: tuple[str]
-    @param canonicform: a tuple of canonical lemma/surface forms
-    @type  mweoccurs: list[dataalign.MWEOccur]
-    @param mweoccurs: a list of MWEOccur instances
-
-    Attributes:
-    @type  i_head: int
-    @param i_head: index of head verb
-    @type  i_subhead: Optional[int]
-    @param i_subhead: index of sub-head noun
-    @type  grouped_by_subhead_noun: bool
-    @param grouped_by_subhead_noun: True iff should be grouped in output based on i_subhead (default=False)
-    '''
-    def __init__(self, canonicform, mweoccurs):
-        self.canonicform, self.mweoccurs = canonicform, mweoccurs
-        self._seen_mweoccur_ids = {m.id() for m in self.mweoccurs}  # type: set[str]
-
-        self.i_head = collections.Counter(m.reordered.i_head for m in mweoccurs).most_common(1)[0][0]
-        self.grouped_by_subhead_noun = False
-
-        nounbased_mweos = [m for m in mweoccurs if m.reordered.subhead]
-        self.i_subhead = nounbased_mweos[0].reordered.i_subhead if nounbased_mweos else None
-
-
-    def only_non_vmwes(self):
-        r'''True iff all mweoccurs are NonVMWEs.'''
-        return all((o.category=="NonVMWE" and o.confidence is None) for o in self.mweoccurs)
-
-    def add_skipped_mweoccur(self, mweoccur):
-        r'''Add MWEOccur to this MWE descriptor. If this MWEOccur already exists, does nothing.'''
-        assert mweoccur.category == 'Skipped'  # we do not need to update i_head/i_subhead for Skipped
-        mweoccur_id = mweoccur.id()
-        if not mweoccur_id in self._seen_mweoccur_ids:
-            self._seen_mweoccur_ids.add(mweoccur_id)
-            self.mweoccurs.append(mweoccur)
-
-    def head(self):
-        r'''Return a `str` with the head verb.'''
-        return self.canonicform[self.i_head]
-
-    def subhead(self):
-        r'''Return a `str` with the subhead noun (fails if self.i_subhead is None).'''
-        return self.canonicform[self.i_subhead]
-
-
 class VerbInfoCalculator:
-    r"""Arguments:
-    @type canonicform2mwe: dict[tuple[str], MWEDesc]
+    r"""Parameters:
+    @type canonicform2mwe: dict[tuple[str], MWELexicalItem]
     @type sentences_to_discover_skipped: Iterable[dataalign.Sentence]
     """
     def __init__(self, lang, canonicform2mwe, sentences_to_discover_skipped):
         self.lang = lang
         self.canonicform2mwe = canonicform2mwe
         self._find_skipped(sentences_to_discover_skipped)
-        self.noun2mwedescs = dict(self._noun2mwedescs())
-        self.verb2info = collections.defaultdict(VerbInfo)
+
+        self.verb2info = collections.defaultdict(VerbInfo)  # type: dict[str, VerbInfo]
+        self.noun2mwes = dict(self._noun2mwes())            # type: dict[str, list[MWELexicalItem]]
+        self.all_nounbased_mwes = set()                     # type: set[MWELexicalItem]
 
         # Update verb2info with noun-based canonics
-        for noun, mwedescs in self.noun2mwedescs.items():
-            for mwedesc in mwedescs:
-                mwedesc.grouped_by_subhead_noun = True
-            canonics = [m.canonicform for m in mwedescs]
-            merged_mwe_occurs = [mweo for mweo in mwedesc.mweoccurs for mwedesc in mwedescs]
+        for noun, mwes in self.noun2mwes.items():
+            merged_mwe_occurs = [mweo for m in mwes for mweo in m.mweoccurs]
             all_heads = [mweo.reordered.head.lemma_or_surface() for mweo in merged_mwe_occurs]
             most_common_verb = collections.Counter(all_heads).most_common(1)[0][0]
             # Group all under "most_common_verb" (note that verb2info may then have a verb entry under another verb!)
-            self.verb2info[most_common_verb.lower()].nounbased_mwedescs[noun.lower()].extend(mwedescs)
+            self.verb2info[most_common_verb.lower()].nounbased_mwes[noun.lower()].extend(mwes)
+            self.all_nounbased_mwes.update(mwes)
 
         for verb, info in self.verb2info.items():
-            for mwedesc_list in info.nounbased_mwedescs.values():
+            for mwe_list in info.nounbased_mwes.values():
                 # We sort by canonicform, with the canonicforms that have `verb` itself appearing first
-                mwedesc_list.sort(key=lambda m: (verb not in m.canonicform, m.canonicform))
+                mwe_list.sort(key=lambda m: (verb not in m.canonicform, m.canonicform))
 
         # Update verb2info with verb-based canonics
-        for canonicform, mwedesc in self.canonicform2mwe.items():
-            if not mwedesc.grouped_by_subhead_noun:
-                self.verb2info[canonicform[mwedesc.i_head].lower()].verbbased_mwedescs.append(mwedesc)
+        for canonicform, mwe in self.canonicform2mwe.items():
+            if mwe not in self.all_nounbased_mwes:
+                self.verb2info[canonicform[mwe.i_head].lower()].verbbased_mwes.append(mwe)
         for verbinfo in self.verb2info.values():
-            verbinfo.verbbased_mwedescs.sort(key=lambda mwedesc: mwedesc.canonicform)
+            verbinfo.verbbased_mwes.sort(key=lambda mwe: mwe.canonicform)
 
 
-    def _noun2mwedescs(self):
+    def print_skipped_info(self):
+        r'''Print TSV with "Skipped" info'''
+        total, total_annotated = 0, 0
+        # XXX we use "literal" instead of "skipped", because we interpret post-adjudication skipped as literal cases
+        print("MWE", "n-idiomatic", "n-literal", "idiomaticity-rate", "example-literal", sep='\t')
+        for canonicform, mwe in sorted(self.canonicform2mwe.items()):
+            n_annotated = sum(1 for o in mwe.mweoccurs if o.category != 'Skipped')
+            n = len(mwe.mweoccurs)
+            total += n
+            total_annotated += n_annotated
+
+            example_skipped = '---'
+            if n != n_annotated:
+                example_occur = next(o for o in mwe.mweoccurs if o.category == 'Skipped')
+                example_skipped = " ".join(t.surface for t in example_occur.sentence.tokens)
+            print("_".join(canonicform), n, n-n_annotated, n_annotated/n, example_skipped, sep="\t")
+        print("TOTAL", total, total-total_annotated, total_annotated/total, '---', sep="\t")
+
+
+    def _noun2mwes(self):
         ret = collections.defaultdict(list)
-        for canonicform, mwedesc in self.canonicform2mwe.items():
-            if mwedesc.i_subhead:
-                ret[mwedesc.subhead()].append(mwedesc)
+        for canonicform, mwe in self.canonicform2mwe.items():
+            if mwe.i_subhead:
+                ret[mwe.subhead()].append(mwe)
         # (We skip subheads where only one canonical form contains the noun)
-        return {noun: mwedescs for (noun, mwedescs) \
-                in ret.items() if len(mwedescs) > 1}
+        return {noun: mwes for (noun, mwes) \
+                in ret.items() if len(mwes) > 1}
 
 
     def _find_skipped(self, sentences):
-        r"""For every sentence, add Skipped MWEs to self.canonicform2mwe."""
-        head2mwedescs = collections.defaultdict(list)  # type: dict[str, list[MWEDesc]]
-        for canonicform, mwedesc in self.canonicform2mwe.items():
-            head2mwedescs[canonicform[mwedesc.i_head].lower()].append(mwedesc)
+        r"""For every sentence, add Skipped MWEOccur entries to MWELexicalItems in self.canonicform2mwe."""
+        finder = dataalign.DependencyBasedSkippedFinder(self.lang, self.canonicform2mwe.values())
+        for mwe, mweoccur in finder.find_skipped_in(sentences):
+            mwe.add_skipped_mweoccur(mweoccur)
 
-        for sentence in sentences:
-            for i, w in enumerate(sentence.tokens):
-                for mwedesc in head2mwedescs.get((w.lemma or w.surface or "").lower(), []):
-                    self._find_skipped_in_sentence(sentence, i, mwedesc)
-
-    def _find_skipped_in_sentence(self, sentence, i_head, mwedesc):
-        r"""For a given sentence, add Skipped MWEs to self.canonicform2mwe[mwedesc.canonicform]."""
-        canonic_set = collections.Counter(mwedesc.canonicform)
-        matched_indexes = []
-
-        def matched(wordform, i):
-            canonic_set[wordform] -= 1
-            if canonic_set[wordform] == 0:
-                del canonic_set[wordform]
-            matched_indexes.append(i)
-
-        for range_obj in [range(i_head, len(sentence.tokens)), range(i_head-1, -1, -1)]:
-            gaps = 0
-            for i in range_obj:
-                word = sentence.tokens[i]
-                if gaps >= MAX_SKIPS or not canonic_set: break
-                if word.surface in canonic_set:
-                    matched(word.surface, i)
-                elif word.lemma in canonic_set:
-                    matched(word.lemma, i)
-                else:
-                    gaps += 1
-
-        if not canonic_set:
-            matched_indexes.sort()
-            new_occur = dataalign.MWEOccur(self.lang, sentence,
-                    matched_indexes, "Skipped", [], "autodetect", None, None)
-            self.canonicform2mwe[mwedesc.canonicform].add_skipped_mweoccur(new_occur)
+        #finder = dataalign.WindowBasedSkippedFinder(self.lang, self.canonicform2mwe.values(), MAX_GAPS)
+        #for mwe, mweoccur in finder.find_skipped_in(sentences):
+        #    mwe.add_skipped_mweoccur(mweoccur)
 
 
 class VerbInfo:
-    r'''Arguments:
-    @type  verbbased_mwedescs: list[MWEDesc]
-    @param nounbased_mwedescs: List of verb-based MWEs
+    r'''Attributes:
+    @type  verbbased_mwes: list[MWELexicalItem]
+    @param nounbased_mwes: List of verb-based MWEs
 
-    @type  nounbased_mwedescs: dict[str, list[MWEDesc]
-    @param nounbased_mwedescs: Map from `nouǹ  to noun-based MWEs (heterogeneous verbs!)
+    @type  nounbased_mwes: dict[str, list[MWELexicalItem]
+    @param nounbased_mwes: Map from `noun`  to noun-based MWEs (heterogeneous verbs!)
     '''
     def __init__(self):
-        self.nounbased_mwedescs = collections.defaultdict(list)  # noun -> list[MWEDesc]
-        self.verbbased_mwedescs = []  # list[MWEDesc]
+        self.nounbased_mwes = collections.defaultdict(list)  # noun -> list[MWELexicalItem]
+        self.verbbased_mwes = []  # list[MWELexicalItem]
 
 
 
