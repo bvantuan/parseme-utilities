@@ -1,0 +1,349 @@
+# sentid: Europar.550_00126
+# sentence-text: C'est pourquoi j'attends de tout le monde, Albanais et Serbes, qu'ils laissent les troupes de la KFOR en paix.
+1	C'	ce	CL	CLS	mwehead=ADV|mwelemma=c'est_pourquoi|n=s|p=3|s=suj|sentid=Europar.550_00126	5	mod	_	_
+2	est	être	V	V	component=y|m=ind|n=s|p=3|t=pst	1	dep_cpd	_	_
+3	pourquoi	pourquoi	ADV	ADV	component=y	1	dep_cpd	_	_
+4	j'	il	CL	CLS	n=s|p=1|s=suj	5	suj	_	_
+5	attends	attendre	V	V	m=ind|n=s|p=1|t=pst	0	root	_	_
+6	de	de	P	P	_	5	de_obj	_	_
+7	tout	tout	A	ADJ	g=m|n=s|s=ind	9	mod	_	_
+8	le	le	D	DET	g=m|n=s|s=def	9	det	_	_
+9	monde	monde	N	NC	g=m|n=s|s=c	6	obj.p	_	_
+10	,	,	PONCT	PONCT	s=w	9	ponct	_	_
+11	Albanais	albanais	N	NC	g=m|n=p|s=c	9	mod	_	_
+12	et	et	C	CC	s=c	11	coord	_	_
+13	Serbes	serbe	N	NC	g=m|n=p|s=c	12	dep.coord	_	_
+14	,	,	PONCT	PONCT	s=w	5	ponct	_	_
+15	qu'	que	C	CS	s=s	5	obj	_	_
+16	ils	il	CL	CLS	g=m|n=p|p=3|s=suj	17	suj	_	_
+17	laissent	laisser	V	V	m=ind|n=p|p=3|t=pst	15	obj.cpl	_	_
+18	les	le	D	DET	n=p|s=def	19	det	_	_
+19	troupes	troupe	N	NC	g=f|n=p|s=c	17	obj	_	_
+20	de	de	P	P	_	19	dep	_	_
+21	la	le	D	DET	g=f|n=s|s=def	22	det	_	_
+22	KFOR	KFOR	N	NPP	s=p	20	obj.p	_	_
+23	en	en	P	P	_	17	ato	_	_
+24	paix	paix	N	NC	g=f|n=s|s=c	23	obj.p	_	_
+25	.	.	PONCT	PONCT	s=s	5	ponct	_	_
+
+# sentid: Europar.550_00127
+# sentence-text: J'approuve ce qu'a dit M. Sakellariou : la communauté internationale doit envoyer les forces de police qu'elles a promises.
+1	J'	il	CL	CLS	n=s|p=1|s=suj|sentid=Europar.550_00127	2	suj	_	_
+2	approuve	approuver	V	V	m=ind|n=s|p=1|t=pst	0	root	_	_
+3	ce	ce	PRO	PRO	_	2	obj	_	_
+4	qu'	que	PRO	PROREL	s=rel	6	obj	_	_
+5	a	avoir	V	V	m=ind|n=s|p=3|t=pst	6	aux.tps	_	_
+6	dit	dire	V	VPP	g=m|m=part|n=s|t=past	3	mod.rel	_	_
+7	M.	monsieur	N	NC	g=m|n=s|s=c	6	suj	_	_
+8	Sakellariou	Sakellariou	N	NPP	s=p	7	mod	_	_
+9	:	:	PONCT	PONCT	s=w	2	ponct	_	_
+10	la	le	D	DET	g=f|n=s|s=def	11	det	_	_
+11	communauté	communauté	N	NC	g=f|n=s|s=c	13	suj	_	_
+12	internationale	international	A	ADJ	g=f|n=s|s=qual	11	mod	_	_
+13	doit	devoir	V	V	m=ind|n=s|p=3|t=pst	2	mod	_	_
+14	envoyer	envoyer	V	VINF	m=inf	13	obj	_	_
+15	les	le	D	DET	n=p|s=def	16	det	_	_
+16	forces	force	N	NC	g=f|n=p|s=c	14	obj	_	_
+17	de	de	P	P	_	16	dep	_	_
+18	police	police	N	NC	g=f|n=s|s=c	17	obj.p	_	_
+19	qu'	que	PRO	PROREL	s=rel	22	obj	_	_
+20	elles	il	CL	CLS	g=f|n=p|p=3|s=suj	22	suj	_	_
+21	a	avoir	V	V	m=ind|n=s|p=3|t=pst	22	aux.tps	_	_
+22	promises	promettre	V	VPP	g=f|m=part|n=p|t=past	16	mod.rel	_	_
+23	.	.	PONCT	PONCT	s=s	2	ponct	_	_
+
+# sentid: Europar.550_00128
+# sentence-text: Un tiers de ces policiers sont arrivés, il reste deux tiers pour arriver au compte je crois que nous devons le faire.
+1	Un	un	D	DET	g=m|n=s|s=ind|sentid=Europar.550_00128	2	det	_	_
+2	tiers	tiers	N	NC	g=m|n=s|s=c	7	suj	_	_
+3	de	de	P	P	_	2	dep	_	_
+4	ces	ce	D	DET	n=p|s=dem	5	det	_	_
+5	policiers	policier	N	NC	g=m|n=p|s=c	3	obj.p	_	_
+6	sont	être	V	V	m=ind|n=p|p=3|t=pst	7	aux.tps	_	_
+7	arrivés	arriver	V	VPP	g=m|m=part|n=p|t=past	0	root	_	_
+8	,	,	PONCT	PONCT	s=w	7	ponct	_	_
+9	il	il	CL	CLS	g=m|n=s|p=3|s=suj	10	suj	_	_
+10	reste	rester	V	V	m=ind|n=s|p=3|t=pst	7	mod	_	_
+11	deux	deux	D	DET	s=card	12	det	_	_
+12	tiers	tiers	N	NC	g=m|n=p|s=c	10	obj	_	_
+13	pour	pour	P	P	_	10	mod	_	_
+14	arriver	arriver	V	VINF	m=inf	13	obj.p	_	_
+15-16	au	_	_	_	_	_	_	_	_
+15	à	à	P	P	_	14	a_obj	_	_
+16	le	le	D	DET	g=m|n=s|s=def	17	det	_	_
+17	compte	compte	N	NC	g=m|n=s|s=c	15	obj.p	_	_
+18	je	il	CL	CLS	n=s|p=1|s=suj	19	suj	_	_
+19	crois	croire	V	V	m=ind|n=s|p=1|t=pst	7	mod	_	_
+20	que	que	C	CS	s=s	19	obj	_	_
+21	nous	il	CL	CLS	n=p|p=1|s=suj	22	suj	_	_
+22	devons	devoir	V	V	m=ind|n=p|p=1|t=pst	20	obj.cpl	_	_
+23	le	le	CL	CLO	g=m|n=s|p=3|s=obj	24	obj	_	_
+24	faire	faire	V	VINF	m=inf	22	obj	_	_
+25	.	.	PONCT	PONCT	s=s	7	ponct	_	_
+
+# sentid: Europar.550_00129
+# sentence-text: Je voudrais seulement rappeler qu'il se passe actuellement quelque chose de terrible en Serbie.
+1	Je	il	CL	CLS	n=s|p=1|s=suj|sentid=Europar.550_00129	2	suj	_	_
+2	voudrais	vouloir	V	V	m=ind|n=s|p=1|t=cond	0	root	_	_
+3	seulement	seulement	ADV	ADV	_	2	mod	_	_
+4	rappeler	rappeler	V	VINF	m=inf	2	obj	_	_
+5	qu'	que	C	CS	s=s	4	obj	_	_
+6	il	il	CL	CLS	g=m|n=s|p=3|s=suj	8	suj	_	_
+7	se	le/lui	CL	CLR	p=3|s=refl	8	aff	_	_
+8	passe	passer	V	V	m=ind|n=s|p=3|t=pst	5	obj.cpl	_	_
+9	actuellement	actuellement	ADV	ADV	_	8	mod	_	_
+10	quelque	quelque	D	DET	mwehead=PRO|mwelemma=quelque_chose|n=s|s=ind	8	obj	_	_
+11	chose	chose	N	NC	component=y|g=f|n=s|s=c	10	dep_cpd	_	_
+12	de	de	P	P	_	10	dep	_	_
+13	terrible	terrible	A	ADJ	n=s|s=qual	12	obj.p	_	_
+14	en	en	P	P	_	8	mod	_	_
+15	Serbie	Serbie	N	NPP	g=f|n=s|s=p	14	obj.p	_	_
+16	.	.	PONCT	PONCT	s=s	2	ponct	_	_
+
+# sentid: Europar.550_00130
+# sentence-text: M. Seselj, le nationaliste qui est en réalité un criminel de guerre, réprime le peu de liberté de la presse qui restait en Serbie.
+1	M.	monsieur	N	NC	g=m|n=s|s=c|sentid=Europar.550_00130	15	suj	_	_
+2	Seselj	Seselj	N	NPP	s=p	1	mod	_	_
+3	,	,	PONCT	PONCT	s=w	1	ponct	_	_
+4	le	le	D	DET	g=m|n=s|s=def	5	det	_	_
+5	nationaliste	nationaliste	N	NC	g=m|n=s|s=c	1	mod	_	_
+6	qui	qui	PRO	PROREL	s=rel	7	suj	_	_
+7	est	être	V	V	m=ind|n=s|p=3|t=pst	5	mod.rel	_	_
+8	en	en	P	P	mwehead=ADV|mwelemma=en_réalité	7	mod	_	_
+9	réalité	réalité	N	NC	component=y|g=f|n=s|s=c	8	dep_cpd	_	_
+10	un	un	D	DET	g=m|n=s|s=ind	11	det	_	_
+11	criminel	criminel	N	NC	g=m|n=s|s=c	7	ats	_	_
+12	de	de	P	P	_	11	dep	_	_
+13	guerre	guerre	N	NC	g=f|n=s|s=c	12	obj.p	_	_
+14	,	,	PONCT	PONCT	s=w	15	ponct	_	_
+15	réprime	réprimer	V	V	m=ind|n=s|p=3|t=pst	0	root	_	_
+16	le	le	D	DET	g=m|n=s|s=def	17	det	_	_
+17	peu	peu	PRO	PRO	_	15	obj	_	_
+18	de	de	P	P	_	17	dep	_	_
+19	liberté	liberté	N	NC	g=f|n=s|s=c	18	obj.p	_	_
+20	de	de	P	P	_	19	dep	_	_
+21	la	le	D	DET	g=f|n=s|s=def	22	det	_	_
+22	presse	presse	N	NC	g=f|n=s|s=c	20	obj.p	_	_
+23	qui	qui	PRO	PROREL	s=rel	24	suj	_	_
+24	restait	rester	V	V	m=ind|n=s|p=3|t=impft	17	mod.rel	_	_
+25	en	en	P	P	_	24	p_obj	_	_
+26	Serbie	Serbie	N	NPP	g=f|n=s|s=p	25	obj.p	_	_
+27	.	.	PONCT	PONCT	s=s	15	ponct	_	_
+
+# sentid: Europar.550_00131
+# sentence-text: Nous devons mettre un terme à ses agissements, ou nous n'aurons absolument plus d'informations exactes sur le peuple serbe !
+1	Nous	il	CL	CLS	n=p|p=1|s=suj|sentid=Europar.550_00131	2	suj	_	_
+2	devons	devoir	V	V	m=ind|n=p|p=1|t=pst	0	root	_	_
+3	mettre	mettre	VERB	VINF	m=inf	2	obj	_	_
+4	un	un	D	DET	g=m|n=s|s=ind	5	det	_	_
+5	terme	terme	NOUN	NC	g=m|n=s|s=c	3	obj	_	_
+6	à	à	P	P	_	3	a_obj	_	_
+7	ses	son	D	DET	n=p|s=poss	8	det	_	_
+8	agissements	agissement	N	NC	g=m|n=p|s=c	6	obj.p	_	_
+9	,	,	PONCT	PONCT	s=w	2	ponct	_	_
+10	ou	ou	C	CC	s=c	2	coord	_	_
+11	nous	il	CL	CLS	n=p|p=1|s=suj	13	suj	_	_
+12	n'	ne	ADV	ADV	s=neg	13	mod	_	_
+13	aurons	avoir	V	V	m=ind|n=p|p=1|t=fut	10	dep.coord	_	_
+14	absolument	absolument	ADV	ADV	_	15	mod	_	_
+15	plus	plus	ADV	ADV	s=neg	13	mod	_	_
+16	d'	un	D	DET	n=p|s=ind	17	det	_	_
+17	informations	information	N	NC	g=f|n=p|s=c	13	obj	_	_
+18	exactes	exact	A	ADJ	g=f|n=p|s=qual	17	mod	_	_
+19	sur	sur	P	P	_	17	dep	_	_
+20	le	le	D	DET	g=m|n=s|s=def	21	det	_	_
+21	peuple	peuple	N	NC	g=m|n=s|s=c	19	obj.p	_	_
+22	serbe	serbe	A	ADJ	n=s|s=qual	21	mod	_	_
+23	!	!	PONCT	PONCT	s=s	2	ponct	_	_
+
+# FAKE EXAMPLE OF SKIPPED
+# sentid: Europar.550_00131
+# sentence-text: Nous devons mettre un terme à ses agissements, ou nous n'aurons absolument plus d'informations exactes sur le peuple serbe !
+1	Nous	il	CL	CLS	n=p|p=1|s=suj|sentid=Europar.550_00131	2	suj	_	_
+2	devons	devoir	V	V	m=ind|n=p|p=1|t=pst	0	root	_	_
+3	mettre	mettre	VERB	VINF	m=inf	2	obj	_	_
+4	un	un	D	DET	g=m|n=s|s=ind	5	det	_	_
+5	terme	terme	NOUN	NC	g=m|n=s|s=c	3	obj	_	_
+6	à	à	P	P	_	3	a_obj	_	_
+7	ses	son	D	DET	n=p|s=poss	8	det	_	_
+8	agissements	agissement	N	NC	g=m|n=p|s=c	6	obj.p	_	_
+9	,	,	PONCT	PONCT	s=w	2	ponct	_	_
+10	ou	ou	C	CC	s=c	2	coord	_	_
+11	nous	il	CL	CLS	n=p|p=1|s=suj	13	suj	_	_
+12	n'	ne	ADV	ADV	s=neg	13	mod	_	_
+13	aurons	avoir	V	V	m=ind|n=p|p=1|t=fut	10	dep.coord	_	_
+14	absolument	absolument	ADV	ADV	_	15	mod	_	_
+15	plus	plus	ADV	ADV	s=neg	13	mod	_	_
+16	d'	un	D	DET	n=p|s=ind	17	det	_	_
+17	informations	information	N	NC	g=f|n=p|s=c	13	obj	_	_
+18	exactes	exact	A	ADJ	g=f|n=p|s=qual	17	mod	_	_
+19	sur	sur	P	P	_	17	dep	_	_
+20	le	le	D	DET	g=m|n=s|s=def	21	det	_	_
+21	peuple	peuple	N	NC	g=m|n=s|s=c	19	obj.p	_	_
+22	serbe	serbe	A	ADJ	n=s|s=qual	21	mod	_	_
+23	!	!	PONCT	PONCT	s=s	2	ponct	_	_
+
+# sentid: Europar.550_00145
+# sentence-text: Mais, pour ce faire, il faut tenir compte du fait qu'il existe une corrélation entre le rendement issu de l'activité de pêche et l'augmentation de l'effort de pêche.
+1	Mais	mais	C	CC	s=c|sentid=Europar.550_00145	0	root	_	_
+2	,	,	PONCT	PONCT	s=w	8	ponct	_	_
+3	pour	pour	P	P	mwehead=ADV|mwelemma=pour_ce_faire	8	mod	_	_
+4	ce	ce	PRO	PRO	component=y	3	dep_cpd	_	_
+5	faire	faire	V	VINF	component=y|m=inf	3	dep_cpd	_	_
+6	,	,	PONCT	PONCT	s=w	8	ponct	_	_
+7	il	il	CL	CLS	g=m|n=s|p=3|s=suj	8	suj	_	_
+8	faut	falloir	V	V	m=ind|n=s|p=3|t=pst	1	dep.coord	_	_
+9	tenir	tenir	V	VINF	m=inf	8	obj	_	_
+10	compte	compte	N	NC	g=m|n=s|s=c	9	obj	_	_
+11-12	du	_	_	_	_	_	_	_	_
+11	de	de	P	P	_	9	de_obj	_	_
+12	le	le	D	DET	g=m|n=s|s=def	13	det	_	_
+13	fait	fait	N	NC	g=m|n=s|s=c	11	obj.p	_	_
+14	qu'	que	C	CS	s=s	13	dep	_	_
+15	il	il	CL	CLS	g=m|n=s|p=3|s=suj	16	suj	_	_
+16	existe	exister	V	V	m=ind|n=s|p=3|t=pst	14	obj.cpl	_	_
+17	une	un	D	DET	g=f|n=s|s=ind	18	det	_	_
+18	corrélation	corrélation	N	NC	g=f|n=s|s=c	16	obj	_	_
+19	entre	entre	P	P	_	18	dep	_	_
+20	le	le	D	DET	g=m|n=s|s=def	21	det	_	_
+21	rendement	rendement	N	NC	g=m|n=s|s=c	19	obj.p	_	_
+22	issu	issu	A	ADJ	g=m|n=s|s=qual	21	mod	_	_
+23	de	de	P	P	_	22	de_obj	_	_
+24	l'	le	D	DET	n=s|s=def	25	det	_	_
+25	activité	activité	N	NC	g=f|n=s|s=c	23	obj.p	_	_
+26	de	de	P	P	_	25	dep	_	_
+27	pêche	pêche	N	NC	g=f|n=s|s=c	26	obj.p	_	_
+28	et	et	C	CC	s=c	21	coord	_	_
+29	l'	le	D	DET	n=s|s=def	30	det	_	_
+30	augmentation	augmentation	N	NC	g=f|n=s|s=c	28	dep.coord	_	_
+31	de	de	P	P	_	30	dep	_	_
+32	l'	le	D	DET	n=s|s=def	33	det	_	_
+33	effort	effort	N	NC	g=m|n=s|s=c	31	obj.p	_	_
+34	de	de	P	P	_	33	dep	_	_
+35	pêche	pêche	N	NC	g=f|n=s|s=c	34	obj.p	_	_
+36	.	.	PONCT	PONCT	s=s	1	ponct	_	_
+
+# sentid: Europar.550_00522
+# sentence-text: Je voudrais souligner, comme l'a fait le précédent orateur, la nécessité de passer à l'action, de développer la coopération entre les polices et d'augmenter l'information dans ce domaine.
+1	Je	il	CL	CLS	n=s|p=1|s=suj|sentid=Europar.550_00522	2	suj	_	_
+2	voudrais	vouloir	V	V	m=ind|n=s|p=1|t=cond	0	root	_	_
+3	souligner	souligner	V	VINF	m=inf	2	obj	_	_
+4	,	,	PONCT	PONCT	s=w	3	ponct	_	_
+5	comme	comme	C	CS	s=s	3	mod	_	_
+6	l'	le	CL	CLO	n=s|p=3|s=obj	8	obj	_	_
+7	a	avoir	V	V	m=ind|n=s|p=3|t=pst	8	aux.tps	_	_
+8	fait	faire	V	VPP	g=m|m=part|n=s|t=past	5	obj.cpl	_	_
+9	le	le	D	DET	g=m|n=s|s=def	11	det	_	_
+10	précédent	précédent	A	ADJ	g=m|n=s|s=qual	11	mod	_	_
+11	orateur	orateur	N	NC	g=m|n=s|s=c	8	suj	_	_
+12	,	,	PONCT	PONCT	s=w	3	ponct	_	_
+13	la	le	D	DET	g=f|n=s|s=def	14	det	_	_
+14	nécessité	nécessité	N	NC	g=f|n=s|s=c	3	obj	_	_
+15	de	de	P	P	_	14	dep	_	_
+16	passer	passer	VERB	VINF	m=inf	15	obj.p	_	_
+17	à	à	P	P	_	16	a_obj	_	_
+18	l'	le	D	DET	n=s|s=def	19	det	_	_
+19	action	action	NOUN	NC	g=f|n=s|s=c	17	obj.p	_	_
+20	,	,	PONCT	PONCT	s=w	15	coord	_	_
+21	de	de	P	P	_	20	dep.coord	_	_
+22	développer	développer	V	VINF	m=inf	21	obj.p	_	_
+23	la	le	D	DET	g=f|n=s|s=def	24	det	_	_
+24	coopération	coopération	N	NC	g=f|n=s|s=c	22	obj	_	_
+25	entre	entre	P	P	_	24	dep	_	_
+26	les	le	D	DET	n=p|s=def	27	det	_	_
+27	polices	police	N	NC	g=f|n=p|s=c	25	obj.p	_	_
+28	et	et	C	CC	s=c	15	coord	_	_
+29	d'	de	P	P	_	28	dep.coord	_	_
+30	augmenter	augmenter	V	VINF	m=inf	29	obj.p	_	_
+31	l'	le	D	DET	n=s|s=def	32	det	_	_
+32	information	information	N	NC	g=f|n=s|s=c	30	obj	_	_
+33	dans	dans	P	P	_	30	mod	_	_
+34	ce	ce	D	DET	g=m|n=s|s=dem	35	det	_	_
+35	domaine	domaine	N	NC	g=m|n=s|s=c	33	obj.p	_	_
+36	.	.	PONCT	PONCT	s=s	2	ponct	_	_
+
+# sentid: fr-ud-train_02797
+# sentence-text: Les chambres sont spacieuses et décorées avec beaucoup de goût, l'accueil est remarquable et la table de très grande qualité... Sans parler du cadre... Assurément, le top pour passer des vacances inoubliables dans le Périgord.
+1	Les	le	DET	_	Definite=Def|Gender=Fem|Number=Plur|PronType=Art	2	det	_	_
+2	chambres	chambre	NOUN	_	Gender=Fem|Number=Plur	4	nsubj	_	_
+3	sont	être	VERB	_	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	4	cop	_	_
+4	spacieuses	spacieux	ADJ	_	Gender=Fem|Number=Plur	0	root	_	_
+5	et	et	CONJ	_	_	4	cc	_	_
+6	décorées	décoré	ADJ	_	Gender=Fem|Number=Plur	4	conj	_	_
+7	avec	avec	ADP	_	_	10	case	_	_
+8	beaucoup	beaucoup	ADV	_	_	10	det	_	_
+9	de	de	ADP	_	_	8	mwe	_	_
+10	goût	goût	NOUN	_	Gender=Masc|Number=Sing	6	nmod	_	_
+11	,	,	PUNCT	_	_	4	punct	_	_
+12	l'	le	DET	_	Definite=Def|Gender=Masc|Number=Sing|PronType=Art	13	det	_	_
+13	accueil	accueil	NOUN	_	Gender=Masc|Number=Sing	15	nsubj	_	_
+14	est	être	VERB	_	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	15	cop	_	_
+15	remarquable	remarquable	ADJ	_	Gender=Masc|Number=Sing	4	conj	_	_
+16	et	et	CONJ	_	_	4	cc	_	_
+17	la	le	DET	_	Definite=Def|Gender=Fem|Number=Sing|PronType=Art	18	det	_	_
+18	table	table	NOUN	_	Gender=Fem|Number=Sing	4	conj	_	_
+19	de	de	ADP	_	_	22	case	_	_
+20	très	très	ADV	_	_	21	advmod	_	_
+21	grande	grand	ADJ	_	Gender=Fem|Number=Sing	22	amod	_	_
+22	qualité	qualité	NOUN	_	Gender=Fem|Number=Sing	18	nmod	_	_
+23	...	...	PUNCT	_	_	4	punct	_	_
+24	Sans	sans	ADP	_	_	25	mark	_	_
+25	parler	parler	VERB	_	VerbForm=Inf	4	advcl	_	_
+26-27	du	_	_	_	_	_	_	_	_
+26	de	de	ADP	_	_	28	case	_	_
+27	le	le	DET	_	Definite=Def|Gender=Masc|Number=Sing|PronType=Art	28	det	_	_
+28	cadre	cadre	NOUN	_	Gender=Masc|Number=Sing	25	nmod	_	_
+29	...	...	PUNCT	_	_	4	punct	_	_
+30	Assurément	assurément	ADV	_	_	33	advmod	_	_
+31	,	,	PUNCT	_	_	4	punct	_	_
+32	le	le	DET	_	Definite=Def|Gender=Masc|Number=Sing|PronType=Art	33	det	_	_
+33	top	top	NOUN	_	Gender=Masc|Number=Sing	4	conj	_	_
+34	pour	pour	ADP	_	_	35	mark	_	_
+35	passer	passer	VERB	_	VerbForm=Inf	33	acl	_	_
+36	des	un	DET	_	Definite=Ind|Gender=Fem|Number=Plur|PronType=Art	37	det	_	_
+37	vacances	vacance	NOUN	_	Gender=Fem|Number=Plur	35	dobj	_	_
+38	inoubliables	inoubliable	ADJ	_	Gender=Fem|Number=Plur	37	amod	_	_
+39	dans	dans	ADP	_	_	41	case	_	_
+40	le	le	DET	_	Definite=Def|Gender=Masc|Number=Sing|PronType=Art	41	det	_	_
+41	Périgord	Périgord	PROPN	_	_	35	nmod	_	_
+42	.	.	PUNCT	_	_	4	punct	_	_
+
+# sentid: fr-ud-train_05838
+# sentence-text: Plus tard, il tente de faire publier une nouvelle édition de ses œuvres, mais même avec son soutien ils ne réussissent pas à s'y intéresser assez pour mener l'entreprise à terme.
+1	Plus	plus	ADV	_	_	2	advmod	_	_
+2	tard	tard	ADV	_	_	5	advmod	_	_
+3	,	,	PUNCT	_	_	2	punct	_	_
+4	il	il	PRON	_	Gender=Masc|Number=Sing|Person=3|PronType=Prs	5	nsubj	_	_
+5	tente	tenter	VERB	_	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	_
+6	de	de	ADP	_	_	7	mark	_	_
+7	faire	faire	VERB	_	VerbForm=Inf	5	acl	_	_
+8	publier	publier	VERB	_	VerbForm=Inf	7	xcomp	_	_
+9	une	un	DET	_	Definite=Ind|Gender=Fem|Number=Sing|PronType=Art	11	det	_	_
+10	nouvelle	nouveau	ADJ	_	Gender=Fem|Number=Sing	11	amod	_	_
+11	édition	édition	NOUN	_	Gender=Fem|Number=Sing	8	dobj	_	_
+12	de	de	ADP	_	_	14	case	_	_
+13	ses	son	DET	_	Gender=Fem|Number=Plur|PronType=Prs	14	nmod:poss	_	_
+14	œuvres	œuvre	NOUN	_	Gender=Fem|Number=Plur	11	nmod	_	_
+15	,	,	PUNCT	_	_	5	punct	_	_
+16	mais	mais	CONJ	_	_	5	cc	_	_
+17	même	même	ADV	_	_	20	advmod	_	_
+18	avec	avec	ADP	_	_	20	case	_	_
+19	son	son	DET	_	Gender=Masc|Number=Sing|PronType=Prs	20	nmod:poss	_	_
+20	soutien	soutien	NOUN	_	Gender=Masc|Number=Sing	23	nmod	_	_
+21	ils	il	PRON	_	Gender=Masc|Number=Plur|Person=3|PronType=Prs	23	nsubj	_	_
+22	ne	ne	PART	_	_	23	neg	_	_
+23	réussissent	réussir	VERB	_	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	5	conj	_	_
+24	pas	pas	ADV	_	_	23	neg	_	_
+25	à	à	ADP	_	_	28	mark	_	_
+26	s'	se	PRON	_	Person=3|PronType=Prs	28	dobj	_	_
+27	y	y	PRON	_	_	28	iobj	_	_
+28	intéresser	intéresser	VERB	_	VerbForm=Inf	23	acl	_	_
+29	assez	assez	ADV	_	_	28	advmod	_	_
+30	pour	pour	ADP	_	_	31	mark	_	_
+31	mener	mener	VERB	_	VerbForm=Inf	28	advcl	_	_
+32	l'	le	DET	_	Definite=Def|Gender=Fem|Number=Sing|PronType=Art	33	det	_	_
+33	entreprise	entreprise	NOUN	_	Gender=Fem|Number=Sing	31	dobj	_	_
+34	à	à	ADP	_	_	35	case	_	_
+35	terme	terme	NOUN	_	Gender=Masc|Number=Sing	31	nmod	_	_
+36	.	.	PUNCT	_	_	5	punct	_	_
+
