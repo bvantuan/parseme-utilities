@@ -68,7 +68,7 @@ class MWEAnnot(collections.namedtuple('MWEAnnot', 'ranks category')):
         return tuple(rank2index[r] for r in self.ranks if (r in rank2index))
 
 
-class Token(collections.namedtuple('Token', 'rank surface nsp lemma univ_pos')):
+class Token(collections.namedtuple('Token', 'rank surface nsp lemma univ_pos dependency')):
     r"""Represents a token in an input file.
 
     Arguments:
@@ -77,9 +77,14 @@ class Token(collections.namedtuple('Token', 'rank surface nsp lemma univ_pos')):
     @nsp: bool
     @lemma: Optional[str]
     @univ_pos: Optional[str]
+    @dependency: Optional[tuple[str, int]]  # e.g. ("det", 9), zero-based
     """
     def lemma_or_surface(self):
         return self.lemma or self.surface
+
+    def is_syntactic_root(self):
+        r'Return True iff this token is a syntactic root of its sentence.'''
+        return self.dependency and self.dependency[1] == -1
 
 
 class Sentence:
@@ -583,7 +588,7 @@ class FoliaIterator:
                 self.calc_mweannots(mwes, current_sentence)
 
                 for rank, word in enumerate(folia_sentence.words(), 1):
-                    token = Token(str(rank), word.text(), (not word.space), None, None)
+                    token = Token(str(rank), word.text(), (not word.space), None, None, None)
                     current_sentence.tokens.append(token)
 
                 current_sentence.mwe_id2folia = dict(enumerate(mwes, 1))
@@ -675,7 +680,8 @@ class ConllIterator(AbstractFileIterator):
         if len(data) != 10:
             self.err("Line has {} columns, not 10".format(len(data)))
         rank, surface, lemma, upos = data[:4]
-        return Token(rank, surface or "_", False, lemma, upos), []
+        dependency = (data[7], int(data[6])-1) if (data[7] and data[6]) else None
+        return Token(rank, surface or "_", False, lemma, upos, dependency), []
 
 
 class ParsemeTSVIterator(AbstractFileIterator):
@@ -684,7 +690,7 @@ class ParsemeTSVIterator(AbstractFileIterator):
             self.err("Line has {} columns, not 4".format(len(data)))
         rank, surface, nsp, mwe_codes = data
         m = mwe_codes.split(";") if mwe_codes else []
-        return Token(rank, surface or "_", (nsp == "nsp"), None, None), m
+        return Token(rank, surface or "_", (nsp == "nsp"), None, None, None), m
 
 
 class ParsemePlatinumIterator(AbstractFileIterator):
@@ -697,7 +703,7 @@ class ParsemePlatinumIterator(AbstractFileIterator):
         mwe_codes = ["{}:{}".format(data[i], data[i+1]) if data[i+1] else data[i]
                 for i in range(4, len(data)-1, 2) if data[i] not in EMPTY]
         # Ignore free comments in data[-1], present if len(data)%2==1
-        return Token(rank, surface or "_", nsp, None, None), mwe_codes
+        return Token(rank, surface or "_", nsp, None, None, None), mwe_codes
 
     def iter_header(self, f):
         next(f); next(f)  # skip the 2-line header
