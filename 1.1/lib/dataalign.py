@@ -405,8 +405,8 @@ class MWELexicalItem:
     Parameters:
     @type  canonicform: tuple[str]
     @param canonicform: a tuple of canonical lemma/surface forms
-    @type  mweoccurs: list[dataalign.MWEOccur]
-    @param mweoccurs: a list of MWEOccur instances
+    @type  mweoccurs: list[MWEOccur]
+    @param mweoccurs: a list of MWEOccur instances (read-only!)
 
     Attributes:
     @type  i_head: int
@@ -426,6 +426,10 @@ class MWELexicalItem:
     def only_non_vmwes(self):
         r'''True iff all mweoccurs are NonVMWEs.'''
         return all((o.category=="NonVMWE" and o.confidence is None) for o in self.mweoccurs)
+
+    def contains_mweoccur(self, mweoccur):
+        r'''True iff self.mweoccurs contains given MWEOccur.'''
+        return (mweoccur.id() in self._seen_mweoccur_ids)
 
     def add_skipped_mweoccur(self, mweoccur):
         r'''Add MWEOccur to this MWE descriptor. If this MWEOccur already exists, does nothing.'''
@@ -486,15 +490,15 @@ def iter_aligned_files(file_paths, conllu_paths=None, keep_nvmwes=False,
     r"""iter_aligned_files(list[str], list[str]) -> Iterable[Either[Sentence,Comment]]
     Yield Sentence's & Comment's based on file_paths and conllu_paths.
     """
-    for sentence in AlignedIterator.from_paths(file_paths, conllu_paths, debug):
-        if isinstance(sentence, Sentence):
+    for entity in AlignedIterator.from_paths(file_paths, conllu_paths, debug):
+        if isinstance(entity, Sentence):
             if not keep_nvmwes:
-                sentence.remove_non_vmwes()
+                entity.remove_non_vmwes()
             if not keep_dup_mwes:
-                sentence.remove_duplicate_mwes()
+                entity.remove_duplicate_mwes()
             if not keep_mwe_random_order:
-                sentence.mweannots.sort()
-        yield sentence
+                entity.mweannots.sort()
+        yield entity
 
 
 def _iter_parseme_file(file_path):
@@ -868,6 +872,45 @@ def err_badline(file_path, lineno, msg):
 
 ############################################################
 
+def iter_sentences(input_paths, conllu_paths, verbose=True):
+    r"""Utility function: yield all sentences in `input_paths`.
+    (Output sentences are aligned, if CoNLL-U was provided or could be automatically found).
+    """
+    conllu_paths = conllu_paths or calculate_conllu_paths(input_paths, warn=verbose)
+    for elem in iter_aligned_files(input_paths, conllu_paths, keep_nvmwes=True, debug=verbose):
+        if isinstance(elem, Sentence):
+            yield elem
+
+
+def read_mwelexitems(lang, iter_sentences):
+    r"""Return two lists: (list[MWELexicalItem], list[MWELexicalItem]).
+    The first list concerns real MWEs, while the second concerns strictly NonVMWEs.
+    """
+    cf2mweoccurs = _canonicform2mweoccurs(lang, iter_sentences)  # type: dict[tuple[str], list[MWEOccur]]
+    canonicform2mwe_mixed = collections.OrderedDict()  # type: dict[tuple[str], MWELexicalItem]
+    canonicform2mwe_nvmwe = collections.OrderedDict()  # type: dict[tuple[str], MWELexicalItem]
+
+    for canonicform, mweoccurs in cf2mweoccurs.items():
+        mwe = MWELexicalItem(canonicform, mweoccurs)
+        if mwe.only_non_vmwes():
+            canonicform2mwe_nvmwe[canonicform] = mwe
+        else:
+            canonicform2mwe_mixed[canonicform] = mwe
+    return (list(canonicform2mwe_mixed.values()), list(canonicform2mwe_nvmwe.values()))
+
+
+def _canonicform2mweoccurs(lang, iter_sentences):
+    r'''Return a dict[tuple[str], list[MWEOccur]].'''
+    ret = collections.defaultdict(list)  # type: dict[tuple[str], list[MWEOccur]]
+    for sentence in iter_sentences:
+        for mwe_occur in sentence.mwe_occurs(lang):
+            canonicform = tuple(mwe_occur.reordered.mwe_canonical_form)
+            ret[canonicform].append(mwe_occur)
+    return ret
+
+
+############################################################
+
 class WindowBasedSkippedFinder:
     r'''Algorithm to find skipped MWEs based on a window
     (allows gaps of up to `max_gaps` words).
@@ -889,7 +932,7 @@ class WindowBasedSkippedFinder:
             self.head2mwes[mwe.head().lower()].append(mwe)
 
     def find_skipped_in(self, sentences):
-        r"""Yield MWEOccurs for Skipped MWEs in all sentences."""
+        r"""Yield pairs (MWELexicalItem, MWEOccur) for Skipped MWEs in all sentences."""
         for sentence in sentences:
             for i, token in enumerate(sentence.tokens):
                 for mwe in self.head2mwes.get(token.lemma_or_surface().lower(), []):
@@ -961,7 +1004,7 @@ class DependencyBasedSkippedFinder:
                 self.first2mwedepframes[tokens[0].lemma_or_surface()].append(MWEDepFrame(mwe, tokens))
 
     def find_skipped_in(self, sentences):
-        r"""Yield MWEOccurs for Skipped MWEs in all sentences."""
+        r"""Yield pairs (MWELexicalItem, MWEOccur) for Skipped MWEs in all sentences."""
         for sentence in sentences:
             for i, token in enumerate(sentence.tokens):
                 for mwedepframe in self.first2mwedepframes.get(token.lemma_or_surface().lower(), []):

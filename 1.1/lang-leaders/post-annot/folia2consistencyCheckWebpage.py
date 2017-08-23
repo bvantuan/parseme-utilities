@@ -21,8 +21,6 @@ parser.add_argument("--lang", choices=sorted(dataalign.LANGS), metavar="LANG", r
         help="""ID of the target language (e.g. EN, FR, PL, DE...)""")
 parser.add_argument("--find-skipped", action="store_true",
         help="""Also find possibly missed MWEs, using the `Skipped` label""")
-parser.add_argument("--output-skipped-info", action='store_true',
-        help="""Output info about skipped MWEs at given path (instead of normal HTML output)""")  # XXX this is a hack
 parser.add_argument("--input", type=str, nargs="+", required=True,
         help="""Path to input files (preferably in FoLiA XML format, but PARSEME TSV works too)""")
 parser.add_argument("--conllu", type=str, nargs="+",
@@ -34,54 +32,26 @@ MAX_GAPS = 5
 class Main:
     def __init__(self, args):
         self.args = args
-        self.canonicform2mwe_mixed = collections.OrderedDict()  # type: dict[tuple[str], MWELexicalItem]
-        self.canonicform2mwe_nvmwe = collections.OrderedDict()  # type: dict[tuple[str], MWELexicalItem]
+        self.mwe_mixed = []  # type: list[MWELexicalItem]
+        self.mwe_nvmwe = []  # type: list[MWELexicalItem]
 
     def run(self):
-        cf2mweoccurs = self._canonicform2mweoccurs()
-        for canonicform, mweoccurs in cf2mweoccurs.items():
-            mwe = dataalign.MWELexicalItem(canonicform, mweoccurs)
-            if mwe.only_non_vmwes():
-                self.canonicform2mwe_nvmwe[canonicform] = mwe
-            else:
-                self.canonicform2mwe_mixed[canonicform] = mwe
+        self.mwe_mixed, self.mwe_nvmwe = dataalign.read_mwelexitems(
+            self.args.lang, self.iter_sentences(verbose=True))
+        self.print_html()
 
-        if self.args.output_skipped_info:  # XXX this is a hack
-            global MAX_GAPS
-            MAX_GAPS = 1  # XXX HACK
-            skip_sents = self.iter_sentences(verbose=False)
-            vic = VerbInfoCalculator(self.args.lang, self.canonicform2mwe_mixed, skip_sents)
-            vic.print_skipped_info()
-            exit(0)
-        else:
-            self.print_html()
-
-
-    def _canonicform2mweoccurs(self):
-        r'''Return a dict[tuple[str], list[dataalign.MWEOccur]].'''
-        ret = collections.defaultdict(list)  # type: dict[tuple[str], list[dataalign.MWEOccur]]
-        for sentence in self.iter_sentences():
-            for mwe_occur in sentence.mwe_occurs(self.args.lang):
-                canonicform = tuple(mwe_occur.reordered.mwe_canonical_form)
-                ret[canonicform].append(mwe_occur)
-        return ret
-
-    def iter_sentences(self, verbose=True):
-        r"""Yield all sentences in `self.args.input` (aligned, if CoNLL-U was provided)"""
-        conllu_path = self.args.conllu or dataalign.calculate_conllu_paths(self.args.input, warn=verbose)
-        for elem in dataalign.iter_aligned_files(self.args.input, conllu_path, keep_nvmwes=True, debug=verbose):
-            if isinstance(elem, dataalign.Sentence):
-                yield elem
+    def iter_sentences(self, verbose):
+        return dataalign.iter_sentences(self.args.input, self.args.conllu, verbose=verbose)
 
 
     def print_html(self):
         print(HTML_HEADER_1and2)
         skip_sents = self.iter_sentences(False) if self.args.find_skipped else ()
-        vic = VerbInfoCalculator(self.args.lang, self.canonicform2mwe_mixed, skip_sents)
+        vic = VerbInfoCalculator(self.args.lang, self.mwe_mixed, skip_sents)
         self.print_html_mwes(vic)
 
         print(HTML_HEADER_3)
-        vic = VerbInfoCalculator(self.args.lang, self.canonicform2mwe_nvmwe, ())
+        vic = VerbInfoCalculator(self.args.lang, self.mwe_nvmwe, ())
         self.print_html_mwes(vic)
         print(HTML_FOOTER)
 
@@ -175,12 +145,11 @@ class Main:
 
 class VerbInfoCalculator:
     r"""Parameters:
-    @type canonicform2mwe: dict[tuple[str], MWELexicalItem]
+    @type mwes: list[MWELexicalItem]
     @type sentences_to_discover_skipped: Iterable[dataalign.Sentence]
     """
-    def __init__(self, lang, canonicform2mwe, sentences_to_discover_skipped):
-        self.lang = lang
-        self.canonicform2mwe = canonicform2mwe
+    def __init__(self, lang, mwes, sentences_to_discover_skipped):
+        self.lang, self.mwes = lang, mwes
         self._find_skipped(sentences_to_discover_skipped)
 
         self.verb2info = collections.defaultdict(VerbInfo)  # type: dict[str, VerbInfo]
@@ -202,35 +171,17 @@ class VerbInfoCalculator:
                 mwe_list.sort(key=lambda m: (verb not in m.canonicform, m.canonicform))
 
         # Update verb2info with verb-based canonics
-        for canonicform, mwe in self.canonicform2mwe.items():
+        for mwe in self.mwes:
             if mwe not in self.all_nounbased_mwes:
-                self.verb2info[canonicform[mwe.i_head].lower()].verbbased_mwes.append(mwe)
+                self.verb2info[mwe.canonicform[mwe.i_head].lower()].verbbased_mwes.append(mwe)
         for verbinfo in self.verb2info.values():
             verbinfo.verbbased_mwes.sort(key=lambda mwe: mwe.canonicform)
 
 
-    def print_skipped_info(self):
-        r'''Print TSV with "Skipped" info'''
-        total, total_annotated = 0, 0
-        # XXX we use "literal" instead of "skipped", because we interpret post-adjudication skipped as literal cases
-        print("MWE", "n-idiomatic", "n-literal", "idiomaticity-rate", "example-literal", sep='\t')
-        for canonicform, mwe in sorted(self.canonicform2mwe.items()):
-            n_annotated = sum(1 for o in mwe.mweoccurs if o.category != 'Skipped')
-            n = len(mwe.mweoccurs)
-            total += n
-            total_annotated += n_annotated
-
-            example_skipped = '---'
-            if n != n_annotated:
-                example_occur = next(o for o in mwe.mweoccurs if o.category == 'Skipped')
-                example_skipped = " ".join(t.surface for t in example_occur.sentence.tokens)
-            print("_".join(canonicform), n, n-n_annotated, n_annotated/n, example_skipped, sep="\t")
-        print("TOTAL", total, total-total_annotated, total_annotated/total, '---', sep="\t")
-
-
     def _noun2mwes(self):
+        r'''Return a dict[str, list[MWELexicalItem]]'''
         ret = collections.defaultdict(list)
-        for canonicform, mwe in self.canonicform2mwe.items():
+        for mwe in self.mwes:
             if mwe.i_subhead:
                 ret[mwe.subhead()].append(mwe)
         # (We skip subheads where only one canonical form contains the noun)
@@ -239,14 +190,11 @@ class VerbInfoCalculator:
 
 
     def _find_skipped(self, sentences):
-        r"""For every sentence, add Skipped MWEOccur entries to MWELexicalItems in self.canonicform2mwe."""
-        finder = dataalign.DependencyBasedSkippedFinder(self.lang, self.canonicform2mwe.values())
+        r"""For every sentence, add Skipped MWEOccur entries to MWELexicalItems in self.mwes."""
+        finder = dataalign.WindowBasedSkippedFinder(self.lang, self.mwes, MAX_GAPS)
         for mwe, mweoccur in finder.find_skipped_in(sentences):
             mwe.add_skipped_mweoccur(mweoccur)
 
-        #finder = dataalign.WindowBasedSkippedFinder(self.lang, self.canonicform2mwe.values(), MAX_GAPS)
-        #for mwe, mweoccur in finder.find_skipped_in(sentences):
-        #    mwe.add_skipped_mweoccur(mweoccur)
 
 
 class VerbInfo:
