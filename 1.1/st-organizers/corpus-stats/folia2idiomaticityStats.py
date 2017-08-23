@@ -43,15 +43,17 @@ class Main:
         (self.mwes, _) = dataalign.read_mwelexitems(
                 self.args.lang, dataalign.iter_sentences(self.args.input, self.args.conllu))
         skip_sents = dataalign.iter_sentences(self.args.input, self.args.conllu, verbose=False)
-        self.find_and_output_mweoccurs(skip_sents)
+        self.find_literals(skip_sents)
 
         if self.args.out_categories:
             self.print_categories()
         if self.args.out_mwes:
             self.print_mwes()
+        if self.args.out_mweoccurs:
+            self.print_mweoccurs()
 
 
-    def find_and_output_mweoccurs(self, sentences):
+    def find_literals(self, sentences):
         r"""Find MWE occurrences."""
         if self.args.literal_finding_method == 'Dependency':
             finder = dataalign.DependencyBasedSkippedFinder(self.args.lang, self.mwes)
@@ -62,11 +64,6 @@ class Main:
 
         for mwe, mweoccur in finder.find_skipped_in(sentences):
             mwe.add_skipped_mweoccur(mweoccur)
-
-        if self.args.out_mweoccurs:
-            for mwe in self.mwes:
-                for mweoccur in mwe.mweoccurs:
-                    self._output_mweoccur(mwe, mweoccur)
 
 
     def print_categories(self):
@@ -101,15 +98,23 @@ class Main:
             example_skipped = '---'
             if n != n_annotated:
                 example_skipped = self._example(next(o for o in mwe.mweoccurs if o.category == 'Skipped'))
-            print("_".join(mwe.canonicform), n, n-n_annotated, n_annotated/n,
+            print(" ".join(mwe.canonicform), n-n_annotated, n_annotated, n, n_annotated/n,
                   example_skipped, sep="\t", file=self.args.out_mwes)
 
         print("TOTAL", total-total_annotated, total_annotated, total, total_annotated/total,
               '---', sep="\t", file=self.args.out_mwes)
 
 
+    def print_mweoccurs(self):
+        r'''Print TSV with "Skipped" info for each MWEOccur'''
+        print('MWE', 'idiomatic_or_literal', 'category', 'example',
+              sep="\t", file=self.args.out_mweoccurs)
+        for mwe in self.mwes:
+            for mweoccur in mwe.mweoccurs:
+                self._output_mweoccur(mwe, mweoccur)
+
     def _output_mweoccur(self, mwe, mweoccur):
-        r'''_output_mweoccur(MWELexicalItem, MWEOccur, bool)'''
+        r'''_output_mweoccur(MWELexicalItem, MWEOccur)'''
         idlit = 'LITERAL' if (mweoccur.category == 'Skipped') else 'IDIOMAT'
         categ = self._categ(mweoccur, mwe)
 
