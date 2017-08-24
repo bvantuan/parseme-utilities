@@ -31,7 +31,7 @@ except ImportError:
 # The `empty` field in CoNLL-U and PARSEME-TSV
 EMPTY = "_"
 
-# Set of all valid languages in PARSEME'2016
+# Set of all valid languages in the latest PARSEME Shared-Task
 LANGS = set("AR BG CS DE EL EN ES EU FA FR HE HR HU HI IT LT MT PL PT RO SL SV TR".split())
 
 # Languages where the pronoun in IReflV is on the left
@@ -264,13 +264,13 @@ class MWEOccurView:
     @type  mwe_occur: MWEOccur
     @param mwe_occur: The MWEOccur that this view represents
     @type  iter_tokens: Iterable[Token]
-    @param iter_tokens: Tokens for this view (may be different from literal order in Sentence)
+    @param iter_tokens: Tokens for MWEs in this view (may be different from literal order in Sentence)
 
     Attributes:
     @type  tokens: tuple[Token]
-    @param tokens: Tokens for this view (may be different from literal order in Sentence)
+    @param tokens: Tokens for MWEs this view (may be different from literal order in Sentence)
     @type  mwe_canonical_form: list[str]
-    @param mwe_canonical_form: List of lemmas (or surfaces) for tokens in this MWEOccurView.
+    @param mwe_canonical_form: List of lemmas (or surfaces) for MWE tokens in this MWEOccurView.
     @type  i_head: int
     @param i_head: Index of head verb.
     @type  i_subhead: Optional[int]
@@ -322,7 +322,7 @@ class MWEOccurView:
 
 
     def _lemmatized_at(self, indexes):
-        r"""Return surfaces in self.tokens, lemmatized at given indexes."""
+        r"""Return a list[str] with surfaces from self.tokens, lemmatized at given indexes."""
         ret = [t.surface for t in self.tokens]
         for i in indexes:
             ret[i] = self.tokens[i].lemma_or_surface()
@@ -418,9 +418,9 @@ class MWELexicalItem:
         self.canonicform, self.mweoccurs = canonicform, mweoccurs
         self._seen_mweoccur_ids = {m.id() for m in self.mweoccurs}  # type: set[str]
 
-        self.i_head = collections.Counter(m.reordered.i_head for m in mweoccurs).most_common(1)[0][0]
-        nounbased_mweos = [m for m in mweoccurs if m.reordered.subhead]
-        self.i_subhead = nounbased_mweos[0].reordered.i_subhead if nounbased_mweos else None
+        self.i_head = most_common(m.reordered.i_head for m in mweoccurs)
+        nounbased_mweos = [m for m in mweoccurs if m.reordered.i_subhead is not None]
+        self.i_subhead = most_common(nounbased_mweos, fallback=None)
 
 
     def only_non_vmwes(self):
@@ -447,6 +447,22 @@ class MWELexicalItem:
         r'''Return a `str` with the subhead noun (fails if self.i_subhead is None).'''
         return self.canonicform[self.i_subhead]
 
+
+
+############################################################
+
+_FALLBACK_RAISE = object()
+
+def most_common(iterable, *, fallback=_FALLBACK_RAISE):
+    r'''Utility function: Return most common element in `iterable`.
+    Return `fallback` if `iterable` is empty.
+    '''
+    a_list = collections.Counter(iterable).most_common(1)
+    if a_list:
+        return a_list[0][0]
+
+    assert fallback is not _FALLBACK_RAISE, 'Zero elements to choose from; no fallback provided'
+    return fallback
 
 
 ############################################################

@@ -42,11 +42,11 @@ echo "Writing to: $output_path"
     for lang in FR BG CS DE EL ES FA HE HU IT LT MT PL PT RO SL SV TR; do
         if test -f "$input_path/$lang/train.parsemetsv"; then
             for method in Dependency WinGap0 WinGap1 WinGap2; do
-                mkdir -p "$output_path/$lang"
+                mkdir -p "$output_path/$lang/$method"
                 langpath="$input_path/$lang"
                 echo "================== lang=$lang method=$method ===============" >&2
 
-                "$HERE/folia2idiomaticityStats.py" --lang=$lang --input "$input_path/$lang/train.parsemetsv" --literal-finding-method="$method"  --out-mwes "$output_path/$lang/mwes.$method.tsv" --out-mweoccurs "$output_path/$lang/mweoccurs.$method.tsv" --out-categories "$output_path/$lang/categories.$method.tsv"
+                "$HERE/folia2idiomaticityStats.py" --lang=$lang --input "$input_path/$lang/train.parsemetsv" --literal-finding-method="$method"  --out-mwes "$output_path/$lang/$method/mwes.tsv" --out-mweoccurs "$output_path/$lang/$method/mweoccurs.tsv" --out-categories "$output_path/$lang/$method/categories.tsv"
             done
         else
             echo "WARNING: Language not found: $lang" >&2

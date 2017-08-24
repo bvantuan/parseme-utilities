@@ -160,7 +160,7 @@ class VerbInfoCalculator:
         for noun, mwes in self.noun2mwes.items():
             merged_mwe_occurs = [mweo for m in mwes for mweo in m.mweoccurs]
             all_heads = [mweo.reordered.head.lemma_or_surface() for mweo in merged_mwe_occurs]
-            most_common_verb = collections.Counter(all_heads).most_common(1)[0][0]
+            most_common_verb = dataalign.most_common(all_heads)
             # Group all under "most_common_verb" (note that verb2info may then have a verb entry under another verb!)
             self.verb2info[most_common_verb.lower()].nounbased_mwes[noun.lower()].extend(mwes)
             self.all_nounbased_mwes.update(mwes)

@@ -87,7 +87,7 @@ class Main:
     def print_mwes(self):
         r'''Print TSV with "Skipped" info for each MWELexicalItem'''
         total, total_annotated = 0, 0
-        print("MWE", "n-literal", "n-idiomatic", "n-total", "idiomaticity-rate",
+        print("MWE", "POS-tag", "n-literal", "n-idiomatic", "n-total", "idiomaticity-rate",
               "example-literal", sep='\t', file=self.args.out_mwes)
         for mwe in sorted(self.mwes, key=lambda m: m.canonicform):
             n_annotated = sum(1 for o in mwe.mweoccurs if o.category != 'Skipped')
@@ -98,16 +98,17 @@ class Main:
             example_skipped = '---'
             if n != n_annotated:
                 example_skipped = self._example(next(o for o in mwe.mweoccurs if o.category == 'Skipped'))
-            print(" ".join(mwe.canonicform), n-n_annotated, n_annotated, n, n_annotated/n,
+            postag = dataalign.most_common(self._postag(o) for o in mwe.mweoccurs)
+            print(" ".join(mwe.canonicform), postag, n-n_annotated, n_annotated, n, n_annotated/n,
                   example_skipped, sep="\t", file=self.args.out_mwes)
 
-        print("TOTAL", total-total_annotated, total_annotated, total, total_annotated/total,
+        print("TOTAL", '---', total-total_annotated, total_annotated, total, total_annotated/total,
               '---', sep="\t", file=self.args.out_mwes)
 
 
     def print_mweoccurs(self):
         r'''Print TSV with "Skipped" info for each MWEOccur'''
-        print('MWE', 'idiomatic_or_literal', 'category', 'example',
+        print('MWE', 'POS-tag', 'idiomatic-or-literal', 'category', 'example',
               sep="\t", file=self.args.out_mweoccurs)
         for mwe in sorted(self.mwes, key=lambda m: m.canonicform):
             for mweoccur in mwe.mweoccurs:
@@ -118,8 +119,13 @@ class Main:
         idlit = 'LITERAL' if (mweoccur.category == 'Skipped') else 'IDIOMAT'
         categ = self._categ(mweoccur, mwe)
 
-        print(" ".join(mwe.canonicform), idlit, categ,
+        print(" ".join(mwe.canonicform), self._postag(mweoccur), idlit, categ,
               self._example(mweoccur), sep="\t", file=self.args.out_mweoccurs)
+
+
+    def _postag(self, mweoccur):
+        r'''_postag(MWEOccur) -> str'''
+        return " ".join(t.univ_pos for t in mweoccur.reordered.tokens if t.univ_pos) or 'MISSING'
 
 
     def _categ(self, mweoccur, mwe):
@@ -130,7 +136,7 @@ class Main:
         if mweoccur.category != 'Skipped':
             return mweoccur.category
         all_categs = [o.category for o in mwe.mweoccurs if o.category != 'Skipped']
-        return collections.Counter(all_categs).most_common(1)[0][0]
+        return dataalign.most_common(all_categs)
 
 
     def _example(self, mweoccur):
