@@ -20,15 +20,15 @@ parser.add_argument("--lang", choices=sorted(dataalign.LANGS), metavar="LANG", r
         help="""ID of the target language (e.g. EN, FR, PL, DE...)""")
 parser.add_argument("--literal-finding-method", type=str, required=True,
         help="""Method of finding literal cases. One of {Dependency, WinGap0, WinGap1, WinGap2...}""")
-parser.add_argument("--input", type=str, nargs="+", required=True,
+parser.add_argument("--input", type=str, nargs="+", required=True, metavar='PATH',
         help="""Path to input files (preferably in FoLiA XML format, but PARSEME TSV works too)""")
-parser.add_argument("--conllu", type=str, nargs="+",
+parser.add_argument("--conllu", type=str, nargs="+", metavar='PATH',
         help="""Path to parallel input CoNLL files""")
-parser.add_argument("--out-categories", type=argparse.FileType('w'),
+parser.add_argument("--out-categories", type=argparse.FileType('w'), metavar='PATH',
         help="""Path to output TSV with summary of idiomaticity per category""")
-parser.add_argument("--out-mwes", type=argparse.FileType('w'),
+parser.add_argument("--out-mwes", type=argparse.FileType('w'), metavar='PATH',
         help="""Path to output TSV with idiomaticity per MWE""")
-parser.add_argument("--out-mweoccurs", type=argparse.FileType('w'),
+parser.add_argument("--out-mweoccurs", type=argparse.FileType('w'), metavar='PATH',
         help="""Path to output TSV with every idiomatic (annotated) & literal (discovered) case""")
 
 
@@ -109,7 +109,7 @@ class Main:
         r'''Print TSV with "Skipped" info for each MWEOccur'''
         print('MWE', 'idiomatic_or_literal', 'category', 'example',
               sep="\t", file=self.args.out_mweoccurs)
-        for mwe in self.mwes:
+        for mwe in sorted(self.mwes, key=lambda m: m.canonicform):
             for mweoccur in mwe.mweoccurs:
                 self._output_mweoccur(mwe, mweoccur)
 
