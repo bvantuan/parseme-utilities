@@ -37,11 +37,13 @@ class Main:
     def __init__(self, args):
         self.args = args
         self.mwes = []  # type: list[MWELexicalItem]
+        self.seen_mweoccur_ids = set()  # type: set[str]
 
 
     def run(self):
         (self.mwes, _) = dataalign.read_mwelexitems(
                 self.args.lang, dataalign.iter_sentences(self.args.input, self.args.conllu))
+        self.seen_mweoccur_ids.update(o.id() for mwe in self.mwes for o in mwe.mweoccurs)
         skip_sents = dataalign.iter_sentences(self.args.input, self.args.conllu, verbose=False)
         self.find_literals(skip_sents)
 
@@ -63,7 +65,10 @@ class Main:
             finder = dataalign.WindowBasedSkippedFinder(self.args.lang, self.mwes, max_gaps)
 
         for mwe, mweoccur in finder.find_skipped_in(sentences):
-            mwe.add_skipped_mweoccur(mweoccur)
+            # Only add 'Skipped' if a MWE was not seen at this position
+            if mweoccur.id() not in self.seen_mweoccur_ids:
+                self.seen_mweoccur_ids.add(mweoccur.id())
+                mwe.add_skipped_mweoccur(mweoccur)
 
 
     def print_categories(self):
@@ -87,7 +92,7 @@ class Main:
     def print_mwes(self):
         r'''Print TSV with "Skipped" info for each MWELexicalItem'''
         total, total_annotated = 0, 0
-        print("MWE", "POS-tag", "n-literal", "n-idiomatic", "n-total", "idiomaticity-rate",
+        print("MWE", "major-POS-tag", "major-category", "n-literal", "n-idiomatic", "n-total", "idiomaticity-rate",
               "example-literal", sep='\t', file=self.args.out_mwes)
         for mwe in sorted(self.mwes, key=lambda m: m.canonicform):
             n_annotated = sum(1 for o in mwe.mweoccurs if o.category != 'Skipped')
@@ -98,18 +103,20 @@ class Main:
             example_skipped = '---'
             if n != n_annotated:
                 example_skipped = self._example(next(o for o in mwe.mweoccurs if o.category == 'Skipped'))
+
             postag = dataalign.most_common(self._postag(o) for o in mwe.mweoccurs)
-            print(" ".join(mwe.canonicform), postag, n-n_annotated, n_annotated, n, n_annotated/n,
+            category = dataalign.most_common(o.category for o in mwe.mweoccurs if o.category != 'Skipped')
+            print(" ".join(mwe.canonicform), postag, category, n-n_annotated, n_annotated, n, n_annotated/n,
                   example_skipped, sep="\t", file=self.args.out_mwes)
 
-        print("TOTAL", '---', total-total_annotated, total_annotated, total, total_annotated/total,
+        print("TOTAL", '---', '---', total-total_annotated, total_annotated, total, total_annotated/total,
               '---', sep="\t", file=self.args.out_mwes)
 
 
     def print_mweoccurs(self):
         r'''Print TSV with "Skipped" info for each MWEOccur'''
         print('MWE', 'POS-tag', 'idiomatic-or-literal', 'category', 'example',
-              sep="\t", file=self.args.out_mweoccurs)
+              'source', sep="\t", file=self.args.out_mweoccurs)
         for mwe in sorted(self.mwes, key=lambda m: m.canonicform):
             for mweoccur in mwe.mweoccurs:
                 self._output_mweoccur(mwe, mweoccur)
@@ -119,8 +126,9 @@ class Main:
         idlit = 'LITERAL' if (mweoccur.category == 'Skipped') else 'IDIOMAT'
         categ = self._categ(mweoccur, mwe)
 
+        source = '{}:{}'.format(os.path.basename(mweoccur.sentence.file_path), mweoccur.sentence.lineno)
         print(" ".join(mwe.canonicform), self._postag(mweoccur), idlit, categ,
-              self._example(mweoccur), sep="\t", file=self.args.out_mweoccurs)
+              self._example(mweoccur), source, sep="\t", file=self.args.out_mweoccurs)
 
 
     def _postag(self, mweoccur):

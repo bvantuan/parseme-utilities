@@ -232,7 +232,7 @@ class MWEOccur:
         assert lang in LANGS
         self.lang = lang
         self.sentence = sentence
-        self.indexes = indexes
+        self.indexes = list(sorted(indexes))
         self.category = category
         self.comments = comments
         self.annotator = annotator
@@ -1017,6 +1017,10 @@ class DependencyBasedSkippedFinder:
                     'WARNING: partial dependency info for {}'.format(
                     "_".join(t.surface for t in mwe.mweoccurs[0].raw.tokens)))
             if tokens:
+                if len(tokens) >= 2 and tokens[1].dependency == Dependency('root', '0'):
+                    mwe.mweoccurs[0].sentence.msg_stderr(
+                        'WARNING: skipping multi-rooted: {}'.format('_'.join(mwe.canonicform)))
+                    continue  # XXX 2017-08-25 avoid bad cases for PL... We should better handle this
                 self.first2mwedepframes[tokens[0].lemma_or_surface()].append(MWEDepFrame(mwe, tokens))
 
     def find_skipped_in(self, sentences):
