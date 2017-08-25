@@ -6,7 +6,11 @@ import os
 import re
 import sys
 
-import matplotlib_venn
+try:
+    import matplotlib_venn
+except ImportError:
+    exit('ERROR: please run: sudo pip3 install matplotlib_venn')
+
 from matplotlib import pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 
