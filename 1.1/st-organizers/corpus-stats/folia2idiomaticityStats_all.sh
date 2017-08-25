@@ -39,7 +39,7 @@ echo "Writing to: $output_path"
 
 
 {
-    for lang in FR BG CS DE EL ES FA HE HU IT LT MT PL PT RO SL SV TR; do
+    for lang in FR PL BG CS DE EL ES FA HE HU IT LT MT PT RO SL SV TR; do
         if test -f "$input_path/$lang/train.parsemetsv"; then
             for method in Dependency WinGap0 WinGap1 WinGap2; do
                 mkdir -p "$output_path/$lang/$method"
@@ -50,6 +50,11 @@ echo "Writing to: $output_path"
             done
         else
             echo "WARNING: Language not found: $lang" >&2
+        fi
+
+        if tail -n 1 "OUT/$lang/Dependency/categories.tsv" | awk '{exit($2==0)}'; then
+            echo "=> Generating PDF with intersection between Dependency and WinGapX for $lang" >&2
+            "$HERE/mweoccur_intersection.py" --lang="$lang" --input-dependency "OUT/$lang/Dependency/mweoccurs.tsv" --input-window "OUT/$lang/WinGap"*"/mweoccurs.tsv" --out "OUT/$lang/intersection.pdf" >"OUT/$lang/intersection.txt"
         fi
     done
 } 2> >(tee "$output_path/stderr")
