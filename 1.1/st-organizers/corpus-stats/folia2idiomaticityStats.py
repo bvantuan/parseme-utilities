@@ -18,8 +18,8 @@ parser = argparse.ArgumentParser(description="""
         """)
 parser.add_argument("--lang", choices=sorted(dataalign.LANGS), metavar="LANG", required=True,
         help="""ID of the target language (e.g. EN, FR, PL, DE...)""")
-parser.add_argument("--literal-finding-method", type=str, required=True,
-        help="""Method of finding literal cases. One of {Dependency, WinGap0, WinGap1, WinGap2...}""")
+parser.add_argument("--literal-finding-method", type=str, metavar='METH', nargs='+',
+        help="""Method of finding literal cases. One of {}.""".format(dataalign.SKIPPED_FINDER_PATTERNS))
 parser.add_argument("--input", type=str, nargs="+", required=True, metavar='PATH',
         help="""Path to input files (preferably in FoLiA XML format, but PARSEME TSV works too)""")
 parser.add_argument("--conllu", type=str, nargs="+", metavar='PATH',
@@ -57,18 +57,16 @@ class Main:
 
     def find_literals(self, sentences):
         r"""Find MWE occurrences."""
-        if self.args.literal_finding_method == 'Dependency':
-            finder = dataalign.DependencyBasedSkippedFinder(self.args.lang, self.mwes)
-        else:
-            assert self.args.literal_finding_method.startswith('WinGap'), self.args.literal_finding_method
-            max_gaps = int(self.args.literal_finding_method[len('WinGap'):])
-            finder = dataalign.WindowBasedSkippedFinder(self.args.lang, self.mwes, max_gaps)
+        # Create all finders right away, to find cases of misspelled finding_method's
+        finders = [dataalign.skipped_finder(m, self.args.lang, self.mwes,
+                   favor_precision=True) for m in self.args.literal_finding_method]
 
-        for mwe, mweoccur in finder.find_skipped_in(sentences):
-            # Only add 'Skipped' if a MWE was not seen at this position
-            if mweoccur.id() not in self.seen_mweoccur_ids:
-                self.seen_mweoccur_ids.add(mweoccur.id())
-                mwe.add_skipped_mweoccur(mweoccur)
+        for finder in finders:
+            for mwe, mweoccur in finder.find_skipped_in(sentences):
+                # Only add 'Skipped' if a MWE was not seen at this position
+                if mweoccur.id() not in self.seen_mweoccur_ids:
+                    self.seen_mweoccur_ids.add(mweoccur.id())
+                    mwe.add_skipped_mweoccur(mweoccur)
 
 
     def print_categories(self):
@@ -104,7 +102,7 @@ class Main:
             if n != n_annotated:
                 example_skipped = self._example(next(o for o in mwe.mweoccurs if o.category == 'Skipped'))
 
-            postag = dataalign.most_common(self._postag(o) for o in mwe.mweoccurs)
+            postag = dataalign.most_common(self._postag(o) for o in mwe.mweoccurs if o.category != 'Skipped')
             category = dataalign.most_common(o.category for o in mwe.mweoccurs if o.category != 'Skipped')
             print(" ".join(mwe.canonicform), postag, category, n-n_annotated, n_annotated, n, n_annotated/n,
                   example_skipped, sep="\t", file=self.args.out_mwes)
@@ -115,7 +113,7 @@ class Main:
 
     def print_mweoccurs(self):
         r'''Print TSV with "Skipped" info for each MWEOccur'''
-        print('MWE', 'POS-tag', 'idiomatic-or-literal', 'category', 'example',
+        print('MWE', 'POS-tag', 'idiomatic-or-literal', 'category', 'sentence-with-mweoccur',
               'source', sep="\t", file=self.args.out_mweoccurs)
         for mwe in sorted(self.mwes, key=lambda m: m.canonicform):
             for mweoccur in mwe.mweoccurs:

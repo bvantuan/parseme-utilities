@@ -68,8 +68,10 @@ class MWEAnnot(collections.namedtuple('MWEAnnot', 'ranks category')):
         return tuple(rank2index[r] for r in self.ranks if (r in rank2index))
 
 
-class Dependency(collections.namedtuple('Dependency', 'name parent_rank')):
+class Dependency(collections.namedtuple('Dependency', 'label parent_rank')):
     r'''Represents a dependency link; e.g. Dependency('xcomp', '9').'''
+
+Dependency.MISSING = Dependency('missing_dep', '0')
 
 
 class Token(collections.namedtuple('Token', 'rank surface nsp lemma univ_pos dependency')):
@@ -81,10 +83,17 @@ class Token(collections.namedtuple('Token', 'rank surface nsp lemma univ_pos dep
     @nsp: bool
     @lemma: Optional[str]
     @univ_pos: Optional[str]
-    @dependency: Optional[Dependency]
+    @dependency: Dependency
     """
     def lemma_or_surface(self):
         return self.lemma or self.surface
+
+    def __lt__(self, other):
+        return self._lt_key() < other._lt_key()
+
+    def cmp_key(self):
+        r'''Deterministic exception-free comparison method.'''
+        return (self.rank, self.surface, self.nsp, self.lemma or '', self.univ_pos or '', self.dependency)
 
 
 class Sentence:
@@ -366,7 +375,7 @@ class MWEOccurView:
 
 
     def iter_root_to_leaf_mwe_tokens(self):
-        r'''Yield Tokens in MWE, from root to leaves (aka topological sort).
+        r'''Yield Tokens in MWE, from closest-to-root to leaves (aka topological sort).
         May NOT yield all tokens if there is missing Dependency information.
         '''
         # We use ranks because we sometimes replace tokens (e.g. _fixed_token above)...
@@ -375,19 +384,26 @@ class MWEOccurView:
             if token.rank in mwe_ranks:
                 yield token
 
+    def rerooted_tokens(self):
+        r'''Return re-rooted Tokens (sorted from the closest-to-root towards the leaves).'''
+        return rerooted(self.iter_root_to_leaf_mwe_tokens())
 
-def re_rooted(tokens):
-    r'''Return a list of re-rooted tokens:
-    * Tokens that refer to internal ranks are re-rooted.
-    * Tokens that refer to external ranks will now point to root:0.
+
+def rerooted(tokens):
+    r'''Return a list of re-ranked and re-rooted tokens.
+    * Tokens that referred to internal ranks new point to new ranks.
+    * Tokens that referred to external ranks will now point to root:0.
+    * Tokens that had parent_rank=='0' keep their old Dependency info.
     '''
     ret = []
-    oldrank2new = {}
+    oldrank2new = {'0': '0'}
     for t in tokens:
         oldrank2new[t.rank] = str(len(ret)+1)
+        t = t._replace(rank=oldrank2new[t.rank])
+
         if t.dependency.parent_rank in oldrank2new:
             t = t._replace(dependency=Dependency(
-                t.dependency.name, oldrank2new[t.dependency.parent_rank]))
+                t.dependency.label, oldrank2new[t.dependency.parent_rank]))
         else:
             t = t._replace(dependency=Dependency('root', '0'))
         ret.append(t)
@@ -446,6 +462,28 @@ class MWELexicalItem:
     def subhead(self):
         r'''Return a `str` with the subhead noun (fails if self.i_subhead is None).'''
         return self.canonicform[self.i_subhead]
+
+
+    def most_common_rooted_tokens_and_example(self):
+        r'''Return the most common output from `mweoccur.rerooted_tokens()`
+        for all mweoccurs in `self`, along with an example MWEOccur which has these re-rooted tokens.
+
+        @rtype (Sequence[Token], MWEOccur).
+        '''
+        example_mweoccur = {}  # Dict[Tuple[Token], MWEOccur]
+        counter = collections.Counter()  # Counter[Tuple[Token]]
+
+        for mweoccur in self.mweoccurs:
+            # XXX should this be `mweoccur.raw` or `mweoccur.reordered`?
+            rooted_tokens = tuple(rerooted(mweoccur.raw.iter_root_to_leaf_mwe_tokens()))
+            example_mweoccur.setdefault(rooted_tokens, mweoccur)
+            counter[rooted_tokens] += 1
+
+        # We just want the rooted_tokens with max-count, but we also want a
+        # deterministic tie-breaker (determinism is good for experiments), so we do this hack:
+        _, rooted_tokens = max(((count, tokens) for (tokens, count) in counter.items()),
+                key=lambda ct: (ct[0], [t.cmp_key() for t in ct[1]]))
+        return rooted_tokens, example_mweoccur[rooted_tokens]
 
 
 
@@ -843,7 +881,7 @@ class ConllIterator(AbstractFileIterator):
         if len(data) != 10:
             self.err("Line has {} columns, not 10".format(len(data)))
         rank, surface, lemma, upos = data[:4]
-        dependency = Dependency(data[7], data[6]) if (data[7] and data[6]) else None
+        dependency = Dependency(data[7], data[6]) if (data[7] and data[6]) else Dependency.MISSING
         return Token(rank, surface or "_", False, lemma, upos, dependency), []
 
 
@@ -853,7 +891,7 @@ class ParsemeTSVIterator(AbstractFileIterator):
             self.err("Line has {} columns, not 4".format(len(data)))
         rank, surface, nsp, mwe_codes = data
         m = mwe_codes.split(";") if mwe_codes else []
-        return Token(rank, surface or "_", (nsp == "nsp"), None, None, None), m
+        return Token(rank, surface or "_", (nsp == "nsp"), None, None, Dependency.MISSING), m
 
 
 class ParsemePlatinumIterator(AbstractFileIterator):
@@ -866,7 +904,7 @@ class ParsemePlatinumIterator(AbstractFileIterator):
         mwe_codes = ["{}:{}".format(data[i], data[i+1]) if data[i+1] else data[i]
                 for i in range(4, len(data)-1, 2) if data[i] not in EMPTY]
         # Ignore free comments in data[-1], present if len(data)%2==1
-        return Token(rank, surface or "_", nsp, None, None, None), mwe_codes
+        return Token(rank, surface or "_", nsp, None, None, Dependency.MISSING), mwe_codes
 
     def iter_header(self, f):
         next(f); next(f)  # skip the 2-line header
@@ -927,22 +965,82 @@ def _canonicform2mweoccurs(lang, iter_sentences):
 
 ############################################################
 
-class WindowBasedSkippedFinder:
-    r'''Algorithm to find skipped MWEs based on a window
-    (allows gaps of up to `max_gaps` words).
-    
+SKIPPED_FINDER_PATTERNS = '{Dependency, UnlabeledDep, BagOfDeps, WindowGapX}'
+
+
+def skipped_finder(finding_method, lang, mwes, *, favor_precision):
+    r'''Return an instance of a subclass of AbstractSkippedFinder.
+
+    Parameters:
+    @type  finding_method: str
+    @param finding_method: A string matching one of the SKIPPED_FINDER_PATTERNS
+    @type  lang: str
+    @param lang: one of the languages from the `LANGS` global
+    @type  mwes: list[MWELexicalItem]
+    @param mwes: list of MWEs to be used for annotation (it may be ignored)
+    @type  favor_precision: bool
+    @param favor_precision: whether to favor precision (conservative) or recall
+    '''
+    if finding_method == 'Dependency':
+        return DependencyBasedSkippedFinder(lang, mwes, favor_precision, 'LABELED-ARC')
+    if finding_method == 'UnlabeledDep':
+        return DependencyBasedSkippedFinder(lang, mwes, favor_precision, 'UNLABELED-ARC')
+    if finding_method == 'BagOfDeps':
+        return DependencyBasedSkippedFinder(lang, mwes, favor_precision, 'BAG')
+
+    if finding_method.startswith('WindowGap'):
+        max_gaps = int(finding_method[len('WindowGap'):])
+        return WindowBasedSkippedFinder(lang, mwes, favor_precision, max_gaps)
+
+    raise ValueError('Invalid finding-method: `{}`'.format(finding_method))
+
+
+
+class AbstractSkippedFinder:
+    r'''Superclass for algorithms to find skipped MWEs in text.
+
     Parameters:
     @type  lang: str
     @param lang: one of the languages from the `LANGS` global
     @type  mwes: list[MWELexicalItem]
     @param mwes: list of MWEs to be used for annotation
+    @type  favor_precision: bool
+    @param favor_precision: whether to favor precision (conservative) or recall
+    '''
+    def __init__(self, lang, mwes, favor_precision):
+        self.lang = lang
+        self.mwes = list(mwes)
+        self.favor_precision = favor_precision
+
+    def find_skipped_in(self, sentences):
+        r"""Yield pairs (MWELexicalItem, MWEOccur) for Skipped MWEs in all sentences."""
+        raise NotImplementedError
+
+    def _mweinfo_pair(self, mwelexitem, sentence, indexes):
+        r"""Return a pair (MWELexicalItem, MWEOccur) with
+        a new MWEOccur for "Skipped" MWE in sentence (at given indexes).
+        """
+        indexes = tuple(sorted(indexes))
+        new_occur = MWEOccur(self.lang, sentence, indexes,
+                "Skipped", [], "autodetect", None, None)
+        return (mwelexitem, new_occur)
+
+
+
+
+class WindowBasedSkippedFinder(AbstractSkippedFinder):
+    r'''Algorithm to find skipped MWEs based on a window
+    (allows gaps of up to `max_gaps` words).
+    See documentation in AbstractSkippedFinder.
+    
+    Extra Parameters:
     @type  max_gaps: int
     @param max_gaps: max number of gaps between words in match
     '''
-    def __init__(self, lang, mwes, max_gaps):
-        self.lang = lang
-        self.mwes = list(mwes)
+    def __init__(self, lang, mwes, favor_precision, max_gaps):
+        super().__init__(lang, mwes, favor_precision)
         self.max_gaps = max_gaps
+
         self.head2mwes = collections.defaultdict(list)  # type: dict[str, list[MWELexicalItem]]
         for mwe in self.mwes:
             self.head2mwes[mwe.head().lower()].append(mwe)
@@ -960,9 +1058,7 @@ class WindowBasedSkippedFinder:
         matched_indexes = []
 
         def matched(wordform, i):
-            unmatched_words[wordform] -= 1
-            if unmatched_words[wordform] == 0:
-                del unmatched_words[wordform]
+            unmatched_words.pop(wordform)
             matched_indexes.append(i)
 
         for range_obj in [range(i_head, len(sentence.tokens)), range(i_head-1, -1, -1)]:
@@ -973,98 +1069,187 @@ class WindowBasedSkippedFinder:
                     break  # matched_indexes is complete
                 if gaps > self.max_gaps:
                     break  # failed to match under max_gaps
-                if word.surface in unmatched_words:
-                    matched(word.surface, i)
-                elif word.lemma in unmatched_words:
-                    matched(word.lemma, i)
+                if word.surface.lower() in unmatched_words:
+                    matched(word.surface.lower(), i)
+                elif word.lemma_or_surface().lower() in unmatched_words:
+                    matched(word.lemma.lower(), i)
                 else:
                     gaps += 1
 
         if not unmatched_words and gaps <= self.max_gaps:
-            matched_indexes.sort()
-            new_occur = MWEOccur(self.lang, sentence,
-                    matched_indexes, "Skipped", [], "autodetect", None, None)
-            yield (mwe, new_occur)
+            yield self._mweinfo_pair(mwe, sentence, matched_indexes)
 
 
-#----------------------------------------------------------
 
-class MWEDepFrame(collections.namedtuple('MWEDepFrame', 'mwe interdep_tokens')):
+#------------------------------------------------------------
+
+class Bag:
+    r'''Bag[A, B] is similar to a Dict[A, set[B]], with insertions adding to the set of values.'''
+    def __init__(self, key_value_pairs=()):
+        self.dict = {}
+        for k, value in key_value_pairs:
+            try:
+                subset = self.dict[k]
+            except KeyError:
+                subset = self.dict[k] = set()
+            subset.add(value)
+
+    def is_empty(self):
+        return (not self.dict)
+
+    def __contains__(self, key):
+        return (key in self.dict)
+
+    def __getitem__(self, key):
+        return self.dict.get(key, frozenset())
+
+    def excluding(self, key, value_in_bag):
+        r'''Return new Bag excluding (key, value_in_bag).'''
+        return Bag((k, v) for (k, values) in self.dict.items() for v in values if (k, v) != (key, value_in_bag))
+
+
+class MWEBagFrame(collections.namedtuple('MWEBagFrame', 'mwe n_roots lemmabag')):
     r'''Attributes:
-    @mwe: MWELexicalItem
-    @interdep_tokens: list[Token]
+    @type  mwe: MWELexicalItem
+    @type  n_roots: int
+    @type  n_roots: Number of tokens with parent '0'
+    @type  lemmabag: Bag[str, Token]
+    @param lemmabag: Mapping from lemma to set of rooted tokens
     '''
 
+class DependencyBasedSkippedFinder(AbstractSkippedFinder):
+    r'''Algorithm to find skipped MWEs based
+    on bags of unlabeled syntactic dependencies.
+    See documentation in AbstractSkippedFinder.
 
-class DependencyBasedSkippedFinder:
-    r'''Algorithm to find skipped MWEs based on syntactic dependencies.
-    
-    Parameters:
-    @type  lang: str
-    @param lang: one of the languages from the `LANGS` global
-    @type  mwes: list[MWELexicalItem]
-    @param mwes: list of MWEs to be used for annotation
+    Extra parameters:
+    @type  matchability: str
+    @param matchability: One of {labeled-arc, unlabeled-arc, bag}
     '''
-    def __init__(self, lang, mwes):
-        self.lang = lang
-        self.mwes = list(mwes)
-        self.first2mwedepframes = collections.defaultdict(list)  # type: dict[str, list[MWEDepFrame]]
+    def __init__(self, lang, mwes, favor_precision, matchability):
+        super().__init__(lang, mwes, favor_precision)
+        self.matchability = matchability
+        self.rootmostlemma2mwebagframe = collections.defaultdict(list)  # type: dict[str, list[MWEBagFrame]]
+
         for mwe in self.mwes:
             # CAREFUL: re-rooting changes the parent_rank of dependencies
-            tokens = re_rooted(mwe.mweoccurs[0].raw.iter_root_to_leaf_mwe_tokens())
-            if len(tokens) not in [0, len(mwe.mweoccurs[0].raw.tokens)]:
-                mwe.mweoccurs[0].sentence.msg_stderr(
-                    'WARNING: partial dependency info for {}'.format(
-                    "_".join(t.surface for t in mwe.mweoccurs[0].raw.tokens)))
-            if tokens:
-                if len(tokens) >= 2 and tokens[1].dependency == Dependency('root', '0'):
-                    mwe.mweoccurs[0].sentence.msg_stderr(
-                        'WARNING: skipping multi-rooted: {}'.format('_'.join(mwe.canonicform)))
-                    continue  # XXX 2017-08-25 avoid bad cases for PL... We should better handle this
-                self.first2mwedepframes[tokens[0].lemma_or_surface()].append(MWEDepFrame(mwe, tokens))
+            rooted_tokens, example_mweoccur = mwe.most_common_rooted_tokens_and_example()
+            n_roots = sum(1 for t in rooted_tokens if t.dependency.parent_rank == '0')
+
+            if any(t.dependency == Dependency.MISSING for t in rooted_tokens):
+                example_mweoccur.sentence.msg_stderr(
+                    'WARNING: skipping MWE with partial dependency info: {}'.format("_".join(mwe.canonicform)))
+                continue
+
+            if favor_precision and n_roots > 1:
+                example_mweoccur.sentence.msg_stderr(
+                    'WARNING: skipping MWE with disconnected syntax tree: {}'.format('_'.join(mwe.canonicform)))
+                continue
+
+            x = MWEBagFrame(mwe, n_roots, Bag((t.lemma_or_surface().lower(), t) for t in rooted_tokens))
+            self.rootmostlemma2mwebagframe[mwe.head().lower()].append(x)
+
 
     def find_skipped_in(self, sentences):
         r"""Yield pairs (MWELexicalItem, MWEOccur) for Skipped MWEs in all sentences."""
         for sentence in sentences:
-            for i, token in enumerate(sentence.tokens):
-                for mwedepframe in self.first2mwedepframes.get(token.lemma_or_surface().lower(), []):
-                    yield from self._find_skipped_mwe_at(sentence, mwedepframe, i)
+            reordered_sentence_tokens = tuple(sentence.iter_root_to_leaf_all_tokens())
 
-    def _find_skipped_mwe_at(self, sentence, mwedepframe, i_first):
-        r"""Yield a Skipped MWE or nothing at all."""
-        assert mwedepframe.interdep_tokens[0].dependency == Dependency('root', '0')
-        matched_indexes = [i_first]  # force first to be here, otherwise we may find an MWE elsewhere
+            # For every rootmost lemma in sentence, find all MWEOccurs involving this lemma
+            for rootmost_lemma in sorted(set(t.lemma_or_surface().lower() for t in reordered_sentence_tokens)):
+                for mwebagframe in self.rootmostlemma2mwebagframe.get(rootmost_lemma, []):
+                    sub_finder = _SingleMWEFinder(
+                            self.lang, self.favor_precision, self.matchability, sentence,
+                            reordered_sentence_tokens, mwebagframe.mwe, mwebagframe.n_roots, mwebagframe.lemmabag)
 
-        for rooted_token in mwedepframe.interdep_tokens[1:]:
-            i = self._find_next(sentence, rooted_token, matched_indexes)
-            #print('DEBUG: STATE:', matched_indexes, i, file=sys.stderr)
-            if i is None:
-                break  # rooted_token not found!
-            matched_indexes.append(i)
-
-        if len(matched_indexes) == len(mwedepframe.interdep_tokens):
-            #print('DEBUG: ', [(t.surface, t.dependency) for t in mwedepframe.interdep_tokens], file=sys.stderr)
-            matched_indexes.sort()
-            new_occur = MWEOccur(self.lang, sentence,
-                    matched_indexes, "Skipped", [], "autodetect", None, None)
-            yield (mwedepframe.mwe, new_occur)
+                    for matched_indexes in sub_finder.find_indexes():
+                        yield self._mweinfo_pair(mwebagframe.mwe, sentence, matched_indexes)
 
 
-    def _find_next(self, sentence, rooted_token, matched_indexes):
-        for i, sentence_token in enumerate(sentence.tokens):
-            if sentence_token.lemma_or_surface() == rooted_token.lemma_or_surface():
-                if sentence_token.dependency is None:
-                    # If we have no dependency info, avoid false positives
-                    pass  # continue looking for it
-                elif rooted_token.dependency == Dependency('root', '0'):
-                    # If expected external match, we allow any kind of match (even internal)
-                    return i
-                else:
-                    rooted_parent_index = int(rooted_token.dependency.parent_rank)-1
-                    assert rooted_parent_index < len(matched_indexes), (rooted_parent_index, matched_indexes, mwedepframe)
-                    rooted_parent_token = sentence.tokens[matched_indexes[rooted_parent_index]]
-                    # If expected internal match, we check the dependency name
-                    # We also check the parent rank, but this is complicated due to re-rooting
-                    if (sentence_token.dependency.name == rooted_token.dependency.name
-                            and sentence_token.dependency.parent_rank == rooted_parent_token.rank):
-                        return i
+class _SingleMWEFinder(collections.namedtuple('_SingleMWEFinder',
+        'lang favor_precision matchability sentence reordered_sentence_tokens mwe max_roots lemmabag')):
+    r'''Finder of all occurrences of `mwe` in `reordered_sentence_tokens`.'''
+
+    def find_indexes(self):
+        r"""Yield Skipped MWE occurrence indexes in sentence (may yield 2+ MWEs in rare cases)."""
+        rank2index = self.sentence.rank2index()
+
+        already_matched = MWEBagAlreadyMatched.EMPTY
+        for matched_ranks in self._recursive_find_ranks(0, already_matched, self.lemmabag):
+            assert len(matched_ranks) == len(self.mwe.canonicform), self.mwe.canonicform
+            yield tuple(rank2index[rank] for rank in matched_ranks)
+
+
+    def _recursive_find_ranks(self, i_start, already_matched, unmatched_lemmabag):
+        r'''Yield sets of ranks fully matching current MWE.'''
+        if unmatched_lemmabag.is_empty():
+            yield already_matched.rank2rootedrank.keys()
+            return
+
+        for i, sentence_token, rooted_token in self._find_matched_tokens(
+                 i_start, already_matched, unmatched_lemmabag):
+            new_already_matched = already_matched.including(sentence_token, rooted_token)
+            new_unmatched_lemmabag = unmatched_lemmabag.excluding(rooted_token.lemma, rooted_token)
+            yield from self._recursive_find_ranks(i+1, new_already_matched, new_unmatched_lemmabag)
+
+
+    def _find_matched_tokens(self, i_start, already_matched, unmatched_lemmabag):
+        r'''Yield all (i, sentence_token, rooted_token) for matches at reordered_sentence_tokens[i].'''
+        for i, sentence_token in enumerate(self.reordered_sentence_tokens[i_start:], i_start):
+            if sentence_token.dependency == Dependency.MISSING:
+                continue  # If we have no dependency info, avoid false positives
+
+            lemma = sentence_token.lemma_or_surface().lower()
+            for rooted_token in unmatched_lemmabag[lemma]:
+                match_triple = (i, sentence_token, rooted_token)
+
+                if sentence_token.dependency.parent_rank in already_matched.rank2rootedrank:
+                    # Non-rootmost token, connected to someone in `already_matched`
+                    expected_rooted_parent_rank = already_matched.rank2rootedrank[sentence_token.dependency.parent_rank]
+                    if self._matches_in_tree(i, sentence_token, rooted_token, already_matched, expected_rooted_parent_rank):
+                        yield match_triple
+
+                elif already_matched.n_roots < self.max_roots:
+                    # Rootmost token, does not have a parent inside `already_matched`
+                    if self._matches_rootmost(i, sentence_token, rooted_token, already_matched):
+                        yield match_triple
+
+
+    def _matches_rootmost(self, i, sentence_token, rooted_token, already_matched):
+        r'''Return True iff `sentence_token` matches a rootmost element of self.mwe'''
+        if self.matchability == 'BAG':
+            return True
+        if self.matchability in ('LABELED-ARC', 'UNLABELED-ARC'):
+            # Only allow if it was expected to attach to root
+            return rooted_token.dependency == Dependency('root', '0')
+        assert False, self.matchability
+
+
+    def _matches_in_tree(self, i, sentence_token, rooted_token, already_matched, expected_rooted_parent_rank):
+        r'''Return True iff `sentence_token` matches non-rootmost element of self.mwe'''
+        if self.matchability == 'BAG':
+            return True
+        if self.matchability == 'UNLABELED-ARC':
+            return expected_rooted_parent_rank == rooted_token.dependency.parent_rank
+        if self.matchability == 'LABELED-ARC':
+            return (expected_rooted_parent_rank == rooted_token.dependency.parent_rank
+                    and sentence_token.dependency.label == rooted_token.dependency.label)
+        assert False, self.matchability
+
+
+class MWEBagAlreadyMatched(collections.namedtuple('MWEBagAlreadyMatched', 'rank2rootedrank n_roots')):
+    r'''Attributes:
+    @type  rank2rootedrank: dict[str,str]
+    @param rank2rootedrank: Mapping from rank in sentence to rank in rooted_tokens
+    @type  n_roots: int
+    @param n_roots: Number of roots already matched (greater than 1 for disconnected trees)
+    '''
+    def including(self, sentence_token, rooted_token):
+        assert sentence_token.rank not in self.rank2rootedrank, \
+                ('Already matched!', sentence_token, self.rank2rootedrank)
+        new_rank2rootedrank = dict(self.rank2rootedrank)
+        new_rank2rootedrank[sentence_token.rank] = rooted_token.rank
+        new_n_roots = self.n_roots + int(sentence_token.dependency.parent_rank not in self.rank2rootedrank)
+        return MWEBagAlreadyMatched(new_rank2rootedrank, new_n_roots)
+
+MWEBagAlreadyMatched.EMPTY = MWEBagAlreadyMatched({}, 0)

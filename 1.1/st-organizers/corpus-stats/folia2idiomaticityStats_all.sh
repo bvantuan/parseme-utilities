@@ -37,24 +37,28 @@ output_path="./OUT"
 mkdir -p "$output_path"
 echo "Writing to: $output_path"
 
+loud_exec() { echo "$@" >&2; "$@"; }
 
-{
-    for lang in FR PL BG CS DE EL ES FA HE HU IT LT MT PT RO SL SV TR; do
-        if test -f "$input_path/$lang/train.parsemetsv"; then
-            for method in Dependency WinGap0 WinGap1 WinGap2; do
+
+for lang in FR EL PL BG CS DE ES FA HE HU IT LT MT PT RO SL SV TR; do
+    if test -f "$input_path/$lang/train.parsemetsv"; then
+        mkdir -p "$output_path/$lang"
+        {
+            for method in Dependency BagOfDeps UnlabeledDep WindowGap0 WindowGap1 WindowGap2; do
                 mkdir -p "$output_path/$lang/$method"
                 langpath="$input_path/$lang"
                 echo "================== lang=$lang method=$method ===============" >&2
 
-                "$HERE/folia2idiomaticityStats.py" --lang=$lang --input "$input_path/$lang/train.parsemetsv" --literal-finding-method="$method"  --out-mwes "$output_path/$lang/$method/mwes.tsv" --out-mweoccurs "$output_path/$lang/$method/mweoccurs.tsv" --out-categories "$output_path/$lang/$method/categories.tsv"
+                loud_exec "$HERE/folia2idiomaticityStats.py" --lang=$lang --input "$input_path/$lang/train.parsemetsv" --literal-finding-method="$method"  --out-mwes "$output_path/$lang/$method/mwes.tsv" --out-mweoccurs "$output_path/$lang/$method/mweoccurs.tsv" --out-categories "$output_path/$lang/$method/categories.tsv"
             done
-        else
-            echo "WARNING: Language not found: $lang" >&2
-        fi
 
-        if tail -n 1 "OUT/$lang/Dependency/categories.tsv" | awk '{exit($2==0)}'; then
-            echo "=> Generating PDF with intersection between Dependency and WinGapX for $lang" >&2
-            "$HERE/mweoccur_intersection.py" --lang="$lang" --input-dependency "OUT/$lang/Dependency/mweoccurs.tsv" --input-window "OUT/$lang/WinGap"*"/mweoccurs.tsv" --out "OUT/$lang/intersection.pdf" >"OUT/$lang/intersection.txt"
-        fi
-    done
-} 2> >(tee "$output_path/stderr")
+            if tail -n 1 "$output_path/$lang/Dependency/categories.tsv" | awk '{exit($2==0)}'; then
+                echo "====== Generating PDF with intersection between Dependency and WinGapX for $lang =====" >&2
+                loud_exec "$HERE/mweoccur_intersection.py" --lang="$lang" --input-dependency "$output_path/$lang/Dependency/mweoccurs.tsv" --input-window "$output_path/$lang/"{UnlabeledDep,BagOfDeps,WindowGap}*"/mweoccurs.tsv" --out "$output_path/$lang/intersection.pdf" >"$output_path/$lang/intersection.txt"
+            fi
+        } 2> >(tee "$output_path/$lang/stderr.txt")
+
+    else
+        echo "WARNING: Language not found: $lang" >&2
+    fi
+done
