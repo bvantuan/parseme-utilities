@@ -789,7 +789,7 @@ class FoliaIterator:
                 self.calc_mweannots(mwes, current_sentence)
 
                 for rank, word in enumerate(folia_sentence.words(), 1):
-                    token = Token(str(rank), word.text(), (not word.space), None, None, None)
+                    token = Token(str(rank), word.text(), (not word.space), None, None, Dependency.MISSING)
                     current_sentence.tokens.append(token)
 
                 current_sentence.mwe_id2folia = dict(enumerate(mwes, 1))

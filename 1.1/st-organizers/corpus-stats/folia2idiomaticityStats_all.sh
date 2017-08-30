@@ -54,7 +54,7 @@ for lang in FR EL PL BG CS DE ES FA HE HU IT LT MT PT RO SL SV TR; do
 
             if tail -n 1 "$output_path/$lang/Dependency/categories.tsv" | awk '{exit($2==0)}'; then
                 echo "====== Generating PDF with intersection between Dependency and WinGapX for $lang =====" >&2
-                loud_exec "$HERE/mweoccur_intersection.py" --lang="$lang" --input-dependency "$output_path/$lang/Dependency/mweoccurs.tsv" --input-window "$output_path/$lang/"{UnlabeledDep,BagOfDeps,WindowGap}*"/mweoccurs.tsv" --out "$output_path/$lang/intersection.pdf" >"$output_path/$lang/intersection.txt"
+                loud_exec "$HERE/mweoccur_intersection.py" --lang="$lang" --input-dependency "$output_path/$lang/Dependency/mweoccurs.tsv" --input-window "$output_path/$lang/"{UnlabeledDep,BagOfDeps,WindowGap}*"/mweoccurs.tsv" --out "$output_path/$lang/intersection.pdf" >"$output_path/$lang/intersection.tsv"
             fi
         } 2> >(tee "$output_path/$lang/stderr.txt")
 
