@@ -218,7 +218,8 @@ class Sentence:
 
 class MWEOccur:
     r"""Represents an instance of a MWE in text.
-    
+    In a type/token distinction: MWELexicalItem is a type and MWEOccur is a token.
+
     Parameters:
     @type  lang: str
     @param lang: one of the languages from the `LANGS` global
@@ -412,9 +413,10 @@ def rerooted(tokens):
 
 
 class MWELexicalItem:
-    r'''Represents a group of MWEOccurs that share the same canonical form.
+    r'''Represents a group of `MWEOccur`s that share the same canonical form.
+    In a type/token distinction: MWELexicalItem is a type and MWEOccur is a token.
 
-    For example, an LVC with MWEOccurs
+    For example, an LVC with these MWEOccurs
       ["taking shower", "took shower", "shower taken"]
     would ideally be grouped into MWELexicalItem with canonicform "take shower".
     
