@@ -9,6 +9,11 @@ import re
 import subprocess
 import sys
 
+import os, sys
+sys.path.insert(0, os.path.dirname(__file__)+"/../../lib")
+import dataalign
+
+
 parser = argparse.ArgumentParser(description="""
         Read JSON notes and output a pretty page that indicates what should be (re-)annotated.""")
 parser.add_argument("--json-input", metavar="ParsemeNotesJson", type=argparse.FileType('r'), required=True,
@@ -23,7 +28,7 @@ parser.add_argument("--only-special", action='store_true',
         help="""Show only corrections corresponding to "special cases".""")
 
 
-KNOWN_CATEGS = "ID IReflV LVC OTH VPC NonVMWE".split()
+KNOWN_CATEGS = dataalign.KNOWN_CATEGORIES + ["NonVMWE"]
 ISOTIME = datetime.datetime.now().isoformat()
 
 class AnnotEntry(collections.namedtuple('AnnotEntry', 'filename sent_id indexes json_data')):

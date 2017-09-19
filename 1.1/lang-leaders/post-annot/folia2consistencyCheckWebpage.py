@@ -88,7 +88,7 @@ class Main:
         print('  <a class="mwe-canonic" data-toggle="tooltip" title="{title}">{canonic}</a>'.format(
                 canonic=ESC(" ".join(mwe.canonicform)), title=tooltip))
 
-        # Print labels; e.g. [ID (5) LVC(3)]
+        # Print labels; e.g. [VID (5) LVC(3)]
         counter = collections.Counter(o.category for o in mwe.mweoccurs)
         print('<span class="mwe-label-header">')
         print('  ' + ' '.join('<span class="label mwe-label mwe-label-{0}">{0} ({1})</span>' \
@@ -191,7 +191,8 @@ class VerbInfoCalculator:
 
     def _find_skipped(self, sentences):
         r"""For every sentence, add Skipped MWEOccur entries to MWELexicalItems in self.mwes."""
-        finder = dataalign.WindowBasedSkippedFinder(self.lang, self.mwes, MAX_GAPS)
+        finder = dataalign.WindowBasedSkippedFinder(
+            self.lang, self.mwes, favor_precision=False, max_gaps=MAX_GAPS)
         for mwe, mweoccur in finder.find_skipped_in(sentences):
             mwe.add_skipped_mweoccur(mweoccur)
 
@@ -252,12 +253,18 @@ p { margin-bottom: 5px; }  /* used inside mwe-occur-comment */
     color: black;
 }
 
-.mwe-label { cursor: default; }
+
+.mwe-label {
+  background-color: #FF0000;  /* Default red, to catch bugs */
+  cursor: default;
+}
+
+.mwe-label-VID { background-color: #FF6AFF; }
 .mwe-label-LVC { background-color: #9AA6FF; }
-.mwe-label-ID { background-color: #FF6AFF; }
-.mwe-label-OTH { background-color: #EF4AEF; }
 .mwe-label-VPC { background-color: #CC8833; }
-.mwe-label-IReflV { background-color: #FFB138; }
+.mwe-label-IRV { background-color: #FFB138; }
+.mwe-label-MVC { background-color: #C13AC1; }
+.mwe-label-IAV { background-color: #AAAAAA; }
 .mwe-label-NonVMWE { background-color: #DCC8C8; }
 .mwe-label-Skipped { background-color: #DDDDDD; }
 
@@ -362,11 +369,12 @@ HTML_FOOTER = """
   <span class="dropdown">
     <span class="dropdown-toggle" id="menu1" type="button" data-toggle="dropdown"></span>
     <ul class="dropdown-menu" role="menu" aria-labelledby="menu1">
-      <li role="presentation"><a role="menuitem" tabindex="-1" href="javascript:noteQ('ID')">Annotate as ID</a></li>
-      <li role="presentation"><a role="menuitem" tabindex="-1" href="javascript:noteQ('IReflV')">Annotate as IReflV</a></li>
-      <li role="presentation"><a role="menuitem" tabindex="-1" href="javascript:noteQ('LVC')">Annotate as LVC</a></li>
-      <li role="presentation"><a role="menuitem" tabindex="-1" href="javascript:noteQ('OTH')">Annotate as OTH</a></li>
-      <li role="presentation"><a role="menuitem" tabindex="-1" href="javascript:noteQ('VPC')">Annotate as VPC</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="javascript:noteQ('VID')">Annotate as VID (idiom)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="javascript:noteQ('LVC')">Annotate as LVC (light-verb)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="javascript:noteQ('IRV')">Annotate as IRV (reflexive)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="javascript:noteQ('VPC')">Annotate as VPC (verb-particle)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="javascript:noteQ('MVC')">Annotate as MVC (multi-verb)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="javascript:noteQ('IAV')">Annotate as IAV (adpositional)</a></li>
       <li role="presentation"><a role="menuitem" tabindex="-1" href="javascript:noteCustom()">Custom annotation</a></li>
       <li role="presentation" class="divider"></li>
       <li role="presentation"><a role="menuitem" tabindex="-1" href="javascript:noteQ('NonVMWE')">Mark as Non-VMWE</a></li>

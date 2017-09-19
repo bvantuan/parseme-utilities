@@ -34,11 +34,24 @@ EMPTY = "_"
 # Set of all valid languages in the latest PARSEME Shared-Task
 LANGS = set("AR BG CS DE EL EN ES EU FA FR HE HR HU HI IT LT MT PL PT RO SL SV TR".split())
 
-# Languages where the pronoun in IReflV is on the left
+# Languages where the pronoun in IRV is on the left
 LANGS_WITH_REFL_PRON_ON_LEFT = set("DE EU FR RO".split())
 
 # Languages where the verb normally appears to the right of the object complement (SOV/OSV/OVS)
 LANGS_WITH_DEFAULT_VERB_ON_RIGHT = set("EU HI TR".split())
+
+
+# Namespace for all valid categories of annotation
+class Category:
+    VERBAL_IDIOM = 'VID'
+    LIGHT_VERB_CONSTRUCTION = 'LVC'
+    INHERENTLY_REFLEXIVE_VERB = 'IRV'
+    VERB_PARTICLE_CONSTRUCTION = 'VPC'
+    MULTI_VERB_CONSTRUCTION = 'MVC'
+    INHERENTLY_ADPOSITIONAL_VERB = 'IAV'
+
+# List of all categories in `Category` class
+KNOWN_CATEGORIES = [c for c in dir(Category) if c.isupper()]
 
 
 ############################################################
@@ -173,7 +186,7 @@ class Sentence:
 
 
     def id(self):
-        r"""Return an ID, such as "foo.xml(s.13):78"."""
+        r"""Return a sentence ID, such as "foo.xml(s.13):78"."""
         ret = self.file_path
         ret += "(s.{})".format(self.nth_sent) if self.nth_sent else ""
         return ret + (":{}".format(self.lineno) if self.lineno else "")
@@ -224,7 +237,7 @@ class MWEOccur:
     @type  lang: str
     @param lang: one of the languages from the `LANGS` global
     @type  category: str
-    @param category: one of {ID, LVC, IReflV...}
+    @param category: one of {VID, LVC, IRV...}
     @type  sentence: Sentence
     @param sentence: the sentence in which this MWEOccur was seen
     @type  indexes: list[int]
@@ -284,7 +297,7 @@ class MWEOccurView:
     @type  i_head: int
     @param i_head: Index of head verb.
     @type  i_subhead: Optional[int]
-    @param i_subhead: Index of subhead noun (e.g. for LVCs and some IDs). May be `None`.
+    @param i_subhead: Index of subhead noun (e.g. for LVCs and some VIDs). May be `None`.
     @type  i_synroots: tuple[int]
     @param i_synroots: Index of syntactic roots (requires syntax info in CoNLL-U). Empty list if unavailable.
     '''
@@ -322,7 +335,7 @@ class MWEOccurView:
         return head_nouns[0]
 
     def _i_reflpron(self):
-        r"""Return the reflexive pronoun (for IReflV), or None."""
+        r"""Return the reflexive pronoun (for IRVs), or None."""
         return next((i for (i, t) in enumerate(self.tokens) if t.univ_pos == "PRON"), None)
 
     def _mwe_canonical_form(self):
@@ -345,8 +358,8 @@ class MWEOccurView:
         return MWEOccurView(self.mwe_occur, fixed)
 
     def _fixed_token(self, token):
-        r"""Return a manually fixed version of `token` (e.g. homogenize lemmas for IReflV)."""
-        if token.univ_pos == "PRON" and self.mwe_occur.category == "IReflV":
+        r"""Return a manually fixed version of `token` (e.g. homogenize lemmas for IRVs)."""
+        if token.univ_pos == "PRON" and self.mwe_occur.category == Category.INHERENTLY_REFLEXIVE_VERB:
             if self.mwe_occur.lang in ["PT", "ES", "FR"]:
                 token = token._replace(lemma="se")
             if self.mwe_occur.lang == "IT":
@@ -358,14 +371,14 @@ class MWEOccurView:
         r"""Return a reordered version of `tokens` (must keep same length)."""
         lang, category = self.mwe_occur.lang, self.mwe_occur.category
         T, newT, iH, iS = self.tokens, list(self.tokens), self.i_head, self.i_subhead
-        if category == "LVC":
+        if category == Category.LIGHT_VERB_CONSTRUCTION:
             nounverb = (lang in LANGS_WITH_DEFAULT_VERB_ON_RIGHT)
             if iS is None:
                 iS = 0 if nounverb else len(T)-1
             if (nounverb and iH < iS) or (not nounverb and iS < iH):
                 newT[iH], newT[iS] = T[iS], T[iH]
 
-        if category == "IReflV":
+        if category == Category.INHERENTLY_REFLEXIVE_VERB:
             iPron, iVerb = ((0,-1) if (lang in LANGS_WITH_REFL_PRON_ON_LEFT) else (-1,0))
             if T[iVerb].univ_pos == "PRON" and T[iPron].univ_pos == "VERB":
                 newT[iVerb], newT[iPron] = T[iPron], T[iVerb]
@@ -437,7 +450,8 @@ class MWELexicalItem:
         self._seen_mweoccur_ids = {m.id() for m in self.mweoccurs}  # type: set[str]
 
         self.i_head = most_common(m.reordered.i_head for m in mweoccurs)
-        nounbased_mweos = [m for m in mweoccurs if m.reordered.i_subhead is not None]
+        nounbased_mweos = [m.reordered.i_subhead for m in mweoccurs
+                           if m.reordered.i_subhead is not None]
         self.i_subhead = most_common(nounbased_mweos, fallback=None)
 
 
