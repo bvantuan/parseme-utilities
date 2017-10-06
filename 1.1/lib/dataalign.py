@@ -35,10 +35,10 @@ EMPTY = "_"
 LANGS = set("AR BG CS DE EL EN ES EU FA FR HE HR HU HI IT LT MT PL PT RO SL SV TR".split())
 
 # Languages where the pronoun in IRV is on the left
-LANGS_WITH_REFL_PRON_ON_LEFT = set("DE EU FR RO".split())
+LANGS_WITH_CANONICAL_REFL_PRON_ON_LEFT = set("DE EU FR RO".split())
 
-# Languages where the verb normally appears to the right of the object complement (SOV/OSV/OVS)
-LANGS_WITH_DEFAULT_VERB_ON_RIGHT = set("EU HI TR".split())
+# Languages where the verb canonically appears to the right of the object complement (SOV/OSV/OVS)
+LANGS_WITH_CANONICAL_VERB_ON_RIGHT = set("DE EU HI TR".split())
 
 
 # Namespace for all valid categories of annotation
@@ -315,7 +315,7 @@ class MWEOccurView:
         r"""Index of head verb in `mwe_canonical_form`
         (First word if there is no POS info available)."""
         i_verbs = [i for (i, t) in enumerate(self.tokens) if t.univ_pos == "VERB"] \
-                or [(-1 if LANGS_WITH_DEFAULT_VERB_ON_RIGHT else 0)]
+                or [(-1 if LANGS_WITH_CANONICAL_VERB_ON_RIGHT else 0)]
         return i_verbs[0]  # just take first verb that appears
 
     def _i_subhead(self):
@@ -360,6 +360,7 @@ class MWEOccurView:
     def _fixed_token(self, token):
         r"""Return a manually fixed version of `token` (e.g. homogenize lemmas for IRVs)."""
         if token.univ_pos == "PRON" and self.mwe_occur.category == Category.INHERENTLY_REFLEXIVE_VERB:
+            # Normalize reflexive pronouns, e.g. FR "me" or "te" => "se"
             if self.mwe_occur.lang in ["PT", "ES", "FR"]:
                 token = token._replace(lemma="se")
             if self.mwe_occur.lang == "IT":
@@ -372,14 +373,16 @@ class MWEOccurView:
         lang, category = self.mwe_occur.lang, self.mwe_occur.category
         T, newT, iH, iS = self.tokens, list(self.tokens), self.i_head, self.i_subhead
         if category == Category.LIGHT_VERB_CONSTRUCTION:
-            nounverb = (lang in LANGS_WITH_DEFAULT_VERB_ON_RIGHT)
+            # Reorder e.g. EN "shower take(n)" => "take shower"
+            nounverb = (lang in LANGS_WITH_CANONICAL_VERB_ON_RIGHT)
             if iS is None:
                 iS = 0 if nounverb else len(T)-1
             if (nounverb and iH < iS) or (not nounverb and iS < iH):
                 newT[iH], newT[iS] = T[iS], T[iH]
 
         if category == Category.INHERENTLY_REFLEXIVE_VERB:
-            iPron, iVerb = ((0,-1) if (lang in LANGS_WITH_REFL_PRON_ON_LEFT) else (-1,0))
+            # Reorder e.g. PT "se suicidar" => "suicidar se"
+            iPron, iVerb = ((0,-1) if (lang in LANGS_WITH_CANONICAL_REFL_PRON_ON_LEFT) else (-1,0))
             if T[iVerb].univ_pos == "PRON" and T[iPron].univ_pos == "VERB":
                 newT[iVerb], newT[iPron] = T[iPron], T[iVerb]
             elif lang == "PT" and (T[iVerb].univ_pos == "PART" or T[iVerb].univ_pos == "CONJ") and T[iPron].univ_pos == "VERB":
