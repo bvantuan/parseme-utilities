@@ -12,4 +12,4 @@ if test "${1:-}" = "--help" || test "${1:-}" = "-h" || test -t 0; then
     exit 0
 fi
 
-awk 'BEGIN{FS=OFS="\t"} /^$/ {print ""; next} {x = ($10=="SpaceAfter=No"?"nsp":""); print "'\''"$1, $2, x, "_", ($4=="VERB"?"V":"")}'
+sed -E 's/\r//g' | awk 'BEGIN{FS=OFS="\t"} /^$/ || /^#/ {print; next} {x = ($10=="SpaceAfter=No"?"nsp":""); print "'\''"$1, $2, x, "_", ($4=="VERB"?"V":"")}'

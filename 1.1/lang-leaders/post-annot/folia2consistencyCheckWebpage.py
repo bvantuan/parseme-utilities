@@ -26,71 +26,55 @@ parser.add_argument("--input", type=str, nargs="+", required=True,
 parser.add_argument("--conllu", type=str, nargs="+",
         help="""Path to parallel input CoNLL files""")
 
-MAX_SKIPS = 5
+MAX_GAPS = 5
 
 
 class Main:
     def __init__(self, args):
         self.args = args
-        self.seen_occur_ids = set()  # type: Set[mwe-occur-ID]
-        self.canonic2occurs = collections.defaultdict(list)  # type: canonicized_tuple -> [MWEOccur]
-        self.del_canonic2occurs = collections.defaultdict(list)
+        self.mwe_mixed = []  # type: list[MWELexicalItem]
+        self.mwe_nvmwe = []  # type: list[MWELexicalItem]
 
     def run(self):
-        for sentence in self.iter_sentences():
-            for mwe_occur in sentence.mwe_occurs(self.args.lang):
-                canonic = tuple(mwe_occur.reordered.mwe_canonical_form)
-                self.canonic2occurs[canonic].append(mwe_occur)
-                self.seen_occur_ids.add(mwe_occur.id())
-        self.delete_purely_nonvmwe_canonics()
+        self.mwe_mixed, self.mwe_nvmwe = dataalign.read_mwelexitems(
+            self.args.lang, self.iter_sentences(verbose=True))
         self.print_html()
 
-
-    def iter_sentences(self, verbose=True):
-        r"""Yield all sentences in `self.args.input` (aligned, if CoNLL-U was provided)"""
-        conllu_path = self.args.conllu or dataalign.calculate_conllu_paths(self.args.input, warn=verbose)
-        for elem in dataalign.iter_aligned_files(self.args.input, conllu_path, keep_nvmwes=True, debug=verbose):
-            if isinstance(elem, dataalign.Sentence):
-                yield elem
-
-
-    def delete_purely_nonvmwe_canonics(self):
-        r"""Remove entries that are fully NonVMWE from `self.canonic2occurs`."""
-        for canonic, mwe_occurs in list(self.canonic2occurs.items()):
-            if all((o.category=="NonVMWE" and o.confidence is None) for o in mwe_occurs):
-                self.del_canonic2occurs[canonic] = self.canonic2occurs.pop(canonic)
+    def iter_sentences(self, verbose):
+        return dataalign.iter_sentences(self.args.input, self.args.conllu, verbose=verbose)
 
 
     def print_html(self):
         print(HTML_HEADER_1and2)
         skip_sents = self.iter_sentences(False) if self.args.find_skipped else ()
-        self.print_html_mwes(self.canonic2occurs, skip_sents=skip_sents)
+        vic = VerbInfoCalculator(self.args.lang, self.mwe_mixed, skip_sents)
+        self.print_html_mwes(vic)
+
         print(HTML_HEADER_3)
-        self.print_html_mwes(self.del_canonic2occurs)
+        vic = VerbInfoCalculator(self.args.lang, self.mwe_nvmwe, ())
+        self.print_html_mwes(vic)
         print(HTML_FOOTER)
 
 
-    def print_html_mwes(self, canonic2occurs, skip_sents=()):
+    def print_html_mwes(self, vic):
         r"""Print a big list with all MWEs."""
         print('<div class="mwe-list list-group">')
-        vic = VerbInfoCalculator(self.args.lang, canonic2occurs, self.seen_occur_ids, skip_sents)
 
         for verb, verbinfo in sorted(vic.verb2info.items()):
             print('<div class="verb-block">')
-            for canonic in verbinfo.verbbased_canonics:
-                self.print_html_mwe_entry(canonic, verb, None, canonic2occurs[canonic])
+            for mwe in verbinfo.verbbased_mwes:
+                self.print_html_mwe_entry(verb, None, mwe)
 
-            for noun, canonics in sorted(verbinfo.nounbased_canonics.items()):
+            for noun, mwes in sorted(verbinfo.nounbased_mwes.items()):
                 print(' <div class="noun-subblock">')
-                for canonic in canonics:
-                    i = vic.canonic2isubhead[canonic]
-                    self.print_html_mwe_entry(canonic, verb, canonic[i], canonic2occurs[canonic])
+                for mwe in mwes:
+                    self.print_html_mwe_entry(verb, mwe.subhead(), mwe)
                 print(' </div>') # noun-subblock
             print('</div>')  # verb-block
         print('</div>')  # mwe-list
 
 
-    def print_html_mwe_entry(self, canonic, head, subhead, occurs):
+    def print_html_mwe_entry(self, head, subhead, mwe):
         r"""Print all MWE occurrences of an MWE entry as HTML; e.g.:
         | have bath [LVC (2)]
         | [LVC] I *had* a *bath* yesterday
@@ -102,10 +86,10 @@ class Main:
         tooltip = 'Sorted by verb &quot;{}&quot'.format(ESC(head))
         if subhead: tooltip += ' and grouped by noun &quot;{}&quot;'.format(ESC(subhead))
         print('  <a class="mwe-canonic" data-toggle="tooltip" title="{title}">{canonic}</a>'.format(
-                canonic=ESC(" ".join(canonic)), title=tooltip))
+                canonic=ESC(" ".join(mwe.canonicform)), title=tooltip))
 
-        # Print labels; e.g. [ID (5) LVC(3)]
-        counter = collections.Counter(o.category for o in occurs)
+        # Print labels; e.g. [VID (5) LVC(3)]
+        counter = collections.Counter(o.category for o in mwe.mweoccurs)
         print('<span class="mwe-label-header">')
         print('  ' + ' '.join('<span class="label mwe-label mwe-label-{0}">{0} ({1})</span>' \
                 .format(ESC(mwe), n) for (mwe, n) in counter.most_common()))
@@ -113,7 +97,7 @@ class Main:
 
         # Print examples
         print('  <div class="mwe-occurs">')
-        for occur in occurs:
+        for occur in mwe.mweoccurs:
             print('   <div class="mwe-occur">')
             # Print mwe-occur-id; e.g. ["Foo.xml", 123, [5,7,8]]
             mweo_id = [os.path.basename(occur.sentence.file_path), occur.sentence.nth_sent, occur.indexes]
@@ -160,108 +144,71 @@ class Main:
 
 
 class VerbInfoCalculator:
-    def __init__(self, lang, canonic2occurs, seen_occur_ids, sentences_to_discover_skipped):
-        self.lang = lang
-        self.canonic2occurs = canonic2occurs
-        self.seen_occur_ids = seen_occur_ids
-        self.canonic2ihead = dict(self._all_canonics())
+    r"""Parameters:
+    @type mwes: list[MWELexicalItem]
+    @type sentences_to_discover_skipped: Iterable[dataalign.Sentence]
+    """
+    def __init__(self, lang, mwes, sentences_to_discover_skipped):
+        self.lang, self.mwes = lang, mwes
         self._find_skipped(sentences_to_discover_skipped)
-        self.noun2canonic2isubhead = dict(self._nounbased_canonics())
-        self.canonic2isubhead = {c: i for c2i in
-                self.noun2canonic2isubhead.values() for (c,i) in c2i.items()}
-        self.verb2info = collections.defaultdict(VerbInfo)
+
+        self.verb2info = collections.defaultdict(VerbInfo)  # type: dict[str, VerbInfo]
+        self.noun2mwes = dict(self._noun2mwes())            # type: dict[str, list[MWELexicalItem]]
+        self.all_nounbased_mwes = set()                     # type: set[MWELexicalItem]
 
         # Update verb2info with noun-based canonics
-        for noun, canonic2isubhead in self.noun2canonic2isubhead.items():
-            canonics = canonic2isubhead.keys()
-            for c in canonics: self.canonic2ihead.pop(c)  # leave only the verb-based ones there
-            merged_mwe_occurs = [mweo for c in canonics for mweo in self.canonic2occurs[c]]
+        for noun, mwes in self.noun2mwes.items():
+            merged_mwe_occurs = [mweo for m in mwes for mweo in m.mweoccurs]
             all_heads = [mweo.reordered.head.lemma_or_surface() for mweo in merged_mwe_occurs]
-            most_common_verb = collections.Counter(all_heads).most_common(1)[0][0]
-            canonics_a = list(sorted(c for c in canonics if most_common_verb in c))
-            canonics_b = list(sorted(c for c in canonics if most_common_verb not in c))
-            self.verb2info[most_common_verb.lower()].nounbased_canonics[noun.lower()].extend(canonics_a + canonics_b)
+            most_common_verb = dataalign.most_common(all_heads)
+            # Group all under "most_common_verb" (note that verb2info may then have a verb entry under another verb!)
+            self.verb2info[most_common_verb.lower()].nounbased_mwes[noun.lower()].extend(mwes)
+            self.all_nounbased_mwes.update(mwes)
+
+        for verb, info in self.verb2info.items():
+            for mwe_list in info.nounbased_mwes.values():
+                # We sort by canonicform, with the canonicforms that have `verb` itself appearing first
+                mwe_list.sort(key=lambda m: (verb not in m.canonicform, m.canonicform))
 
         # Update verb2info with verb-based canonics
-        for canonic, i_head in self.canonic2ihead.items():
-            self.verb2info[canonic[i_head].lower()].verbbased_canonics.append(canonic)
+        for mwe in self.mwes:
+            if mwe not in self.all_nounbased_mwes:
+                self.verb2info[mwe.canonicform[mwe.i_head].lower()].verbbased_mwes.append(mwe)
         for verbinfo in self.verb2info.values():
-            verbinfo.verbbased_canonics.sort()
+            verbinfo.verbbased_mwes.sort(key=lambda mwe: mwe.canonicform)
 
 
-    def _all_canonics(self):
-        r"""Yield (canonical_form, i_head) for all canonical forms."""
-        for canonic, mwe_occurs in self.canonic2occurs.items():
-            # Find most common `i_head` attribution in all occurs
-            i_head = collections.Counter(m.reordered.i_head for m in mwe_occurs).most_common(1)[0][0]
-            yield canonic, i_head
-
-
-    def _nounbased_canonics(self):
-        r"""Yield (canonical_form, i_subhead) for all
-        canonical forms that are centered on a noun.
-        """
-        noun2canonic2isubhead = collections.defaultdict(dict)
-        for canonic, mwe_occurs in self.canonic2occurs.items():
-            nounbased_mweos = [m for m in mwe_occurs if m.reordered.subhead]
-            if nounbased_mweos:
-                m = nounbased_mweos[0]
-                L = m.reordered.subhead.lemma_or_surface()
-                noun2canonic2isubhead[L][canonic] = m.reordered.i_subhead
-
+    def _noun2mwes(self):
+        r'''Return a dict[str, list[MWELexicalItem]]'''
+        ret = collections.defaultdict(list)
+        for mwe in self.mwes:
+            if mwe.i_subhead:
+                ret[mwe.subhead()].append(mwe)
         # (We skip subheads where only one canonical form contains the noun)
-        return {noun: canonic2isubhead for (noun, canonic2isubhead) \
-                in noun2canonic2isubhead.items() if len(canonic2isubhead) > 1}
+        return {noun: mwes for (noun, mwes) \
+                in ret.items() if len(mwes) > 1}
 
 
     def _find_skipped(self, sentences):
-        r"""For every sentence, add Skipped MWEs to self.canonic2occurs."""
-        head2canonics = collections.defaultdict(list)
-        for canonic, i_head in self.canonic2ihead.items():
-            head2canonics[canonic[i_head].lower()].append(canonic)
+        r"""For every sentence, add Skipped MWEOccur entries to MWELexicalItems in self.mwes."""
+        finder = dataalign.WindowBasedSkippedFinder(
+            self.lang, self.mwes, favor_precision=False, max_gaps=MAX_GAPS)
+        for mwe, mweoccur in finder.find_skipped_in(sentences):
+            mwe.add_skipped_mweoccur(mweoccur)
 
-        for sentence in sentences:
-            for i, w in enumerate(sentence.tokens):
-                for canonic in head2canonics.get((w.lemma or w.surface or "").lower(), []):
-                    self._find_skipped_in_sentence(sentence, i, canonic)
-
-    def _find_skipped_in_sentence(self, sentence, i_head, canonic):
-        r"""For a given sentence, add Skipped MWEs to self.canonic2occurs[canonic]."""
-        canonic_set = collections.Counter(canonic)
-        matched_indexes = []
-
-        def matched(wordform, i):
-            canonic_set[wordform] -= 1
-            if canonic_set[wordform] == 0:
-                del canonic_set[wordform]
-            matched_indexes.append(i)
-
-        for range_obj in [range(i_head, len(sentence.tokens)), range(i_head-1, -1, -1)]:
-            gaps = 0
-            for i in range_obj:
-                word = sentence.tokens[i]
-                if gaps >= MAX_SKIPS or not canonic_set: break
-                if word.surface in canonic_set:
-                    matched(word.surface, i)
-                elif word.lemma in canonic_set:
-                    matched(word.lemma, i)
-                else:
-                    gaps += 1
-
-        if not canonic_set:
-            matched_indexes.sort()
-            new_occur = dataalign.MWEOccur(self.lang, sentence,
-                    matched_indexes, "Skipped", [], "autodetect", None, None)
-            if new_occur.id() not in self.seen_occur_ids:
-                self.seen_occur_ids.add(new_occur.id())
-                occurs = self.canonic2occurs[canonic]
-                occurs.append(new_occur)
 
 
 class VerbInfo:
+    r'''Attributes:
+    @type  verbbased_mwes: list[MWELexicalItem]
+    @param nounbased_mwes: List of verb-based MWEs
+
+    @type  nounbased_mwes: dict[str, list[MWELexicalItem]
+    @param nounbased_mwes: Map from `noun`  to noun-based MWEs (heterogeneous verbs!)
+    '''
     def __init__(self):
-        self.nounbased_canonics = collections.defaultdict(list)  # noun -> list[canonic_form]
-        self.verbbased_canonics = []  # list[canonic_form]
+        self.nounbased_mwes = collections.defaultdict(list)  # noun -> list[MWELexicalItem]
+        self.verbbased_mwes = []  # list[MWELexicalItem]
 
 
 
@@ -306,12 +253,18 @@ p { margin-bottom: 5px; }  /* used inside mwe-occur-comment */
     color: black;
 }
 
-.mwe-label { cursor: default; }
+
+.mwe-label {
+  background-color: #FF0000;  /* Default red, to catch bugs */
+  cursor: default;
+}
+
+.mwe-label-VID { background-color: #FF6AFF; }
 .mwe-label-LVC { background-color: #9AA6FF; }
-.mwe-label-ID { background-color: #FF6AFF; }
-.mwe-label-OTH { background-color: #EF4AEF; }
 .mwe-label-VPC { background-color: #CC8833; }
-.mwe-label-IReflV { background-color: #FFB138; }
+.mwe-label-IRV { background-color: #FFB138; }
+.mwe-label-MVC { background-color: #C13AC1; }
+.mwe-label-IAV { background-color: #AAAAAA; }
 .mwe-label-NonVMWE { background-color: #DCC8C8; }
 .mwe-label-Skipped { background-color: #DDDDDD; }
 
@@ -416,11 +369,12 @@ HTML_FOOTER = """
   <span class="dropdown">
     <span class="dropdown-toggle" id="menu1" type="button" data-toggle="dropdown"></span>
     <ul class="dropdown-menu" role="menu" aria-labelledby="menu1">
-      <li role="presentation"><a role="menuitem" tabindex="-1" href="javascript:noteQ('ID')">Annotate as ID</a></li>
-      <li role="presentation"><a role="menuitem" tabindex="-1" href="javascript:noteQ('IReflV')">Annotate as IReflV</a></li>
-      <li role="presentation"><a role="menuitem" tabindex="-1" href="javascript:noteQ('LVC')">Annotate as LVC</a></li>
-      <li role="presentation"><a role="menuitem" tabindex="-1" href="javascript:noteQ('OTH')">Annotate as OTH</a></li>
-      <li role="presentation"><a role="menuitem" tabindex="-1" href="javascript:noteQ('VPC')">Annotate as VPC</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="javascript:noteQ('VID')">Annotate as VID (idiom)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="javascript:noteQ('LVC')">Annotate as LVC (light-verb)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="javascript:noteQ('IRV')">Annotate as IRV (reflexive)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="javascript:noteQ('VPC')">Annotate as VPC (verb-particle)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="javascript:noteQ('MVC')">Annotate as MVC (multi-verb)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="javascript:noteQ('IAV')">Annotate as IAV (adpositional)</a></li>
       <li role="presentation"><a role="menuitem" tabindex="-1" href="javascript:noteCustom()">Custom annotation</a></li>
       <li role="presentation" class="divider"></li>
       <li role="presentation"><a role="menuitem" tabindex="-1" href="javascript:noteQ('NonVMWE')">Mark as Non-VMWE</a></li>
