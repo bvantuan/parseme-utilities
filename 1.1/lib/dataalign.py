@@ -92,6 +92,10 @@ class Sentence:
         self.mweannots = []  # list[MWEAnnot]
         self.mwe_id2folia = {}  # extra info per MWE from FoLiA file
 
+    def __str__(self):
+        r"""Return a string representation of the tokens"""
+        return " ".join(map(lambda x: x.surface,self.tokens))
+
     def rank2index(self):
         r"""Return a dictionary mapping string ranks to indexes."""
         return {t.rank: index for (index, t) in enumerate(self.tokens)}
@@ -226,6 +230,7 @@ class MWETokens:
         self.head = self.tokens[self.i_head]
         self.subhead = self.tokens[self.i_subhead] if (self.i_subhead is not None) else None
         self.mwe_canonical_form = self._mwe_canonical_form()
+        self.mwe_lemmatized_form = self._lemmatized_at(range(len(self.tokens)))    
 
     def _i_head(self):
         r"""Index of head verb in `mwe_canonical_form`
