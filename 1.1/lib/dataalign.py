@@ -1085,6 +1085,9 @@ class WindowBasedSkippedFinder(AbstractSkippedFinder):
             unmatched_words.pop(wordform)
             matched_indexes.append(i)
 
+        # NOTE: We reset gaps, so we may have up to self.max_gaps*2 in rare cases.
+        # ....: We can't fix this in O(n) without changing the way we deal 
+        # ....: with i_head --- we would need to stop anchoring it.
         for range_obj in [range(i_head, len(sentence.tokens)), range(i_head-1, -1, -1)]:
             gaps = 0
             for i in range_obj:
