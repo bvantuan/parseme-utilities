@@ -51,7 +51,15 @@ class Category:
     INHERENTLY_ADPOSITIONAL_VERB = 'IAV'
 
 # List of all categories in `Category` class
-KNOWN_CATEGORIES = [c for c in dir(Category) if c.isupper()]
+KNOWN_CATEGORIES = [getattr(Category, c) for c in dir(Category) if c.isupper()]
+
+# Mapping of categories from ST 1.0 to ST 1.1
+RENAMED_CATEGORIES = {
+    'ID': 'VID',
+    'IReflV': 'IRV',
+}
+
+DELETED_CATEGORIES = ['OTH']
 
 
 ############################################################
@@ -228,6 +236,23 @@ class Sentence:
             current = to_visit.popleft()
             to_visit.extend(children[current.rank])
             yield current
+
+
+    def check_and_convert_categ(self, categ):
+        r'''Return an updated version of given category. Warns on bad categories.'''
+        if categ in KNOWN_CATEGORIES:
+            return categ
+        if categ in RENAMED_CATEGORIES:
+            new_categ = RENAMED_CATEGORIES[categ]
+            warn_once(self.id(), 'Category {} renamed to {}'.format(categ, new_categ))
+            return new_categ
+        if categ in DELETED_CATEGORIES:
+            warn_once(self.id(), 'Category {} has been removed in ST 1.1'.format(categ))
+            return categ
+        warn_once(self.id(), 'Category {} is unknown'.format(categ))
+        warn_once(self.id(), 'Known categs:  {}'.format(KNOWN_CATEGORIES))
+        return categ
+
 
 
 
@@ -875,7 +900,8 @@ class AbstractFileIterator:
             index_and_categ = mwecode.split(":")
             self.id2mwe_ranks[index_and_categ[0]].append(token.rank)
             if len(index_and_categ) == 2 and index_and_categ[1]:
-                self.id2mwe_categ.setdefault(index_and_categ[0], index_and_categ[1])
+                categ = self.curr_sent.check_and_convert_categ(index_and_categ[1])
+                self.id2mwe_categ.setdefault(index_and_categ[0], categ)
         self.curr_sent.tokens.append(token)
 
     def __iter__(self):
@@ -937,6 +963,21 @@ class ParsemePlatinumIterator(AbstractFileIterator):
     def iter_footer(self, f):
         if self.curr_sent:
             yield self.finish_sentence()
+
+
+
+
+############################################################
+
+_warned = set()
+
+def warn_once(first_seen_here, msg):
+    if msg not in _warned:
+        warntype = 'WARNING'
+        _warned.add(msg)
+        print(warntype, ': ', msg, sep='', file=sys.stderr)
+        print('.'*len(warntype), ': First seen here: ', first_seen_here, sep='', file=sys.stderr)
+        print('.'*len(warntype), ': (Ignoring further warnings of this type)', sep='', file=sys.stderr)
 
 
 

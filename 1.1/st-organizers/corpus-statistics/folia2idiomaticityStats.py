@@ -18,7 +18,7 @@ parser = argparse.ArgumentParser(description="""
         """)
 parser.add_argument("--lang", choices=sorted(dataalign.LANGS), metavar="LANG", required=True,
         help="""ID of the target language (e.g. EN, FR, PL, DE...)""")
-parser.add_argument("--literal-finding-method", type=str, metavar='METH', nargs='+',
+parser.add_argument("--literal-finding-method", type=str, metavar='METH', required=True, nargs='+',
         help="""Method of finding literal cases. One of {}.""".format(dataalign.SKIPPED_FINDER_PATTERNS))
 parser.add_argument("--input", type=str, nargs="+", required=True, metavar='PATH',
         help="""Path to input files (preferably in FoLiA XML format, but PARSEME TSV works too)""")
