@@ -41,25 +41,37 @@ LANGS_WITH_CANONICAL_REFL_PRON_ON_LEFT = set("DE EU FR RO".split())
 LANGS_WITH_CANONICAL_VERB_ON_RIGHT = set("DE EU HI TR".split())
 
 
-# Namespace for all valid categories of annotation
-class Category:
-    VERBAL_IDIOM = 'VID'
-    LIGHT_VERB_CONSTRUCTION = 'LVC'
-    INHERENTLY_REFLEXIVE_VERB = 'IRV'
-    VERB_PARTICLE_CONSTRUCTION = 'VPC'
-    MULTI_VERB_CONSTRUCTION = 'MVC'
-    INHERENTLY_ADPOSITIONAL_VERB = 'IAV'
+############################################################
 
-# List of all categories in `Category` class
-KNOWN_CATEGORIES = [getattr(Category, c) for c in dir(Category) if c.isupper()]
+class Categories:
+    # Mapping of categories from ST 1.0 to ST 1.1
+    RENAMED = {
+        'ID': 'VID',
+        'OTH': 'VID',
+        'IReflV': 'IRV',
+        'LVC': 'LVC.full',
+        'VPC': 'VPC.full',
+    }
 
-# Mapping of categories from ST 1.0 to ST 1.1
-RENAMED_CATEGORIES = {
-    'ID': 'VID',
-    'IReflV': 'IRV',
-}
+    # List of all categories in `Category` class
+    KNOWN = {
+        'VID',
+        'LVC.full',
+        'LVC.cause',
+        'IRV',
+        'VPC.full',
+        'VPC.semi',
+        'MVC',
+        'IAV',
+    }
 
-DELETED_CATEGORIES = ['OTH']
+    @staticmethod
+    def is_light_verb_construction(str_category):
+        return str_category.startswith('LVC.')
+
+    @staticmethod
+    def is_inherently_reflexive_verb(str_category):
+        return str_category == 'IRV'
 
 
 ############################################################
@@ -240,17 +252,14 @@ class Sentence:
 
     def check_and_convert_categ(self, categ):
         r'''Return an updated version of given category. Warns on bad categories.'''
-        if categ in KNOWN_CATEGORIES:
+        if categ in Categories.KNOWN:
             return categ
-        if categ in RENAMED_CATEGORIES:
-            new_categ = RENAMED_CATEGORIES[categ]
+        if categ in Categories.RENAMED:
+            new_categ = Categories.RENAMED[categ]
             warn_once(self.id(), 'Category {} renamed to {}'.format(categ, new_categ))
             return new_categ
-        if categ in DELETED_CATEGORIES:
-            warn_once(self.id(), 'Category {} has been removed in ST 1.1'.format(categ))
-            return categ
         warn_once(self.id(), 'Category {} is unknown'.format(categ))
-        warn_once(self.id(), 'Known categs:  {}'.format(KNOWN_CATEGORIES))
+        warn_once(self.id(), 'Known categs:  {}'.format(Categories.KNOWN))
         return categ
 
 
@@ -389,7 +398,7 @@ class MWEOccurView:
 
     def _fixed_token(self, token):
         r"""Return a manually fixed version of `token` (e.g. homogenize lemmas for IRVs)."""
-        if token.univ_pos == "PRON" and self.mwe_occur.category == Category.INHERENTLY_REFLEXIVE_VERB:
+        if token.univ_pos == "PRON" and Category.is_inherently_reflexive_verb(self.mwe_occur.category):
             # Normalize reflexive pronouns, e.g. FR "me" or "te" => "se"
             if self.mwe_occur.lang in ["PT", "ES", "FR"]:
                 token = token._replace(lemma="se")
@@ -402,7 +411,7 @@ class MWEOccurView:
         r"""Return a reordered version of `tokens` (must keep same length)."""
         lang, category = self.mwe_occur.lang, self.mwe_occur.category
         T, newT, iH, iS = self.tokens, list(self.tokens), self.i_head, self.i_subhead
-        if category == Category.LIGHT_VERB_CONSTRUCTION:
+        if Category.is_light_verb_construction(category):
             # Reorder e.g. EN "shower take(n)" => "take shower"
             nounverb = (lang in LANGS_WITH_CANONICAL_VERB_ON_RIGHT)
             if iS is None:
@@ -410,7 +419,7 @@ class MWEOccurView:
             if (nounverb and iH < iS) or (not nounverb and iS < iH):
                 newT[iH], newT[iS] = T[iS], T[iH]
 
-        if category == Category.INHERENTLY_REFLEXIVE_VERB:
+        if Category.is_inherently_reflexive_verb(category):
             # Reorder e.g. PT "se suicidar" => "suicidar se"
             iPron, iVerb = ((0,-1) if (lang in LANGS_WITH_CANONICAL_REFL_PRON_ON_LEFT) else (-1,0))
             if T[iVerb].univ_pos == "PRON" and T[iPron].univ_pos == "VERB":
