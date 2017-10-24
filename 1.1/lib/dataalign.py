@@ -3,15 +3,21 @@
 r"""
 This is a library for reading FoLiA XML files aligned with a CoNLL file.
 The XML files may have PARSEME annotations, and this library can be helpful
-in dealing with such data. In particular:
-
-  * If you want to homogenize word lemmas, add special code to `_fix_token`
-    (e.g. to re-lemmatize "me" and "te" as "se" in Romance languages).
-
-  * If you want to re-order an expression, add special code to `_reorder_tokens`.
-    (e.g. reordering the LVC "(a) bath (was) taken" as "take bath").
+in dealing with such data.
 
 This library requires PyNLPl to be installed.
+
+-----------------------------------------------
+
+To adapt this library to a new language, see the LANGS
+and other variables below. You may also want to add special code for
+a canonical form (used e.g. when grouping MWEs during consistency check):
+
+  * To fix word lemmas, add special code to `_with_fixed_tokens`
+    (e.g. to re-lemmatize "me" and "te" as 3rd-person "se" in Romance languages).
+
+  * To change word order, add special code to `_with_reordered_tokens`.
+    (e.g. to reorder the LVC "(a) bath (was) taken" as "take bath").
 """
 
 
