@@ -40,11 +40,11 @@ echo "Writing to: $output_path"
 loud_exec() { echo "$@" >&2; "$@"; }
 
 
-for lang in FR EL PL BG CS DE ES FA HE HU IT LT MT PT RO SL SV TR; do
+for lang in FR PL PT; do #EL BG CS DE ES FA HE HU IT LT MT PT RO SL SV TR; do
     if test -f "$input_path/$lang/train.parsemetsv"; then
         mkdir -p "$output_path/$lang"
         {
-            for method in Dependency BagOfDeps UnlabeledDep WindowGap0 WindowGap1 WindowGap2; do
+            for method in WindowGap2; do #Dependency BagOfDeps UnlabeledDep WindowGap0 WindowGap1 WindowGap2; do
                 mkdir -p "$output_path/$lang/$method"
                 langpath="$input_path/$lang"
                 echo "================== lang=$lang method=$method ===============" >&2
