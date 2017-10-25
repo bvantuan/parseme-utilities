@@ -1322,7 +1322,7 @@ class _SingleMWEFinder(collections.namedtuple('_SingleMWEFinder',
             if sentence_token.dependency == Dependency.MISSING:
                 continue  # If we have no dependency info, avoid false positives
 
-            for wordform in [sentence_token.lemma_or_surface.lower(), sentence_token.surface.lower()]:
+            for wordform in [sentence_token.lemma_or_surface().lower(), sentence_token.surface.lower()]:
                 for rooted_token in unmatched_lemmabag[wordform]:
                     match_triple = (i, sentence_token, rooted_token)
 

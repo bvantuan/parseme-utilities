@@ -61,6 +61,7 @@ class Main:
         finders = [dataalign.skipped_finder(m, self.args.lang, self.mwes,
                    favor_precision=True) for m in self.args.literal_finding_method]
 
+        sentences = list(sentences)  # allow multiple iterations
         for finder, find_method in zip(finders, self.args.literal_finding_method):
             for mwe, mweoccur in finder.find_skipped_in(sentences):
                 # Only add 'Skipped' if a MWE was not seen at this position
@@ -114,7 +115,7 @@ class Main:
     def print_mweoccurs(self):
         r'''Print TSV with "Skipped" info for each MWEOccur'''
         print('MWE', 'POS-tag', 'category', 'idiomatic-or-literal',
-              'annotators', 'sentence-with-mweoccur',
+              'annotation-methods', 'sentence-with-mweoccur',
               'source', sep="\t", file=self.args.out_mweoccurs)
         for mwe in sorted(self.mwes, key=lambda m: m.canonicform):
             for mweoccur in mwe.mweoccurs:

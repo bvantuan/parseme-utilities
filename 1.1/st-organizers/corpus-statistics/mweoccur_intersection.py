@@ -21,21 +21,20 @@ parser = argparse.ArgumentParser(description="""
         Calculate intersection between Dependency and WinGap approaches.""")
 parser.add_argument("--language", type=str,
         help="""Name of the language (e.g. FR)""")
-parser.add_argument("--input-dependency", type=argparse.FileType('r'),
-        help="""mweoccurs file for Dependency""")
-parser.add_argument("--input-window", type=argparse.FileType('r'), nargs='+',
-        help="""mweoccurs file for WinGapX""")
+parser.add_argument("--input-mweoccurs", type=argparse.FileType('r'),
+        help="""all_mweoccurs file""")
 parser.add_argument("--output-pdf",
         help="""path to output PDF file""")
 
 
-class MweOccurFile(collections.namedtuple('MweOccurFile', 'filepath finder_name occurs')):
+class MweOccurFile(collections.namedtuple('MweOccurFile', 'filepath finder_name literal_occurs all_occurs')):
     r'''MweOccurFile represents data coming from a mweoccurs file.
     
     Attributes:
     @type filepath: str
     @type finder_name: str
-    @type occurs: Set[str]
+    @type literal_occurs: Set[str]
+    @type all_occurs: Set[str]
     '''
 
 
@@ -44,8 +43,7 @@ class Main(object):
         self.args = args
 
     def run(self):
-        dep = self._read(self.args.input_dependency)
-        others = [self._read(f) for f in self.args.input_window]
+        human, dep, others = self._read(self.args.input_mweoccurs)
         self.print_intersections([dep] + others)
 
         if self.args.output_pdf:
@@ -62,20 +60,20 @@ class Main(object):
         print(*'Language FinderLeft FinderRight Left Left/LM Left+Mid Mid Mid+Right Right/RM Right'.split(), sep='\t')
 
         for first, other in itertools.combinations(all_mweoccurfiles, 2):
-            n_both = len(first.occurs.intersection(other.occurs))
-            n_left = len(first.occurs) - n_both
-            n_right = len(other.occurs) - n_both
+            n_both = len(first.literal_occurs.intersection(other.literal_occurs))
+            n_left = len(first.literal_occurs) - n_both
+            n_right = len(other.literal_occurs) - n_both
 
             print(self.args.language, first.finder_name, other.finder_name,
-                  n_left, '{:.0f}%'.format(100*n_left/(len(first.occurs) or 1)), len(first.occurs), n_both,
-                  len(other.occurs), '{:.0f}%'.format(100*n_right/(len(other.occurs) or 1)), n_right, sep='\t')
+                  n_left, '{:.0f}%'.format(100*n_left/(len(first.literal_occurs) or 1)), len(first.literal_occurs), n_both,
+                  len(other.literal_occurs), '{:.0f}%'.format(100*n_right/(len(other.literal_occurs) or 1)), n_right, sep='\t')
 
 
     def plot(self, pdf, first: MweOccurFile, other: MweOccurFile):
         r'''Output intersections between `first` and `other`.'''
-        n_both = len(first.occurs.intersection(other.occurs))
-        n_left = len(first.occurs) - n_both
-        n_right = len(other.occurs) - n_both
+        n_both = len(first.literal_occurs.intersection(other.literal_occurs))
+        n_left = len(first.literal_occurs) - n_both
+        n_right = len(other.literal_occurs) - n_both
 
         c = matplotlib_venn.venn2(subsets=(n_left, n_right, n_both), set_labels=(first.finder_name, other.finder_name))
         c.get_patch_by_id('01').set_color('red')
@@ -89,8 +87,8 @@ class Main(object):
             c.get_patch_by_id('11').set_color('purple')
             c.get_patch_by_id('11').set_edgecolor('none')
 
-        c.get_label_by_id('10').set_text('{}\n({:.0f}%)'.format(n_left, 100*n_left/(len(first.occurs) or 1)))
-        c.get_label_by_id('01').set_text('{}\n({:.0f}%)'.format(n_right, 100*n_right/(len(other.occurs) or 1)))
+        c.get_label_by_id('10').set_text('{}\n({:.0f}%)'.format(n_left, 100*n_left/(len(first.literal_occurs) or 1)))
+        c.get_label_by_id('01').set_text('{}\n({:.0f}%)'.format(n_right, 100*n_right/(len(other.literal_occurs) or 1)))
         plt.title('Language: ' + self.args.language)
         pdf.savefig()
         plt.cla()
@@ -98,10 +96,31 @@ class Main(object):
 
     def _read(self, fileobj):
         r'''Read fileobj and return a MweOccurFile.'''
+        method2literalsentences = collections.defaultdict(set)
+        method2allsentences = collections.defaultdict(set)
+        IDX_LITERAL, IDX_METHODS, IDX_SENT = 3, 4, 5
+
         with fileobj:
-            occurs = frozenset(line.split('\t')[4] for line in fileobj if '\tLITERAL\t' in line)
-            filename = fileobj.name.split('/')[-2]
-            return MweOccurFile(fileobj.name, filename, occurs)
+            header = next(fileobj).split('\t')
+            assert header[IDX_LITERAL] == 'idiomatic-or-literal', header
+            assert header[IDX_METHODS] == 'annotation-methods', header
+            assert header[IDX_SENT] == 'sentence-with-mweoccur', header
+
+            for line in fileobj:
+                line = line.split('\t')
+                for method in line[IDX_METHODS].split(','):
+                    method2allsentences[method].add(line[IDX_SENT])
+                    if 'LITERAL' in line[IDX_LITERAL]:
+                        method2literalsentences[method].add(line[IDX_SENT])
+
+        mappings = {method: MweOccurFile(
+                                fileobj.name,  method,
+                                frozenset(method2literalsentences[method]),
+                                frozenset(method2allsentences[method]))
+                    for method in method2allsentences}
+
+        human, dep = mappings.pop('Human'), mappings.pop('Dependency')
+        return human, dep, [v for (k,v) in sorted(mappings.items())]
 
 
 
