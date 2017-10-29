@@ -40,7 +40,7 @@ echo "Writing to: $output_path"
 loud_exec() { echo "$@" >&2; "$@"; }
 
 
-for lang in FR PL PT; do #EL BG CS DE ES FA HE HU IT LT MT PT RO SL SV TR; do
+for lang in FR PL PT  EL BG CS DE ES FA HE HU IT LT MT RO SL SV TR; do
     if test -f "$input_path/$lang/train.parsemetsv"; then
         mkdir -p "$output_path/$lang"
         {
@@ -48,7 +48,7 @@ for lang in FR PL PT; do #EL BG CS DE ES FA HE HU IT LT MT PT RO SL SV TR; do
             loud_exec "$HERE/folia2idiomaticityStats.py" --lang=$lang --input "$input_path/$lang/train.parsemetsv" --literal-finding-method BagOfDeps Dependency UnlabeledDep WindowGap{0,1,2}  --out-mweoccurs "$output_path/$lang/all_mweoccurs.tsv"
 
             echo "====== Generating PDF with intersection between Dependency and WinGapX for $lang =====" >&2
-            loud_exec "$HERE/mweoccur_intersection.py" --lang="$lang" --input "$output_path/$lang/all_mweoccurs.tsv" --out "$output_path/$lang/intersection.pdf" >"$output_path/$lang/intersection.tsv"
+            loud_exec "$HERE/mweoccur_intersection.py" --lang="$lang" --input "$output_path/$lang/all_mweoccurs.tsv" --output-pdf-idiomat "$output_path/$lang/intersection_idiomat.pdf" --output-pdf-literal "$output_path/$lang/intersection_literal.pdf" >"$output_path/$lang/intersection.tsv"
         } 2> >(tee "$output_path/$lang/stderr.txt")
 
     else
