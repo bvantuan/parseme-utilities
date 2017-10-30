@@ -1289,7 +1289,8 @@ class DependencyBasedSkippedFinder(AbstractSkippedFinder):
                         yield self._mweinfo_pair(mwebagframe.mwe, sentence, matched_indexes)
 
 
-class _SingleMWEFinder(collections.namedtuple('_SingleMWEFinder',
+class _SingleMWEFinder(collections.namedtuple(
+        '_SingleMWEFinder',
         'lang favor_precision matchability sentence reordered_sentence_tokens mwe max_roots lemmabag')):
     r'''Finder of all occurrences of `mwe` in `reordered_sentence_tokens`.'''
 

@@ -47,8 +47,12 @@ for lang in FR PL PT  EL BG CS DE ES FA HE HU IT LT MT RO SL SV TR; do
             echo "================== lang=$lang ===============" >&2
             loud_exec "$HERE/folia2idiomaticityStats.py" --lang=$lang --input "$input_path/$lang/train.parsemetsv" --literal-finding-method BagOfDeps Dependency UnlabeledDep WindowGap{0,1,2}  --out-mweoccurs "$output_path/$lang/all_mweoccurs.tsv"
 
-            echo "====== Generating PDF with intersection between Dependency and WinGapX for $lang =====" >&2
+            echo "====== Generating PDFs with intersections for $lang =====" >&2
             loud_exec "$HERE/mweoccur_intersection.py" --lang="$lang" --input "$output_path/$lang/all_mweoccurs.tsv" --output-pdf-idiomat "$output_path/$lang/intersection_idiomat.pdf" --output-pdf-literal "$output_path/$lang/intersection_literal.pdf" >"$output_path/$lang/intersection.tsv"
+
+            echo "====== Generating all_mweoccurs.sorted for $lang =====" >&2
+            loud_exec "$HERE/mweoccur_sort.py" <"$output_path/$lang/all_mweoccurs.tsv" >"$output_path/$lang/all_mweoccurs.sorted.tsv"
+
         } 2> >(tee "$output_path/$lang/stderr.txt")
 
     else
