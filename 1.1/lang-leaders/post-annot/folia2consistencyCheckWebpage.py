@@ -121,8 +121,11 @@ class Main:
                     ESC(occur.sentence.file_path), ESC(str(occur.sentence.nth_sent)),
                     ESC(occur.annotator or "<unknown>"), ESC(str(occur.datetime or "<unknown-date>")))
         confidence_info = '' if occur.confidence is None else ' {}%'.format(int(occur.confidence*100))
-        yield '<span class="label mwe-label mwe-label-{0}" data-toggle="tooltip" title="{1}">{0}{2}</span><span> </span>' \
-                .format(ESC(occur.category), file_info, confidence_info)
+        css_mwe_label = 'mwe-label-{}'.format(ESC(occur.category.replace('.', '-')))
+        yield '<span class="label mwe-label {css_mwe_label}"' \
+              'data-toggle="tooltip" title="{title}">{mwe_label}{confidence_info}</span><span> </span>' \
+              .format(css_mwe_label=css_mwe_label, title=file_info,
+                      mwe_label=ESC(occur.category), confidence_info=confidence_info)
 
         indexes = set(occur.indexes)
         yield '<span class="mwe-occur-sentence">'
@@ -263,18 +266,10 @@ p { margin-bottom: 5px; }  /* used inside mwe-occur-comment */
 
 
 .mwe-label {
-  background-color: #FF0000;  /* Default red, to catch bugs */
+  background-color: #000000;  /* Default black, to catch bugs */
   cursor: default;
 }
-
-.mwe-label-VID { background-color: #FF6AFF; }
-.mwe-label-LVC { background-color: #9AA6FF; }
-.mwe-label-VPC { background-color: #CC8833; }
-.mwe-label-IRV { background-color: #FFB138; }
-.mwe-label-MVC { background-color: #C13AC1; }
-.mwe-label-IAV { background-color: #AAAAAA; }
-.mwe-label-NonVMWE { background-color: #DCC8C8; }
-.mwe-label-Skipped { background-color: #DDDDDD; }
+""" + dataalign.Categories.css_for_labels() + """
 
 .show-only-if-deletable { display: none; }
 

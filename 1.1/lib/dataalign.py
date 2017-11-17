@@ -28,6 +28,10 @@ import os
 import sys
 
 
+# Import the Categories class
+from categories import Categories
+
+
 try:
     from pynlpl.formats import folia
 except ImportError:
@@ -45,39 +49,6 @@ LANGS_WITH_CANONICAL_REFL_PRON_ON_LEFT = set("DE EU FR RO".split())
 
 # Languages where the verb canonically appears to the right of the object complement (SOV/OSV/OVS)
 LANGS_WITH_CANONICAL_VERB_ON_RIGHT = set("DE EU HI TR".split())
-
-
-############################################################
-
-class Categories:
-    # Mapping of categories from ST 1.0 to ST 1.1
-    RENAMED = {
-        'ID': 'VID',
-        'OTH': 'VID',
-        'IReflV': 'IRV',
-        'LVC': 'LVC.full',
-        'VPC': 'VPC.full',
-    }
-
-    # List of all categories in `Category` class
-    KNOWN = {
-        'VID',
-        'LVC.full',
-        'LVC.cause',
-        'IRV',
-        'VPC.full',
-        'VPC.semi',
-        'MVC',
-        'IAV',
-    }
-
-    @staticmethod
-    def is_light_verb_construction(str_category):
-        return str_category.startswith('LVC.')
-
-    @staticmethod
-    def is_inherently_reflexive_verb(str_category):
-        return str_category == 'IRV'
 
 
 
@@ -190,7 +161,7 @@ class Sentence:
 
     def remove_non_vmwes(self):
         r"""Change the mwe_codes in `self.tokens` so as to remove all NonVMWE tags."""
-        self.mweannots = [m for m in self.mweannots if m.category != "NonVMWE"]
+        self.mweannots = [m for m in self.mweannots if m.category not in Categories.NON_MWES]
 
     def remove_duplicate_mwes(self):
         r"""Uniqs self.mweannots (keeps only first occurrence)"""
@@ -266,7 +237,6 @@ class Sentence:
             warn_once(self.id(), 'Category {} renamed to {}'.format(categ, new_categ))
             return new_categ
         warn_once(self.id(), 'Category {} is unknown'.format(categ))
-        warn_once(self.id(), 'Known categs:  {}'.format(Categories.KNOWN))
         return categ
 
 
@@ -300,7 +270,7 @@ class MWEOccur:
         assert lang in LANGS
         self.lang = lang
         self.sentence = sentence
-        self.indexes = list(sorted(indexes))
+        self.indexes = tuple(sorted(indexes))
         self.category = category
         self.comments = comments
         self.annotator = annotator
@@ -506,7 +476,7 @@ class MWELexicalItem:
 
     def only_non_vmwes(self):
         r'''True iff all mweoccurs are NonVMWEs.'''
-        return all((o.category=="NonVMWE" and o.confidence is None) for o in self.mweoccurs)
+        return all((o.category in Categories.NON_MWES and o.confidence is None) for o in self.mweoccurs)
 
     def contains_mweoccur(self, mweoccur):
         r'''True iff self.mweoccurs contains given MWEOccur.'''
