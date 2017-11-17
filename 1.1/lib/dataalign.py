@@ -80,36 +80,6 @@ class Categories:
         return str_category == 'IRV'
 
 
-# XXX 
-# XXX 
-# XXX 
-# XXX 
-# XXX 
-# XXX 
-# XXX temporary definition just to generate data for experiments
-# XXX 
-# XXX 
-# XXX 
-# XXX 
-# XXX 
-class Categories:
-    RENAMED = { }
-    KNOWN = {
-        'ID',
-        'OTH',
-        'LVC',
-        'IReflV',
-        'VPC',
-    }
-
-    @staticmethod
-    def is_light_verb_construction(str_category):
-        return str_category.startswith('LVC')
-
-    @staticmethod
-    def is_inherently_reflexive_verb(str_category):
-        return str_category == 'IReflV'
-
 
 ############################################################
 
