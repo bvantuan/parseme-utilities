@@ -97,12 +97,11 @@ class Main:
 
         # Print examples
         print('  <div class="mwe-occurs">')
-        for occur in mwe.mweoccurs:
+        for mweoccur, mweo_id in _iter_mweoccur_and_id(mwe.mweoccurs):
             print('   <div class="mwe-occur">')
             # Print mwe-occur-id; e.g. ["Foo.xml", 123, [5,7,8]]
-            mweo_id = [os.path.basename(occur.sentence.file_path), occur.sentence.nth_sent, occur.indexes]
             print('   <span class="mwe-occur-id">{}</span>'.format(ESC(json.dumps(mweo_id))))
-            print("".join(self._occur2html(occur)))
+            print("".join(self._occur2html(mweoccur)))
             print('   </div>')
         print('  </div>')  # mwe-occurs
         print(' </div>')   # mwe-entry
@@ -141,6 +140,15 @@ class Main:
         for comment in occur.comments:
             c = ESC(comment).replace("\n\n", "</p>").replace("\n", "<br/>")
             yield '<div class="mwe-occur-comment">{}</div>'.format(c)
+
+
+def _iter_mweoccur_and_id(mweoccurs):
+    r'''Yield pairs (MWEOccur, id), where `id` is a (str, int, list[int])'''
+    ret = []
+    for mweoccur in mweoccurs:
+        fname = os.path.basename(mweoccur.sentence.file_path)
+        ret.append((mweoccur, (fname, mweoccur.sentence.nth_sent, mweoccur.indexes)))
+    return sorted(ret, key=lambda x: x[1])
 
 
 class VerbInfoCalculator:

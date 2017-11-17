@@ -80,6 +80,37 @@ class Categories:
         return str_category == 'IRV'
 
 
+# XXX 
+# XXX 
+# XXX 
+# XXX 
+# XXX 
+# XXX 
+# XXX temporary definition just to generate data for experiments
+# XXX 
+# XXX 
+# XXX 
+# XXX 
+# XXX 
+class Categories:
+    RENAMED = { }
+    KNOWN = {
+        'ID',
+        'OTH',
+        'LVC',
+        'IReflV',
+        'VPC',
+    }
+
+    @staticmethod
+    def is_light_verb_construction(str_category):
+        return str_category.startswith('LVC')
+
+    @staticmethod
+    def is_inherently_reflexive_verb(str_category):
+        return str_category == 'IReflV'
+
+
 ############################################################
 
 class Comment(collections.namedtuple('Comment', 'file_path lineno text')):
@@ -404,7 +435,7 @@ class MWEOccurView:
 
     def _fixed_token(self, token):
         r"""Return a manually fixed version of `token` (e.g. homogenize lemmas for IRVs)."""
-        if token.univ_pos == "PRON" and Category.is_inherently_reflexive_verb(self.mwe_occur.category):
+        if token.univ_pos == "PRON" and Categories.is_inherently_reflexive_verb(self.mwe_occur.category):
             # Normalize reflexive pronouns, e.g. FR "me" or "te" => "se"
             if self.mwe_occur.lang in ["PT", "ES", "FR"]:
                 token = token._replace(lemma="se")
@@ -417,7 +448,7 @@ class MWEOccurView:
         r"""Return a reordered version of `tokens` (must keep same length)."""
         lang, category = self.mwe_occur.lang, self.mwe_occur.category
         T, newT, iH, iS = self.tokens, list(self.tokens), self.i_head, self.i_subhead
-        if Category.is_light_verb_construction(category):
+        if Categories.is_light_verb_construction(category):
             # Reorder e.g. EN "shower take(n)" => "take shower"
             nounverb = (lang in LANGS_WITH_CANONICAL_VERB_ON_RIGHT)
             if iS is None:
@@ -425,7 +456,7 @@ class MWEOccurView:
             if (nounverb and iH < iS) or (not nounverb and iS < iH):
                 newT[iH], newT[iS] = T[iS], T[iH]
 
-        if Category.is_inherently_reflexive_verb(category):
+        if Categories.is_inherently_reflexive_verb(category):
             # Reorder e.g. PT "se suicidar" => "suicidar se"
             iPron, iVerb = ((0,-1) if (lang in LANGS_WITH_CANONICAL_REFL_PRON_ON_LEFT) else (-1,0))
             if T[iVerb].univ_pos == "PRON" and T[iPron].univ_pos == "VERB":
@@ -548,6 +579,17 @@ class MWELexicalItem:
         _, rooted_tokens = max(((count, tokens) for (tokens, count) in counter.items()),
                 key=lambda ct: (ct[0], [t.cmp_key() for t in ct[1]]))
         return rooted_tokens, example_mweoccur[rooted_tokens]
+
+
+    def lemma_or_surface_list(self):
+        r'''Return a list of lemmas/surfaces for elements this MWE.'''
+        try:
+            return self._lemma_or_surface_list
+        except AttributeError:
+            lsl_possibilities = [tuple(t.lemma_or_surface() for t in m.reordered.tokens)
+                                 for m in self.mweoccurs]
+            self._lemma_or_surface_list = most_common(lsl_possibilities)
+            return self._lemma_or_surface_list
 
 
 
@@ -1121,45 +1163,43 @@ class WindowBasedSkippedFinder(AbstractSkippedFinder):
         super().__init__(lang, mwes, favor_precision)
         self.max_gaps = max_gaps
 
-        self.head2mwes = collections.defaultdict(list)  # type: dict[str, list[MWELexicalItem]]
+        self.mweelement2mwes = collections.defaultdict(list)  # type: dict[str, list[MWELexicalItem]]
         for mwe in self.mwes:
-            self.head2mwes[mwe.head().lower()].append(mwe)
+            for lemmasurface in set(mwe.lemma_or_surface_list()):
+                self.mweelement2mwes[lemmasurface.lower()].append(mwe)
 
     def find_skipped_in(self, sentences):
         r"""Yield pairs (MWELexicalItem, MWEOccur) for Skipped MWEs in all sentences."""
         for sentence in sentences:
             for i, token in enumerate(sentence.tokens):
-                for mwe in self.head2mwes.get(token.lemma_or_surface().lower(), []):
-                    yield from self._find_skipped_mwe_at(sentence, mwe, i)
+                for wordform in [token.lemma_or_surface().lower(), token.surface.lower()]:
+                    for mwe in self.mweelement2mwes.get(wordform, []):
+                        yield from self._find_skipped_mwe_at(sentence, mwe, i)
 
     def _find_skipped_mwe_at(self, sentence, mwe, i_head):
         r"""Yield a Skipped MWE or nothing at all."""
-        unmatched_words = collections.Counter(mwe.canonicform)
+        unmatched_words = collections.Counter(mwe.lemma_or_surface_list())
         matched_indexes = []
 
         def matched(wordform, i):
             unmatched_words.pop(wordform)
             matched_indexes.append(i)
 
-        # NOTE: We reset gaps, so we may have up to self.max_gaps*2 in rare cases.
-        # ....: We can't fix this in O(n) without changing the way we deal 
-        # ....: with i_head --- we would need to stop anchoring it.
-        for range_obj in [range(i_head, len(sentence.tokens)), range(i_head-1, -1, -1)]:
-            gaps = 0
-            for i in range_obj:
-                word = sentence.tokens[i]
-                if not unmatched_words:
-                    break  # matched_indexes is complete
-                if gaps > self.max_gaps:
-                    break  # failed to match under max_gaps
-                if word.surface.lower() in unmatched_words:
-                    matched(word.surface.lower(), i)
-                elif word.lemma_or_surface().lower() in unmatched_words:
-                    matched(word.lemma.lower(), i)
-                else:
-                    gaps += 1
+        gaps = 0
+        for i in range(i_head, len(sentence.tokens)):
+            word = sentence.tokens[i]
+            if not unmatched_words:
+                break  # matched_indexes is complete
+            if gaps > self.max_gaps:
+                break  # failed to match under max_gaps
+            if word.surface.lower() in unmatched_words:
+                matched(word.surface.lower(), i)
+            elif word.lemma_or_surface().lower() in unmatched_words:
+                matched(word.lemma.lower(), i)
+            else:
+                gaps += 1
 
-        if not unmatched_words and gaps <= self.max_gaps:
+        if not unmatched_words:
             yield self._mweinfo_pair(mwe, sentence, matched_indexes)
 
 
@@ -1249,7 +1289,8 @@ class DependencyBasedSkippedFinder(AbstractSkippedFinder):
                         yield self._mweinfo_pair(mwebagframe.mwe, sentence, matched_indexes)
 
 
-class _SingleMWEFinder(collections.namedtuple('_SingleMWEFinder',
+class _SingleMWEFinder(collections.namedtuple(
+        '_SingleMWEFinder',
         'lang favor_precision matchability sentence reordered_sentence_tokens mwe max_roots lemmabag')):
     r'''Finder of all occurrences of `mwe` in `reordered_sentence_tokens`.'''
 
@@ -1272,7 +1313,7 @@ class _SingleMWEFinder(collections.namedtuple('_SingleMWEFinder',
         for i, sentence_token, rooted_token in self._find_matched_tokens(
                  i_start, already_matched, unmatched_lemmabag):
             new_already_matched = already_matched.including(sentence_token, rooted_token)
-            new_unmatched_lemmabag = unmatched_lemmabag.excluding(rooted_token.lemma, rooted_token)
+            new_unmatched_lemmabag = unmatched_lemmabag.excluding(rooted_token.lemma_or_surface(), rooted_token)
             yield from self._recursive_find_ranks(i+1, new_already_matched, new_unmatched_lemmabag)
 
 
@@ -1282,20 +1323,20 @@ class _SingleMWEFinder(collections.namedtuple('_SingleMWEFinder',
             if sentence_token.dependency == Dependency.MISSING:
                 continue  # If we have no dependency info, avoid false positives
 
-            lemma = sentence_token.lemma_or_surface().lower()
-            for rooted_token in unmatched_lemmabag[lemma]:
-                match_triple = (i, sentence_token, rooted_token)
+            for wordform in [sentence_token.lemma_or_surface().lower(), sentence_token.surface.lower()]:
+                for rooted_token in unmatched_lemmabag[wordform]:
+                    match_triple = (i, sentence_token, rooted_token)
 
-                if sentence_token.dependency.parent_rank in already_matched.rank2rootedrank:
-                    # Non-rootmost token, connected to someone in `already_matched`
-                    expected_rooted_parent_rank = already_matched.rank2rootedrank[sentence_token.dependency.parent_rank]
-                    if self._matches_in_tree(i, sentence_token, rooted_token, already_matched, expected_rooted_parent_rank):
-                        yield match_triple
+                    if sentence_token.dependency.parent_rank in already_matched.rank2rootedrank:
+                        # Non-rootmost token, connected to someone in `already_matched`
+                        expected_rooted_parent_rank = already_matched.rank2rootedrank[sentence_token.dependency.parent_rank]
+                        if self._matches_in_tree(i, sentence_token, rooted_token, already_matched, expected_rooted_parent_rank):
+                            yield match_triple
 
-                elif already_matched.n_roots < self.max_roots:
-                    # Rootmost token, does not have a parent inside `already_matched`
-                    if self._matches_rootmost(i, sentence_token, rooted_token, already_matched):
-                        yield match_triple
+                    elif already_matched.n_roots < self.max_roots:
+                        # Rootmost token, does not have a parent inside `already_matched`
+                        if self._matches_rootmost(i, sentence_token, rooted_token, already_matched):
+                            yield match_triple
 
 
     def _matches_rootmost(self, i, sentence_token, rooted_token, already_matched):

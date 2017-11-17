@@ -14,7 +14,7 @@ parser = argparse.ArgumentParser(description="""
 
         This script should be run AFTER consistency checks.
         Any non-annotated occurrence of "Skipped MWEs" will be
-        treated as compositional.
+        treated as non-idiomatic.
         """)
 parser.add_argument("--lang", choices=sorted(dataalign.LANGS), metavar="LANG", required=True,
         help="""ID of the target language (e.g. EN, FR, PL, DE...)""")
@@ -37,13 +37,13 @@ class Main:
     def __init__(self, args):
         self.args = args
         self.mwes = []  # type: list[MWELexicalItem]
-        self.seen_mweoccur_ids = set()  # type: set[str]
+        self.mweoccur_id2finders = collections.defaultdict(set)  # type: dict[str, set[str]]
 
 
     def run(self):
         (self.mwes, _) = dataalign.read_mwelexitems(
                 self.args.lang, dataalign.iter_sentences(self.args.input, self.args.conllu))
-        self.seen_mweoccur_ids.update(o.id() for mwe in self.mwes for o in mwe.mweoccurs)
+        self.mweoccur_id2finders.update((o.id(), {'Human'}) for mwe in self.mwes for o in mwe.mweoccurs)
         skip_sents = dataalign.iter_sentences(self.args.input, self.args.conllu, verbose=False)
         self.find_literals(skip_sents)
 
@@ -61,12 +61,13 @@ class Main:
         finders = [dataalign.skipped_finder(m, self.args.lang, self.mwes,
                    favor_precision=True) for m in self.args.literal_finding_method]
 
-        for finder in finders:
+        sentences = list(sentences)  # allow multiple iterations
+        for finder, find_method in zip(finders, self.args.literal_finding_method):
             for mwe, mweoccur in finder.find_skipped_in(sentences):
                 # Only add 'Skipped' if a MWE was not seen at this position
-                if mweoccur.id() not in self.seen_mweoccur_ids:
-                    self.seen_mweoccur_ids.add(mweoccur.id())
+                if mweoccur.id() not in self.mweoccur_id2finders:
                     mwe.add_skipped_mweoccur(mweoccur)
+                self.mweoccur_id2finders[mweoccur.id()].add(find_method)
 
 
     def print_categories(self):
@@ -113,7 +114,8 @@ class Main:
 
     def print_mweoccurs(self):
         r'''Print TSV with "Skipped" info for each MWEOccur'''
-        print('MWE', 'POS-tag', 'idiomatic-or-literal', 'category', 'sentence-with-mweoccur',
+        print('MWE', 'POS-tag', 'category', 'idiomatic-or-literal',
+              'annotation-methods', 'sentence-with-mweoccur',
               'source', sep="\t", file=self.args.out_mweoccurs)
         for mwe in sorted(self.mwes, key=lambda m: m.canonicform):
             for mweoccur in mwe.mweoccurs:
@@ -125,7 +127,8 @@ class Main:
         categ = self._categ(mweoccur, mwe)
 
         source = '{}:{}'.format(os.path.basename(mweoccur.sentence.file_path), mweoccur.sentence.lineno)
-        print(" ".join(mwe.canonicform), self._postag(mweoccur), idlit, categ,
+        find_methods = ','.join(sorted(self.mweoccur_id2finders[mweoccur.id()]))
+        print(" ".join(mwe.canonicform), self._postag(mweoccur), categ, idlit, find_methods,
               self._example(mweoccur), source, sep="\t", file=self.args.out_mweoccurs)
 
 
