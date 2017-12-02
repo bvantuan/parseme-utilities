@@ -22,16 +22,16 @@ class Categories:
         'VPC.full',
         'VPC.semi',
         'MVC',
-        'IAV',
+        'IAV',        
     }
 
     # Subset of KNOWN, with the categories that represent non-MWEs
-    NON_MWES = set(['NotMWE'])
+    NON_MWES = set(['NotMWE', 'TODO'])
 
     # Mapping of categories from ST 1.0 to ST 1.1
     RENAMED = {
         'ID': 'VID',
-        'OTH': 'VID',
+        'OTH': 'TODO',
         'IReflV': 'IRV',
         'LVC': 'LVC.full',
         'VPC': 'VPC.full',
@@ -55,7 +55,8 @@ class Categories:
         return '''
                 .mwe-label-NotMWE { background-color: #DCC8C8; }
                 .mwe-label-Skipped { background-color: #DDDDDD; }
-
+                .mwe-label-TODO { background-color: #AA0000; }                
+                
                 .mwe-label-VID { background-color: #FF6AFF; }
                 .mwe-label-LVC-full { background-color: #9AA6FF; }
                 .mwe-label-LVC-cause { background-color: #9AA6FF; }
@@ -64,4 +65,5 @@ class Categories:
                 .mwe-label-IRV { background-color: #FFB138; }
                 .mwe-label-MVC { background-color: #C13AC1; }
                 .mwe-label-IAV { background-color: #AAAAAA; }
+
             '''
