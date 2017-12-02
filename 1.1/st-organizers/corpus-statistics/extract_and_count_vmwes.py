@@ -42,8 +42,8 @@ class Main:
     self.canonic2occurs = collections.defaultdict(list)
     self.categs = [] if self.args.filter_categs is None else self.args.filter_categs.split(",")
     if self.categs :
-      print("INFO: extraction limited to categories: {}".format(self.categs))
-    self.lemmas = [] if self.args.filter_lemmas is None else self.args.filter_lemmas.split(",",file=sys.stderr)
+      print("INFO: extraction limited to categories: {}".format(self.categs),file=sys.stderr)
+    self.lemmas = [] if self.args.filter_lemmas is None else self.args.filter_lemmas.split(",")
     if self.lemmas :
       print("INFO: extraction limited to VMWEs containing all lemmas: {}".format(self.lemmas),file=sys.stderr)    
 
