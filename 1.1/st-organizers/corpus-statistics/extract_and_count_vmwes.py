@@ -30,7 +30,7 @@ parser.add_argument("--canonical", action="store_true",
     help="""Do not lemmatize, use canonical form instead (only some lemmatized components)""")    
 parser.add_argument("--sentences", action="store_true",
     help="""Show list occurrence sentences after each VMWE""")
-parser.add_argument("--conllu", type=str, nargs="+", required=True,
+parser.add_argument("--conllu", type=str, nargs="+",
     help="""Path to parallel input CoNLL files""")
 
 #####################################################
