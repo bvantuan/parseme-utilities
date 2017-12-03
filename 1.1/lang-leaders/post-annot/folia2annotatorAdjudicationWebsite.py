@@ -9,6 +9,8 @@ import os, sys
 sys.path.insert(0, os.path.dirname(__file__)+"/../../lib")
 import dataalign
 
+import _shared_code
+
 
 parser = argparse.ArgumentParser(description="""
         Read input file from two annotators and generate a

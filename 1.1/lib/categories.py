@@ -37,6 +37,9 @@ class Categories:
         'VPC': 'VPC.full',
     }
 
+    assert NON_MWES.issubset(KNOWN)
+    assert set(RENAMED.values()).issubset(KNOWN)
+
 
     @staticmethod
     def is_light_verb_construction(str_category):

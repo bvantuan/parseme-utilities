@@ -73,7 +73,7 @@ def consistency_and_adjudication_shared_javascript():
               var data = JSON.parse(reader.result);
               var decisions = data.DECISIONS;
               if (data.META.filename_mapping != window.parsemeFilenameMapping) {
-                  alert('WARNING:\\n\\nParsemeNotes file has this file mapping:\\n  ' + JSON.stringify(data.META.filename_mapping) + '\\nBut this HTML file was created with this mapping:\\n  ' + JSON.stringify(window.parsemeFilenameMapping) + '\\nDo not proceed if these do not match!');
+                  alert('WARNING:\\n\\nParsemeNotes file has this file mapping:\\n  ' + JSON.stringify(data.META.filename_mapping) + '\\nBut this HTML file was created with this mapping:\\n  ' + JSON.stringify(window.parsemeFilenameMapping) + '\\n\\nDo not proceed if these do not match!');
               }
               $(".mweoccur-decide-button").each(function() {
                   var entryID = calculateEntryID(this);
