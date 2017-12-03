@@ -22,7 +22,9 @@ class Categories:
         'VPC.full',
         'VPC.semi',
         'MVC',
-        'IAV',        
+        'IAV',
+        'NotMWE',
+        'TODO',
     }
 
     # Subset of KNOWN, with the categories that represent non-MWEs
