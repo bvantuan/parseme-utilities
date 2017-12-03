@@ -139,7 +139,7 @@ class Main(object):
                     .format(wtd_class, J["target_categ"])
 
         elif annot_entry.json_data["type"] == "RE-ANNOT":
-            if J["source_mwe"] == J["target_mwe"] or "target_mwe" not in J:
+            if "target_mwe" not in J or J["source_mwe"] == J["target_mwe"]:
                 yield '<div class="{} wtd-reannot">In token annotation: &quot;{}&quot;</div>' \
                         .format(wtd_class, " ".join(J["source_mwe"]))
             else:
@@ -160,6 +160,10 @@ class Main(object):
         J = json.load(self.args.json_input)
         if not 'META' in J:
             raise Exception('JSON file is too old -- is it from parseme ST 1.0?')
+        json_v = J['META']['parseme_json_version']
+        if json_v.split('.')[0] > '2':
+            raise Exception('BUG: Must update this script for JSON version {}'.format(json_v))
+
         self.id2fname = J['META']['filename_mapping']
 
         for coded_key, json_data in J['DECISIONS'].items():

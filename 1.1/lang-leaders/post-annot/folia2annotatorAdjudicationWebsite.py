@@ -453,9 +453,7 @@ HTML_FOOTER = """
 
 
 <script>
-window.parsemeData = {};
-window.havePendingParsemeNotes = false;
-
+""" + _shared_code.consistency_and_adjudication_shared_javascript() + """
 
 /** Mark glyphicon object as mark-decided */
 function markDecisionButton(decisionButton, decisionText) {
@@ -474,16 +472,6 @@ function killDropdown() {
     g = $("#active-decide-button");
     g.removeAttr("id");
     g.siblings(".dropdown").remove();
-}
-
-
-function escapeRegExp(str) {
-    return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
-}
-/** Return whether the space-separated tokens in innerText appears inside fullText */
-function areTokensInside(fullText, innerText) {
-    var regex = escapeRegExp(innerText).replace(/ +/g, ".*");
-    return new RegExp(regex, "g").test(fullText);
 }
 
 
@@ -574,13 +562,6 @@ function addNote(decisionButtonOrNull, annotEntry) {
     killDropdown();
 }
 
-function calculateEntryID(decisionButton) {
-    var mweoccur_block = $(decisionButton).parents('.mweoccur-block')
-    var id_for_annotator_A1 = mweoccur_block.find(".annotator-1").find('.mweoccur-perAnnotator-id').text() || 'null';
-    var id_for_annotator_A2 = mweoccur_block.find(".annotator-2").find('.mweoccur-perAnnotator-id').text() || 'null';
-    return "MWE_KEY=[" + id_for_annotator_A1 + "," + id_for_annotator_A2 + "]";
-}
-
 function annotEntryToDecisionText(annotEntry) {
     switch(annotEntry.adjudication) {
         case "A1_IS_CORRECT":
@@ -598,15 +579,11 @@ function annotEntryToDecisionText(annotEntry) {
     }
 }
 
-/** Remove note from window.parsemeData and update GUI */
-function resetDecision(decisionButtonOrNull) {
-    var decisionButton = decisionButtonOrNull || $("#active-decide-button");
-    window.havePendingParsemeNotes = true;
-    var entryID = calculateEntryID(decisionButton);
-    delete window.parsemeData[entryID];
-    unmarkDecisionButton(decisionButton);
-    updateCounter();
-    killDropdown();
+function calculateEntryID(decisionButton) {
+    var mweoccur_block = $(decisionButton).parents('.mweoccur-block')
+    var id_for_annotator_A1 = mweoccur_block.find(".annotator-1").find('.mweoccur-perAnnotator-id').text() || 'null';
+    var id_for_annotator_A2 = mweoccur_block.find(".annotator-2").find('.mweoccur-perAnnotator-id').text() || 'null';
+    return "MWE_KEY=[" + id_for_annotator_A1 + "," + id_for_annotator_A2 + "]";
 }
 
 
@@ -618,66 +595,6 @@ function collapseMweoccur() {
 }
 
 
-/*
- * File format:
- * {
- *   "META": {"parseme_version": "x.y", ...},
- *   "DECISIONS": {...}
- * }
- */
-function writeJsonFile() {
-    var parsemeData = {
-        "META": {
-            "parseme_version": "1.1",
-            "json_version": "2.0",
-            "filename_mapping": window.parsemeFilenameMapping,
-        },
-        "DECISIONS": window.parsemeData
-    }
-    var json = JSON.stringify(parsemeData, null, 2);
-    var blob = new Blob([json], {type: "application/json"});
-    var url  = URL.createObjectURL(blob);
-    saveAs(url, "ParsemeNotes.json");
-    window.havePendingParsemeNotes = false;  // assume they have downloaded it...
-}
-function saveAs(uri, filename) {
-    var link = document.createElement('a');
-    if (typeof link.download === 'string') {
-        document.body.appendChild(link); // Firefox requires the link to be in the body
-        link.download = filename;
-        link.href = uri;
-        link.click();
-        document.body.removeChild(link); // remove the link when done
-    } else {
-        location.replace(uri);
-    }
-}
-
-function readJsonFile(filePath) {
-    var reader = new FileReader();
-    reader.onload = function() {
-      var havePending = window.havePendingParsemeNotes;
-      var data = JSON.parse(reader.result);
-      var decisions = data.DECISIONS;
-      if (data.META.filename_mapping != window.parsemeFilenameMapping) {
-          alert('WARNING:\\n\\nParsemeNotes file has this file mapping:\\n  ' + JSON.stringify(data.META.filename_mapping) + '\\nBut this HTML file was created with this mapping:\\n  ' + JSON.stringify(window.parsemeFilenameMapping) + '\\nDo not proceed if these do not match!');
-      }
-      $(".mweoccur-decide-button").each(function() {
-          var entryID = calculateEntryID(this);
-          if (decisions[entryID]) {
-              var annotEntry = decisions[entryID];
-              addNote($(this), annotEntry);
-          }
-      });
-      window.havePendingParsemeNotes = havePending;
-    };
-    reader.readAsText(filePath);
-}
-
-
-function updateCounter() {
-    $("#global-counter").text(Object.keys(window.parsemeData).length);
-}
 
 
 

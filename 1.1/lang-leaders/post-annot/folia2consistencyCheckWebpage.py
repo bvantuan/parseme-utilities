@@ -9,6 +9,8 @@ import os, sys
 sys.path.insert(0, os.path.dirname(__file__)+"/../../lib")
 import dataalign
 
+import _shared_code
+
 
 parser = argparse.ArgumentParser(description="""
         Read input files and generate a webpage describing the MWEs.
@@ -34,6 +36,7 @@ class Main:
         self.args = args
         self.mwe_mixed = []  # type: list[MWELexicalItem]
         self.mwe_nvmwe = []  # type: list[MWELexicalItem]
+        self.fname2id = {fname: i+1 for (i, fname) in enumerate(self.args.input)}
 
     def run(self):
         self.mwe_mixed, self.mwe_nvmwe = dataalign.read_mwelexitems(
@@ -46,6 +49,8 @@ class Main:
 
     def print_html(self):
         print(HTML_HEADER_1and2)
+        print('<script>window.parsemeFilenameMapping = {}</script>'.format(
+            json.dumps({i:f for (f,i) in self.fname2id.items()})))
         skip_sents = self.iter_sentences(False) if self.args.find_skipped else ()
         vic = VerbInfoCalculator(self.args.lang, self.mwe_mixed, skip_sents)
         self.print_html_mwes(vic)
@@ -97,7 +102,7 @@ class Main:
 
         # Print examples
         print('  <div class="mwe-occurs">')
-        for mweoccur, mweo_id in _iter_mweoccur_and_id(mwe.mweoccurs):
+        for mweoccur, mweo_id in self._iter_mweoccur_and_id(mwe.mweoccurs):
             print('   <div class="mwe-occur">')
             # Print mwe-occur-id; e.g. ["Foo.xml", 123, [5,7,8]]
             print('   <span class="mwe-occur-id">{}</span>'.format(ESC(json.dumps(mweo_id))))
@@ -145,13 +150,13 @@ class Main:
             yield '<div class="mwe-occur-comment">{}</div>'.format(c)
 
 
-def _iter_mweoccur_and_id(mweoccurs):
-    r'''Yield pairs (MWEOccur, id), where `id` is a (str, int, list[int])'''
-    ret = []
-    for mweoccur in mweoccurs:
-        fname = os.path.basename(mweoccur.sentence.file_path)
-        ret.append((mweoccur, (fname, mweoccur.sentence.nth_sent, mweoccur.indexes)))
-    return sorted(ret, key=lambda x: x[1])
+    def _iter_mweoccur_and_id(self, mweoccurs):
+        r'''Yield pairs (MWEOccur, id), where `id` is a (int, int, list[int])'''
+        ret = []
+        for mweoccur in mweoccurs:
+            fname_id = self.fname2id[mweoccur.sentence.file_path]
+            ret.append((mweoccur, (fname_id, mweoccur.sentence.nth_sent, mweoccur.indexes)))
+        return sorted(ret, key=lambda x: x[1])
 
 
 class VerbInfoCalculator:
@@ -309,10 +314,10 @@ p { margin-bottom: 5px; }  /* used inside mwe-occur-comment */
 <div class="global-box">
     Notes added: <span id="global-counter">0</span>
 
-    <div><a class="global-link" href="javascript:downloadData()">Generate JSON</a></div>
+    <div><a class="global-link" href="javascript:writeJsonFile()">Generate JSON</a></div>
 
     <label for="file-upload" class="global-link global-file-input">Load JSON file</label>
-    <input style="display:none" id="file-upload" type="file" onchange="javascript:uploadData(this.files[0])"/>
+    <input style="display:none" id="file-upload" type="file" onchange="javascript:readJsonFile(this.files[0])"/>
 </div>
 
 <div class="panel panel-default">
@@ -383,16 +388,14 @@ HTML_FOOTER = """
       <li role="presentation"><a role="menuitem" tabindex="-1" href="javascript:noteQ('NonVMWE')">Mark as Non-VMWE</a></li>
       <li role="presentation"><a role="menuitem" tabindex="-1" href="javascript:noteSpecialCase()">Mark as special case</a></li>
       <li role="presentation" class="divider show-only-if-deletable"></li>
-      <li role="presentation" class="show-only-if-deletable"><a style="color:#FB2222" role="menuitem" tabindex="-1" href="javascript:deleteNote()">Delete current note</a></li>
+      <li role="presentation" class="show-only-if-deletable"><a style="color:#FB2222" role="menuitem" tabindex="-1" href="javascript:resetDecision()">Reset current decision</a></li>
     </ul>
   </span>
 </div>
 
 
 <script>
-window.parsemeData = {};
-window.havePendingParsemeNotes = false;
-
+""" + _shared_code.consistency_and_adjudication_shared_javascript() + """
 
 /** Mark glyphicon object as mwe-glyphbox-marked */
 function markGlyphbox(glyphbox, glyphtext) {
@@ -406,7 +409,7 @@ function markGlyphbox(glyphbox, glyphtext) {
     });
 }
 /** Mark glyphicon object as NOT mwe-glyphbox-marked */
-function unmarkGlyphbox(glyphbox) {
+function unmarkDecisionButton(glyphbox) {
     eachTwinGlyphbox(glyphbox, function(twinGlyphbox) {
         g = twinGlyphbox.siblings(".mwe-glyphbox");  // a sibling glyphbox
         g.removeClass("mwe-glyphbox-marked");
@@ -430,16 +433,6 @@ function killDropdown() {
     g = $("#glyphbox-with-dropdown");
     g.removeAttr("id");
     g.siblings(".dropdown").remove();
-}
-
-
-function escapeRegExp(str) {
-    return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
-}
-/** Return whether the space-separated tokens in innerText appears inside fullText */
-function areTokensInside(fullText, innerText) {
-    var regex = escapeRegExp(innerText).replace(/ +/g, ".*");
-    return new RegExp(regex, "g").test(fullText);
 }
 
 
@@ -486,7 +479,7 @@ function addNote(glyphboxOrNull, annotEntry) {
         delete annotEntry.target_mwe;  // remove target_mwe if it's useless
     var glyphtext = annotEntryToGlyphtext(annotEntry);
     window.havePendingParsemeNotes = true;
-    var mweoccur_id = "MODIF:" + gbox.siblings(".mwe-occur-id").text();
+    var mweoccur_id = calculateEntryID(gbox);
     window.parsemeData[mweoccur_id] = annotEntry;
     markGlyphbox(gbox, glyphtext);
     updateCounter();
@@ -503,16 +496,13 @@ function annotEntryToGlyphtext(annotEntry) {
     }
 }
 
-/** Remove note from window.parsemeData and update GUI */
-function deleteNote(glyphboxOrNull) {
-    var gbox = glyphboxOrNull || $("#glyphbox-with-dropdown");
-    window.havePendingParsemeNotes = true;
-    var mweoccur_id = "MODIF:" + gbox.siblings(".mwe-occur-id").text();
-    delete window.parsemeData[mweoccur_id];
-    unmarkGlyphbox(gbox);
-    updateCounter();
-    killDropdown();
+
+function calculateEntryID(decisionButton) {
+    var mweoccur_id = $(decisionButton).siblings('.mwe-occur-id').text();
+    return "MWE_KEY=[" + mweoccur_id + "]";
 }
+
+
 
 function toggleExpandAll() {
     window.allExpanded = !window.allExpanded;
@@ -526,58 +516,6 @@ function honorExpansionVariable() {
         $(".mwe-occurs").hide();
         $(".mwe-label-header").show();
     }
-}
-
-
-function downloadData() {
-    var json = JSON.stringify(window.parsemeData, null, 2);
-    var blob = new Blob([json], {type: "application/json"});
-    var url  = URL.createObjectURL(blob);
-    saveAs(url, "ParsemeNotes.json");
-    window.havePendingParsemeNotes = false;  // assume they have downloaded it...
-}
-function saveAs(uri, filename) {
-    var link = document.createElement('a');
-    if (typeof link.download === 'string') {
-        document.body.appendChild(link); // Firefox requires the link to be in the body
-        link.download = filename;
-        link.href = uri;
-        link.click();
-        document.body.removeChild(link); // remove the link when done
-    } else {
-        location.replace(uri);
-    }
-}
-
-function uploadData(filePath) {
-    var reader = new FileReader();
-    reader.onload = function() {
-      var havePending = window.havePendingParsemeNotes;
-      var data = JSON.parse(reader.result);
-      $(".mwe-occur-id").each(function() {
-          var mweoccur_id = "MODIF:" + $(this).text();
-          if (data[mweoccur_id]) {
-              var annotEntry = data[mweoccur_id];
-              if (annotEntry.to) {
-                // 2016-12-19 hack to rename `to` => `target_categ`
-                // (this can be removed in the future)
-                annotEntry.target_categ = annotEntry.to;
-                delete annotEntry.to;
-                delete annotEntry.from;
-              }
-              if (annotEntry.text) {
-                // 2016-12-19 hack to rename `text` => `human_note`
-                // (this can be removed in the future)
-                annotEntry.human_note = annotEntry.text;
-                delete annotEntry.text;
-              }
-              glyphbox = $(this).siblings(".mwe-glyphbox");
-              addNote(glyphbox, annotEntry);
-          }
-      });
-      window.havePendingParsemeNotes = havePending;
-    };
-    reader.readAsText(filePath);
 }
 
 
