@@ -28,7 +28,6 @@ parser.add_argument("--only-special", action='store_true',
         help="""Show only corrections corresponding to "special cases".""")
 
 
-KNOWN_CATEGS = dataalign.Categories.KNOWN
 ISOTIME = datetime.datetime.now().isoformat()
 
 
@@ -64,7 +63,7 @@ class Main(object):
         self.load_fname2annots()
         print(HTML_HEADER)
         for fname, annots in sorted(self.fname2annots.items()):
-            self.n_manual = 0
+            self.n_manual = self.n_auto = 0
             self.print_panel(fname, annots)
         print(HTML_FOOTER)
 
@@ -75,6 +74,8 @@ class Main(object):
                 output = "./AfterAutoUpdate/" + os.path.basename(fname)
                 print("INFO: saving to \"{}\"".format(output), file=sys.stderr)
                 foliadoc.save(output)
+            if self.n_auto == 0:
+                print('ERROR: Zero annotations were done automatically. Check for warnings above.', file=sys.stderr)
 
     def print_panel(self, fname, annots):
         manual, auto = self.split_corrections(fname, annots)
@@ -119,6 +120,7 @@ class Main(object):
             right_span = '<span class="auto-txt">Automatically annotated</span>'
             print('<div class="list-group-item annot-entry wtd-list-auto">{}{}</div>'.format(
                     right_span, "".join(self.annot2str(annot_entry, "what-to-do-auto"))))
+            self.n_auto += 1
 
 
     def annot2str(self, annot_entry, wtd_class):
@@ -205,7 +207,9 @@ class Main(object):
                 continue
 
             try:
-                if id2foliasent and self.folia_modify(id2foliasent.get(annot.index_infos[0].sent_id), annot):
+                if not id2foliasent:
+                    annot.err('Underlying XML file not given as input')
+                elif self.folia_modify(id2foliasent.get(annot.index_infos[0].sent_id), annot):
                     auto.append(annot)
                     continue
             except NoteError as e:
@@ -246,8 +250,8 @@ class Main(object):
                 raise annot.err("XML has unexpected category {} (not {})", categ, expected_categ)
             if expected_confid != confid:
                 raise annot.err("XML has unexpected confidence {}% (not {}%)", confid, expected_confid)
-            if annot.json_data["target_categ"] not in KNOWN_CATEGS:
-                raise annot.err("Target VMWE category is unknown (might be a typo)")
+            if annot.json_data["target_categ"] not in dataalign.Categories.KNOWN:
+                raise annot.err("Target MWE category is unknown (might be a typo)")
 
             folia_mwe = [w.text() for w in entity.wrefs()]
             if folia_mwe != annot.json_data["source_mwe"]:
