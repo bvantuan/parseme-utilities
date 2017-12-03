@@ -26,9 +26,15 @@ parser.add_argument("--annotation-2", type=str, required=True,
 class Main:
     def __init__(self, args):
         self.args = args
+        self.fname2id = {
+            self.args.annotation_1 : 1,
+            self.args.annotation_2 : 2,
+        }
 
     def run(self):
         print(HTML_HEADER_1and2)
+        print('<script>window.parsemeFilenameMapping = {}</script>'.format(
+            json.dumps({i:f for (f,i) in self.fname2id.items()})))
         sents_1 = list(self.iter_sentences(self.args.annotation_1))
         sents_2 = list(self.iter_sentences(self.args.annotation_2))
         if len(sents_1) != len(sents_2):
@@ -170,8 +176,7 @@ class Main:
         | A2: [ID] I *had* *a* *bath* yesterday .
         '''
         if mweo is not None:
-            fname = os.path.basename(mweo.sentence.file_path)
-            mweo_id = (fname, mweo.sentence.nth_sent, mweo.indexes)
+            mweo_id = (self.fname2id[mweo.sentence.file_path], mweo.sentence.nth_sent, mweo.indexes)
             print('   <div class="mweoccur-of-annotator annotator-{}">'.format(annot_number))
             # Print mweoccur-perAnnotator-id; e.g. ["Foo.xml", 123, [5,7,8]]
             print('   <span class="mweoccur-perAnnotator-id">{}</span>'.format(ESC(json.dumps(mweo_id))))
@@ -308,6 +313,7 @@ a:hover { cursor:pointer; }
 
 .panel-pre-load { }  /* display at the beginning */
 .panel-post-load { display: none; }
+#parseme-filename-mapping { display: none; }
 
 .sent-header { margin-bottom: 4px; font-size: 14px; font-weight: bold; }
 .sent-header-no-annotations { text-decoration: line-through; }
@@ -379,10 +385,10 @@ p { margin-bottom: 5px; }  /* used inside mwe-occur-comment */
 <div class="global-box">
     Notes added: <span id="global-counter">0</span>
 
-    <div><a class="global-link" href="javascript:downloadData()">Generate JSON</a></div>
+    <div><a class="global-link" href="javascript:writeJsonFile()">Generate JSON</a></div>
 
     <label for="file-upload" class="global-link global-file-input">Load JSON file</label>
-    <input style="display:none" id="file-upload" type="file" onchange="javascript:uploadData(this.files[0])"/>
+    <input style="display:none" id="file-upload" type="file" onchange="javascript:readJsonFile(this.files[0])"/>
 </div>
 
 <div class="panel panel-default">
@@ -619,9 +625,15 @@ function collapseMweoccur() {
  *   "DECISIONS": {...}
  * }
  */
-function downloadData() {
-    var parsemeData = {"META": {"parseme_version": "1.1", "json_version": "1.0"},
-                       "DECISIONS": window.parsemeData }
+function writeJsonFile() {
+    var parsemeData = {
+        "META": {
+            "parseme_version": "1.1",
+            "json_version": "2.0",
+            "filename_mapping": window.parsemeFilenameMapping,
+        },
+        "DECISIONS": window.parsemeData
+    }
     var json = JSON.stringify(parsemeData, null, 2);
     var blob = new Blob([json], {type: "application/json"});
     var url  = URL.createObjectURL(blob);
@@ -641,12 +653,15 @@ function saveAs(uri, filename) {
     }
 }
 
-function uploadData(filePath) {
+function readJsonFile(filePath) {
     var reader = new FileReader();
     reader.onload = function() {
       var havePending = window.havePendingParsemeNotes;
       var data = JSON.parse(reader.result);
       var decisions = data.DECISIONS;
+      if (data.META.filename_mapping != window.parsemeFilenameMapping) {
+          alert('WARNING:\\n\\nParsemeNotes file has this file mapping:\\n  ' + JSON.stringify(data.META.filename_mapping) + '\\nBut this HTML file was created with this mapping:\\n  ' + JSON.stringify(window.parsemeFilenameMapping) + '\\nDo not proceed if these do not match!');
+      }
       $(".mweoccur-decide-button").each(function() {
           var entryID = calculateEntryID(this);
           if (decisions[entryID]) {
