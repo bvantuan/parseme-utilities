@@ -166,7 +166,7 @@ class Main(object):
         if json_v.split('.')[0] > '2':
             raise Exception('BUG: Must update this script for JSON version {}'.format(json_v))
 
-        self.id2fname = J['META']['filename_mapping']
+        self.json_id2fname = J['META']['filename_mapping']
 
         for coded_key, json_data in J['DECISIONS'].items():
             if coded_key.startswith("MWE_KEY="):
@@ -178,7 +178,7 @@ class Main(object):
                                     for i, k in enumerate(key))
                 annot_entry = AnnotEntry(index_infos, json_data)
                 filename = str(index_infos[0].filename) if index_infos[0] else '1'
-                self.fname2annots[self.id2fname[filename]].append(annot_entry)
+                self.fname2annots[self.json_id2fname[filename]].append(annot_entry)
             else:
                 raise Exception("Unknown coded-key: " + coded_key)
 
@@ -191,7 +191,7 @@ class Main(object):
             print('WARNING: File \"{}\" expected as an argument!'.format(fname), file=sys.stderr)
             try:
                 new_fname = self.basefname2fname[os.path.basename(fname)]
-                if new_fname in self.fname2foliadoc:
+                if new_fname in self.json_id2fname.values():
                     print('.......: Refusing to use \"{}\" (it looks like the wrong filename)'.format(new_fname), file=sys.stderr)
                     raise KeyError
                 else:
