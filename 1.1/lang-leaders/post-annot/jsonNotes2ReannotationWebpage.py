@@ -228,7 +228,7 @@ class Main(object):
 
         elif annot.json_data["type"] == "NEW-ANNOT":
             indexes = {i for iinfos in annot.index_infos for i in iinfos.indexes}
-            entity = next(foliasent.select(self.folia.EntitiesLayer)).add(self.folia.Entity, *[foliasent[i] for i in indexes])
+            entity = foliasent.add(self.folia.Entity, *[foliasent[i] for i in indexes])
             entity.cls = annot.json_data['target_categ']
             self.folia_reannot_tokens(entity, annot)
             return True
