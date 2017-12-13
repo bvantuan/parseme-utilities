@@ -12,4 +12,4 @@ if test "${1:-}" = "--help" || test "${1:-}" = "-h" || test -t 0; then
     exit 0
 fi
 
-perl -pe 's@\r\n?@\n@g' | awk 'BEGIN{FS=OFS="\t"} /^$/ || /^#/ {print; next} {x = ($10=="SpaceAfter=No"?"nsp":""); print "'\''"$1, $2, x, "_", ($4=="VERB"?"V":"")}'
+perl -pe 's@\r\n?@\n@g' | awk 'BEGIN{FS=OFS="\t"} /^$/ || /^#/ {print; next} {x = ($10=="SpaceAfter=No"?"nsp":"_"); print "'\''"$1, $2, x, "_", ($4=="VERB"?"V":"_")}'
