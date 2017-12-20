@@ -116,7 +116,7 @@ class Main:
         r'''Print TSV with "Skipped" info for each MWEOccur'''
         print('MWE', 'POS-tag', 'category', 'idiomatic-or-literal',
               'annotation-methods', 'sentence-with-mweoccur',
-              'source', sep="\t", file=self.args.out_mweoccurs)
+              'source', 'source-sentence-number', 'source-token-ranks', sep="\t", file=self.args.out_mweoccurs)
         for mwe in sorted(self.mwes, key=lambda m: m.canonicform):
             for mweoccur in mwe.mweoccurs:
                 self._output_mweoccur(mwe, mweoccur)
@@ -127,9 +127,12 @@ class Main:
         categ = self._categ(mweoccur, mwe)
 
         source = '{}:{}'.format(os.path.basename(mweoccur.sentence.file_path), mweoccur.sentence.lineno)
+        source_sent_number = 's.{}'.format(mweoccur.sentence.nth_sent)
+        source_token_ranks = ','.join(mweoccur.sentence.tokens[i].rank for i in mweoccur.indexes)
         find_methods = ','.join(sorted(self.mweoccur_id2finders[mweoccur.id()]))
         print(" ".join(mwe.canonicform), self._postag(mweoccur), categ, idlit, find_methods,
-              self._example(mweoccur), source, sep="\t", file=self.args.out_mweoccurs)
+              self._example(mweoccur), source, source_sent_number, source_token_ranks,
+              sep="\t", file=self.args.out_mweoccurs)
 
 
     def _postag(self, mweoccur):
@@ -151,7 +154,7 @@ class Main:
     def _example(self, mweoccur):
         r'''_example(MWEOccur) -> str'''
         return " ".join(('['+t.surface+']' if i in mweoccur.indexes else t.surface).replace('\t', '<TAB>') \
-                        for (i,t) in enumerate(mweoccur.sentence.tokens))
+                        for (i,t) in enumerate(mweoccur.sentence.tokens) if not '-' in t.rank)
 
 
 
