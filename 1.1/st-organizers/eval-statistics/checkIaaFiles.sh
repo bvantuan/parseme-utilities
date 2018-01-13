@@ -10,8 +10,8 @@
 # Outputs a confirmation/message error
 
 source ../../lib/parseme_st_data_dev_path.bash
-CHECK_PARSEMETSV="$PARSEME_SHAREDTASK_DATA_DEV/checkParsemeTsvFormat.py"
-EVALUATE="$PARSEME_SHAREDTASK_DATA_DEV/evaluate.py"
+CHECK_PARSEMETSV="$PARSEME_SHAREDTASK_DATA_DEV/1.0/preliminary-sharedtask-data/bin/checkParsemeTsvFormat.py"
+EVALUATE="$PARSEME_SHAREDTASK_DATA_DEV/1.0/preliminary-sharedtask-data/bin/evaluate.py"
 
 #Check the number of parameters
 if [ $# -lt 3 ]; then

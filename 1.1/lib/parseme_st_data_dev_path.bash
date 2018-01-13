@@ -2,7 +2,8 @@ __THIS_LIB_PATH="$(dirname "${BASH_SOURCE[0]}")"
 
 
 if ! test "${PARSEME_SHAREDTASK_DATA_DEV+set}"; then
-    __psdd="$__THIS_LIB_PATH/../../../parseme-sharedtask-data-dev"
+    __psdd="$__THIS_LIB_PATH/../../../sharedtask-data-dev/"
+    echo $__psdd
     if test -d "$__psdd"; then
         export PARSEME_SHAREDTASK_DATA_DEV="$(cd "$__psdd"; pwd)"
         echo "WARNING: Environment variable PARSEME_SHAREDTASK_DATA_DEV not defined"  >&2
