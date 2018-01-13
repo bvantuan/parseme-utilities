@@ -24,8 +24,9 @@ with open(PARSEMETSV) as parsemetsv, open(CONLLU) as conllu:
            # append new MWE annotation to third column
            # append instead of replace to avoid overwriting tokens that belong
            # to more than 1 MWE
-           sentence[w1_id][3] += str(mwe_count) + ":LVC" # first word has categ.
-           sentence[w2_id][3] += str(mwe_count)      
+           sentence[w1_id][3] += str(mwe_count) 
+           sentence[w2_id][3] += str(mwe_count) 
+           sentence[str(min(int(w1_id),int(w2_id)))][3] += ":LVC" # first word has categ.     
            mwe_count += 1 
       for word in sentence.values():
         print("\t".join(word[:5]))
