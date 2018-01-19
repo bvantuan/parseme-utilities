@@ -848,7 +848,8 @@ class FoliaIterator:
             if not ranks:  # ignore empty Entities produced by FLAT
                 output_sentence.msg_stderr('Ignoring empty MWE')
             else:
-                output_sentence.mweannots.append(MWEAnnot(ranks, mwe.cls))
+                categ = output_sentence.check_and_convert_categ(mwe.cls)
+                output_sentence.mweannots.append(MWEAnnot(ranks, categ))
 
 
 
