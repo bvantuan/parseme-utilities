@@ -70,5 +70,21 @@ class Categories:
                 .mwe-label-IRV { background-color: #FFB138; }
                 .mwe-label-MVC { background-color: #C13AC1; }
                 .mwe-label-IAV { background-color: #AAAAAA; }
-
             '''
+
+    @staticmethod
+    def consistency_check_mwe_pairs():
+        r'''Yield (category, annot_info) pairs.'''
+        yield  ('VID',       'Annotate as VID (idiom)')
+        yield  ('LVC.full',  'Annotate as LVC.full (light-verb)')
+        yield  ('LVC.cause', 'Annotate as LVC.cause (light-verb)')
+        yield  ('IRV',       'Annotate as IRV (reflexive)')
+        yield  ('VPC.full',  'Annotate as VPC.full (verb-particle)')
+        yield  ('VPC.semi',  'Annotate as VPC.semi (verb-particle)')
+        yield  ('MVC',       'Annotate as MVC (multi-verb)')
+        yield  ('IAV',       'Annotate as IAV (adpositional)')
+
+    @staticmethod
+    def consistency_check_nonmwe_pairs():
+        r'''Yield (category, annot_info) pairs.'''
+        yield  ('NotMWE', 'Mark as a not-an-MWE')

@@ -323,19 +323,19 @@ p { margin-bottom: 5px; }  /* used inside mwe-occur-comment */
 <div class="panel panel-default">
   <div class="panel-heading">1. Overview</div>
   <div class="panel-body">
-      This is a graphical interface with all the annotated VMWEs and their contexts. For example:
+      This is a graphical interface with all the annotated MWEs and their contexts. For example:
       <ol>
-      <li>Click on a VMWE to expand its box (or <a href="javascript:toggleExpandAll();">expand all</a>) and see all the sentences where it was annotated.</li>
+      <li>Click on an MWE to expand its box (or <a href="javascript:toggleExpandAll();">expand all</a>) and see all the sentences where it was annotated.</li>
       <li>Mouse over a tag (to the left of a sentence), to see where this sentence comes from.</li>
       <li>Click on the <span class="example-glyphbox"><span style="margin-left:2px; margin-right:2px;" class="glyphicon glyphicon-edit"></span></span> icon to the right of a sentence.</li>
-      <li>Mark this VMWE occurrence for re-annotation (e.g. by clicking on "Annotate as LVC").</li>
+      <li>Mark this MWE occurrence for re-annotation (e.g. by clicking on "Annotate as LVC").</li>
       <ul>
           <li>If you want to add/remove tokens from the MWE, use "custom annotation".</li>
           <li>You can also mark something for non-annotation, or as a "special case".</li>
       </ul>
-      <li>Generate a list of VMWEs marked for re-annotation by clicking on "Generate JSON" on the right.</li>
+      <li>Generate a list of MWEs marked for re-annotation by clicking on "Generate JSON" on the right.</li>
       <ul>
-          <li>The VMWEs are stored <strong>locally</strong> on your browser (not on a server). To avoid problems, generate the JSON file often.</li>
+          <li>The MWEs are stored <strong>locally</strong> on your browser (not on a server). To avoid problems, generate the JSON file often.</li>
           <li>This JSON file can then be <a data-toggle="tooltip" class="tooltip-on-text" title="See the script bin/jsonNotes2humanNotes_webpage.py, which can also be used to automatically re-annotate some of the MWEs.">converted to a webpage <span class="info-hint glyphicon glyphicon-info-sign"></span></a> that describes what needs to be annotated in each file.</li>
       </ul>
       </ol>
@@ -349,12 +349,12 @@ $('[data-toggle="tooltip"]').tooltip();
 
 
 <div class="panel panel-warning panel-pre-load">
-  <div class="panel-heading"><strong>Loading VMWEs. Please wait.</strong></div>
+  <div class="panel-heading"><strong>Loading MWEs. Please wait.</strong></div>
 </div> <!-- div panel -->
 
 
 <div class="panel panel-default panel-post-load">
-  <div class="panel-heading">2. VMWEs</div>
+  <div class="panel-heading">2. MWEs</div>
   <div class="panel-body">
 """
 
@@ -363,10 +363,16 @@ HTML_HEADER_3 = """
 </div> <!-- div panel -->
 
 <div class="panel panel-default panel-post-load">
-  <div class="panel-heading">3. NonVMWEs</div>
+  <div class="panel-heading">3. NotMWEs</div>
   <div class="panel-body">
 """
 
+
+def mwe_dropdown_items(list_of_pairs):
+    return '\n'.join(
+            '''<li role="presentation"><a role="menuitem" tabindex="-1"'''\
+            '''href="javascript:noteQ('{}')">{}</a></li>'''.format(ESC(categ), ESC(annot_info))
+            for categ, annot_info in list_of_pairs)
 
 HTML_FOOTER = """
   </div> <!-- div panel-body -->
@@ -377,15 +383,10 @@ HTML_FOOTER = """
   <span class="dropdown">
     <span class="dropdown-toggle" id="menu1" type="button" data-toggle="dropdown"></span>
     <ul class="dropdown-menu" role="menu" aria-labelledby="menu1">
-      <li role="presentation"><a role="menuitem" tabindex="-1" href="javascript:noteQ('VID')">Annotate as VID (idiom)</a></li>
-      <li role="presentation"><a role="menuitem" tabindex="-1" href="javascript:noteQ('LVC')">Annotate as LVC (light-verb)</a></li>
-      <li role="presentation"><a role="menuitem" tabindex="-1" href="javascript:noteQ('IRV')">Annotate as IRV (reflexive)</a></li>
-      <li role="presentation"><a role="menuitem" tabindex="-1" href="javascript:noteQ('VPC')">Annotate as VPC (verb-particle)</a></li>
-      <li role="presentation"><a role="menuitem" tabindex="-1" href="javascript:noteQ('MVC')">Annotate as MVC (multi-verb)</a></li>
-      <li role="presentation"><a role="menuitem" tabindex="-1" href="javascript:noteQ('IAV')">Annotate as IAV (adpositional)</a></li>
+      """ + mwe_dropdown_items(dataalign.Categories.consistency_check_mwe_pairs()) + """
       <li role="presentation"><a role="menuitem" tabindex="-1" href="javascript:noteCustom()">Custom annotation</a></li>
       <li role="presentation" class="divider"></li>
-      <li role="presentation"><a role="menuitem" tabindex="-1" href="javascript:noteQ('NonVMWE')">Mark as Non-VMWE</a></li>
+      """ + mwe_dropdown_items(dataalign.Categories.consistency_check_nonmwe_pairs()) + """
       <li role="presentation"><a role="menuitem" tabindex="-1" href="javascript:noteSpecialCase()">Mark as special case</a></li>
       <li role="presentation" class="divider show-only-if-deletable"></li>
       <li role="presentation" class="show-only-if-deletable"><a style="color:#FB2222" role="menuitem" tabindex="-1" href="javascript:resetDecision()">Reset current decision</a></li>
