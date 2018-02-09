@@ -87,4 +87,4 @@ class Categories:
     @staticmethod
     def consistency_check_nonmwe_pairs():
         r'''Yield (category, annot_info) pairs.'''
-        yield  ('NotMWE', 'Mark as a not-an-MWE')
+        yield  ('NotMWE', 'Mark as not-an-MWE')
