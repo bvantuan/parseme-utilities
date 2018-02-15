@@ -201,7 +201,7 @@ class Main:
                     ESC(occur.sentence.file_path), ESC(str(occur.sentence.nth_sent)),
                     ESC(occur.annotator or "<unknown>"), ESC(str(occur.datetime or "<unknown-date>")))
         confidence_info = '' if occur.confidence is None else ' {}%'.format(int(occur.confidence*100))
-        css_mwe_label = 'mwe-label-{}'.format(ESC(occur.category.replace('.', '-')))
+        css_mwe_label = dataalign.Categories.css_name(occur.category)
         yield '<span class="label mwe-label {css_mwe_label}"' \
               'data-toggle="tooltip" title="{title}">{mwe_label}{confidence_info}</span><span> </span>' \
               .format(css_mwe_label=css_mwe_label, title=file_info,
@@ -303,13 +303,7 @@ class VerbInfo:
 
 ############################################################
 
-HTML_HEADER_1and2 = """\
-<html>
-<meta charset="UTF-8">
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-
+HTML_HEADER_1and2 = _shared_code.html_header() + """\
 <style>
 a:hover { cursor:pointer; }
 

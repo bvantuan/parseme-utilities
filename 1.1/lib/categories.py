@@ -73,6 +73,12 @@ class Categories:
             '''
 
     @staticmethod
+    def css_name(str_category_label):
+        r'''Get CSS name for given category label.'''
+        from xml.sax.saxutils import escape as ESC
+        return 'mwe-label-{}'.format(ESC(str_category_label.replace('.', '-')))
+
+    @staticmethod
     def consistency_check_mwe_pairs():
         r'''Yield (category, annot_info) pairs.'''
         yield  ('VID',       'Annotate as VID (idiom)')

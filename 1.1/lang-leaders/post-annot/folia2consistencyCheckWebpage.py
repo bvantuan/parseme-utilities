@@ -96,8 +96,9 @@ class Main:
         # Print labels; e.g. [VID (5) LVC(3)]
         counter = collections.Counter(o.category for o in mwe.mweoccurs)
         print('<span class="mwe-label-header">')
-        print('  ' + ' '.join('<span class="label mwe-label mwe-label-{0}">{0} ({1})</span>' \
-                .format(ESC(mwe), n) for (mwe, n) in counter.most_common()))
+        print('  ' + ' '.join('<span class="label mwe-label {css_mwe_label}">{mwe} ({n})</span>' \
+                .format(css_mwe_label=dataalign.Categories.css_name(mwe), mwe=ESC(mwe), n=n)
+                for (mwe, n) in counter.most_common()))
         print('</span>')
 
         # Print examples
@@ -126,7 +127,7 @@ class Main:
                     ESC(occur.sentence.file_path), ESC(str(occur.sentence.nth_sent)),
                     ESC(occur.annotator or "<unknown>"), ESC(str(occur.datetime or "<unknown-date>")))
         confidence_info = '' if occur.confidence is None else ' {}%'.format(int(occur.confidence*100))
-        css_mwe_label = 'mwe-label-{}'.format(ESC(occur.category.replace('.', '-')))
+        css_mwe_label = dataalign.Categories.css_name(occur.category)
         yield '<span class="label mwe-label {css_mwe_label}"' \
               'data-toggle="tooltip" title="{title}">{mwe_label}{confidence_info}</span><span> </span>' \
               .format(css_mwe_label=css_mwe_label, title=file_info,
@@ -143,7 +144,7 @@ class Main:
             yield "" if t.nsp else " "
         yield '</span>'
 
-        yield ' <span class="mwe-glyphbox"><span class="glyphicon glyphicon-edit"></span><span class="mwe-glyphtext"></span></span>'
+        yield ' <span class="mweoccur-decide-button"><span class="glyphicon glyphicon-edit"></span><span class="mwe-glyphtext"></span></span>'
 
         for comment in occur.comments:
             c = ESC(comment).replace("\n\n", "</p>").replace("\n", "<br/>")
@@ -230,13 +231,7 @@ class VerbInfo:
 
 ############################################################
 
-HTML_HEADER_1and2 = """\
-<html>
-<meta charset="UTF-8">
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-
+HTML_HEADER_1and2 = _shared_code.html_header() + """\
 <style>
 a:hover { cursor:pointer; }
 
@@ -278,9 +273,9 @@ p { margin-bottom: 5px; }  /* used inside mwe-occur-comment */
 
 .show-only-if-deletable { display: none; }
 
-.mwe-glyphbox { margin-left: 5px; color: #AAA; cursor: pointer; }
-.mwe-glyphbox:hover { color: #88f; }
-.mwe-glyphbox-marked { color: #6BE24D; }
+.mweoccur-decide-button { margin-left: 5px; color: #AAA; cursor: pointer; }
+.mweoccur-decide-button:hover { color: #88f; }
+.mweoccur-decide-button-marked { color: #6BE24D; }
 .mwe-glyphtext { margin-left: 3px; font-style: italic; }
 .glyphicon { color: inherit; }
 .example-glyphbox { color: #AAA; }
@@ -398,22 +393,22 @@ HTML_FOOTER = """
 <script>
 """ + _shared_code.consistency_and_adjudication_shared_javascript() + """
 
-/** Mark glyphicon object as mwe-glyphbox-marked */
+/** Mark glyphicon object as mweoccur-decide-button-marked */
 function markGlyphbox(glyphbox, glyphtext) {
     eachTwinGlyphbox(glyphbox, function(twinGlyphbox) {
-        g = twinGlyphbox.siblings(".mwe-glyphbox");  // a sibling glyphbox
-        g.addClass("mwe-glyphbox-marked");
+        g = twinGlyphbox.siblings(".mweoccur-decide-button");  // a sibling glyphbox
+        g.addClass("mweoccur-decide-button-marked");
         glyph = g.find(".glyphicon");
         glyph.addClass("glyphicon-check");
         glyph.removeClass("glyphicon-edit");
         g.find(".mwe-glyphtext").text(glyphtext);
     });
 }
-/** Mark glyphicon object as NOT mwe-glyphbox-marked */
+/** Mark glyphicon object as NOT mweoccur-decide-button-marked */
 function unmarkDecisionButton(glyphbox) {
     eachTwinGlyphbox(glyphbox, function(twinGlyphbox) {
-        g = twinGlyphbox.siblings(".mwe-glyphbox");  // a sibling glyphbox
-        g.removeClass("mwe-glyphbox-marked");
+        g = twinGlyphbox.siblings(".mweoccur-decide-button");  // a sibling glyphbox
+        g.removeClass("mweoccur-decide-button-marked");
         glyph = g.find(".glyphicon");
         glyph.addClass("glyphicon-edit");
         glyph.removeClass("glyphicon-check");
@@ -563,7 +558,7 @@ $(document).ready(function() {
         killDropdown();
     });
 
-    $(".mwe-glyphbox").click(function(e) {
+    $(".mweoccur-decide-button").click(function(e) {
         killDropdown();
         e.stopPropagation();
 
@@ -571,7 +566,7 @@ $(document).ready(function() {
         $(this).after($("#mwe-dropdown-template").html());
         let d = $(this).siblings(".dropdown");
         d.find(".dropdown-toggle").dropdown("toggle");
-        if ($(this).hasClass("mwe-glyphbox-marked")) {
+        if ($(this).hasClass("mweoccur-decide-button-marked")) {
             d.find(".show-only-if-deletable").show();
         }
 

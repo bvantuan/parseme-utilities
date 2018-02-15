@@ -1,3 +1,15 @@
+def html_header():
+    r'''Get HTML header including JS script URLs.'''
+    return '''
+        <html>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.5/lodash.min.js"></script>
+    '''
+
+
 def consistency_and_adjudication_shared_javascript():
     r'''Get shared javascript code for utility HTML pages
     (we do not use a separate javascript file because we want things to be as SIMPLE as possible).
@@ -72,7 +84,7 @@ def consistency_and_adjudication_shared_javascript():
               var havePending = window.havePendingParsemeNotes;
               var data = JSON.parse(reader.result);
               var decisions = data.DECISIONS;
-              if (data.META.filename_mapping != window.parsemeFilenameMapping) {
+              if (!_.isEqual(data.META.filename_mapping, window.parsemeFilenameMapping)) {
                   alert('WARNING:\\n\\nParsemeNotes file has this file mapping:\\n  ' + JSON.stringify(data.META.filename_mapping) + '\\nBut this HTML file was created with this mapping:\\n  ' + JSON.stringify(window.parsemeFilenameMapping) + '\\n\\nDo not proceed if these do not match!');
               }
               $(".mweoccur-decide-button").each(function() {
