@@ -442,7 +442,7 @@ HTML_FOOTER = """
       <li role="presentation"><a role="menuitem" tabindex="-1" href="javascript:setDecision('CUSTOM_ANNOTATION')">Custom annotation</a></li>
       <li role="presentation"><a role="menuitem" tabindex="-1" href="javascript:setDecision('SPECIAL_CASE')">Mark as special case</a></li>
       <li role="presentation" class="divider show-only-if-deletable"></li>
-      <li role="presentation" class="show-only-if-deletable"><a style="color:#FB2222" role="menuitem" tabindex="-1" href="javascript:resetDecision()">Reset current decision</a></li>
+      <li role="presentation" class="show-only-if-deletable"><a style="color:#FB2222" role="menuitem" tabindex="-1" href="javascript:resetDecision($('#active-decide-button'))">Reset current decision</a></li>
     </ul>
   </span>
 </div>

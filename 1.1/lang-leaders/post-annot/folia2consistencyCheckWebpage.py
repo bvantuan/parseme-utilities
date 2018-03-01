@@ -384,7 +384,7 @@ HTML_FOOTER = """
       """ + mwe_dropdown_items(dataalign.Categories.consistency_check_nonmwe_pairs()) + """
       <li role="presentation"><a role="menuitem" tabindex="-1" href="javascript:noteSpecialCase()">Mark as special case</a></li>
       <li role="presentation" class="divider show-only-if-deletable"></li>
-      <li role="presentation" class="show-only-if-deletable"><a style="color:#FB2222" role="menuitem" tabindex="-1" href="javascript:resetDecision()">Reset current decision</a></li>
+      <li role="presentation" class="show-only-if-deletable"><a style="color:#FB2222" role="menuitem" tabindex="-1" href="javascript:resetDecision($('#glyphbox-with-dropdown'))">Reset current decision</a></li>
     </ul>
   </span>
 </div>
