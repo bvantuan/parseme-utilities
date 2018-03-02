@@ -32,7 +32,7 @@ def consistency_and_adjudication_shared_javascript():
         }
 
         /** Remove note from window.parsemeData and update GUI */
-        function resetDecision(decisionButtonOr) {
+        function resetDecision(decisionButton) {
             window.havePendingParsemeNotes = true;
             var entryID = calculateEntryID(decisionButton);
             delete window.parsemeData[entryID];
