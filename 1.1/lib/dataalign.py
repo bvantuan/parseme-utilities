@@ -935,7 +935,12 @@ class ConllIterator(AbstractFileIterator):
 
 class ParsemeTSVIterator(AbstractFileIterator):
     def get_token_and_mwecodes(self, data):
-        if len(data) != 4:
+        if len(data) == 5:
+            warn_once(
+                "{}:{}".format(self.file_path, self.lineno),
+                "Silently ignoring 5th parsemetsv column")
+            data.pop()  # remove data[-1]
+        elif len(data) != 4:
             self.err("Line has {} columns, not 4".format(len(data)))
         rank, surface, nsp, mwe_codes = data
         m = mwe_codes.split(";") if mwe_codes else []
