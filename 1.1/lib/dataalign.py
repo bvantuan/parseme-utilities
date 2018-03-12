@@ -51,6 +51,11 @@ LANGS_WITH_CANONICAL_REFL_PRON_ON_LEFT = set("DE EU FR RO".split())
 LANGS_WITH_CANONICAL_VERB_ON_RIGHT = set("DE EU HI TR".split())
 
 
+############################################################
+
+# Flag indicating whether we want to use colors when writing to stderr
+COLOR_STDERR = (sys.stderr.isatty() and 'DISABLE_ANSI_COLOR' not in os.environ)
+
 
 ############################################################
 
@@ -85,7 +90,7 @@ class Dependency(collections.namedtuple('Dependency', 'label parent_rank')):
 Dependency.MISSING = Dependency('missing_dep', '0')
 
 
-class Token(collections.namedtuple('Token', 'rank surface nsp lemma univ_pos dependency')):
+class Token(collections.namedtuple('Token', 'rank surface nsp lemma univ_pos dependency conllup_map')):
     r"""Represents a token in an input file.
 
     Attributes:
@@ -95,12 +100,13 @@ class Token(collections.namedtuple('Token', 'rank surface nsp lemma univ_pos dep
     @lemma: Optional[str]
     @univ_pos: Optional[str]
     @dependency: Dependency
+    @conllup_map: dict[str, Optional[str]]
     """
     def lemma_or_surface(self):
         return self.lemma or self.surface
 
     def __lt__(self, other):
-        return self._lt_key() < other._lt_key()
+        return self.cmp_key() < other.cmp_key()
 
     def cmp_key(self):
         r'''Deterministic exception-free comparison method.'''
@@ -187,16 +193,17 @@ class Sentence:
         return MWEAnnot(tuple(self.tokens[i].rank for i in new_indexes), mweannot.category)
 
 
-    def id(self):
+    def id(self, *, short=False):
         r"""Return a sentence ID, such as "foo.xml(s.13):78"."""
-        ret = self.file_path
+        ret = self.file_path if not short else os.path.basename(self.file_path)
         ret += "(s.{})".format(self.nth_sent) if self.nth_sent else ""
         return ret + (":{}".format(self.lineno) if self.lineno else "")
 
     def msg_stderr(self, msg, header=True, die=False):
         r"""Print a warning message; e.g. "foo.xml:13: blablabla"."""
-        final_msg = "{}: {}".format(self.id(), msg)
-        if not header: final_msg = "\x1b[37m{}\x1b[m".format(final_msg)
+        final_msg = "{}: {}".format(self.id(short=True), msg)
+        if COLOR_STDERR:
+            final_msg = "\x1b[{}m{}\x1b[m".format((31 if header else 37), final_msg)
         print(final_msg, file=sys.stderr)
         if die: exit(1)
 
@@ -835,7 +842,7 @@ class FoliaIterator:
                 self.calc_mweannots(mwes, current_sentence)
 
                 for rank, word in enumerate(folia_sentence.words(), 1):
-                    token = Token(str(rank), word.text(), (not word.space), None, None, Dependency.MISSING)
+                    token = Token(str(rank), word.text(), (not word.space), None, None, Dependency.MISSING, {})
                     current_sentence.tokens.append(token)
 
                 current_sentence.mwe_id2folia = dict(enumerate(mwes, 1))
@@ -925,12 +932,15 @@ class AbstractFileIterator:
 
 
 class ConllIterator(AbstractFileIterator):
+    UD_KEYS = 'ID FORM LEMMA UPOS XPOS FEATS HEAD DEPREL DEPS MISC'.split()
+
     def get_token_and_mwecodes(self, data):
         if len(data) != 10:
             self.err("Line has {} columns, not 10".format(len(data)))
         rank, surface, lemma, upos = data[:4]
         dependency = Dependency(data[7], data[6]) if (data[7] and data[6]) else Dependency.MISSING
-        return Token(rank, surface or "_", False, lemma, upos, dependency), []
+        ud_map = dict(zip(self.UD_KEYS, data))
+        return Token(rank, surface or "_", False, lemma, upos, dependency, ud_map), []
 
 
 class ParsemeTSVIterator(AbstractFileIterator):
@@ -944,7 +954,7 @@ class ParsemeTSVIterator(AbstractFileIterator):
             self.err("Line has {} columns, not 4".format(len(data)))
         rank, surface, nsp, mwe_codes = data
         m = mwe_codes.split(";") if mwe_codes else []
-        return Token(rank, surface or "_", (nsp == "nsp"), None, None, Dependency.MISSING), m
+        return Token(rank, surface or "_", (nsp == "nsp"), None, None, Dependency.MISSING, {}), m
 
 
 class ParsemePlatinumIterator(AbstractFileIterator):
