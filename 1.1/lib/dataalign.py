@@ -592,12 +592,14 @@ def calculate_conllu_paths(file_paths, warn=True):
     return ret
 
 
-def iter_aligned_files(file_paths, conllu_paths=None, keep_nvmwes=False,
+def iter_aligned_files(file_paths, conllu_paths=None,
+        *, keep_nvmwes=False, default_mwe_category=None,
         keep_dup_mwes=False, keep_mwe_random_order=False, debug=False):
     r"""iter_aligned_files(list[str], list[str]) -> Iterable[Either[Sentence,Comment]]
     Yield Sentence's & Comment's based on file_paths and conllu_paths.
     """
-    for entity in AlignedIterator.from_paths(file_paths, conllu_paths, debug):
+    for entity in AlignedIterator.from_paths(
+            file_paths, conllu_paths, default_mwe_category, debug=debug):
         if isinstance(entity, Sentence):
             if not keep_nvmwes:
                 entity.remove_non_vmwes()
@@ -608,13 +610,13 @@ def iter_aligned_files(file_paths, conllu_paths=None, keep_nvmwes=False,
         yield entity
 
 
-def _iter_parseme_file(file_path):
+def _iter_parseme_file(file_path, default_mwe_category):
     if file_path.endswith('.xml'):
         return FoliaIterator(file_path)
     if "Platinum" in file_path:
-        return ParsemePlatinumIterator(file_path)
+        return ParsemePlatinumIterator(file_path, default_mwe_category)
     else:
-        return ParsemeTSVIterator(file_path)
+        return ParsemeTSVIterator(file_path, default_mwe_category)
 
 
 class AlignedIterator:
@@ -662,14 +664,14 @@ class AlignedIterator:
                     self.conllu[0] if self.conllu else None)
 
     @staticmethod
-    def from_paths(main_paths, conllu_paths, debug=False):
+    def from_paths(main_paths, conllu_paths, default_mwe_category, *, debug=False):
         r"""Return an AlignedIterator for the given paths.
         (Special case: if conllu_paths is None, return a simpler kind of iterator)."""
         chain_iter = itertools.chain.from_iterable
-        main_iterator = chain_iter(_iter_parseme_file(p) for p in main_paths)
+        main_iterator = chain_iter(_iter_parseme_file(p, default_mwe_category) for p in main_paths)
         if not conllu_paths:
             return main_iterator
-        conllu_iterator = chain_iter(ConllIterator(p) for p in conllu_paths)
+        conllu_iterator = chain_iter(ConllIterator(p, default_mwe_category) for p in conllu_paths)
         return AlignedIterator(main_iterator, conllu_iterator, debug)
 
 
@@ -861,8 +863,14 @@ class FoliaIterator:
 
 
 class AbstractFileIterator:
-    def __init__(self, file_path):
+    r'''Parameters:
+    @param file_path: path to file that we will iterate (str)
+    @param default_mwe_category: category to use when one is missing (str);
+                                 if not specified, raises an error instead
+    '''
+    def __init__(self, file_path, default_mwe_category):
         self.file_path = file_path
+        self.default_mwe_category = default_mwe_category
         self.nth_sent = 0
         self.lineno = 0
         self._new_sent()
@@ -877,6 +885,9 @@ class AbstractFileIterator:
         if not self.curr_sent:
             self.err("Unexpected empty line")
         s = self.curr_sent
+        if self.default_mwe_category:
+            for key in self.id2mwe_ranks:
+                self.id2mwe_categ.setdefault(key, self.default_mwe_category)
         try:
             s.mweannots = [MWEAnnot(tuple(self.id2mwe_ranks[id]),
                 self.id2mwe_categ[id]) for id in sorted(self.id2mwe_ranks)]

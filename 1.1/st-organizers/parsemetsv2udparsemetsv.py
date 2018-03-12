@@ -41,7 +41,8 @@ class Main:
 
         written_sentid, written_text = False, False
         for elem in dataalign.iter_aligned_files(
-                self.args.input, self.conllu_paths, keep_nvmwes=True):
+                self.args.input, self.conllu_paths,
+                default_mwe_category='TODO', keep_nvmwes=True):
 
             if isinstance(elem, dataalign.Comment):
                 text = elem.text
