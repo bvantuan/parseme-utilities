@@ -105,6 +105,9 @@ class Token(collections.namedtuple('Token', 'rank surface nsp lemma univ_pos dep
     def lemma_or_surface(self):
         return self.lemma or self.surface
 
+    def __hash__(self):
+        return hash((self.rank, self.surface, self.nsp, self.lemma, self.univ_pos, self.dependency, frozenset(self.conllup_map.items())))
+
     def __lt__(self, other):
         return self.cmp_key() < other.cmp_key()
 
@@ -599,7 +602,7 @@ def iter_aligned_files(file_paths, conllu_paths=None,
     Yield Sentence's & Comment's based on file_paths and conllu_paths.
     """
     for entity in AlignedIterator.from_paths(
-            file_paths, conllu_paths, default_mwe_category, debug=debug):
+            file_paths, conllu_paths, default_mwe_category=default_mwe_category, debug=debug):
         if isinstance(entity, Sentence):
             if not keep_nvmwes:
                 entity.remove_non_vmwes()
@@ -664,7 +667,7 @@ class AlignedIterator:
                     self.conllu[0] if self.conllu else None)
 
     @staticmethod
-    def from_paths(main_paths, conllu_paths, default_mwe_category, *, debug=False):
+    def from_paths(main_paths, conllu_paths, *, default_mwe_category=None, debug=False):
         r"""Return an AlignedIterator for the given paths.
         (Special case: if conllu_paths is None, return a simpler kind of iterator)."""
         chain_iter = itertools.chain.from_iterable
