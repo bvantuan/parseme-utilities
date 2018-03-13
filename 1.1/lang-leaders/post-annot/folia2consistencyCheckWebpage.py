@@ -323,7 +323,7 @@ p { margin-bottom: 5px; }  /* used inside mwe-occur-comment */
       <li>Click on an MWE to expand its box (or <a href="javascript:toggleExpandAll();">expand all</a>) and see all the sentences where it was annotated.</li>
       <li>Mouse over a tag (to the left of a sentence), to see where this sentence comes from.</li>
       <li>Click on the <span class="example-glyphbox"><span style="margin-left:2px; margin-right:2px;" class="glyphicon glyphicon-edit"></span></span> icon to the right of a sentence.</li>
-      <li>Mark this MWE occurrence for re-annotation (e.g. by clicking on "Annotate as LVC").</li>
+      <li>Mark this MWE occurrence for re-annotation (e.g. by clicking on "Annotate as LVC.full").</li>
       <ul>
           <li>If you want to add/remove tokens from the MWE, use "custom annotation".</li>
           <li>You can also mark something for non-annotation, or as a "special case".</li>
@@ -331,7 +331,7 @@ p { margin-bottom: 5px; }  /* used inside mwe-occur-comment */
       <li>Generate a list of MWEs marked for re-annotation by clicking on "Generate JSON" on the right.</li>
       <ul>
           <li>The MWEs are stored <strong>locally</strong> on your browser (not on a server). To avoid problems, generate the JSON file often.</li>
-          <li>This JSON file can then be <a data-toggle="tooltip" class="tooltip-on-text" title="See the script bin/jsonNotes2humanNotes_webpage.py, which can also be used to automatically re-annotate some of the MWEs.">converted to a webpage <span class="info-hint glyphicon glyphicon-info-sign"></span></a> that describes what needs to be annotated in each file.</li>
+          <li>This JSON file can then be <a data-toggle="tooltip" class="tooltip-on-text" title="See the script lang-leaders/post-annot/jsonNotes2humanNotes_webpage.py, which can also be used to automatically re-annotate some of the MWEs.">converted to a webpage <span class="info-hint glyphicon glyphicon-info-sign"></span></a> that describes what needs to be annotated in each file.</li>
       </ul>
       </ol>
   </div>

@@ -403,7 +403,7 @@ p { margin-bottom: 5px; }  /* used inside mwe-occur-comment */
       <li>Generate a list of MWEs marked for re-annotation by clicking on "Generate JSON" on the right.</li>
       <ul>
           <li>The MWEs are stored <strong>locally</strong> on your browser (not on a server). To avoid problems, generate the JSON file often.</li>
-          <li>This JSON file can then be converted to a webpage that describes what needs to be modified in annotator A1's file to generate the adjudicated version. The <a data-toggle="tooltip" class="tooltip-on-text" title="lang-leaders/post-annot/jsonNotes2humanNotes_webpage.py">conversion script <span class="info-hint glyphicon glyphicon-info-sign"></span></a> can also automatically re-annotate most of the MWEs for you.</li>
+          <li>This JSON file can then be converted to a webpage that describes what needs to be modified in annotator A1's file to generate the adjudicated version. The <a data-toggle="tooltip" class="tooltip-on-text" title="lang-leaders/post-annot/jsonNotes2ReannotationWebpage.py">conversion script <span class="info-hint glyphicon glyphicon-info-sign"></span></a> can also automatically re-annotate most of the MWEs for you.</li>
       </ul>
       </ol>
   </div>
