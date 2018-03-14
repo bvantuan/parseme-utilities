@@ -58,8 +58,8 @@ class Main:
     def find_literals(self, sentences):
         r"""Find MWE occurrences."""
         # Create all finders right away, to find cases of misspelled finding_method's
-        finders = [dataalign.skipped_finder(m, self.args.lang, self.mwes,
-                   favor_precision=True) for m in self.args.literal_finding_method]
+        finders = [dataalign.skipped_finder(m, self.args.lang, self.mwes, favor_precision=True)
+                   for m in self.args.literal_finding_method]
 
         sentences = list(sentences)  # allow multiple iterations
         for finder, find_method in zip(finders, self.args.literal_finding_method):

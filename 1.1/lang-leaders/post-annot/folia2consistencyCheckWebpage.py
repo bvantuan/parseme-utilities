@@ -12,6 +12,8 @@ import dataalign
 import _shared_code
 
 
+DEFAULT_METH = 'WindowGap5'
+
 parser = argparse.ArgumentParser(description="""
         Read input files and generate a webpage describing the MWEs.
         This webpage can be used to homogenize annotations.
@@ -23,12 +25,13 @@ parser.add_argument("--lang", choices=sorted(dataalign.LANGS), metavar="LANG", r
         help="""ID of the target language (e.g. EN, FR, PL, DE...)""")
 parser.add_argument("--find-skipped", action="store_true",
         help="""Also find possibly missed MWEs, using the `Skipped` label""")
+parser.add_argument("--skipped-finding-method", type=str, metavar='METH', required=False, nargs='+',
+        help="""Method of finding missing MWEs (when using --find-skipped).
+                One of {} (default: {}).""".format(dataalign.SKIPPED_FINDER_PATTERNS, DEFAULT_METH))
 parser.add_argument("--input", type=str, nargs="+", required=True,
         help="""Path to input files (preferably in FoLiA XML format, but PARSEME TSV works too)""")
 parser.add_argument("--conllu", type=str, nargs="+",
         help="""Path to parallel input CoNLL files""")
-
-MAX_GAPS = 5
 
 
 class Main:
@@ -37,6 +40,9 @@ class Main:
         self.mwe_mixed = []  # type: list[MWELexicalItem]
         self.mwe_nvmwe = []  # type: list[MWELexicalItem]
         self.fname2id = {fname: i+1 for (i, fname) in enumerate(self.args.input)}
+        if not self.args.find_skipped and self.args.skipped_finding_method:
+            exit("ERROR: Option --skipped-finding-method requires --find-skipped")
+        self.args.skipped_finding_method = self.args.skipped_finding_method or [DEFAULT_METH]
 
     def run(self):
         self.mwe_mixed, self.mwe_nvmwe = dataalign.read_mwelexitems(
@@ -52,11 +58,11 @@ class Main:
         print('<script>window.parsemeFilenameMapping = {}</script>'.format(
             json.dumps({i:f for (f,i) in self.fname2id.items()})))
         skip_sents = self.iter_sentences(False) if self.args.find_skipped else ()
-        vic = VerbInfoCalculator(self.args.lang, self.mwe_mixed, skip_sents)
+        vic = VerbInfoCalculator(self.args, self.mwe_mixed, skip_sents)
         self.print_html_mwes(vic)
 
         print(HTML_HEADER_3)
-        vic = VerbInfoCalculator(self.args.lang, self.mwe_nvmwe, ())
+        vic = VerbInfoCalculator(self.args, self.mwe_nvmwe, ())
         self.print_html_mwes(vic)
         print(HTML_FOOTER)
 
@@ -165,8 +171,8 @@ class VerbInfoCalculator:
     @type mwes: list[MWELexicalItem]
     @type sentences_to_discover_skipped: Iterable[dataalign.Sentence]
     """
-    def __init__(self, lang, mwes, sentences_to_discover_skipped):
-        self.lang, self.mwes = lang, mwes
+    def __init__(self, args, mwes, sentences_to_discover_skipped):
+        self.args, self.mwes = args, mwes
         self._find_skipped(sentences_to_discover_skipped)
 
         self.verb2info = collections.defaultdict(VerbInfo)  # type: dict[str, VerbInfo]
@@ -208,10 +214,15 @@ class VerbInfoCalculator:
 
     def _find_skipped(self, sentences):
         r"""For every sentence, add Skipped MWEOccur entries to MWELexicalItems in self.mwes."""
-        finder = dataalign.WindowBasedSkippedFinder(
-            self.lang, self.mwes, favor_precision=False, max_gaps=MAX_GAPS)
-        for mwe, mweoccur in finder.find_skipped_in(sentences):
-            mwe.add_skipped_mweoccur(mweoccur)
+        # Create all finders right away, to find cases of misspelled finding_method's
+        finders = [dataalign.skipped_finder(m, self.args.lang, self.mwes, favor_precision=False)
+                   for m in self.args.skipped_finding_method]
+
+        sentences = list(sentences)  # allow multiple iterations
+        for finder in finders:
+            for mwe, mweoccur in finder.find_skipped_in(sentences):
+                # Add 'Skipped', but only if a MWE was not seen at this position
+                mwe.add_skipped_mweoccur(mweoccur)
 
 
 
