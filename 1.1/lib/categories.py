@@ -37,6 +37,7 @@ class Categories:
         'IReflV': 'IRV',
         'LVC': 'LVC.full',
         'VPC': 'VPC.full',
+        'NonVMWE': 'NotMWE',
     }
 
     assert NON_MWES.issubset(KNOWN)
