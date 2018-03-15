@@ -69,6 +69,7 @@ class MWEAnnot(collections.namedtuple('MWEAnnot', 'ranks category')):
     @type category: str
     """
     def __new__(cls, ranks, category):
+        assert ranks
         new_ranks = list(set(ranks))
         new_ranks.sort(key=lambda r: tuple(int(i) for i in r.split("-")))
         return super().__new__(cls, tuple(new_ranks), category)
@@ -303,6 +304,14 @@ class MWEOccur:
     def __repr__(self):
         return "MWEOccur<{}>".format(" ".join(self.reordered.mwe_canonical_form))
 
+    def suspiciously_similar(self, other: 'MWEOccur'):
+        r'''Return True iff self and other are likely to be the same MWE
+        (used e.g. to avoid predicting spurious Skipped occurrences).
+        '''
+        return self.sentence.file_path == other.sentence.file_path \
+            and self.sentence.nth_sent == other.sentence.nth_sent \
+            and (set(self.indexes) & set(other.indexes))
+
 
 class MWEOccurView:
     r'''Represents a view of the tokens inside an MWEOccur.
@@ -496,7 +505,7 @@ class MWELexicalItem:
         r'''Add MWEOccur to this MWE descriptor. If this MWEOccur already exists, does nothing.'''
         assert mweoccur.category == 'Skipped'  # we do not need to update i_head/i_subhead for Skipped
         mweoccur_id = mweoccur.id()
-        if not mweoccur_id in self._seen_mweoccur_ids:
+        if not any(mweoccur.suspiciously_similar(m) for m in self.mweoccurs):
             self._seen_mweoccur_ids.add(mweoccur_id)
             self.mweoccurs.append(mweoccur)
 
@@ -840,18 +849,17 @@ class FoliaIterator:
 
     def __iter__(self):
         doc = folia.Document(file=self.file_path)
-        for text in doc:
-            for nth,folia_sentence in enumerate(text, 1):
-                current_sentence = Sentence(self.file_path, nth, None)
-                mwes = list(folia_sentence.select(folia.Entity))
-                self.calc_mweannots(mwes, current_sentence)
+        for nth, folia_sentence in enumerate(doc.select(folia.Sentence), 1):
+            current_sentence = Sentence(self.file_path, nth, None)
+            mwes = list(folia_sentence.select(folia.Entity))
+            self.calc_mweannots(mwes, current_sentence)
 
-                for rank, word in enumerate(folia_sentence.words(), 1):
-                    token = Token(str(rank), word.text(), (not word.space), None, None, Dependency.MISSING, {})
-                    current_sentence.tokens.append(token)
+            for rank, word in enumerate(folia_sentence.words(), 1):
+                token = Token(str(rank), word.text(), (not word.space), None, None, Dependency.MISSING, {})
+                current_sentence.tokens.append(token)
 
-                current_sentence.mwe_id2folia = dict(enumerate(mwes, 1))
-                yield current_sentence
+            current_sentence.mwe_id2folia = dict(enumerate(mwes, 1))
+            yield current_sentence
 
 
     def calc_mweannots(self, mwes, output_sentence):
@@ -1152,7 +1160,9 @@ class WindowBasedSkippedFinder(AbstractSkippedFinder):
         matched_indexes = []
 
         def matched(wordform, i):
-            unmatched_words.pop(wordform)
+            unmatched_words[wordform] -= 1
+            if unmatched_words[wordform] == 0:
+                unmatched_words.pop(wordform)  # so verbose...
             matched_indexes.append(i)
 
         gaps = 0
