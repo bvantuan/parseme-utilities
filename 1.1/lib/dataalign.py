@@ -125,7 +125,7 @@ class Sentence:
         self.lineno = lineno
         self.tokens = []
         self.mweannots = []  # list[MWEAnnot]
-        self.mwe_id2folia = {}  # extra info per MWE from FoLiA file
+        self.mweannots_folia = []  # list[folia.Entity]
 
     def __str__(self):
         r"""Return a string representation of the tokens"""
@@ -138,10 +138,10 @@ class Sentence:
     def mwe_occurs(self, lang):
         r"""Yield MWEOccur instances for all MWEs in self."""
         rank2index = self.rank2index()
-        for mwe_id, mweannot in enumerate(self.mweannots, 1):
+        for mwe_index, mweannot in enumerate(self.mweannots):
             annotator, confidence, datetime, comments = None, None, None, []
-            if mwe_id in self.mwe_id2folia:
-                F = self.mwe_id2folia[mwe_id]
+            if self.mweannots_folia:
+                F = self.mweannots_folia[mwe_index]
                 annotator, confidence, datetime = F.annotator, F.confidence, F.datetime
                 comments = [c.value for c in F.select(folia.Comment)]
 
@@ -205,11 +205,7 @@ class Sentence:
 
     def msg_stderr(self, msg, header=True, die=False):
         r"""Print a warning message; e.g. "foo.xml:13: blablabla"."""
-        final_msg = "{}: {}".format(self.id(short=True), msg)
-        if COLOR_STDERR:
-            final_msg = "\x1b[{}m{}\x1b[m".format((31 if header else 37), final_msg)
-        print(final_msg, file=sys.stderr)
-        if die: exit(1)
+        msg_stderr(self.id(short=True), msg, die=die)
 
 
     def check_token_data(self):
@@ -849,27 +845,37 @@ class FoliaIterator:
 
     def __iter__(self):
         doc = folia.Document(file=self.file_path)
+        for folia_nonembedded_entitieslayer in doc.select(folia.EntitiesLayer, recursive=False):
+            for folia_nonembedded_entity in folia_nonembedded_entitieslayer.select(folia.Entity):
+                msg_stderr(os.path.basename(self.file_path),
+                           'Ignoring MWE outside the scope of a single sentence: {!r}' \
+                           .format(folia_nonembedded_entity.id))
+
         for nth, folia_sentence in enumerate(doc.select(folia.Sentence), 1):
             current_sentence = Sentence(self.file_path, nth, None)
             mwes = list(folia_sentence.select(folia.Entity))
-            self.calc_mweannots(mwes, current_sentence)
+            self.calc_mweannots(mwes, folia_sentence, current_sentence)
 
             for rank, word in enumerate(folia_sentence.words(), 1):
                 token = Token(str(rank), word.text(), (not word.space), None, None, Dependency.MISSING, {})
                 current_sentence.tokens.append(token)
 
-            current_sentence.mwe_id2folia = dict(enumerate(mwes, 1))
             yield current_sentence
 
 
-    def calc_mweannots(self, mwes, output_sentence):
+    def calc_mweannots(self, mwes, folia_sentence, output_sentence):
+        sent_word_ids = [w.id for w in folia_sentence.select(folia.Word)]
         for mwe in mwes:
-            ranks = [w.id.rsplit(".",1)[-1] for w in mwe.wrefs()]
-            if not ranks:  # ignore empty Entities produced by FLAT
-                output_sentence.msg_stderr('Ignoring empty MWE')
+            mwe_word_ids = [w.id for w in mwe.wrefs()]
+            if not mwe_word_ids:  # ignore empty Entities produced by FLAT
+                output_sentence.msg_stderr('Ignoring empty MWE: {!r}'.format(mwe.id))
+            elif any(w.id not in sent_word_ids for w in mwe.wrefs()):
+                output_sentence.msg_stderr('Ignoring misplaced MWE: {!r}'.format(mwe.id))
             else:
+                ranks = [w.id.rsplit(".",1)[-1] for w in mwe.wrefs()]
                 categ = output_sentence.check_and_convert_categ(mwe.cls)
                 output_sentence.mweannots.append(MWEAnnot(ranks, categ))
+                output_sentence.mweannots_folia.append(folia_sentence)
 
 
 
@@ -1008,11 +1014,20 @@ _warned = set()
 
 def warn_once(first_seen_here, msg):
     if msg not in _warned:
-        warntype = 'WARNING'
         _warned.add(msg)
+        warntype = 'WARNING'
         print(warntype, ': ', msg, sep='', file=sys.stderr)
         print('.'*len(warntype), ': First seen here: ', first_seen_here, sep='', file=sys.stderr)
         print('.'*len(warntype), ': (Ignoring further warnings of this type)', sep='', file=sys.stderr)
+
+
+def msg_stderr(prefix, msg, header=True, die=False):
+    r"""Print a warning message "prefix: msg"; e.g. "foo.xml:13: blablabla"."""
+    final_msg = "{}: {}".format(prefix, msg)
+    if COLOR_STDERR:
+        final_msg = "\x1b[{}m{}\x1b[m".format((31 if header else 37), final_msg)
+    print(final_msg, file=sys.stderr)
+    if die: exit(1)
 
 
 
