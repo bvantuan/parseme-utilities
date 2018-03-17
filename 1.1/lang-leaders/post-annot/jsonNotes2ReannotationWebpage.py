@@ -53,6 +53,7 @@ class Main(object):
             raise Exception("Option --xml-input required if --generate-xml is specified")
 
         self.fname2foliadoc = {}
+        self.basefname2fname = {}
         if self.args.xml_input:
             from pynlpl.formats import folia
             self.fname2foliadoc = {fname: folia.Document(file=fname) for fname in self.args.xml_input}
