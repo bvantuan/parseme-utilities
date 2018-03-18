@@ -6,4 +6,5 @@ test:
   - apt-get update -qy
   - apt-get install -y python-pip
   - pip install pynlpl
+  - export TERM=xterm
   - ./test/test.sh
