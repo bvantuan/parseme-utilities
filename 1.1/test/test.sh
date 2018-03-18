@@ -56,6 +56,9 @@ for annot_file in "${annot_files[@]}"; do
     run_devnull rm -rf _deleteme1
 done
 
+
+echo '%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%'
+
 #===> (scripts that do not accept parsemetsv input...)
 for json_file in data/ParsemeNotesCC.json data/ParsemeNotesAdj.json; do
     run_devnull ../lang-leaders/post-annot/jsonNotes2ReannotationWebpage.py --json-input "$json_file"
