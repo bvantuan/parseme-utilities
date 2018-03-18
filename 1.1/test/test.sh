@@ -7,6 +7,8 @@ set -o errexit    # Exit on error, do not continue quietly
 exec </dev/null   # Don't hang if a script tries to read from stdin
 export IFS=$'\n'  # Do not split variables on " " automatically (only on "\n")
 
+export LC_ALL=C.UTF-8   # Use a decent locale (and hope it's supported...)
+
 cd "$HERE"
 
 ###########################################################
