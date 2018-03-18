@@ -89,7 +89,7 @@ class Main:
 
     def iter_calc_text(self, sent: dataalign.Sentence):
         for token in sent.tokens:
-            nospace = token.nsp or ('SpaceAfter=No' in token.conllup_map.get('MISC',''))
+            nospace = token.nsp or ('SpaceAfter=No' in (token.conllup_map.get('MISC') or ''))
             yield token.surface + ('' if nospace else ' ')
 
     def check_artificial_flag(self, sent: dataalign.Sentence, metadata_key: str):

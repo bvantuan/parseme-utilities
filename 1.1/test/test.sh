@@ -44,6 +44,20 @@ for annot_file in "${annot_files[@]}"; do
     run_devnull ../lang-leaders/post-annot/folia2consistencyCheckWebpage.py --lang PT --input "$annot_file"
     run_devnull ../lang-leaders/post-annot/folia2consistencyCheckWebpage.py --lang PT --input "$annot_file" --find-skipped
     run_devnull ../lang-leaders/post-annot/folia2annotatorAdjudicationWebsite.py --lang PT --annotation-1 "$annot_file" --annotation-2 "$annot_file2"
+
+    #===> st-organization scripts
+    run_devnull ../st-organizers/folia2parsemetsv.py --lang PT --input "$annot_file"
+    run_devnull ../st-organizers/folia2parsemetsv.py --lang PT --input "$annot_file" --keep-non-vmwes
+    run_devnull ../st-organizers/parsemetsv2cupt.py --input "$annot_file" --artificial
+    run_devnull ../st-organizers/parsemetsv2cupt.py --input "$annot_file" --artificial --underspecified-mwes
+
+    #===> corpus-stats scripts
+    run_devnull ../st-organizers/corpus-statistics/folia2idiomaticityStats.py --lang PT --input "$annot_file" --literal-finding-method WindowGap0  --out-mweoccurs _deleteme1
+    run_devnull rm -rf _deleteme1
+
+    #===> release-preparation scripts
+    run_devnull ../st-organizers/release-preparation/splitTrainTest.py --lang PT --input "$annot_file"
+    run_devnull rm -rf OUT
 done
 
 #===> (scripts that do not accept parsemetsv input...)
