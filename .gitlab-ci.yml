@@ -1,0 +1,5 @@
+test:
+  stage: test
+  script:
+  - pip install pynlpl
+  - for testScript in */test/test.sh; do $testScript; done
