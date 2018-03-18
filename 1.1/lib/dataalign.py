@@ -91,30 +91,71 @@ class Dependency(collections.namedtuple('Dependency', 'label parent_rank')):
 Dependency.MISSING = Dependency('missing_dep', '0')
 
 
-class Token(collections.namedtuple('Token', 'rank surface nsp lemma univ_pos dependency conllup_map')):
+class Token(collections.Mapping):
     r"""Represents a token in an input file.
 
-    Attributes:
-    @rank: str
-    @surface: str
-    @nsp: bool
-    @lemma: Optional[str]
-    @univ_pos: Optional[str]
-    @dependency: Dependency
-    @conllup_map: dict[str, Optional[str]]
+    Instances behave like a frozen dict, so you can do
+    e.g. token["LEMMA"] to obtain the lemma.
     """
+    def __init__(self, *args, **kwargs):
+        data = dict(*args, **kwargs)
+        self._data = {str(k): str(v) for (k, v) in data.items() if v}
+
+    def with_update(self, *args, **kwargs):
+        r'''Return a copy Token with updated key-value pairs.'''
+        ret = Token(self._data)
+        ret._data.update(*args, **kwargs)
+        return ret
+
+    def with_nospace(self, no_space: bool):
+        r'''Return a copy Token with updated MISC (only if no_space is True).'''
+        if no_space and 'SpaceAfter=No' not in self.get('MISC', ''):
+            new_misc = 'SpaceAfter=No'
+            if self.get('MISC'):
+                new_misc = "{}|{}".format(self['MISC'], new_misc)
+            return self.with_update(MISC=new_misc)
+        return self
+
     def lemma_or_surface(self):
-        return self.lemma or self.surface
+        r'''Return the lemma, if known, or the surface form otherwise'''
+        return self.get('LEMMA', self['FORM'])
 
+    def __iter__(self):
+        return iter(self._data)
+    def __len__(self):
+        return len(self._data)
+    def __getitem__(self, key):
+        return self._data[key]
     def __hash__(self):
-        return hash((self.rank, self.surface, self.nsp, self.lemma, self.univ_pos, self.dependency, frozenset(self.conllup_map.items())))
-
-    def __lt__(self, other):
-        return self.cmp_key() < other.cmp_key()
+        return hash(frozenset(self.items()))
+    def __repr__(self):
+        return 'Token({})'.format(self._data)
 
     def cmp_key(self):
         r'''Deterministic exception-free comparison method.'''
-        return (self.rank, self.surface, self.nsp, self.lemma or '', self.univ_pos or '', self.dependency)
+        return (self.rank, self.surface, self.nsp, self.get('LEMMA', ''), self.univ_pos, self.dependency)
+
+    @property
+    def rank(self):
+        return self['ID']
+    @property
+    def surface(self):
+        return self['FORM']
+    @property
+    def nsp(self):
+        return ('SpaceAfter=No' in self.get('MISC', ''))
+    @property
+    def lemma(self):
+        return self['LEMMA']
+    @property
+    def univ_pos(self):
+        return self.get('UPOS')
+
+    @property
+    def dependency(self):
+        if 'DEPREL' in self and 'HEAD' in self:
+            return Dependency(self['DEPREL'], self['HEAD'])
+        return Dependency.MISSING
 
 
 class Sentence:
@@ -187,7 +228,7 @@ class Sentence:
         r"""Replace `self.tokens` with given tokens and fix `self.mweannot` based on `indexmap`"""
         rank2index = self.rank2index()
         self_nsps = set(i for (i, t) in enumerate(self.tokens) if t.nsp)
-        self.tokens = [t._replace(nsp=t.nsp or (i in self_nsps)) for (i, t) in enumerate(new_tokens)]
+        self.tokens = [t.with_nospace(i in self_nsps) for (i, t) in enumerate(new_tokens)]
         self.mweannots = [self._remap(m, rank2index, indexmap) for m in self.mweannots]
 
     def _remap(self, mweannot, rank2index, indexmap):
@@ -213,11 +254,10 @@ class Sentence:
         (e.g. if a token contains spaces inside the surface form).
         """
         for token in self.tokens:
-            nonspace_forms = ['rank', 'surface', 'nsp', 'lemma', 'univ_pos']
-            for nonspace_form in nonspace_forms:
-                if " " in (str(getattr(token, nonspace_form)) or ""):
-                    self.msg_stderr("Token #{} contains spaces in `{}` form"
-                                    .format(token.rank, nonspace_form))
+            for fieldname in ['FORM', 'LEMMA']:
+                if " " in token.get("FIELDNAME", ""):
+                    self.msg_stderr("Token #{} contains spaces in field `{}`"
+                                    .format(token.rank, fieldname))
 
 
     def iter_root_to_leaf_all_tokens(self):
@@ -393,9 +433,9 @@ class MWEOccurView:
         if token.univ_pos == "PRON" and Categories.is_inherently_reflexive_verb(self.mwe_occur.category):
             # Normalize reflexive pronouns, e.g. FR "me" or "te" => "se"
             if self.mwe_occur.lang in ["PT", "ES", "FR"]:
-                token = token._replace(lemma="se")
+                token = token.with_update(LEMMA="se")
             if self.mwe_occur.lang == "IT":
-                token = token._replace(lemma="si")
+                token = token.with_update(LEMMA="si")
         return token
 
 
@@ -447,13 +487,12 @@ def rerooted(tokens):
     oldrank2new = {'0': '0'}
     for t in tokens:
         oldrank2new[t.rank] = str(len(ret)+1)
-        t = t._replace(rank=oldrank2new[t.rank])
+        t = t.with_update(ID=oldrank2new[t.rank])
 
         if t.dependency.parent_rank in oldrank2new:
-            t = t._replace(dependency=Dependency(
-                t.dependency.label, oldrank2new[t.dependency.parent_rank]))
+            t = t.with_update(DEPREL=t.dependency.label, HEAD=oldrank2new[t.dependency.parent_rank])
         else:
-            t = t._replace(dependency=Dependency('root', '0'))
+            t = t.with_update(DEPREL='root', HEAD='0')
         ret.append(t)
     return ret
 
@@ -857,8 +896,13 @@ class FoliaIterator:
             self.calc_mweannots(mwes, folia_sentence, current_sentence)
 
             for rank, word in enumerate(folia_sentence.words(), 1):
-                token = Token(str(rank), word.text(), (not word.space), None, None, Dependency.MISSING, {})
-                current_sentence.tokens.append(token)
+                # ID FORM LEMMA UPOS XPOS FEATS HEAD DEPREL DEPS MISC
+                conllu = {
+                    'ID': str(rank),
+                    'FORM': word.text(),
+                    'MISC': ('' if word.space else 'SpaceAfter=No'),
+                }
+                current_sentence.tokens.append(Token(conllu))
 
             yield current_sentence
 
@@ -965,10 +1009,7 @@ class ConllIterator(AbstractFileIterator):
     def get_token_and_mwecodes(self, data):
         if len(data) != 10:
             self.err("Line has {} columns, not 10".format(len(data)))
-        rank, surface, lemma, upos = data[:4]
-        dependency = Dependency(data[7], data[6]) if (data[7] and data[6]) else Dependency.MISSING
-        ud_map = dict(zip(self.UD_KEYS, data))
-        return Token(rank, surface or "_", False, lemma, upos, dependency, ud_map), []
+        return Token(zip(self.UD_KEYS, data)), []
 
 
 class ParsemeTSVIterator(AbstractFileIterator):
@@ -980,9 +1021,15 @@ class ParsemeTSVIterator(AbstractFileIterator):
             data.pop()  # remove data[-1]
         elif len(data) != 4:
             self.err("Line has {} columns, not 4".format(len(data)))
-        rank, surface, nsp, mwe_codes = data
+        # ID FORM LEMMA UPOS XPOS FEATS HEAD DEPREL DEPS MISC
+        conllu = {
+            'ID': data[0],
+            'FORM': data[1],
+            'MISC': ('' if data[2] else 'SpaceAfter=No'),
+        }
+        mwe_codes = data[3]
         m = mwe_codes.split(";") if mwe_codes else []
-        return Token(rank, surface or "_", (nsp == "nsp"), None, None, Dependency.MISSING, {}), m
+        return Token(conllu), m
 
 
 class ParsemePlatinumIterator(AbstractFileIterator):

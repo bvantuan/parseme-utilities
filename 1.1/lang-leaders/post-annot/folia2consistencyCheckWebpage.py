@@ -143,7 +143,7 @@ class Main:
         yield '<span class="mwe-occur-sentence">'
         for i, t in enumerate(occur.sentence.tokens):
             if i in indexes:
-                posinfo = '' if (not t.univ_pos) else ' title="CoNLL-U: {}/{}"'.format(t.lemma, t.univ_pos)
+                posinfo = '' if (not t.univ_pos) else ' title="{}/{}"'.format(t.get('LEMMA', '??'), t.univ_pos)
                 yield '<span class="mwe-elem" data-toggle="tooltip"{}>{}</span>'.format(posinfo, ESC(t.surface))
             else:
                 yield t.surface

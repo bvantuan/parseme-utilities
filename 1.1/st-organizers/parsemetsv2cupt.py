@@ -60,17 +60,7 @@ class Main:
                     self.write_artificial_text(elem)
 
                 for token, mwecodes in elem.tokens_and_mwecodes():
-                    token.conllup_map['ID'] = token.conllup_map.get('ID', token.rank)
-                    token.conllup_map['FORM'] = token.conllup_map.get('FORM', token.surface)
-                    token.conllup_map['LEMMA'] = token.conllup_map.get('LEMMA', token.lemma)
-
-                    misc = token.conllup_map.get('MISC', None) or ''
-                    if token.nsp and 'SpaceAfter' not in misc:
-                        misc = (misc.split('|') if misc else [])
-                        misc.append('SpaceAfter=No')
-                        token.conllup_map['MISC'] = '|'.join(misc)
-
-                    columns = [token.conllup_map.get(c, None) for c in UD_COLS]
+                    columns = [token.get(c, None) for c in UD_COLS]
                     columns.append(';'.join(mwecodes) if mwecodes else missing_mwe_annot)
                     columns = [c or "_" for c in columns]
                     print('\t'.join(columns))
@@ -89,8 +79,7 @@ class Main:
 
     def iter_calc_text(self, sent: dataalign.Sentence):
         for token in sent.tokens:
-            nospace = token.nsp or ('SpaceAfter=No' in (token.conllup_map.get('MISC') or ''))
-            yield token.surface + ('' if nospace else ' ')
+            yield token.surface + ('' if token.nsp else ' ')
 
     def check_artificial_flag(self, sent: dataalign.Sentence, metadata_key: str):
         if not self.args.artificial:
