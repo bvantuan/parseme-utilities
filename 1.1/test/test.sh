@@ -54,10 +54,6 @@ for annot_file in "${annot_files[@]}"; do
     #===> corpus-stats scripts
     run_devnull ../st-organizers/corpus-statistics/folia2idiomaticityStats.py --lang PT --input "$annot_file" --literal-finding-method WindowGap0  --out-mweoccurs _deleteme1
     run_devnull rm -rf _deleteme1
-
-    #===> release-preparation scripts
-    run_devnull ../st-organizers/release-preparation/splitTrainTest.py --lang PT --input "$annot_file"
-    run_devnull rm -rf OUT
 done
 
 #===> (scripts that do not accept parsemetsv input...)
@@ -68,6 +64,10 @@ for json_file in data/ParsemeNotesCC.json data/ParsemeNotesAdj.json; do
     run_devnull ../lang-leaders/post-annot/jsonNotes2ReannotationWebpage.py --json-input "$json_file" --xml-input data/pt.folia.xml --generate-xml
     run_devnull rm -r ./AfterAutoUpdate
 done
+
+#===> release-preparation scripts (for some reason, does not accept folia xml format... This should be fixed)
+run_devnull ../st-organizers/release-preparation/splitTrainTest.py --lang PT --input data/pt.parsemetsv --test-mwesize 15
+run_devnull rm -rf OUT
 
 
 #===> check all skipped methods
