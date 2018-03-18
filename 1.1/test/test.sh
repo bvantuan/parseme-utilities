@@ -44,8 +44,17 @@ for annot_file in "${annot_files[@]}"; do
     run_devnull ../lang-leaders/post-annot/folia2annotatorAdjudicationWebsite.py --lang PT --annotation-1 "$annot_file" --annotation-2 "$annot_file2"
 done
 
+#===> (scripts that do not accept parsemetsv input...)
+for json_file in data/ParsemeNotesCC.json data/ParsemeNotesAdj.json; do
+    run_devnull ../lang-leaders/post-annot/jsonNotes2ReannotationWebpage.py --json-input "$json_file"
+    run_devnull ../lang-leaders/post-annot/jsonNotes2ReannotationWebpage.py --json-input "$json_file" --xml-input data/pt.folia.xml
+    run_devnull ../lang-leaders/post-annot/jsonNotes2ReannotationWebpage.py --json-input "$json_file" --only-special
+    run_devnull ../lang-leaders/post-annot/jsonNotes2ReannotationWebpage.py --json-input "$json_file" --xml-input data/pt.folia.xml --generate-xml
+    run_devnull rm -r ./AfterAutoUpdate
+done
+
 
 #===> check all skipped methods
 for skipped_method in Dependency UnlabeledDep BagOfDeps WindowGap5; do
-    run_devnull ../lang-leaders/post-annot/folia2consistencyCheckWebpage.py --lang PT --input "${annot_file[0]}" --find-skipped --skipped-finding-method "$skipped_method"
+    run_devnull ../lang-leaders/post-annot/folia2consistencyCheckWebpage.py --lang PT --input data/pt.folia.xml --find-skipped --skipped-finding-method "$skipped_method"
 done

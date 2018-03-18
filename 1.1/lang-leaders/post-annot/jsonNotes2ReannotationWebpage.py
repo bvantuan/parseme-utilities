@@ -174,12 +174,12 @@ class Main(object):
                 # Decode the key (it's a JSON inside a JSON string)
                 key = json.loads(re.sub("^MWE_KEY=", "", coded_key))
                 line_num = next(k[1] for k in key if k)
-                index_infos = tuple(IndexInfo(k[0], k[1], tuple(k[2]))
-                                    if k else IndexInfo(i+1, line_num, ())
-                                    for i, k in enumerate(key))
+                index_infos = tuple(IndexInfo(self.json_id2fname[str(k[0])], k[1], tuple(k[2]))
+                                    if k else IndexInfo(self.json_id2fname[str(i)], line_num, ())
+                                    for i, k in enumerate(key, 1))
                 annot_entry = AnnotEntry(index_infos, json_data)
                 filename = str(index_infos[0].filename) if index_infos[0] else '1'
-                self.fname2annots[self.json_id2fname[filename]].append(annot_entry)
+                self.fname2annots[filename].append(annot_entry)
             else:
                 raise Exception("Unknown coded-key: " + coded_key)
 
@@ -226,6 +226,9 @@ class Main(object):
 
         if annot.json_data["type"] == "DO-NOTHING":
             return  # literally do nothing
+
+        elif annot.json_data["type"] in "SPECIAL-CASE":
+            raise annot.err("Marked as SPECIAL CASE (cannot be automatically corrected)")
 
         elif annot.json_data["type"] == "NEW-ANNOT":
             indexes = {i for iinfos in annot.index_infos for i in iinfos.indexes}
@@ -361,7 +364,7 @@ HTML_HEADER = '''
 }
 .what-to-do-auto { color: #E3A933; }
 .what-to-do-manual { color: #19BF26; }
-.wtd-list-auto { display: none; background-color: #FDFDFD; }
+.wtd-list-auto { display: none; background-color: #FAFAFA; }
 .wtd-list-manual { }
 
 .list-group {
@@ -372,8 +375,8 @@ HTML_HEADER = '''
     float: right;
 }
 
-.auto-txt { float: right; color: #ccc3ab; }
-.warn-txt { float: right; color: #ccc3ab; }
+.auto-txt { float: right; color: #9e9e9e; }
+.warn-txt { float: right; color: #9e9e9e; }
 
 </style>
 
