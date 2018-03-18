@@ -919,7 +919,7 @@ class FoliaIterator:
                 ranks = [w.id.rsplit(".",1)[-1] for w in mwe.wrefs()]
                 categ = output_sentence.check_and_convert_categ(mwe.cls)
                 output_sentence.mweannots.append(MWEAnnot(ranks, categ))
-                output_sentence.mweannots_folia.append(folia_sentence)
+                output_sentence.mweannots_folia.append(mwe)
 
 
 
@@ -1025,7 +1025,7 @@ class ParsemeTSVIterator(AbstractFileIterator):
         conllu = {
             'ID': data[0],
             'FORM': data[1],
-            'MISC': ('' if data[2] else 'SpaceAfter=No'),
+            'MISC': ('SpaceAfter=No' if data[2]=='nsp' else ''),
         }
         mwe_codes = data[3]
         m = mwe_codes.split(";") if mwe_codes else []
