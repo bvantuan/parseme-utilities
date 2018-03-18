@@ -496,7 +496,7 @@ function setDecision(decision_type) {
             return addNoteCustom(mweoccur_block, mwe_a1, mwe_a2, categ_a1, categ_a2);
 
         case 'SPECIAL_CASE':
-            return addNoteSpecialCase();
+            return addNoteSpecialCase(mwe_a1, categ_a1);
     }
     alert("BUG: decision_type==" + decision_type); throw 1;
 }
@@ -523,10 +523,11 @@ function addNoteCustom(mweoccur_block, mwe_a1, mwe_a2, categ_a1, categ_a2) {
     killDropdown();
 }
 
-function addNoteSpecialCase() {
+function addNoteSpecialCase(mwe_a1, categ_a1) {
     var reply = prompt("Describe the special case below", "???");
     if (reply != null && reply.trim() != "") {
-        addNote(null, {adjudication: 'SPECIAL_CASE', type: "SPECIAL-CASE", human_note: reply});
+        addNote(null, {adjudication: 'SPECIAL_CASE', type: "SPECIAL-CASE",
+            source_mwe: mwe_a1, source_categ: categ_a1, human_note: reply});
     }
     killDropdown();
 }
