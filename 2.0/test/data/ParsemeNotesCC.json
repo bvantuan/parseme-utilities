@@ -1,0 +1,77 @@
+{
+  "META": {
+    "parseme_version": "1.1",
+    "parseme_json_version": "2.0",
+    "filename_mapping": {
+      "1": "data/pt.folia.xml"
+    }
+  },
+  "DECISIONS": {
+    "MWE_KEY=[[1, 134, [17, 18]]]": {
+      "type": "RE-ANNOT",
+      "target_categ": "LVC.full",
+      "source_categ": "VID",
+      "source_mwe": [
+        "agrega",
+        "valor"
+      ]
+    },
+    "MWE_KEY=[[1, 84, [23, 25]]]": {
+      "type": "RE-ANNOT",
+      "target_categ": "NotMWE",
+      "source_categ": "LVC.full",
+      "source_mwe": [
+        "anotou",
+        "touchdowns"
+      ]
+    },
+    "MWE_KEY=[[1, 146, [12, 13]]]": {
+      "type": "RE-ANNOT",
+      "target_categ": "VID",
+      "source_categ": "IRV",
+      "source_mwe": [
+        "se",
+        "apegando"
+      ]
+    },
+    "MWE_KEY=[[1, 111, [25, 26, 28]]]": {
+      "type": "RE-ANNOT",
+      "target_categ": "LVC.full",
+      "target_mwe": [
+        "chegar",
+        "acordos"
+      ],
+      "source_categ": "LVC.full",
+      "source_mwe": [
+        "chegar",
+        "a",
+        "acordos"
+      ]
+    },
+    "MWE_KEY=[[1, 52, [2, 5, 6]]]": {
+      "type": "RE-ANNOT",
+      "target_categ": "VID",
+      "target_mwe": [
+        "colocar",
+        "prioridades",
+        "em",
+        "leilão"
+      ],
+      "source_categ": "VID",
+      "source_mwe": [
+        "colocar",
+        "em",
+        "leilão"
+      ]
+    },
+    "MWE_KEY=[[1, 131, [18, 19]]]": {
+      "type": "SPECIAL-CASE",
+      "human_note": "Blablabla my special case for consistency checks",
+      "source_categ": "VID",
+      "source_mwe": [
+        "deixa",
+        "claro"
+      ]
+    }
+  }
+}
