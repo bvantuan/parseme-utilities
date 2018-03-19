@@ -34,18 +34,17 @@ class Main:
     def run(self):
         self.tgz_begin()
         self.conllu_paths = self.args.conllu or dataalign.calculate_conllu_paths(self.args.input)
-        for elem in dataalign.iter_aligned_files(self.args.input, self.conllu_paths,
+        for sentence in dataalign.iter_aligned_files(self.args.input, self.conllu_paths,
                 keep_nvmwes=self.args.keep_non_vmwes, debug=self.args.debug):
-            if isinstance(elem, dataalign.Comment):
-                print("#", elem.text)
-            else:
-                for token, mwecodes in elem.tokens_and_mwecodes():
-                    surface_form = token.surface or dataalign.EMPTY
-                    nsp = "nsp" if token.nsp else dataalign.EMPTY
-                    mwe_ids = ";".join(mwecodes) or dataalign.EMPTY
-                    self.counter_increment(mwecodes)
-                    print(token.rank, surface_form, nsp, mwe_ids, sep="\t")
-                print()
+            for toplevel_comment in sentence.toplevel_comments:
+                print(toplevel_comment.to_tsv())
+            for token, mwecodes in sentence.tokens_and_mwecodes():
+                surface_form = token.surface or dataalign.EMPTY
+                nsp = "nsp" if token.nsp else dataalign.EMPTY
+                mwe_ids = ";".join(mwecodes) or dataalign.EMPTY
+                self.counter_increment(mwecodes)
+                print(token.rank, surface_form, nsp, mwe_ids, sep="\t")
+            print()
         self.counter_print()
         self.tgz_end()
 

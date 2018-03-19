@@ -199,8 +199,8 @@ class Main:
         else:  # occur.category != "Skipped":
             file_info = 'Annotated in file &quot;{}&quot;, sentence #{}, by &quot;{}&quot; on {}'.format(
                     ESC(occur.sentence.file_path), ESC(str(occur.sentence.nth_sent)),
-                    ESC(occur.annotator or "<unknown>"), ESC(str(occur.datetime or "<unknown-date>")))
-        confidence_info = '' if occur.confidence is None else ' {}%'.format(int(occur.confidence*100))
+                    ESC(occur.userinfo.annotator or "<unknown>"), ESC(str(occur.userinfo.datetime or "<unknown-date>")))
+        confidence_info = '' if occur.userinfo.confidence is None else ' {}%'.format(int(occur.userinfo.confidence*100))
         css_mwe_label = dataalign.Categories.css_name(occur.category)
         yield '<span class="label mwe-label {css_mwe_label}"' \
               'data-toggle="tooltip" title="{title}">{mwe_label}{confidence_info}</span><span> </span>' \
@@ -218,8 +218,8 @@ class Main:
             yield "" if t.nsp else " "
         yield '</span>'
 
-        for comment in occur.comments:
-            c = ESC(comment).replace("\n\n", "</p>").replace("\n", "<br/>")
+        for comment in occur.userinfo.ui_comments:
+            c = ESC(comment.text).replace("\n\n", "</p>").replace("\n", "<br/>")
             yield '<div class="mwe-occur-comment">{}</div>'.format(c)
 
 

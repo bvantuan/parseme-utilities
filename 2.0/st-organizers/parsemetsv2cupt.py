@@ -40,12 +40,13 @@ class Main:
         print('# global.columns =', ' '.join(UD_COLS + ['PARSEME:MWE']))
 
         written_sentid, written_text = False, False
-        for elem in dataalign.iter_aligned_files(
+        for sentence in dataalign.iter_aligned_files(
                 self.args.input, self.conllu_paths,
                 default_mwe_category='TODO', keep_nvmwes=True):
 
-            if isinstance(elem, dataalign.Comment):
-                text = elem.text
+            #TODO sentence.print_tsv_comments()
+            for comment in sentence.toplevel_comments:
+                text = comment.text
                 m = RE_SENT_ID.match(text)
                 if m:
                     text = 'source_sent_id = . . {}'.format(m.group(2).strip().split()[-1])
@@ -53,18 +54,18 @@ class Main:
                 if RE_TEXT.match(text):
                     written_text = True
                 print("#", text)
-            else:
-                if not written_sentid:
-                    self.write_artificial_sentid(elem)
-                if not written_text:
-                    self.write_artificial_text(elem)
 
-                for token, mwecodes in elem.tokens_and_mwecodes():
-                    columns = [token.get(c, None) for c in UD_COLS]
-                    columns.append(';'.join(mwecodes) if mwecodes else missing_mwe_annot)
-                    columns = [c or "_" for c in columns]
-                    print('\t'.join(columns))
-                print()
+            if not written_sentid:
+                self.write_artificial_sentid(sentence)
+            if not written_text:
+                self.write_artificial_text(sentence)
+
+            for token, mwecodes in sentence.tokens_and_mwecodes():
+                columns = [token.get(c, None) for c in UD_COLS]
+                columns.append(';'.join(mwecodes) if mwecodes else missing_mwe_annot)
+                columns = [c or "_" for c in columns]
+                print('\t'.join(columns))
+            print()
 
 
     def write_artificial_sentid(self, sent: dataalign.Sentence):
