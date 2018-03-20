@@ -5,7 +5,7 @@ import subprocess
 from pynlpl.formats import folia
 
 import os, sys
-sys.path.insert(0, os.path.dirname(__file__)+"/../../lib")
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../lib"))
 import dataalign
 
 parser = argparse.ArgumentParser(description="""
