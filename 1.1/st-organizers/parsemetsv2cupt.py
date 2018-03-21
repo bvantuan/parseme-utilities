@@ -58,6 +58,7 @@ class Main:
                     self.write_artificial_sentid(elem)
                 if not written_text:
                     self.write_artificial_text(elem)
+                written_sentid, written_text = False, False
 
                 for token, mwecodes in elem.tokens_and_mwecodes():
                     columns = [token.get(c, None) for c in UD_COLS]
