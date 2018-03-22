@@ -43,14 +43,20 @@ except ImportError:
 # The `empty` field in CoNLL-U and PARSEME-TSV
 EMPTY = "_"
 
+
+############################################################
+
 # Set of all valid languages in the latest PARSEME Shared-Task
 LANGS = set("AR BG CS DE EL EN ES EU FA FR HE HR HU HI IT LT MT PL PT RO SL SV TR".split())
 
-# Languages where the pronoun in IRV is on the left
+# Languages where the pronoun in IRV is canonically on the left
 LANGS_WITH_CANONICAL_REFL_PRON_ON_LEFT = set("DE EU FR RO".split())
 
 # Languages where the verb canonically appears to the right of the object complement (SOV/OSV/OVS)
 LANGS_WITH_CANONICAL_VERB_ON_RIGHT = set("DE EU HI TR".split())
+
+# Languages where the verb occurrences usually appear to the right of the object complement (SOV/OSV/OVS)
+LANGS_WITH_VERB_OCCURRENCES_ON_RIGHT = LANGS_WITH_CANONICAL_VERB_ON_RIGHT - set(["DE"])
 
 
 ############################################################
@@ -499,7 +505,7 @@ class MWEOccurView:
         r"""Index of head verb in `mwe_canonical_form`
         (First word if there is no POS info available)."""
         i_verbs = [i for (i, t) in enumerate(self.tokens) if t.univ_pos == "VERB"] \
-                or [(-1 if LANGS_WITH_CANONICAL_VERB_ON_RIGHT else 0)]
+                or [(-1 if self.mwe_occur.lang in LANGS_WITH_VERB_OCCURRENCES_ON_RIGHT else 0)]
         return i_verbs[0]  # just take first verb that appears
 
     def _i_subhead(self):
