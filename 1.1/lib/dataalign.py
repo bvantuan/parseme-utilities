@@ -386,7 +386,7 @@ class MWEOccurView:
         r"""Index of head verb in `mwe_canonical_form`
         (First word if there is no POS info available)."""
         i_verbs = [i for (i, t) in enumerate(self.tokens) if t.univ_pos == "VERB"] \
-                or [(-1 if LANGS_WITH_CANONICAL_VERB_ON_RIGHT else 0)]
+                or [(-1 if self.mwe_occur.lang in LANGS_WITH_CANONICAL_VERB_ON_RIGHT else 0)]
         return i_verbs[0]  # just take first verb that appears
 
     def _i_subhead(self):
