@@ -204,11 +204,6 @@ class MWEAnnot(collections.namedtuple('MWEAnnot', 'ranks category')):
         return tuple(rank2index[r] for r in self.ranks if (r in rank2index))
 
 
-class Dependency(collections.namedtuple('Dependency', 'label parent_rank')):
-    r'''Represents a dependency link; e.g. Dependency('xcomp', '9').'''
-
-Dependency.MISSING = Dependency('missing_dep', '0')
-
 
 class Token(collections.Mapping):
     r"""Represents a token in an input file.
@@ -252,7 +247,8 @@ class Token(collections.Mapping):
 
     def cmp_key(self):
         r'''Deterministic exception-free comparison method.'''
-        return (self.rank, self.surface, self.nsp, self.get('LEMMA', ''), self.univ_pos, self.dependency)
+        return (self.rank, self.surface, self.nsp, self.get('LEMMA', ''),
+                self.univ_pos, self.get('HEAD'), self.get('DEPREL'))
 
     @property
     def rank(self):
@@ -262,7 +258,7 @@ class Token(collections.Mapping):
         return self['FORM']
     @property
     def nsp(self):
-        return ('SpaceAfter=No' in self.get('MISC', ''))
+        return 'SpaceAfter=No' in self.get('MISC', '')
     @property
     def lemma(self):
         return self['LEMMA']
@@ -270,11 +266,8 @@ class Token(collections.Mapping):
     def univ_pos(self):
         return self.get('UPOS')
 
-    @property
-    def dependency(self):
-        if 'DEPREL' in self and 'HEAD' in self:
-            return Dependency(self['DEPREL'], self['HEAD'])
-        return Dependency.MISSING
+    def has_dependency_info(self):
+        return 'DEPREL' in self and 'HEAD' in self
 
 
 class Sentence:
@@ -372,19 +365,19 @@ class Sentence:
         """
         for token in self.tokens:
             for fieldname in ['FORM', 'LEMMA']:
-                if " " in token.get("FIELDNAME", ""):
+                if " " in token.get(fieldname, ""):
                     self.msg_stderr("Token #{} contains spaces in field `{}`"
                                     .format(token.rank, fieldname))
 
 
     def iter_root_to_leaf_all_tokens(self):
         r'''Yield all Tokens in sentence, from root to leaves (aka topological sort).
-        May NOT yield all tokens if there is missing Dependency information.
+        May NOT yield all tokens if there is missing dependency information.
         '''
         children = collections.defaultdict(list)  # dict[str, list[Token]]
-        for i, token in enumerate(self.tokens):
-            if token.dependency:
-                children[token.dependency.parent_rank].append(token)
+        for token in self.tokens:
+            if token.has_dependency_info():
+                children[token['HEAD']].append(token)
         to_visit = collections.deque(children['0'])
         while to_visit:
             current = to_visit.popleft()
@@ -585,7 +578,7 @@ class MWEOccurView:
 
     def iter_root_to_leaf_mwe_tokens(self):
         r'''Yield Tokens in MWE, from closest-to-root to leaves (aka topological sort).
-        May NOT yield all tokens if there is missing Dependency information.
+        May NOT yield all tokens if there is missing dependency information.
         '''
         # We use ranks because we sometimes replace tokens (e.g. _fixed_token above)...
         mwe_ranks = set(token.rank for token in self.tokens)
@@ -602,7 +595,7 @@ def rerooted(tokens):
     r'''Return a list of re-ranked and re-rooted tokens.
     * Tokens that referred to internal ranks new point to new ranks.
     * Tokens that referred to external ranks will now point to root:0.
-    * Tokens that had parent_rank=='0' keep their old Dependency info.
+    * Tokens that had parent_rank=='0' keep their old dependency info.
     '''
     ret = []
     oldrank2new = {'0': '0'}
@@ -610,12 +603,39 @@ def rerooted(tokens):
         oldrank2new[t.rank] = str(len(ret)+1)
         t = t.with_update(ID=oldrank2new[t.rank])
 
-        if t.dependency.parent_rank in oldrank2new:
-            t = t.with_update(DEPREL=t.dependency.label, HEAD=oldrank2new[t.dependency.parent_rank])
+        if t['HEAD'] in oldrank2new:
+            t = t.with_update(HEAD=oldrank2new[t['HEAD']])
         else:
             t = t.with_update(DEPREL='root', HEAD='0')
         ret.append(t)
     return ret
+
+
+
+class RootedMWEOccur(collections.namedtuple('RootedMWEOccur', 'mweoccur rooted_tokens')):
+    r"""Represents an MWEOccur along with its tokens in root-to-leaf order"""
+    def n_attachments_to_root(self):
+        r"""Return the number of syntactic attachments where HEAD=='0'."""
+        return sum(1 for t in self.rooted_tokens if t.get('HEAD') == '0')
+
+    def cmp_key(self):
+        r'''Deterministic exception-free comparison method.'''
+        return [t.cmp_key() for t in self.rooted_tokens]
+
+
+class RootedMWEOccurList(list):
+    r"""List of RootedMWEOccur objects sharing the same lemma+syntax)."""
+    def __gt__(self, other):
+        r"""A RootedMWEOccurList is greater than another one if (in this order):
+        * It has the fewest attachments to root (we don't like disconnected subtrees).
+        * It has the most number of examples in rooted_tokens (we want the most common lemma+syntax).
+        * It has smaller RootedMWEOccur.cmp_key() value (tie-breaker, for determinism).
+        """
+        if self[0].n_attachments_to_root() < other[0].n_attachments_to_root():
+            return True  # (all elements in a RootedMWEOccurList should have the same `n` attachments)
+        if len(self) > len(other):
+            return True
+        return [t.cmp_key() for t in self] < [t.cmp_key() for t in other]
 
 
 
@@ -678,22 +698,18 @@ class MWELexicalItem:
         r'''Return the most common output from `mweoccur.rerooted_tokens()`
         for all mweoccurs in `self`, along with an example MWEOccur which has these re-rooted tokens.
 
-        @rtype (Sequence[Token], MWEOccur).
+        @rtype RootedMWEOccur.
         '''
-        example_mweoccur = {}  # Dict[Tuple[Token], MWEOccur]
-        counter = collections.Counter()  # Counter[Tuple[Token]]
+        lemmasyntax2rootedmweoccur = collections.defaultdict(RootedMWEOccurList)
 
         for mweoccur in self.mweoccurs:
-            # XXX should this be `mweoccur.raw` or `mweoccur.reordered`?
             rooted_tokens = tuple(rerooted(mweoccur.raw.iter_root_to_leaf_mwe_tokens()))
-            example_mweoccur.setdefault(rooted_tokens, mweoccur)
-            counter[rooted_tokens] += 1
+            lemmasyntax = tuple((t.lemma_or_surface(), t.get('HEAD'), t.get('DEPREL')) for t in rooted_tokens)
+            lemmasyntax2rootedmweoccur[lemmasyntax].append(
+                RootedMWEOccur(mweoccur, rooted_tokens))
 
-        # We just want the rooted_tokens with max-count, but we also want a
-        # deterministic tie-breaker (determinism is good for experiments), so we do this hack:
-        _, rooted_tokens = max(((count, tokens) for (tokens, count) in counter.items()),
-                key=lambda ct: (ct[0], [t.cmp_key() for t in ct[1]]))
-        return rooted_tokens, example_mweoccur[rooted_tokens]
+        majority_mweoccurs = max(lemmasyntax2rootedmweoccur.values())
+        return max(majority_mweoccurs, key=RootedMWEOccur.cmp_key)
 
 
     def lemma_or_surface_list(self):
@@ -1400,10 +1416,11 @@ class DependencyBasedSkippedFinder(AbstractSkippedFinder):
 
         for mwe in self.mwes:
             # CAREFUL: re-rooting changes the parent_rank of dependencies
-            rooted_tokens, example_mweoccur = mwe.most_common_rooted_tokens_and_example()
-            n_roots = sum(1 for t in rooted_tokens if t.dependency.parent_rank == '0')
+            rootedmweoccur = mwe.most_common_rooted_tokens_and_example()
+            example_mweoccur, rooted_tokens = rootedmweoccur
+            n_roots = rootedmweoccur.n_attachments_to_root()
 
-            if any(t.dependency == Dependency.MISSING for t in rooted_tokens):
+            if not all(t.has_dependency_info() for t in rooted_tokens):
                 example_mweoccur.sentence.msg_stderr(
                     'WARNING: skipping MWE with partial dependency info: {}'.format("_".join(mwe.canonicform)))
                 continue
@@ -1464,16 +1481,16 @@ class _SingleMWEFinder(collections.namedtuple(
     def _find_matched_tokens(self, i_start, already_matched, unmatched_lemmabag):
         r'''Yield all (i, sentence_token, rooted_token) for matches at reordered_sentence_tokens[i].'''
         for i, sentence_token in enumerate(self.reordered_sentence_tokens[i_start:], i_start):
-            if sentence_token.dependency == Dependency.MISSING:
+            if not sentence_token.has_dependency_info():
                 continue  # If we have no dependency info, avoid false positives
 
             for wordform in [sentence_token.lemma_or_surface().lower(), sentence_token.surface.lower()]:
                 for rooted_token in unmatched_lemmabag[wordform]:
                     match_triple = (i, sentence_token, rooted_token)
 
-                    if sentence_token.dependency.parent_rank in already_matched.rank2rootedrank:
+                    if sentence_token['HEAD'] in already_matched.rank2rootedrank:
                         # Non-rootmost token, connected to someone in `already_matched`
-                        expected_rooted_parent_rank = already_matched.rank2rootedrank[sentence_token.dependency.parent_rank]
+                        expected_rooted_parent_rank = already_matched.rank2rootedrank[sentence_token['HEAD']]
                         if self._matches_in_tree(i, sentence_token, rooted_token, already_matched, expected_rooted_parent_rank):
                             yield match_triple
 
@@ -1489,7 +1506,7 @@ class _SingleMWEFinder(collections.namedtuple(
             return True
         if self.matchability in ('LABELED-ARC', 'UNLABELED-ARC'):
             # Only allow if it was expected to attach to root
-            return rooted_token.dependency == Dependency('root', '0')
+            return rooted_token['HEAD'] == '0'
         assert False, self.matchability
 
 
@@ -1498,10 +1515,10 @@ class _SingleMWEFinder(collections.namedtuple(
         if self.matchability == 'BAG':
             return True
         if self.matchability == 'UNLABELED-ARC':
-            return expected_rooted_parent_rank == rooted_token.dependency.parent_rank
+            return expected_rooted_parent_rank == rooted_token['HEAD']
         if self.matchability == 'LABELED-ARC':
-            return (expected_rooted_parent_rank == rooted_token.dependency.parent_rank
-                    and sentence_token.dependency.label == rooted_token.dependency.label)
+            return (expected_rooted_parent_rank == rooted_token['HEAD']
+                    and sentence_token['DEPREL'] == rooted_token['DEPREL'])
         assert False, self.matchability
 
 
@@ -1517,7 +1534,7 @@ class MWEBagAlreadyMatched(collections.namedtuple('MWEBagAlreadyMatched', 'rank2
                 ('Already matched!', sentence_token, self.rank2rootedrank)
         new_rank2rootedrank = dict(self.rank2rootedrank)
         new_rank2rootedrank[sentence_token.rank] = rooted_token.rank
-        new_n_roots = self.n_roots + int(sentence_token.dependency.parent_rank not in self.rank2rootedrank)
+        new_n_roots = self.n_roots + int(sentence_token.get('HEAD', '0') not in self.rank2rootedrank)
         return MWEBagAlreadyMatched(new_rank2rootedrank, new_n_roots)
 
 MWEBagAlreadyMatched.EMPTY = MWEBagAlreadyMatched({}, 0)
