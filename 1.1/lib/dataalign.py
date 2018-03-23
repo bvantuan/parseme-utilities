@@ -246,7 +246,7 @@ class Sentence:
 
     def msg_stderr(self, msg, header=True, die=False):
         r"""Print a warning message; e.g. "foo.xml:13: blablabla"."""
-        msg_stderr(self.id(short=True), msg, die=die)
+        msg_stderr(self.id(short=True), msg, header=header, die=die)
 
 
     def check_token_data(self):
@@ -266,7 +266,7 @@ class Sentence:
         '''
         children = collections.defaultdict(list)  # dict[str, list[Token]]
         for token in self.tokens:
-            if token.dependency:
+            if token.dependency != Dependency.MISSING:
                 children[token.dependency.parent_rank].append(token)
         to_visit = collections.deque(children['0'])
         while to_visit:
