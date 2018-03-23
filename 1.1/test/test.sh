@@ -31,15 +31,18 @@ run_devnull() {
 ###### Testing if we can run all scripts to completion ######
 #############################################################
 
-annot_files=(data/pt.folia.xml data/pt.parsemetsv)
+paired_annot_files=(data/pt.folia.xml data/pt.parsemetsv)
+annot_files=("${paired_annot_files[@]}" data/pt_unpaired.parsemetsv)
 annot_file2=(data/pt2.folia.xml)
 
 
-for annot_file in "${annot_files[@]}"; do
-
+for paired_annot_file in "${paired_annot_files[@]}"; do
     #===> pre-annot scripts
-    run_devnull ../lang-leaders/pre-annot/checkSentenceMatching.py --lang PT --input "$annot_file"
+    run_devnull ../lang-leaders/pre-annot/checkSentenceMatching.py --lang PT --input "$paired_annot_file"
+done
 
+
+for annot_file in "${annot_files[@]}"; do
     #===> post-annot scripts
     run_devnull ../lang-leaders/post-annot/folia2consistencyCheckWebpage.py --lang PT --input "$annot_file"
     run_devnull ../lang-leaders/post-annot/folia2consistencyCheckWebpage.py --lang PT --input "$annot_file" --find-skipped

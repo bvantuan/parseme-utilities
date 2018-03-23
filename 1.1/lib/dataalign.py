@@ -255,7 +255,7 @@ class Sentence:
         """
         for token in self.tokens:
             for fieldname in ['FORM', 'LEMMA']:
-                if " " in token.get("FIELDNAME", ""):
+                if " " in token.get(fieldname, ""):
                     self.msg_stderr("Token #{} contains spaces in field `{}`"
                                     .format(token.rank, fieldname))
 
@@ -265,7 +265,7 @@ class Sentence:
         May NOT yield all tokens if there is missing Dependency information.
         '''
         children = collections.defaultdict(list)  # dict[str, list[Token]]
-        for i, token in enumerate(self.tokens):
+        for token in self.tokens:
             if token.dependency:
                 children[token.dependency.parent_rank].append(token)
         to_visit = collections.deque(children['0'])
@@ -498,6 +498,33 @@ def rerooted(tokens):
 
 
 
+class RootedMWEOccur(collections.namedtuple('RootedMWEOccur', 'mweoccur rooted_tokens')):
+    r"""Represents an MWEOccur along with its tokens in root-to-leaf order"""
+    def n_attachments_to_root(self):
+        r"""Return the number of syntactic attachments where HEAD=='0'."""
+        return sum(1 for t in self.rooted_tokens if t.get('HEAD') == '0')
+
+    def cmp_key(self):
+        r'''Deterministic exception-free comparison method.'''
+        return [t.cmp_key() for t in self.rooted_tokens]
+
+
+class RootedMWEOccurList(list):
+    r"""List of RootedMWEOccur objects sharing the same lemma+syntax)."""
+    def __gt__(self, other):
+        r"""A RootedMWEOccurList is greater than another one if (in this order):
+        * It has the fewest attachments to root (we don't like disconnected subtrees).
+        * It has the most number of examples in rooted_tokens (we want the most common lemma+syntax).
+        * It has smaller RootedMWEOccur.cmp_key() value (tie-breaker, for determinism).
+        """
+        if self[0].n_attachments_to_root() < other[0].n_attachments_to_root():
+            return True  # (all elements in a RootedMWEOccurList should have the same `n` attachments)
+        if len(self) > len(other):
+            return True
+        return [t.cmp_key() for t in self] < [t.cmp_key() for t in other]
+
+
+
 class MWELexicalItem:
     r'''Represents a group of `MWEOccur`s that share the same canonical form.
     In a type/token distinction: MWELexicalItem is a type and MWEOccur is a token.
@@ -557,22 +584,18 @@ class MWELexicalItem:
         r'''Return the most common output from `mweoccur.rerooted_tokens()`
         for all mweoccurs in `self`, along with an example MWEOccur which has these re-rooted tokens.
 
-        @rtype (Sequence[Token], MWEOccur).
+        @rtype RootedMWEOccur.
         '''
-        example_mweoccur = {}  # Dict[Tuple[Token], MWEOccur]
-        counter = collections.Counter()  # Counter[Tuple[Token]]
+        lemmasyntax2rootedmweoccur = collections.defaultdict(RootedMWEOccurList)
 
         for mweoccur in self.mweoccurs:
-            # XXX should this be `mweoccur.raw` or `mweoccur.reordered`?
             rooted_tokens = tuple(rerooted(mweoccur.raw.iter_root_to_leaf_mwe_tokens()))
-            example_mweoccur.setdefault(rooted_tokens, mweoccur)
-            counter[rooted_tokens] += 1
+            lemmasyntax = tuple((t.lemma_or_surface(), t.dependency) for t in rooted_tokens)
+            lemmasyntax2rootedmweoccur[lemmasyntax].append(
+                RootedMWEOccur(mweoccur, rooted_tokens))
 
-        # We just want the rooted_tokens with max-count, but we also want a
-        # deterministic tie-breaker (determinism is good for experiments), so we do this hack:
-        _, rooted_tokens = max(((count, tokens) for (tokens, count) in counter.items()),
-                key=lambda ct: (ct[0], [t.cmp_key() for t in ct[1]]))
-        return rooted_tokens, example_mweoccur[rooted_tokens]
+        majority_mweoccurs = max(lemmasyntax2rootedmweoccur.values())
+        return max(majority_mweoccurs, key=RootedMWEOccur.cmp_key)
 
 
     def lemma_or_surface_list(self):
@@ -1298,8 +1321,9 @@ class DependencyBasedSkippedFinder(AbstractSkippedFinder):
 
         for mwe in self.mwes:
             # CAREFUL: re-rooting changes the parent_rank of dependencies
-            rooted_tokens, example_mweoccur = mwe.most_common_rooted_tokens_and_example()
-            n_roots = sum(1 for t in rooted_tokens if t.dependency.parent_rank == '0')
+            rootedmweoccur = mwe.most_common_rooted_tokens_and_example()
+            example_mweoccur, rooted_tokens = rootedmweoccur
+            n_roots = rootedmweoccur.n_attachments_to_root()
 
             if any(t.dependency == Dependency.MISSING for t in rooted_tokens):
                 example_mweoccur.sentence.msg_stderr(
