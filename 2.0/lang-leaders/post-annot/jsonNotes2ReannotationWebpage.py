@@ -35,6 +35,13 @@ ISOTIME = datetime.datetime.now().isoformat()
 
 class IndexInfo(collections.namedtuple('AnnotEntry', 'filename sent_id indexes')):
     r"""`sent_id` is 0-based, `indexes` is 0-based."""
+    def likely_the_same_as(self, other):
+        r"""True iff the IndexInfo instances are likely to be related.
+        (Used as a shortcut to avoid having a detailed algorithm...
+        This is a hack which should be fixed at some point).
+        """
+        return self.filename == other.filename and self.sent_id == other.sent_id \
+               and set(self.indexes) & set(other.indexes)
 
 class AnnotEntry(collections.namedtuple('AnnotEntry', 'index_infos json_data')):
     r"""index_infos: List[IndexInfo], json_data: dict"""
@@ -46,6 +53,21 @@ class AnnotEntry(collections.namedtuple('AnnotEntry', 'index_infos json_data')):
         r"""Assign self.message with a warning message (to show in output)"""
         self.message = msg.format(*args, J=self.json_data, **kwargs)
         return NoteError(msg=self.message, fname=self.index_infos[0].filename, sent_id=self.index_infos[0].sent_id)
+
+    def target_x(self, x):
+        r"""Return JSON data --- e.g. target_mwe or source_mwe (if x == "mwe")"""
+        return self.json_data.get('target_'+x) or self.json_data['source_'+x]
+
+    def can_merge(self, other):
+        r"""True iff we can merge these two AnnotEntry instances.
+        Two instances can be merged iff they represent the same re-annotation.
+        (e.g. merge the AnnotEntry "take_a_shower LVC => take_shower LVC"
+        with the AnnotEntry "take_shower Skipped => take_shower LVC").
+        """
+        # Note that we simplify the code because we don't know the target
+        # indexes (only source index and target MWEs), but the chance of error is minimal:
+        return self.index_infos[0].likely_the_same_as(other.index_infos[0]) \
+               and self.target_x("mwe") == other.target_x("mwe")
 
 
 class Main(object):
@@ -221,7 +243,8 @@ class Main(object):
             try:
                 if not id2foliasent:
                     raise annot.err('Underlying XML file not given as input')
-                self.folia_modify(id2foliasent.get(annot.index_infos[0].sent_id), annot)
+                folia_sent = id2foliasent.get(annot.index_infos[0].sent_id)
+                self.folia_modify(folia_sent, annot, auto)
             except NoteError as e:
                 print(e, file=sys.stderr)  # fallback on manual below
                 manual.append(annot)
@@ -230,7 +253,8 @@ class Main(object):
         return manual, auto
 
 
-    def folia_modify(self, foliasent: folia.Sentence, annot: AnnotEntry):
+    def folia_modify(self, foliasent: folia.Sentence,
+                     annot: AnnotEntry, recently_auto_annotated: list):
         r"""Modify the FoliA data (raise NoteError on failure)."""
         if foliasent is None:
             raise annot.err("File {} does not have sentence #{}!", annot.filename, annot.sent_id)
@@ -262,6 +286,12 @@ class Main(object):
             expected_categ, categ = sourceinfo["categ"], entity.cls
             expected_confid, confid = int(sourceinfo["confid"] or 100), int((entity.confidence or 1)*100)
             if expected_categ != categ:
+                if expected_categ == "Skipped":
+                    for previous_annot in reversed(recently_auto_annotated):
+                        if previous_annot.can_merge(annot):
+                            if previous_annot.target_x("categ") == categ:
+                                return annot.good("Merged with another annotation")
+                            raise annot.err("New category conflicts with {}", previous_annot.target_x("categ"))
                 raise annot.err("XML has unexpected category {} (not {})", categ, expected_categ)
             if expected_confid != confid:
                 raise annot.err("XML has unexpected confidence {}% (not {}%)", confid, expected_confid)
