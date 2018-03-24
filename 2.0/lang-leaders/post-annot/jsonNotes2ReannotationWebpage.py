@@ -75,8 +75,8 @@ class Main(object):
         self.args = args
         self.fname2annots = collections.defaultdict(list)  # filename -> List[AnnotEntry]
         if self.args.only_special and self.args.xml_input:
-            print("WARNING: did you really mean to specify both " \
-                    "--xml-input and --only-special?", file=sys.stderr)
+            dataalign.do_warn("Did you really mean to specify both " \
+                              "--xml-input and --only-special?")
         if self.args.generate_xml and not self.args.xml_input:
             raise Exception("Option --xml-input required if --generate-xml is specified")
 
@@ -99,10 +99,10 @@ class Main(object):
             subprocess.check_call("mkdir -p ./AfterAutoUpdate", shell=True)
             for fname, foliadoc in sorted(self.fname2foliadoc.items()):
                 output = "./AfterAutoUpdate/" + os.path.basename(fname)
-                print("INFO: saving to \"{}\"".format(output), file=sys.stderr)
+                dataalign.do_info("Saving to \"{}\"".format(output))
                 foliadoc.save(output)
             if self.n_auto == 0:
-                print('ERROR: Zero annotations were done automatically. Check for warnings above.', file=sys.stderr)
+                dataalign.do_warn('Zero annotations were done automatically. Check for warnings above.', error=True)
 
     def print_panel(self, fname, annots):
         r"""print_panel(str, list[AnnotEntry])
@@ -222,15 +222,15 @@ class Main(object):
         try:
             id2foliasent = dict(enumerate(self.fname2foliadoc[fname].sentences(), 1))
         except KeyError:
-            print('WARNING: File \"{}\" expected as an argument!'.format(fname), file=sys.stderr)
+            dataalign.do_warn('File \"{f}\" expected as an argument!', f=fname)
             try:
                 new_fname = self.basefname2fname[os.path.basename(fname)]
                 if new_fname in self.json_id2fname.values():
-                    print('.......: Refusing to use \"{}\" (it looks like the wrong filename)'.format(new_fname), file=sys.stderr)
+                    dataalign.do_warn('Refusing to use \"{f}\" (it looks like the wrong filename)', f=new_fname, header=True)
                     raise KeyError
                 else:
                     id2foliasent = dict(enumerate(self.fname2foliadoc[new_fname].sentences(), 1))
-                    print('.......: Using \"{}\" instead (you must CHECK if this is correct!)'.format(new_fname), file=sys.stderr)
+                    print('Using \"{f}\" instead (you must CHECK if this is correct!)', f=new_fname, header=True)
             except KeyError:
                 id2foliasent = None  # We cannot shortcut here, because we still need to filter `only_special`
 
@@ -246,7 +246,7 @@ class Main(object):
                 folia_sent = id2foliasent.get(annot.index_infos[0].sent_id)
                 self.folia_modify(folia_sent, annot, auto)
             except NoteError as e:
-                print(e, file=sys.stderr)  # fallback on manual below
+                dataalign.do_warn(str(e), prefix=e.prefix)  # fallback on manual below
                 manual.append(annot)
             else:
                 auto.append(annot)
@@ -386,7 +386,8 @@ class Main(object):
 class NoteError(Exception):
     r"""Exception raised for errors in this library."""
     def __init__(self, fname, sent_id, msg):
-        super().__init__("{}:#{}: WARNING: {}".format(fname, sent_id, msg))
+        self.prefix = "{}:#{}".format(fname, sent_id)
+        super().__init__(msg)
 
 
 

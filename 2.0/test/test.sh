@@ -8,6 +8,7 @@ exec </dev/null   # Don't hang if a script tries to read from stdin
 export IFS=$'\n'  # Do not split variables on " " automatically (only on "\n")
 
 export LC_ALL=C.UTF-8   # Use a decent locale (and hope it's supported...)
+export DISABLE_ANSI_COLOR=  # Some warnings are expected in these tests; let's not highlight them
 
 cd "$HERE"
 

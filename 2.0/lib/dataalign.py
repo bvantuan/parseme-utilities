@@ -150,7 +150,7 @@ class UserInfo:
         """
         ret = collections.OrderedDict((k, v) \
             for k, v in self._generic_properties() if v is not None)
-        if self.userinfo_comments:
+        if self.ui_comments:
             ret['ui_comments'] = []
             for ui_comment in self.ui_comments:
                 ret['ui_comments'].append(ui_comment.userinfo.to_dict())
@@ -331,7 +331,7 @@ class Sentence:
         if len(self.mweannots) != len(old_mweannots):
             duplicates = [m for m in old_mweannots if old_mweannots.count(m) > 1]
             for mweannot in duplicates:
-                self.msg_stderr("Removed duplicate MWE: {}".format(mweannot))
+                self.warn("Removed duplicate MWE: {}".format(mweannot))
 
 
     def re_tokenize(self, new_tokens, indexmap):
@@ -354,9 +354,9 @@ class Sentence:
         ret += "(s.{})".format(self.nth_sent) if self.nth_sent else ""
         return ret + (":{}".format(self.lineno) if self.lineno else "")
 
-    def msg_stderr(self, msg, header=True, die=False):
+    def warn(self, msg_fmt, **kwargs):
         r"""Print a warning message; e.g. "foo.xml:13: blablabla"."""
-        msg_stderr(self.id(short=True), msg, header=header, die=die)
+        do_warn(msg_fmt, prefix=self.id(short=True), **kwargs)
 
 
     def check_token_data(self):
@@ -366,8 +366,8 @@ class Sentence:
         for token in self.tokens:
             for fieldname in ['FORM', 'LEMMA']:
                 if " " in token.get(fieldname, ""):
-                    self.msg_stderr("Token #{} contains spaces in field `{}`"
-                                    .format(token.rank, fieldname))
+                    self.warn("Token #{} contains spaces in field `{}`"
+                              .format(token.rank, fieldname))
 
 
     def iter_root_to_leaf_all_tokens(self):
@@ -391,9 +391,10 @@ class Sentence:
             return categ
         if categ in Categories.RENAMED:
             new_categ = Categories.RENAMED[categ]
-            warn_once(self.id(), 'Category {} renamed to {}'.format(categ, new_categ))
+            warn_once(self.id(), 'Category {categ} renamed to {new_categ}',
+                      categ=categ, new_categ=new_categ)
             return new_categ
-        warn_once(self.id(), 'Category {} is unknown'.format(categ))
+        warn_once(self.id(), 'Category {categ} is unknown', categ=categ)
         return categ
 
 
@@ -758,20 +759,20 @@ def calculate_conllu_paths(file_paths, warn=True):
         elif any(basename.endswith(x) for x in [".tsv", ".parsemetsv", ".xml"]):
             basename = basename.rsplit(".", 1)[0]
         else:
-            exit("ERROR: unknown file extension for `{}`".format(file_path))
+            do_warn("Unknown file extension for `{}`".format(file_path))
 
         for path_fmt in ["{d}/{b}.conllu", "{d}/conllu/{b}.conllu"]:
             ret_path = path_fmt.format(d=dirname, b=basename)
             if os.path.exists(ret_path):
                 if warn:
-                    print("INFO: Using CoNLL-U file `{}`".format(ret_path), file=sys.stderr)
+                    do_warn("Using CoNLL-U file `{p}`", p=ret_path, warntype="INFO")
                 ret.append(ret_path)
                 break
 
         else:
             if warn:
-                print("WARNING: CoNLL-U file `{}` not found".format(ret_path), file=sys.stderr)
-                print("WARNING: Not using any CoNLL-U file", file=sys.stderr)
+                do_warn("CoNLL-U file `{p}` not found", p=ret_path)
+                do_warn("Not using any CoNLL-U file")
                 return None
     return ret
 
@@ -835,9 +836,9 @@ class AlignedIterator:
                 yield from tokens
 
             if self.debug and info == "CONLL:EXTRA":
-                conllu_sentence.msg_stderr(
-                    "DEBUG: Adding tokens from CoNLL: {!r} with rank {!r}".format(
-                    [t.surface for t in tokens], [t.rank for t in tokens]))
+                conllu_sentence.warn(
+                    "DEBUG: Adding tokens from CoNLL: {surf!r} with rank {rank!r}",
+                    surf=[t.surface for t in tokens], rank=[t.rank for t in tokens])
 
 
     @staticmethod
@@ -856,11 +857,11 @@ def _warn_if_none(main_sentence, conllu_sentence):
     assert conllu_sentence or main_sentence
 
     if not main_sentence:
-        conllu_sentence.msg_stderr("ERROR: CoNLL-U sentence #{} found, but there is " \
-                "no matching PARSEME-TSV input file".format(conllu_sentence.nth_sent), die=True)
+        conllu_sentence.warn("CoNLL-U sentence #{n} found, but there is " \
+                "no matching PARSEME-TSV input file", n=conllu_sentence.nth_sent, error=True)
     if not conllu_sentence:
-        main_sentence.msg_stderr("ERROR: PARSEME-TSV sentence #{} found, but there is " \
-                "no matching CoNLL-U input file".format(main_sentence.nth_sent), die=True)
+        main_sentence.warn("PARSEME-TSV sentence #{n} found, but there is " \
+                "no matching CoNLL-U input file", n=main_sentence.nth_sent, error=True)
 
 
 class SentenceAligner:
@@ -887,7 +888,7 @@ class SentenceAligner:
                 for m, c in zip(mismatch_main, mismatch_conllu):
                     tokalign = TokenAligner(self.main_sentences[m], self.conllu_sentences[c])
                     if not tokalign.is_alignable():
-                        tokalign.msg_unalignable(die=False)
+                        tokalign.msg_unalignable(error=False)
                         self.print_context(m, c)
                         break
                 else:
@@ -896,12 +897,14 @@ class SentenceAligner:
                     end_mismatch_conllu = range(c+1, mismatch_conllu.stop)
                     assert not end_mismatch_main or not end_mismatch_conllu
                     for m in end_mismatch_main:
-                        self.main_sentences[m].msg_stderr("ERROR: PARSEME sentence #{} does not match anything in CoNLL-U"
-                                .format(self.main_sentences[m].nth_sent, None))
+                        self.main_sentences[m].warn(
+                            "PARSEME sentence #{n} does not match anything in CoNLL-U",
+                            n=self.main_sentences[m].nth_sent, error=True)
                         self.print_context(m, end_mismatch_conllu.start)
                     for c in end_mismatch_conllu:
-                        self.conllu_sentences[c].msg_stderr("ERROR: CoNLL-U sentence #{} does not match anything in PARSEME"
-                                .format(self.conllu_sentences[c].nth_sent, None))
+                        self.conllu_sentences[c].warn(
+                            "CoNLL-U sentence #{n} does not match anything in PARSEME",
+                            n=self.conllu_sentences[c].nth_sent, error=True)
                         self.print_context(end_mismatch_main.start, c)
 
     def print_context(self, main_index, conllu_index):
@@ -910,8 +913,9 @@ class SentenceAligner:
 
     def print_context_sents(self, info, sentences):
         for sent in sentences:
-            sent.msg_stderr("{} sentence #{} = {} ...".format(info, sent.nth_sent,
-                    " ".join(t.surface for t in sent.tokens[:7])), header=False)
+            sent.warn(
+                "{} sentence #{} = {} ...".format(info, sent.nth_sent,
+                " ".join(t.surface for t in sent.tokens[:7])), header=False)
 
     def mismatches(self):
         r"""@rtype: Iterable[(mismatch_main_range, mismatch_conllu_range)]"""
@@ -939,7 +943,7 @@ class TokenAligner:
     def index_mapping(self, main_sentence, conllu_sentence):
         r"""Return a dict {i_main -> list[i_conllu]}"""
         if not self.is_alignable():
-            self.msg_unalignable(die=True)
+            self.msg_unalignable(error=True)
         indexmap = collections.defaultdict(list)
         for info, range_main, range_conllu in self._triples():
             if info == "EQUAL":
@@ -981,16 +985,17 @@ class TokenAligner:
             # Probably a range, or a sub-word inside a range
             if self.debug:
                 tokens = [self.conllu_sentence.tokens[i] for i in range_gap_conllu]
-                self.conllu_sentence.msg_stderr(
-                        "DEBUG: Adding tokens from CoNLL: {!r} with rank {!r}".format(
-                        [t.surface for t in tokens], [t.rank for t in tokens]))
+                self.conllu_sentence.warn(
+                        "DEBUG: Adding tokens from CoNLL: {surf!r} with rank {rank!r}",
+                        surf=[t.surface for t in tokens], rank=[t.rank for t in tokens], warntype="DEBUG")
 
 
-    def msg_unalignable(self, die=False):
+    def msg_unalignable(self, error=False):
         r"""Error issued if we cannot align tokens."""
-        self.conllu_sentence.msg_stderr("ERROR: CoNLL-U sentence #{} does not match {} sentence #{}" \
-                .format(self.conllu_sentence.nth_sent, self.main_sentence.id(),
-                self.main_sentence.nth_sent), die=die)
+        self.conllu_sentence.warn(
+            "CoNLL-U sentence #{n} does not match {id} sentence #{n2}",
+            n=self.conllu_sentence.nth_sent, id=self.main_sentence.id(),
+            n2=self.main_sentence.nth_sent, error=error)
 
 
     def warn_gap_main(self, main_range, conllu_range, all_mwe_codes):
@@ -999,10 +1004,10 @@ class TokenAligner:
         #conllu_toks = [self.conllu_sentence.tokens[i].surface for i in conllu_range]
 
         mwe_codes_info = " (MWEs={})".format(";".join(map(str,all_mwe_codes))) if all_mwe_codes else ""
-        self.main_sentence.msg_stderr(
-                "WARNING: Ignoring extra tokens in sentence #{} ({}): {!r}{}"
-                .format(self.main_sentence.nth_sent, self.conllu_sentence.id(),
-                main_toks, mwe_codes_info))
+        self.main_sentence.warn(
+            "Ignoring extra tokens in sentence #{n} ({id}): {toks!r}{mwe}",
+            n=self.main_sentence.nth_sent, id=self.conllu_sentence.id(),
+            toks=main_toks, mwe=mwe_codes_info)
 
 
 ############################################################
@@ -1016,9 +1021,8 @@ class FoliaIterator:
         doc = folia.Document(file=self.file_path)
         for folia_nonembedded_entitieslayer in doc.select(folia.EntitiesLayer, recursive=False):
             for folia_nonembedded_entity in folia_nonembedded_entitieslayer.select(folia.Entity):
-                msg_stderr(os.path.basename(self.file_path),
-                           'Ignoring MWE outside the scope of a single sentence: {!r}' \
-                           .format(folia_nonembedded_entity.id))
+                do_warn('Ignoring MWE outside the scope of a single sentence: {id!r}',
+                        prefix=os.path.basename(self.file_path), id=folia_nonembedded_entity.id)
 
         for nth, folia_sentence in enumerate(doc.select(folia.Sentence), 1):
             current_sentence = Sentence(self.file_path, nth, None)
@@ -1042,9 +1046,9 @@ class FoliaIterator:
         for mwe in mwes:
             mwe_word_ids = [w.id for w in mwe.wrefs()]
             if not mwe_word_ids:  # ignore empty Entities produced by FLAT
-                output_sentence.msg_stderr('Ignoring empty MWE: {!r}'.format(mwe.id))
+                output_sentence.warn('Ignoring empty MWE: {id!r}', id=mwe.id)
             elif any(w.id not in sent_word_ids for w in mwe.wrefs()):
-                output_sentence.msg_stderr('Ignoring misplaced MWE: {!r}'.format(mwe.id))
+                output_sentence.warn('Ignoring misplaced MWE: {id!r}', id=mwe.id)
             else:
                 ranks = [w.id.rsplit(".",1)[-1] for w in mwe.wrefs()]
                 categ = output_sentence.check_and_convert_categ(mwe.cls)
@@ -1091,13 +1095,13 @@ class AbstractFileIterator:
             s.mweannots = [MWEAnnot(tuple(self.id2mwe_ranks[id]),
                 self.id2mwe_categ[id]) for id in sorted(self.id2mwe_ranks)]
         except KeyError as e:
-            self.err("MWE has no category: {}".format(e.args[0]))
+            self.err("MWE has no category: {categ}", categ=e.args[0])
         self._new_sent()
         s.check_token_data()
         return s
 
-    def err(self, msg):
-        err_badline(self.file_path, self.lineno, msg)
+    def err(self, msg_fmt, **kwargs):
+        do_warn(msg_fmt, prefix="{}:{}".format(self.file_path, self.lineno), **kwargs)
 
     def make_comment(self, line):
         if self.curr_sent.tokens:
@@ -1148,7 +1152,7 @@ class ConllIterator(AbstractFileIterator):
 
     def get_token_and_mwecodes(self, data):
         if len(data) != 10:
-            self.err("Line has {} columns, not 10".format(len(data)))
+            self.err("Line has {n} columns, not 10", n=len(data))
         return Token(zip(self.UD_KEYS, data)), []
 
 
@@ -1160,7 +1164,7 @@ class ParsemeTSVIterator(AbstractFileIterator):
                 "Silently ignoring 5th parsemetsv column")
             data.pop()  # remove data[-1]
         elif len(data) != 4:
-            self.err("Line has {} columns, not 4".format(len(data)))
+            self.err("Line has {n} columns, not 4", n=len(data))
         # ID FORM LEMMA UPOS XPOS FEATS HEAD DEPREL DEPS MISC
         conllu = {
             'ID': data[0],
@@ -1175,32 +1179,38 @@ class ParsemeTSVIterator(AbstractFileIterator):
 
 ############################################################
 
-_warned = set()
+_WARNED = set()
 
-def warn_once(first_seen_here, msg):
-    if msg not in _warned:
-        _warned.add(msg)
-        warntype = 'WARNING'
-        print(warntype, ': ', msg, sep='', file=sys.stderr)
-        print('.'*len(warntype), ': First seen here: ', first_seen_here, sep='', file=sys.stderr)
-        print('.'*len(warntype), ': (Ignoring further warnings of this type)', sep='', file=sys.stderr)
+def warn_once(first_seen_here, msg_fmt, **kwargs):
+    r"""Same as do_warn, but only called once per msg_fmt."""
+    if msg_fmt not in _WARNED:
+        _WARNED.add(msg_fmt)
+        do_warn(msg_fmt, **kwargs)
+        do_warn('First seen here: {here}', here=first_seen_here, header=False)
+        do_warn('(Ignoring further warnings of this type)', header=False)
 
 
-def msg_stderr(prefix, msg, header=True, die=False):
+def do_info(msg_fmt, **kwargs):
+    r"""Same as do_warn, but using warntype=="INFO"."""
+    do_warn(msg_fmt, **kwargs, warntype="INFO")
+
+def do_warn(msg_fmt, *, prefix=None, warntype=None, error=False, header=True, **kwargs):
     r"""Print a warning message "prefix: msg"; e.g. "foo.xml:13: blablabla"."""
+    warntype = "ERROR" if error else warntype or "WARNING"
+    if not header:
+        warntype = '.'*len(warntype)
+
+    msg = msg_fmt.format(**kwargs)
+    prefix = "{}: {}".format(prefix, warntype) if prefix else warntype
     final_msg = "{}: {}".format(prefix, msg)
+
     if COLOR_STDERR:
-        final_msg = "\x1b[{}m{}\x1b[m".format((31 if header else 37), final_msg)
+        color = 34 if warntype=="INFO" else (31 if header else 37)
+        final_msg = "\x1b[{}m{}\x1b[m".format(color, final_msg)
     print(final_msg, file=sys.stderr)
-    if die: exit(1)
 
-
-
-def err_badline(file_path, lineno, msg):
-    r"""Warn user and quit execution due to error in file format."""
-    err = "{}:{}: ERROR: {}".format(file_path, lineno or "???", msg)
-    print(err, file=sys.stderr)
-    exit(1)
+    if warntype == "ERROR":
+        exit(1)
 
 
 
@@ -1421,13 +1431,13 @@ class DependencyBasedSkippedFinder(AbstractSkippedFinder):
             n_roots = rootedmweoccur.n_attachments_to_root()
 
             if not all(t.has_dependency_info() for t in rooted_tokens):
-                example_mweoccur.sentence.msg_stderr(
-                    'WARNING: skipping MWE with partial dependency info: {}'.format("_".join(mwe.canonicform)))
+                example_mweoccur.sentence.warn(
+                    'Skipping MWE with partial dependency info: {}'.format("_".join(mwe.canonicform)))
                 continue
 
             if favor_precision and n_roots > 1:
-                example_mweoccur.sentence.msg_stderr(
-                    'WARNING: skipping MWE with disconnected syntax tree: {}'.format('_'.join(mwe.canonicform)))
+                example_mweoccur.sentence.warn(
+                    'Skipping MWE with disconnected syntax tree: {}'.format('_'.join(mwe.canonicform)))
                 continue
 
             x = MWEBagFrame(mwe, n_roots, Bag((t.lemma_or_surface().lower(), t) for t in rooted_tokens))
