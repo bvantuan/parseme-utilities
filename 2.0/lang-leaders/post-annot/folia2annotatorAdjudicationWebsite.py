@@ -378,14 +378,7 @@ p { margin-bottom: 5px; }  /* used inside mwe-occur-comment */
 
 <body>
 
-<div class="global-box">
-    Notes added: <span id="global-counter">0</span>
-
-    <div><a class="global-link" href="javascript:writeJsonFile()">Generate JSON</a></div>
-
-    <label for="file-upload" class="global-link global-file-input">Load JSON file</label>
-    <input style="display:none" id="file-upload" type="file" onchange="javascript:readJsonFile(this.files[0])"/>
-</div>
+""" + _shared_code.global_box_and_warning_modal() + """
 
 <div class="panel panel-default">
   <div class="panel-heading">1. Overview</div>

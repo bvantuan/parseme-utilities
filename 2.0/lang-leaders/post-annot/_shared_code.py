@@ -10,13 +10,65 @@ def html_header():
     '''
 
 
+def global_box_and_warning_modal():
+    r'''Get HTML code for the global-box and the warning modal.'''
+    return '''
+        <div class="global-box">
+            Notes added: <span id="global-counter">0</span>
+
+            <div><a class="global-link" href="javascript:writeJsonFile()">Generate JSON</a></div>
+
+            <label for="file-upload" class="global-link global-file-input">Load JSON file</label>
+            <input style="display:none" id="file-upload" type="file" onchange="javascript: readJsonFile(this, this.files[0])"/>
+        </div>
+
+        <style>
+        #mapping-warning-modal-title {
+            font-weight: bold;
+            color: red;
+        }
+        #mapping-warning-modal-body {
+            font-weight: bold;
+        }
+        #mapping-warning-html, #mapping-warning-json {
+            font-size: 11px;
+            margin-bottom: 20px;
+            font-weight: normal;
+        }
+        </style>
+
+        <!-- "Warning" modal -->
+        <div id="mapping-warning-modal" class="modal fade" role="dialog">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <!-- <button type="button" class="close" data-dismiss="modal">&times;</button> -->
+                <h4 id="mapping-warning-modal-title" class="modal-title">Warning</h4>
+              </div>
+              <div id="mapping-warning-modal-body" class="modal-body">
+                  <p>The HTML file was created with this mapping:</p>
+                  <p id="mapping-warning-html"></p>
+                  <p>But the ParsemeNotes JSON file contains this mapping:</p>
+                  <p id="mapping-warning-json"></p>
+                  <p>Do not proceed if these mappings do not match!</p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+    '''
+
+
 def consistency_and_adjudication_shared_javascript():
     r'''Get shared javascript code for utility HTML pages
     (we do not use a separate javascript file because we want things to be as SIMPLE as possible).
     '''
 
     return '''
-        <!--- BEGIN SHARED --->
+        <!--- ============ --->
         <!--- BEGIN SHARED --->
         window.parsemeData = {};
         window.havePendingParsemeNotes = false;
@@ -77,14 +129,17 @@ def consistency_and_adjudication_shared_javascript():
             }
         }
 
-        function readJsonFile(filePath) {
+        function readJsonFile(inputForm, filePath) {
+            inputForm.value = null;  /* allow same file file reload to trigger onchange */
             var reader = new FileReader();
             reader.onload = function() {
               var havePending = window.havePendingParsemeNotes;
               var data = JSON.parse(reader.result);
               var decisions = data.DECISIONS;
               if (!_.isEqual(data.META.filename_mapping, window.parsemeFilenameMapping)) {
-                  alert('WARNING:\\n\\nParsemeNotes file has this file mapping:\\n  ' + JSON.stringify(data.META.filename_mapping) + '\\nBut this HTML file was created with this mapping:\\n  ' + JSON.stringify(window.parsemeFilenameMapping) + '\\n\\nDo not proceed if these do not match!');
+                  $('#mapping-warning-html').text(JSON.stringify(data.META.filename_mapping, null, 1));
+                  $('#mapping-warning-json').text(JSON.stringify(window.parsemeFilenameMapping, null, 1));
+                  $('#mapping-warning-modal').modal();
               }
               $(".mweoccur-decide-button").each(function() {
                   var entryID = calculateEntryID(this);
@@ -104,5 +159,5 @@ def consistency_and_adjudication_shared_javascript():
         }
 
         <!--- END SHARED --->
-        <!--- END SHARED --->\n
+        <!--- ============ --->\n
     '''
