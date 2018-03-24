@@ -43,6 +43,11 @@ except ImportError:
 # The `empty` field in CoNLL-U and PARSEME-TSV
 EMPTY = "_"
 
+# Languages where the canonical form should have the lemmas for all tokens
+# Reason: HI = has many MVCs; HU = has bad POS tags
+# (XXX this is a workaround, we should rethink this for ST 2.0)
+LANGS_WITH_ALL_CANONICAL_TOKENS_LEMATIZED = set("HI HU".split())
+
 
 ############################################################
 
@@ -451,7 +456,7 @@ class MWEOccur:
         return (self.sentence.file_path, self.sentence.nth_sent, tuple(self.indexes))
 
     def __repr__(self):
-        return "MWEOccur<{}>".format(" ".join(self.reordered.mwe_canonical_form))
+        return "MWEOccur<{}>".format(" ".join(self.reordered.likely_canonicform))
 
     def suspiciously_similar(self, other: 'MWEOccur'):
         r'''Return True iff self and other are likely to be the same MWE
@@ -475,8 +480,8 @@ class MWEOccurView:
     Attributes:
     @type  tokens: tuple[Token]
     @param tokens: Tokens for MWEs this view (may be different from literal order in Sentence)
-    @type  mwe_canonical_form: list[str]
-    @param mwe_canonical_form: List of lemmas (or surfaces) for MWE tokens in this MWEOccurView.
+    @type  likely_canonicform: list[str]
+    @param likely_canonicform: List of lemmas (or surfaces) for MWE tokens in this MWEOccurView.
     @type  i_head: int
     @param i_head: Index of head verb.
     @type  i_subhead: Optional[int]
@@ -492,18 +497,18 @@ class MWEOccurView:
         self.i_subhead = self._i_subhead()
         self.head = self.tokens[self.i_head]
         self.subhead = self.tokens[self.i_subhead] if (self.i_subhead is not None) else None
-        self.mwe_canonical_form = self._mwe_canonical_form()
-        self.mwe_lemmatized_form = self._lemmatized_at(range(len(self.tokens)))    
+        self.likely_lemmatizedform = self._lemmatized_at(range(len(self.tokens)))    
+        self.likely_canonicform = self._likely_canonicform()
 
     def _i_head(self):
-        r"""Index of head verb in `mwe_canonical_form`
+        r"""Index of head verb in `likely_canonicform`
         (First word if there is no POS info available)."""
         i_verbs = [i for (i, t) in enumerate(self.tokens) if t.univ_pos == "VERB"] \
                 or [(-1 if self.mwe_occur.lang in LANGS_WITH_VERB_OCCURRENCES_ON_RIGHT else 0)]
         return i_verbs[0]  # just take first verb that appears
 
     def _i_subhead(self):
-        r"""Index of sub-head noun in `mwe_canonical form` (very useful for LVCs)."""
+        r"""Index of sub-head noun in `likely_canonicform` (very useful for LVCs)."""
         i_nouns = tuple(i for (i, t) in enumerate(self.tokens) if t.univ_pos == "NOUN")
         if not i_nouns: return None
         # We look for the first noun that is not the modifier in a noun compound
@@ -522,18 +527,20 @@ class MWEOccurView:
         r"""Return the reflexive pronoun (for IRVs), or None."""
         return next((i for (i, t) in enumerate(self.tokens) if t.univ_pos == "PRON"), None)
 
-    def _mwe_canonical_form(self):
+    def _likely_canonicform(self):
         r"""Return a lemmatized form of this MWE."""
+        if self.mwe_occur.lang in LANGS_WITH_ALL_CANONICAL_TOKENS_LEMATIZED:
+            return self.likely_lemmatizedform
         indexes = [self.i_head, self.i_subhead, self._i_reflpron()]
         return self._lemmatized_at([i for i in indexes if i is not None])
 
 
     def _lemmatized_at(self, indexes):
-        r"""Return a list[str] with surfaces from self.tokens, lemmatized at given indexes."""
+        r"""Return a tuple[str] with surfaces from self.tokens, lemmatized at given indexes."""
         ret = [t.surface for t in self.tokens]
         for i in indexes:
             ret[i] = self.tokens[i].lemma_or_surface()
-        return [x.casefold() for x in ret]
+        return tuple(x.casefold() for x in ret)
 
 
     def _with_fixed_tokens(self):
@@ -649,8 +656,6 @@ class MWELexicalItem:
     would ideally be grouped into MWELexicalItem with canonicform "take shower".
     
     Parameters:
-    @type  canonicform: tuple[str]
-    @param canonicform: a tuple of canonical lemma/surface forms
     @type  mweoccurs: list[MWEOccur]
     @param mweoccurs: a list of MWEOccur instances (read-only!)
 
@@ -660,8 +665,9 @@ class MWELexicalItem:
     @type  i_subhead: Optional[int]
     @param i_subhead: index of sub-head noun
     '''
-    def __init__(self, canonicform, mweoccurs):
-        self.canonicform, self.mweoccurs = canonicform, mweoccurs
+    def __init__(self, mweoccurs: list):
+        self.mweoccurs = mweoccurs
+        self.canonicform = most_common(m.reordered.likely_canonicform for m in mweoccurs)
         self._seen_mweoccur_ids = {m.id() for m in self.mweoccurs}  # type: set[str]
 
         self.i_head = most_common(m.reordered.i_head for m in mweoccurs)
@@ -739,6 +745,13 @@ def most_common(iterable, *, fallback=_FALLBACK_RAISE):
 
     assert fallback is not _FALLBACK_RAISE, 'Zero elements to choose from; no fallback provided'
     return fallback
+
+
+class FrozenCounter(collections.Counter):
+    r'''Instance of Counter that can be hashed. Should not be modified.'''
+    def __hash__(self):
+        return hash(frozenset(self.items()))
+
 
 
 ############################################################
@@ -1230,26 +1243,26 @@ def read_mwelexitems(lang, iter_sentences):
     r"""Return two lists: (list[MWELexicalItem], list[MWELexicalItem]).
     The first list concerns real MWEs, while the second concerns strictly NonVMWEs.
     """
-    cf2mweoccurs = _canonicform2mweoccurs(lang, iter_sentences)  # type: dict[tuple[str], list[MWEOccur]]
-    canonicform2mwe_mixed = collections.OrderedDict()  # type: dict[tuple[str], MWELexicalItem]
-    canonicform2mwe_nvmwe = collections.OrderedDict()  # type: dict[tuple[str], MWELexicalItem]
+    lf2mweoccurs = _lemmatizedform2mweoccurs(lang, iter_sentences)  # type: dict[tuple[str], list[MWEOccur]]
+    lemmatizedform2mwe_mixed = collections.OrderedDict()  # type: dict[tuple[str], MWELexicalItem]
+    lemmatizedform2mwe_nvmwe = collections.OrderedDict()  # type: dict[tuple[str], MWELexicalItem]
 
-    for canonicform, mweoccurs in cf2mweoccurs.items():
-        mwe = MWELexicalItem(canonicform, mweoccurs)
+    for lemmatizedform, mweoccurs in lf2mweoccurs.items():
+        mwe = MWELexicalItem(mweoccurs)
         if mwe.only_non_vmwes():
-            canonicform2mwe_nvmwe[canonicform] = mwe
+            lemmatizedform2mwe_nvmwe[lemmatizedform] = mwe
         else:
-            canonicform2mwe_mixed[canonicform] = mwe
-    return (list(canonicform2mwe_mixed.values()), list(canonicform2mwe_nvmwe.values()))
+            lemmatizedform2mwe_mixed[lemmatizedform] = mwe
+    return (list(lemmatizedform2mwe_mixed.values()), list(lemmatizedform2mwe_nvmwe.values()))
 
 
-def _canonicform2mweoccurs(lang, iter_sentences):
+def _lemmatizedform2mweoccurs(lang, iter_sentences):
     r'''Return a dict[tuple[str], list[MWEOccur]].'''
     ret = collections.defaultdict(list)  # type: dict[tuple[str], list[MWEOccur]]
     for sentence in iter_sentences:
         for mwe_occur in sentence.mwe_occurs(lang):
-            canonicform = tuple(mwe_occur.reordered.mwe_canonical_form)
-            ret[canonicform].append(mwe_occur)
+            lemmatizedform = FrozenCounter(mwe_occur.reordered.likely_lemmatizedform)
+            ret[lemmatizedform].append(mwe_occur)
     return ret
 
 
