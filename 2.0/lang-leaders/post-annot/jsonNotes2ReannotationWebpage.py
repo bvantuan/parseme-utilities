@@ -13,6 +13,8 @@ import os, sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../lib"))
 import dataalign
 
+from pynlpl.formats import folia
+
 
 parser = argparse.ArgumentParser(description="""
         Read JSON notes and output a pretty page that indicates what should be (re-)annotated.""")
@@ -36,10 +38,14 @@ class IndexInfo(collections.namedtuple('AnnotEntry', 'filename sent_id indexes')
 
 class AnnotEntry(collections.namedtuple('AnnotEntry', 'index_infos json_data')):
     r"""index_infos: List[IndexInfo], json_data: dict"""
+    def good(self, msg, *args, **kwargs):
+        r"""Assign self.message with an OK message (to show in output)"""
+        self.message = msg.format(*args, J=self.json_data, **kwargs)
+
     def err(self, msg, *args, **kwargs):
-        r"""Assign self._bad with a warning message (to show in output)"""
-        self._bad = msg.format(*args, J=self.json_data, **kwargs)
-        return NoteError(msg=self._bad, fname=self.index_infos[0].filename, sent_id=self.index_infos[0].sent_id)
+        r"""Assign self.message with a warning message (to show in output)"""
+        self.message = msg.format(*args, J=self.json_data, **kwargs)
+        return NoteError(msg=self.message, fname=self.index_infos[0].filename, sent_id=self.index_infos[0].sent_id)
 
 
 class Main(object):
@@ -55,10 +61,8 @@ class Main(object):
         self.fname2foliadoc = {}
         self.basefname2fname = {}
         if self.args.xml_input:
-            from pynlpl.formats import folia
             self.fname2foliadoc = {fname: folia.Document(file=fname) for fname in self.args.xml_input}
             self.basefname2fname = {os.path.basename(fname): fname for fname in self.fname2foliadoc}
-            self.folia = folia
 
     def run(self):
         self.load_fname2annots()
@@ -79,12 +83,16 @@ class Main(object):
                 print('ERROR: Zero annotations were done automatically. Check for warnings above.', file=sys.stderr)
 
     def print_panel(self, fname, annots):
+        r"""print_panel(str, list[AnnotEntry])
+        Print panel for a given file name, along with all of its annotations.
+        """
         manual, auto = self.split_corrections(fname, annots)
         print('<div class="panel panel-default file-block">')
         print('<div class="panel-heading filename">{} <a class="show-link">' \
                 '[<span class="show-or-hide-text">show</span>' \
                 '<span class="show-or-hide-text" style="display:none">hide</span>' \
-                ' {} automatically annotated]</a></div>'.format(fname, len(auto)))
+                ' {}/{} automatically annotated]</a></div>'.format(
+                    fname, len(auto), len(auto)+len(manual)))
         print('<div class="panel-body">')
         print('<div class="list-group">')
         try:
@@ -106,25 +114,28 @@ class Main(object):
         print('</div>')  # file-block
 
 
-    def print_annot(self, annot_entry, is_manual):
+    def print_annot(self, annot_entry: AnnotEntry, is_manual: bool):
+        r"""Print the annotation item corresponding to one MWE occurrence."""
         if annot_entry.json_data['type'] == 'DO-NOTHING':
             return  # completely hide it, nobody cares when it's DO-NOTHING
 
+        right_span = ""
+        if hasattr(annot_entry, "message"):
+            right_span = '<span class="{}">{}</span>'.format(
+                ("warn-txt" if is_manual else "auto-txt"), annot_entry.message)
+
         if is_manual:
-            right_span = ""
-            if hasattr(annot_entry, "_bad"):
-                right_span = '<span class="warn-txt">{}</span>'.format(annot_entry._bad)
             print('<div class="list-group-item annot-entry wtd-list-manual">{}{}</div>'.format(
                     right_span, "".join(self.annot2str(annot_entry, "what-to-do-manual"))))
             self.n_manual += 1
         else:
-            right_span = '<span class="auto-txt">Automatically annotated</span>'
             print('<div class="list-group-item annot-entry wtd-list-auto">{}{}</div>'.format(
                     right_span, "".join(self.annot2str(annot_entry, "what-to-do-auto"))))
             self.n_auto += 1
 
 
-    def annot2str(self, annot_entry, wtd_class):
+    def annot2str(self, annot_entry: AnnotEntry, wtd_class: str) -> str:
+        r"""Return the annotation entry corresponding to one MWE occurrence."""
         J = annot_entry.json_data
         yield '<span class="label label-default sent-id">Sentence #{}</span>'.format(annot_entry.index_infos[0].sent_id)
         yield '<span class="focus-mwe">{}</span>'.format(" ".join(J.get("source_mwe") or ['+']))
@@ -209,33 +220,33 @@ class Main(object):
 
             try:
                 if not id2foliasent:
-                    annot.err('Underlying XML file not given as input')
-                elif self.folia_modify(id2foliasent.get(annot.index_infos[0].sent_id), annot):
-                    auto.append(annot)
-                    continue
+                    raise annot.err('Underlying XML file not given as input')
+                self.folia_modify(id2foliasent.get(annot.index_infos[0].sent_id), annot)
             except NoteError as e:
                 print(e, file=sys.stderr)  # fallback on manual below
-            manual.append(annot)
+                manual.append(annot)
+            else:
+                auto.append(annot)
         return manual, auto
 
 
-    def folia_modify(self, foliasent, annot):
+    def folia_modify(self, foliasent: folia.Sentence, annot: AnnotEntry):
         r"""Modify the FoliA data (raise NoteError on failure)."""
         if foliasent is None:
             raise annot.err("File {} does not have sentence #{}!", annot.filename, annot.sent_id)
 
         if annot.json_data["type"] == "DO-NOTHING":
-            return  # literally do nothing
+            return annot.good("Nothing do to")  # literally do nothing
 
         elif annot.json_data["type"] in "SPECIAL-CASE":
             raise annot.err("Marked as SPECIAL CASE (cannot be automatically corrected)")
 
         elif annot.json_data["type"] == "NEW-ANNOT":
             indexes = {i for iinfos in annot.index_infos for i in iinfos.indexes}
-            entity = foliasent.add(self.folia.Entity, *[foliasent[i] for i in indexes])
+            entity = foliasent.add(folia.Entity, *[foliasent[i] for i in indexes])
             entity.cls = annot.json_data['target_categ']
             self.folia_reannot_tokens(entity, annot)
-            return True
+            return annot.good("Automatically annotated")
 
         elif annot.json_data["type"] in ["RE-ANNOT", "DELETE-ANNOT"]:
             entity = self.folia_get_entity(foliasent, annot)
@@ -244,7 +255,7 @@ class Main(object):
 
             if annot.json_data["type"] == "DELETE-ANNOT":
                 entity.parent.remove(entity)
-                return True
+                return annot.good("Automatically deleted")
 
             RE_SOURCEINFO = re.compile(r"^(?P<categ>\S+)( (?P<confid>[0-9]+)%)?$")
             sourceinfo = RE_SOURCEINFO.match(annot.json_data["source_categ"]).groupdict()
@@ -266,10 +277,10 @@ class Main(object):
             # .......: Then, you can change it further (must not `raise` from here on)
             if annot.json_data["source_categ"] != annot.json_data["target_categ"]:
                 entity.cls, entity.confidence = annot.json_data["target_categ"], None
-                entity.append(self.folia.Comment, annotatortype="auto", datetime=ISOTIME,
+                entity.append(folia.Comment, annotatortype="auto", datetime=ISOTIME,
                         value="[AUTO RE-ANNOT CATEGORY: {} → {}]".format(
                         annot.json_data["source_categ"], annot.json_data["target_categ"]))
-            return True
+            return annot.good("Automatically reannotated")
         else:
             raise Exception("Unknown ANNOT type: " + annot.json_data['type'])
 
@@ -278,17 +289,17 @@ class Main(object):
         r"""Find folia.Entity object. Creates one if Skipped. Returns None on failure."""
         foliaentity = self.folia_find_entity(foliasent, annot.index_infos[0].indexes)
         if not foliaentity and annot.json_data["source_categ"] == "Skipped":
-            layers = list(foliasent.select(self.folia.EntitiesLayer))
+            layers = list(foliasent.select(folia.EntitiesLayer))
             if not layers:
-                layers = [foliasent.append(self.folia.EntitiesLayer)]
-            foliaentity = layers[0].append(self.folia.Entity, cls="Skipped")
+                layers = [foliasent.append(folia.EntitiesLayer)]
+            foliaentity = layers[0].append(folia.Entity, cls="Skipped")
             self.folia_entity_set_indexes(annot, foliaentity, annot.index_infos[0].indexes)
         return foliaentity  # may be None
 
 
     def folia_find_entity(self, foliasent, target_indexes):
         r"""Find folia.Entity object. Returns None on failure."""
-        for foliaentity in foliasent.select(self.folia.Entity):
+        for foliaentity in foliasent.select(folia.Entity):
             indexes = tuple(int(w.id.rsplit(".", 1)[-1])-1 for w in foliaentity.wrefs())
             if indexes == target_indexes:
                 return foliaentity
@@ -327,7 +338,7 @@ class Main(object):
             else:
                 annot_comment = "[AUTO ANNOT TOKENS: \"{}\"]".format(
                         " ".join(annot.json_data["target_mwe"]))
-            foliaentity.append(self.folia.Comment, annotatortype="auto", datetime=ISOTIME, value=annot_comment)
+            foliaentity.append(folia.Comment, annotatortype="auto", datetime=ISOTIME, value=annot_comment)
 
     def find_words(self, annot, foliawords, surfaces, mwe):
         foliawords, surfaces = list(foliawords), list(surfaces)

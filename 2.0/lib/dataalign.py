@@ -356,7 +356,7 @@ class Sentence:
 
     def msg_stderr(self, msg, header=True, die=False):
         r"""Print a warning message; e.g. "foo.xml:13: blablabla"."""
-        msg_stderr(self.id(short=True), msg, die=die)
+        msg_stderr(self.id(short=True), msg, header=header, die=die)
 
 
     def check_token_data(self):
@@ -771,7 +771,7 @@ def calculate_conllu_paths(file_paths, warn=True):
         else:
             if warn:
                 print("WARNING: CoNLL-U file `{}` not found".format(ret_path), file=sys.stderr)
-                print("WARNING: not using any CoNLL-U file", file=sys.stderr)
+                print("WARNING: Not using any CoNLL-U file", file=sys.stderr)
                 return None
     return ret
 
