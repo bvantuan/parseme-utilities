@@ -903,7 +903,7 @@ class SentenceAligner:
                     if not tokalign.is_alignable():
                         tokalign.msg_unalignable(error=False)
                         self.print_context(m, c)
-                        break
+                        do_error("Mismatched sentences")
                 else:
                     # zipped ranges are OK, the error is in the end of one of the ranges
                     end_mismatch_main = range(m+1, mismatch_main.stop)
@@ -921,8 +921,8 @@ class SentenceAligner:
                         self.print_context(end_mismatch_main.start, c)
 
     def print_context(self, main_index, conllu_index):
-        self.print_context_sents("PARSEME", self.main_sentences[main_index-1:main_index+2])
-        self.print_context_sents("CoNLL-U", self.conllu_sentences[conllu_index-1:conllu_index+2])
+        self.print_context_sents("PARSEME", self.main_sentences[max(0,main_index-1):main_index+2])
+        self.print_context_sents("CoNLL-U", self.conllu_sentences[max(0,conllu_index-1):conllu_index+2])
 
     def print_context_sents(self, info, sentences):
         for sent in sentences:
@@ -1085,7 +1085,7 @@ class AbstractFileIterator:
 
     def _new_sent(self):
         self.nth_sent += 1
-        self.curr_sent = Sentence(self.file_path, self.nth_sent, self.lineno)
+        self.curr_sent = Sentence(self.file_path, self.nth_sent, self.lineno+1)
         self.pending_userinfo = []
         self.id2mwe_categ = {}
         self.id2mwe_ranks = collections.defaultdict(list)
@@ -1197,7 +1197,7 @@ _WARNED = set()
 def warn_once(first_seen_here, msg_fmt, **kwargs):
     r"""Same as do_warn, but only called once per msg_fmt."""
     if msg_fmt not in _WARNED:
-        _WARNED.add(msg_fmt)
+        _WARNED.add(msg_fmt.format(**kwargs))
         do_warn(msg_fmt, **kwargs)
         do_warn('First seen here: {here}', here=first_seen_here, header=False)
         do_warn('(Ignoring further warnings of this type)', header=False)
@@ -1207,21 +1207,32 @@ def do_info(msg_fmt, **kwargs):
     r"""Same as do_warn, but using warntype=="INFO"."""
     do_warn(msg_fmt, **kwargs, warntype="INFO")
 
+def do_error(msg_fmt, **kwargs):
+    r"""Same as do_warn, but using warntype=="ERROR" (calls exit)."""
+    do_warn(msg_fmt, **kwargs, warntype="ERROR")
+
+
 def do_warn(msg_fmt, *, prefix=None, warntype=None, error=False, header=True, **kwargs):
     r"""Print a warning message "prefix: msg"; e.g. "foo.xml:13: blablabla"."""
-    warntype = "ERROR" if error else warntype or "WARNING"
-    if not header:
-        warntype = '.'*len(warntype)
+    warntype = ("ERROR" if error else warntype) or "WARNING"
+    dot_warntype = warntype if header else '.'*len(warntype)
 
     msg = msg_fmt.format(**kwargs)
-    prefix = "{}: {}".format(prefix, warntype) if prefix else warntype
+    prefix = "{}: {}".format(prefix, dot_warntype) if prefix else dot_warntype
     final_msg = "{}: {}".format(prefix, msg)
 
     if COLOR_STDERR:
-        color = 34 if warntype=="INFO" else (31 if header else 37)
+        if not header:
+            color = '38;5;245'  # ANSI color: grey-ish
+        elif warntype == "ERROR":
+            color = 31  # ANSI color: red
+        elif warntype == "INFO":
+            color = 34  # ANSI color: blue
+        else:
+            color = 33  # ANSI color: yellow
         final_msg = "\x1b[{}m{}\x1b[m".format(color, final_msg)
-    print(final_msg, file=sys.stderr)
 
+    print(final_msg, file=sys.stderr)
     if warntype == "ERROR":
         exit(1)
 
