@@ -218,7 +218,9 @@ class Token(collections.Mapping):
     """
     def __init__(self, *args, **kwargs):
         data = dict(*args, **kwargs)
-        self._data = {str(k): str(v) for (k, v) in data.items() if v}
+        # (Note we allow FORM=="_", because it can mean underspecified OR "_" itself
+        self._data = {str(k): str(v) for (k, v) in data.items()
+                      if v and (v != '_' or k == 'FORM')}
 
     def with_update(self, *args, **kwargs):
         r'''Return a copy Token with updated key-value pairs.'''
@@ -1129,8 +1131,7 @@ class AbstractFileIterator:
                 self.file_path, self.lineno, line[1:].strip()))
 
     def append_token(self, line):
-        data = [(d if d != EMPTY else None) for d in line.split("\t")]
-        token, mwecodes = self.get_token_and_mwecodes(data)  # method defined in subclass
+        token, mwecodes = self.get_token_and_mwecodes(line.split("\t"))  # method defined in subclass
 
         for mwecode in mwecodes:
             index_and_categ = mwecode.split(":")
@@ -1185,7 +1186,7 @@ class ParsemeTSVIterator(AbstractFileIterator):
             'MISC': ('SpaceAfter=No' if data[2]=='nsp' else ''),
         }
         mwe_codes = data[3]
-        m = mwe_codes.split(";") if mwe_codes else []
+        m = mwe_codes.split(";") if mwe_codes != "_" else []
         return Token(conllu), m
 
 
