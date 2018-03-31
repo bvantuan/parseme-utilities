@@ -772,13 +772,7 @@ def calculate_conllu_paths(file_paths, warn=True):
         dirname, basename = os.path.split(file_path)
         if not dirname: dirname = "."  # seriously, python...
 
-        if basename.endswith(".folia.xml"):
-            basename = basename.rsplit(".", 2)[0]
-        elif any(basename.endswith(x) for x in [".tsv", ".parsemetsv", ".xml", ".cupt"]):
-            basename = basename.rsplit(".", 1)[0]
-        else:
-            do_warn("Unknown file extension for `{}`".format(file_path))
-
+        basename = basename_without_ext(basename)
         for path_fmt in ["{d}/{b}.conllu", "{d}/conllu/{b}.conllu"]:
             ret_path = path_fmt.format(d=dirname, b=basename)
             if os.path.exists(ret_path):
@@ -794,6 +788,16 @@ def calculate_conllu_paths(file_paths, warn=True):
                 return None
     return ret
 
+
+RE_BASENAME_NOEXT = re.compile(
+    r'^(?:.*/)*(.*?)(\.(folia|xml|conllu|conllup|parsemetsv|tsv|tar|gz|bz2|zip))*$')
+
+def basename_without_ext(filepath):
+    r"""Return the basename of `filepath` without any known extensions."""
+    return RE_BASENAME_NOEXT.match(filepath).group(1)
+
+
+#####################################################################
 
 def iter_aligned_files(file_paths, conllu_paths=None,
         *, keep_nvmwes=False, default_mwe_category=None,
@@ -1258,9 +1262,9 @@ def do_warn(msg_fmt, *, prefix=None, warntype=None, error=False, header=True, **
         elif warntype == "ERROR":
             color = 31          # ANSI color: red
         elif warntype == "INFO":
-            color = 34          # ANSI color: red+invert
+            color = 34          # ANSI color: blue
         elif warntype == "FATAL":
-            color = '7;31'      # ANSI color: blue
+            color = '7;31'      # ANSI color: red+invert
         else:
             color = 33  # ANSI color: yellow
         final_msg = "\x1b[{}m{}\x1b[m".format(color, final_msg)
