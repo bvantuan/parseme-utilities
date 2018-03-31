@@ -107,6 +107,7 @@ class Token(collections.Mapping):
         # (Note we allow FORM=="_", because it can mean underspecified OR "_" itself
         self._data = {str(k): str(v) for (k, v) in data.items()
                       if v and (v != '_' or k == 'FORM')}
+        assert 'FORM' in self
 
     def with_update(self, *args, **kwargs):
         r'''Return a copy Token with updated key-value pairs.'''

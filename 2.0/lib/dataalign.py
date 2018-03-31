@@ -74,6 +74,8 @@ COLOR_STDERR = (sys.stderr.isatty() and 'DISABLE_ANSI_COLOR' not in os.environ)
 
 class ToplevelComment:
     r"""Represents a bare comment in a conllup file. May represent metadata."""
+    GLOBAL_COLUMNS_REGEX = re.compile(rb'^# *global\.columns *= *(.*)$', re.MULTILINE)
+
     def __init__(self, file_path, lineno, text):
         self.file_path, self.lineno, self.text = file_path, lineno, text
 
@@ -221,6 +223,7 @@ class Token(collections.Mapping):
         # (Note we allow FORM=="_", because it can mean underspecified OR "_" itself
         self._data = {str(k): str(v) for (k, v) in data.items()
                       if v and (v != '_' or k == 'FORM')}
+        self._data.setdefault('FORM', '_')
 
     def with_update(self, *args, **kwargs):
         r'''Return a copy Token with updated key-value pairs.'''
@@ -771,7 +774,7 @@ def calculate_conllu_paths(file_paths, warn=True):
 
         if basename.endswith(".folia.xml"):
             basename = basename.rsplit(".", 2)[0]
-        elif any(basename.endswith(x) for x in [".tsv", ".parsemetsv", ".xml"]):
+        elif any(basename.endswith(x) for x in [".tsv", ".parsemetsv", ".xml", ".cupt"]):
             basename = basename.rsplit(".", 1)[0]
         else:
             do_warn("Unknown file extension for `{}`".format(file_path))
@@ -810,9 +813,12 @@ def iter_aligned_files(file_paths, conllu_paths=None,
 
 
 def _iter_parseme_file(file_path, default_mwe_category):
-    if file_path.endswith('.xml'):
-        return FoliaIterator(file_path)
-    return ParsemeTSVIterator(file_path, default_mwe_category)
+    fileobj = open(file_path, 'r')
+    if b'FoLiA' in fileobj.buffer.peek(1024):
+        return FoliaIterator(file_path, fileobj)
+    if b'global.columns' in fileobj.buffer.peek(1024):
+        return ConllpIterator(file_path, fileobj, default_mwe_category)
+    return ParsemeTSVIterator(file_path, fileobj, default_mwe_category)
 
 
 class AlignedIterator:
@@ -864,7 +870,7 @@ class AlignedIterator:
         main_iterator = chain_iter(_iter_parseme_file(p, default_mwe_category) for p in main_paths)
         if not conllu_paths:
             return main_iterator
-        conllu_iterator = chain_iter(ConllIterator(p, default_mwe_category) for p in conllu_paths)
+        conllu_iterator = chain_iter(ConllIterator(p, open(p, 'r'), default_mwe_category) for p in conllu_paths)
         return AlignedIterator(main_iterator, conllu_iterator, debug)
 
 
@@ -1029,8 +1035,9 @@ class TokenAligner:
 
 class FoliaIterator:
     r"""Yield Sentence's for file_path."""
-    def __init__(self, file_path):
+    def __init__(self, file_path, fileobj):
         self.file_path = file_path
+        self.fileobj = fileobj
 
     def __iter__(self):
         doc = folia.Document(file=self.file_path)
@@ -1048,7 +1055,7 @@ class FoliaIterator:
                 # ID FORM LEMMA UPOS XPOS FEATS HEAD DEPREL DEPS MISC
                 conllu = {
                     'ID': str(rank),
-                    'FORM': word.text(),
+                    'FORM': word.text() or '_',
                     'MISC': ('' if word.space else 'SpaceAfter=No'),
                 }
                 current_sentence.tokens.append(Token(conllu))
@@ -1078,8 +1085,9 @@ class AbstractFileIterator:
     @param default_mwe_category: category to use when one is missing (str);
                                  if not specified, raises an error instead
     '''
-    def __init__(self, file_path, default_mwe_category):
+    def __init__(self, file_path, fileobj, default_mwe_category):
         self.file_path = file_path
+        self.fileobj = fileobj
         self.default_mwe_category = default_mwe_category
         self.nth_sent = 0
         self.lineno = 0
@@ -1101,7 +1109,7 @@ class AbstractFileIterator:
     def finish_sentence(self):
         r"""Return finished `self.curr_sent`."""
         if not self.curr_sent:
-            self.err("Unexpected empty line")
+            self.warn("Unexpected empty line")
         s = self.curr_sent
         if self.default_mwe_category:
             for key in self.id2mwe_ranks:
@@ -1110,17 +1118,17 @@ class AbstractFileIterator:
             s.mweannots = [MWEAnnot(tuple(self.id2mwe_ranks[id]),
                 self.id2mwe_categ[id]) for id in sorted(self.id2mwe_ranks)]
         except KeyError as e:
-            self.err("MWE has no category: {categ}", categ=e.args[0])
+            self.warn("MWE has no category: {categ}", categ=e.args[0])
         self._new_sent()
         s.check_token_data()
         return s
 
-    def err(self, msg_fmt, **kwargs):
+    def warn(self, msg_fmt, **kwargs):
         do_warn(msg_fmt, prefix="{}:{}".format(self.file_path, self.lineno), **kwargs)
 
     def make_comment(self, line):
         if self.curr_sent.tokens:
-            self.err("Comment in the middle of a sentence is not allowed")
+            self.warn("Comment in the middle of a sentence is not allowed")
         match = UserInfo.TSV_REGEX.match(line)
         if match:
             scope, json_str = match.groups()
@@ -1142,17 +1150,21 @@ class AbstractFileIterator:
         self.curr_sent.tokens.append(token)
 
     def __iter__(self):
-        with open(self.file_path, 'r') as f:
-            yield from self.iter_header(f)
-            for self.lineno, line in enumerate(f, 1):
-                line = line.strip("\n")
-                if line.startswith("#"):
-                    self.make_comment(line)
-                elif not line.strip():
-                    yield self.finish_sentence()
-                else:
-                    self.append_token(line)
-            yield from self.iter_footer(f)
+        with self.fileobj:
+            yield from self.iter_header(self.fileobj)
+            for self.lineno, line in enumerate(self.fileobj, 1):
+                try:
+                    line = line.strip("\n")
+                    if line.startswith("#"):
+                        self.make_comment(line)
+                    elif not line.strip():
+                        yield self.finish_sentence()
+                    else:
+                        self.append_token(line)
+                except:
+                    self.warn("Error when reading token", warntype="FATAL")
+                    raise
+            yield from self.iter_footer(self.fileobj)
 
     def iter_header(self, f):
         return []  # Nothing to yield on header
@@ -1166,8 +1178,24 @@ class ConllIterator(AbstractFileIterator):
 
     def get_token_and_mwecodes(self, data):
         if len(data) != 10:
-            self.err("Line has {n} columns, not 10", n=len(data))
+            self.warn("Line has {n} columns, not 10", n=len(data))
         return Token(zip(self.UD_KEYS, data)), []
+
+
+class ConllpIterator(AbstractFileIterator):
+    def __init__(self, file_path, fileobj, default_mwe_category):
+        super().__init__(file_path, fileobj, default_mwe_category)
+        first_lines = fileobj.buffer.peek(1024*10)
+        colnames = ToplevelComment.GLOBAL_COLUMNS_REGEX.search(first_lines).group(1)
+        self.colnames = tuple(colnames.decode('utf8').split())
+
+    def get_token_and_mwecodes(self, data):
+        if len(data) != len(self.colnames):
+            self.warn("Line has {n} columns, not {n_exp}", n=len(data), n_exp=len(self.colnames))
+        tokendict = dict(zip(self.colnames, data))
+        mwe_codes = tokendict.pop('PARSEME:MWE') or "_"
+        m = mwe_codes.split(";") if mwe_codes not in "_*" else []
+        return Token(tokendict), m
 
 
 class ParsemeTSVIterator(AbstractFileIterator):
@@ -1178,15 +1206,15 @@ class ParsemeTSVIterator(AbstractFileIterator):
                 "Silently ignoring 5th parsemetsv column")
             data.pop()  # remove data[-1]
         elif len(data) != 4:
-            self.err("Line has {n} columns, not 4", n=len(data))
+            self.warn("Line has {n} columns, not 4", n=len(data))
         # ID FORM LEMMA UPOS XPOS FEATS HEAD DEPREL DEPS MISC
         conllu = {
             'ID': data[0],
-            'FORM': data[1],
+            'FORM': data[1] or '_',
             'MISC': ('SpaceAfter=No' if data[2]=='nsp' else ''),
         }
         mwe_codes = data[3]
-        m = mwe_codes.split(";") if mwe_codes != "_" else []
+        m = mwe_codes.split(";") if mwe_codes not in "_*" else []
         return Token(conllu), m
 
 
@@ -1224,11 +1252,13 @@ def do_warn(msg_fmt, *, prefix=None, warntype=None, error=False, header=True, **
 
     if COLOR_STDERR:
         if not header:
-            color = '38;5;245'  # ANSI color: grey-ish
+            color = '38;5;245'  # ANSI color: grey
         elif warntype == "ERROR":
-            color = 31  # ANSI color: red
+            color = 31          # ANSI color: red
         elif warntype == "INFO":
-            color = 34  # ANSI color: blue
+            color = 34          # ANSI color: red+invert
+        elif warntype == "FATAL":
+            color = '7;31'      # ANSI color: blue
         else:
             color = 33  # ANSI color: yellow
         final_msg = "\x1b[{}m{}\x1b[m".format(color, final_msg)
