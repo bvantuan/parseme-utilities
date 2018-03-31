@@ -858,8 +858,8 @@ class AlignedIterator:
 
             if self.debug and info == "CONLL:EXTRA":
                 conllu_sentence.warn(
-                    "DEBUG: Adding tokens from CoNLL: {surf!r} with rank {rank!r}",
-                    surf=[t.surface for t in tokens], rank=[t.rank for t in tokens])
+                    "Adding tokens from CoNLL: {surf!r} with rank {rank!r}",
+                    surf=[t.surface for t in tokens], rank=[t.rank for t in tokens], warntype='DEBUG')
 
 
     @staticmethod
@@ -1007,7 +1007,7 @@ class TokenAligner:
             if self.debug:
                 tokens = [self.conllu_sentence.tokens[i] for i in range_gap_conllu]
                 self.conllu_sentence.warn(
-                        "DEBUG: Adding tokens from CoNLL: {surf!r} with rank {rank!r}",
+                        "Adding tokens from CoNLL: {surf!r} with rank {rank!r}",
                         surf=[t.surface for t in tokens], rank=[t.rank for t in tokens], warntype="DEBUG")
 
 
@@ -1040,7 +1040,8 @@ class FoliaIterator:
         self.fileobj = fileobj
 
     def __iter__(self):
-        doc = folia.Document(file=self.file_path)
+        doc = folia.Document(string=self.fileobj.read())
+        doc.filename = self.fileobj
         for folia_nonembedded_entitieslayer in doc.select(folia.EntitiesLayer, recursive=False):
             for folia_nonembedded_entity in folia_nonembedded_entitieslayer.select(folia.Entity):
                 do_warn('Ignoring MWE outside the scope of a single sentence: {id!r}',
@@ -1225,8 +1226,9 @@ _WARNED = set()
 
 def warn_once(first_seen_here, msg_fmt, **kwargs):
     r"""Same as do_warn, but only called once per msg_fmt."""
-    if msg_fmt not in _WARNED:
-        _WARNED.add(msg_fmt.format(**kwargs))
+    actual_msg = msg_fmt.format(**kwargs)
+    if actual_msg not in _WARNED:
+        _WARNED.add(actual_msg)
         do_warn(msg_fmt, **kwargs)
         do_warn('First seen here: {here}', here=first_seen_here, header=False)
         do_warn('(Ignoring further warnings of this type)', header=False)
