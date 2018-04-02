@@ -43,7 +43,7 @@ class Main:
     def run(self):
         (self.mwes, _) = dataalign.read_mwelexitems(
                 self.args.lang, dataalign.iter_sentences(self.args.input, self.args.conllu))
-        self.mweoccur_id2finders.update((o.id(), {'Human'}) for mwe in self.mwes for o in mwe.mweoccurs)
+        self.mweoccur_id2finders.update((o.mweo_id(), {'Human'}) for mwe in self.mwes for o in mwe.mweoccurs)
         skip_sents = dataalign.iter_sentences(self.args.input, self.args.conllu, verbose=False)
         self.find_literals(skip_sents)
 
@@ -65,9 +65,9 @@ class Main:
         for finder, find_method in zip(finders, self.args.literal_finding_method):
             for mwe, mweoccur in finder.find_skipped_in(sentences):
                 # Only add 'Skipped' if a MWE was not seen at this position
-                if mweoccur.id() not in self.mweoccur_id2finders:
+                if mweoccur.mweo_id() not in self.mweoccur_id2finders:
                     mwe.add_skipped_mweoccur(mweoccur)
-                self.mweoccur_id2finders[mweoccur.id()].add(find_method)
+                self.mweoccur_id2finders[mweoccur.mweo_id()].add(find_method)
 
 
     def print_categories(self):
@@ -129,7 +129,7 @@ class Main:
         source = '{}:{}'.format(os.path.basename(mweoccur.sentence.file_path), mweoccur.sentence.lineno)
         source_sent_number = 's.{}'.format(mweoccur.sentence.nth_sent)
         source_token_ranks = ','.join(mweoccur.sentence.tokens[i].rank for i in mweoccur.indexes)
-        find_methods = ','.join(sorted(self.mweoccur_id2finders[mweoccur.id()]))
+        find_methods = ','.join(sorted(self.mweoccur_id2finders[mweoccur.mweo_id()]))
         print(" ".join(mwe.canonicform), self._postag(mweoccur), categ, idlit, find_methods,
               self._example(mweoccur), source, source_sent_number, source_token_ranks,
               sep="\t", file=self.args.out_mweoccurs)

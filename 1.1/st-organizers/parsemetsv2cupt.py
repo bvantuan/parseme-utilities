@@ -84,11 +84,11 @@ class Main:
 
     def check_artificial_flag(self, sent: dataalign.Sentence, metadata_key: str):
         if not self.args.artificial:
-            sent.msg_stderr(
-                "ERROR: Sentence #{} is missing the `{}` metadata. " \
+            sent.warn(
+                "Sentence #{} is missing the `{}` metadata. " \
                 "Fix your input file, or use the --artificial flag to " \
                 "auto-generate the required CoNLL-U metadata." \
-                 .format(sent.nth_sent, metadata_key), die=True)
+                 .format(sent.nth_sent, metadata_key), error=True)
 
 
 

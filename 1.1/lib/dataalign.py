@@ -358,7 +358,7 @@ class Sentence:
         return MWEAnnot(tuple(self.tokens[i].rank for i in new_indexes), mweannot.category)
 
 
-    def id(self, *, short=False):
+    def errprefix(self, *, short=True):
         r"""Return a sentence ID, such as "foo.xml(s.13):78"."""
         ret = self.file_path if not short else os.path.basename(self.file_path)
         ret += "(s.{})".format(self.nth_sent) if self.nth_sent else ""
@@ -366,7 +366,7 @@ class Sentence:
 
     def warn(self, msg_fmt, **kwargs):
         r"""Print a warning message; e.g. "foo.xml:13: blablabla"."""
-        do_warn(msg_fmt, prefix=self.id(short=True), **kwargs)
+        do_warn(msg_fmt, prefix=self.errprefix(), **kwargs)
 
 
     def check_token_data(self):
@@ -401,10 +401,10 @@ class Sentence:
             return categ
         if categ in Categories.RENAMED:
             new_categ = Categories.RENAMED[categ]
-            warn_once(self.id(), 'Category {categ} renamed to {new_categ}',
+            warn_once(self.errprefix(), 'Category {categ} renamed to {new_categ}',
                       categ=categ, new_categ=new_categ)
             return new_categ
-        warn_once(self.id(), 'Category {categ} is unknown', categ=categ)
+        warn_once(self.errprefix(), 'Category {categ} is unknown', categ=categ)
         return categ
 
 
@@ -456,7 +456,7 @@ class MWEOccur:
         assert set(self.reordered.tokens) == set(self.fixed.tokens), \
                 "BUG: _with_reordered_tokens must not change word attributes"
 
-    def id(self):
+    def mweo_id(self):
         r"""Return an ID that uniquely identifies the file&sentence&indexes."""
         return (self.sentence.file_path, self.sentence.nth_sent, tuple(self.indexes))
 
@@ -673,7 +673,7 @@ class MWELexicalItem:
     def __init__(self, mweoccurs: list):
         self.mweoccurs = mweoccurs
         self.canonicform = most_common(m.reordered.likely_canonicform for m in mweoccurs)
-        self._seen_mweoccur_ids = {m.id() for m in self.mweoccurs}  # type: set[str]
+        self._seen_mweoccur_ids = {m.mweo_id() for m in self.mweoccurs}  # type: set[str]
 
         self.i_head = most_common(m.reordered.i_head for m in mweoccurs)
         nounbased_mweos = [m.reordered.i_subhead for m in mweoccurs
@@ -687,12 +687,12 @@ class MWELexicalItem:
 
     def contains_mweoccur(self, mweoccur):
         r'''True iff self.mweoccurs contains given MWEOccur.'''
-        return (mweoccur.id() in self._seen_mweoccur_ids)
+        return (mweoccur.mweo_id() in self._seen_mweoccur_ids)
 
     def add_skipped_mweoccur(self, mweoccur):
         r'''Add MWEOccur to this MWE descriptor. If this MWEOccur already exists, does nothing.'''
         assert mweoccur.category == 'Skipped'  # we do not need to update i_head/i_subhead for Skipped
-        mweoccur_id = mweoccur.id()
+        mweoccur_id = mweoccur.mweo_id()
         if not any(mweoccur.suspiciously_similar(m) for m in self.mweoccurs):
             self._seen_mweoccur_ids.add(mweoccur_id)
             self.mweoccurs.append(mweoccur)
@@ -1018,8 +1018,8 @@ class TokenAligner:
     def msg_unalignable(self, error=False):
         r"""Error issued if we cannot align tokens."""
         self.conllu_sentence.warn(
-            "CoNLL-U sentence #{n} does not match {id} sentence #{n2}",
-            n=self.conllu_sentence.nth_sent, id=self.main_sentence.id(),
+            "CoNLL-U sentence #{n} does not match {fileline} sentence #{n2}",
+            n=self.conllu_sentence.nth_sent, fileline=self.main_sentence.errprefix(),
             n2=self.main_sentence.nth_sent, error=error)
 
 
@@ -1030,8 +1030,8 @@ class TokenAligner:
 
         mwe_codes_info = " (MWEs={})".format(";".join(map(str,all_mwe_codes))) if all_mwe_codes else ""
         self.main_sentence.warn(
-            "Ignoring extra tokens in sentence #{n} ({id}): {toks!r}{mwe}",
-            n=self.main_sentence.nth_sent, id=self.conllu_sentence.id(),
+            "Ignoring extra tokens in sentence #{n} ({fileline}): {toks!r}{mwe}",
+            n=self.main_sentence.nth_sent, fileline=self.conllu_sentence.errprefix(),
             toks=main_toks, mwe=mwe_codes_info)
 
 
@@ -1249,7 +1249,7 @@ def do_error(msg_fmt, **kwargs):
 
 def do_warn(msg_fmt, *, prefix=None, warntype=None, error=False, header=True, **kwargs):
     r"""Print a warning message "prefix: msg"; e.g. "foo.xml:13: blablabla"."""
-    warntype = ("ERROR" if error else warntype) or "WARNING"
+    warntype = warntype or ("ERROR" if error else "WARNING")
     dot_warntype = warntype if header else '.'*len(warntype)
 
     msg = msg_fmt.format(**kwargs)
@@ -1261,10 +1261,10 @@ def do_warn(msg_fmt, *, prefix=None, warntype=None, error=False, header=True, **
             color = '38;5;245'  # ANSI color: grey
         elif warntype == "ERROR":
             color = 31          # ANSI color: red
-        elif warntype == "INFO":
-            color = 34          # ANSI color: blue
         elif warntype == "FATAL":
             color = '7;31'      # ANSI color: red+invert
+        elif warntype == "INFO":
+            color = 34          # ANSI color: blue
         else:
             color = 33  # ANSI color: yellow
         final_msg = "\x1b[{}m{}\x1b[m".format(color, final_msg)
