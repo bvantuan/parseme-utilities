@@ -75,13 +75,21 @@ COLOR_STDERR = (sys.stderr.isatty() and 'DISABLE_ANSI_COLOR' not in os.environ)
 class ToplevelComment:
     r"""Represents a bare comment in a conllup file. May represent metadata."""
     GLOBAL_COLUMNS_REGEX = re.compile(rb'^# *global\.columns *= *(.*)$', re.MULTILINE)
+    KEYVALUE_REGEX = re.compile(rb'^# *(\S+) *= *(.*?) *$', re.MULTILINE)
 
-    def __init__(self, file_path, lineno, text):
+    def __init__(self, file_path: str, lineno: int, text: str):
         self.file_path, self.lineno, self.text = file_path, lineno, text
 
     def to_tsv(self) -> str:
         r"""Return comment line in TSV syntax."""
         return '# {}'.format(self.text)
+
+    def keyvalue_pair(self) -> (str, str):
+        r"""If this comment contains a key-value metadata pair,
+        returns (key, value); otherwise returns (None, self.text).
+        """
+        match = self.KEYVALUE_REGEX.match(self.text)
+        return match.group() if match else (None, self.text)
 
 
 class UserInfoComment:
@@ -414,6 +422,17 @@ class Sentence:
             print(toplevel_comment.to_tsv())
         for mweoccur in self.mwe_occurs(lang):
             print(mweoccur.userinfo.to_tsv())
+
+
+    def unique_toplevel_metadata(self, metadata_key: str) -> ToplevelComment:
+        r"""Return a ToplevelComment for given `metadata_key`.
+        If the comment is not unique, raises a ValueError.
+        """
+        kv_pairs = (comment.keyvalue_pair() for comment in self.toplevel_comments)
+        ret = [v for (k, v) in kv_pairs if k == metadata_key]
+        if len(ret) != 1:
+            raise ValueError('Metadata is not unique ' + metadata_key)
+        return ret[0]
 
 
 class MWEOccur:
