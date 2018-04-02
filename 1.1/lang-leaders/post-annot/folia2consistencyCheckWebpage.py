@@ -131,8 +131,8 @@ class Main:
         else:  # occur.category != "Skipped":
             file_info = 'Annotated in file &quot;{}&quot;, sentence #{}, by &quot;{}&quot; on {}'.format(
                     ESC(occur.sentence.file_path), ESC(str(occur.sentence.nth_sent)),
-                    ESC(occur.annotator or "<unknown>"), ESC(str(occur.datetime or "<unknown-date>")))
-        confidence_info = '' if occur.confidence is None else ' {}%'.format(int(occur.confidence*100))
+                    ESC(occur.userinfo.annotator or "<unknown>"), ESC(str(occur.userinfo.datetime or "<unknown-date>")))
+        confidence_info = '' if occur.userinfo.confidence is None else ' {}%'.format(int(occur.userinfo.confidence*100))
         css_mwe_label = dataalign.Categories.css_name(occur.category)
         yield '<span class="label mwe-label {css_mwe_label}"' \
               'data-toggle="tooltip" title="{title}">{mwe_label}{confidence_info}</span><span> </span>' \
@@ -152,8 +152,8 @@ class Main:
 
         yield ' <span class="mweoccur-decide-button"><span class="glyphicon glyphicon-edit"></span><span class="mwe-glyphtext"></span></span>'
 
-        for comment in occur.comments:
-            c = ESC(comment).replace("\n\n", "</p>").replace("\n", "<br/>")
+        for comment in occur.userinfo.ui_comments:
+            c = ESC(comment.text).replace("\n\n", "</p>").replace("\n", "<br/>")
             yield '<div class="mwe-occur-comment">{}</div>'.format(c)
 
 
@@ -317,14 +317,7 @@ p { margin-bottom: 5px; }  /* used inside mwe-occur-comment */
 
 <body>
 
-<div class="global-box">
-    Notes added: <span id="global-counter">0</span>
-
-    <div><a class="global-link" href="javascript:writeJsonFile()">Generate JSON</a></div>
-
-    <label for="file-upload" class="global-link global-file-input">Load JSON file</label>
-    <input style="display:none" id="file-upload" type="file" onchange="javascript:readJsonFile(this.files[0])"/>
-</div>
+""" + _shared_code.global_box_and_warning_modal() + """
 
 <div class="panel panel-default">
   <div class="panel-heading">1. Overview</div>

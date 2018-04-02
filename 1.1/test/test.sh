@@ -8,6 +8,7 @@ exec </dev/null   # Don't hang if a script tries to read from stdin
 export IFS=$'\n'  # Do not split variables on " " automatically (only on "\n")
 
 export LC_ALL=C.UTF-8   # Use a decent locale (and hope it's supported...)
+export DISABLE_ANSI_COLOR=  # Some warnings are expected in these tests; let's not highlight them
 
 cd "$HERE"
 
@@ -71,10 +72,10 @@ for json_file in data/ParsemeNotesCC.json data/ParsemeNotesAdj.json; do
     run_devnull rm -r ./AfterAutoUpdate
 done
 
-#===> release-preparation scripts (for some reason, does not accept folia xml format... This should be fixed)
-run_devnull ../st-organizers/release-preparation/splitTrainTest.py --lang PT --input data/pt.parsemetsv --test-mwesize 15
-run_devnull rm -rf OUT
 
+#===> release-preparation scripts (for some reason, does not accept folia xml format... This should be fixed)
+#XXX run_devnull ../st-organizers/release-preparation/splitTrainTest.py --lang PT --input data/pt.parsemetsv --test-mwesize 15
+#XXX run_devnull rm -rf OUT
 
 #===> check all skipped methods
 for skipped_method in Dependency UnlabeledDep BagOfDeps WindowGap5; do

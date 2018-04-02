@@ -27,13 +27,12 @@ class Main:
     def run(self):
         self.conllu_paths = self.args.conllu \
                 or dataalign.calculate_conllu_paths(self.args.input, warn=False)
-        for elem in dataalign.iter_aligned_files(self.args.input, self.conllu_paths,
+        for sentence in dataalign.iter_aligned_files(self.args.input, self.conllu_paths,
                 keep_nvmwes=False, debug=False):
-            if not isinstance(elem, dataalign.Comment):
-                for mweannot in elem.mweannots:
-                    self.counter[mweannot.category] += 1
-                self.sents += 1
-                self.tokens += len(elem.tokens)
+            for mweannot in sentence.mweannots:
+                self.counter[mweannot.category] += 1
+            self.sents += 1
+            self.tokens += len(sentence.tokens)
         #print("### {}".format(" ".join(self.args.input)))
         print("* Sentences: {}".format(self.sents))
         print("* Tokens: {}".format(self.tokens))
