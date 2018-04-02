@@ -1,6 +1,8 @@
 #! /usr/bin/env python3
 
 import argparse
+import collections
+import json
 import subprocess
 
 import os, sys
@@ -8,13 +10,11 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../lib"))
 import dataalign
 
 parser = argparse.ArgumentParser(description="""
-        Split input files into OUT/{train,test}.{parsemetsv,conllu}.""")
+        Split input files into SPLIT/{train,test,dev}.cupt.""")
 parser.add_argument("--lang", choices=sorted(dataalign.LANGS), metavar="LANG", required=True,
         help="""Name of the target language (e.g. EN, FR, PL, DE...)""")
-parser.add_argument("--test-first-sentence", type=int, default=1,
-        help="""Desired first sentence to use as test data (default: sentence 1)""")
-parser.add_argument("--test-mwesize", type=int, default=500,
-        help="""Desired number of MWEs in test data""")
+parser.add_argument("--subcorpus-json", required=True,
+        help="""JSON file describing subcorpora (see calcSubcorpusJson.py)""")
 parser.add_argument("--input", nargs="+", type=str, required=True,
         help="""Path to input files (in FoLiA XML or PARSEME TSV format)""")
 parser.add_argument("--conllu", nargs="+", type=str,
@@ -24,87 +24,110 @@ parser.add_argument("--conllu", nargs="+", type=str,
 class Main:
     def __init__(self, args):
         self.args = args
-        self.conllu_paths = self.args.conllu \
-                or dataalign.calculate_conllu_paths(self.args.input) or []
+        self.conllu_paths = self.args.conllu or \
+            dataalign.calculate_conllu_paths(self.args.input) or []
+        subcorpus_json = json.load(open(self.args.subcorpus_json))
+        self.subcorpora = [Subcorpus(x) for x in subcorpus_json["subcorpora"]]
+        self.first2subcorpus = {rng["first"]: sc for sc in self.subcorpora for rng in sc.ranges}
+        self.last2subcorpus = {rng["last"]: sc for sc in self.subcorpora for rng in sc.ranges}
 
     def run(self):
-        info_train, info_test = self.split_train_test()
-        subprocess.check_call("mkdir -p ./OUT", shell=True)
-        print("Statistics\n==========\n", file=sys.stderr)
-        for name, info in (("test", info_test), ("train", info_train)):
-            self.process_fileinfo(name, info)
+        sents = list(dataalign.iter_aligned_files(
+            self.args.input, self.conllu_paths, keep_nvmwes=False))
 
-    def process_fileinfo(self, name, info):
-        r"""Example: process_fileinfo("train", FileInfo(...))"""
-        self.generate_file(name, "parsemetsv", info.tsv_lines)
-        if self.conllu_paths:
-            self.generate_file(name, "conllu", info.conllu_lines)
-        self.stats(info.mwecount, (name == "test"))
+        # Calculate number of sentences and MWEs for subcorpora
+        for sent, subcorpus in self.iter_sentence_with_subcorpus(sents):
+            subcorpus.n_sents += 1
+            subcorpus.n_mwes += len(sent.mweannots)
+        total_n_mwes = sum(sc.n_mwes for sc in self.subcorpora)
 
-    def generate_file(self, name, ext, lines):
-        with open("./OUT/{}.{}".format(name, ext), "w+") as output:
-            for line in lines:
-                print(line, end="", file=output)
+        # Calculate split sizes for all subcorpora
+        split = decide_split(total_n_mwes)
+        for subcorpus in self.subcorpora:
+            mul = subcorpus.n_mwes / total_n_mwes
+            subcorpus.subsplit = IntSplit(
+                train=int(split.train*mul),
+                test=int(split.test*mul),
+                dev=int(split.dev*mul))
 
+        largest_subcorpus = max(self.subcorpora, key=lambda sc: sc.n_mwes)
+        delta_test = split.test - sum(sc.subsplit.test for sc in self.subcorpora)
+        delta_dev = split.dev - sum(sc.subsplit.dev for sc in self.subcorpora)
+        largest_subcorpus.subsplit.test += delta_test
+        largest_subcorpus.subsplit.dev += delta_dev
 
-    def stats(self, mwe_count, doing_test):
-        print("### OUT/"+ ("test.*" if doing_test else "train.*"), file=sys.stderr)
-        total = 0
-        for mwetype,count in sorted(mwe_count.items()) :
-            if mwetype != "TOTAL" :
-                print("  * `{}`: {}".format(mwetype,count), file=sys.stderr)
-        print("  * **TOTAL**: {} VMWEs\n".format(mwe_count["TOTAL"]), file=sys.stderr)
+        for subcorpus in self.subcorpora:
+            print("COUNT-MWEs: {regex}: train={ss.train} test={ss.test} dev={ss.dev}".format(
+                regex=subcorpus.regex, ss=subcorpus.subsplit), file=sys.stderr)
+        print("COUNT-MWEs: TOTAL: train={ss.train} test={ss.test} dev={ss.dev}" \
+              .format(ss=split), file=sys.stderr)
 
+        # Dedicate each sentence to one of {test,train,dev}
+        dedic_sents = []
+        for sent, subcorpus in self.iter_sentence_with_subcorpus(sents):
+            if subcorpus.subsplit.test > 0:
+                dedic_sents.append(DedicatedSentence(sent, 'test'))
+                subcorpus.subsplit.test -= len(sent.mweannots)
+            elif subcorpus.subsplit.dev > 0:
+                dedic_sents.append(DedicatedSentence(sent, 'dev'))
+                subcorpus.subsplit.dev -= len(sent.mweannots)
+            else:
+                dedic_sents.append(DedicatedSentence(sent, 'train'))
 
-    def split_train_test(self):
-        r"""Return a pair (train: FileInfo, test: FileInfo)"""
-        info_train, info_test = FileInfo(), FileInfo()
-        info = info_train
-
-        for sent_id, (tsv, conllu) in enumerate(self.iter_sentences(), 1):
-            if sent_id == self.args.test_first_sentence:
-                info = info_test
-            if info.mwecount["TOTAL"] >= self.args.test_mwesize:
-                info = info_train
-
-            info.tsv_lines.extend(tsv)
-            info.conllu_lines.extend(conllu)
-
-            for tsv_line in tsv:
-                if not tsv_line.startswith("#"):
-                    for x in tsv_line.strip().split("\t")[-1].split(";") :
-                        if ":" in x :
-                            mweid,mwetype = x.split(":")
-                            info.mwecount[mwetype] = info.mwecount.get(mwetype,0) + 1
-                            info.mwecount["TOTAL"] += 1
-        return info_train, info_test
+        # Print sentences
+        subprocess.check_call("mkdir -p ./SPLIT", shell=True)
+        for splittype in 'test dev train'.split():
+            with open("./SPLIT/{}.cupt".format(splittype), "w+") as output:
+                dataalign.ConllupWriter(output=output).write_sentences([
+                    s for (s, stype) in dedic_sents if stype == splittype])
 
 
-    def iter_sentences(self):
-        r"""Yield pairs (tsv: List[str], conllu: List[str])."""
-        conllu_paths = self.conllu_paths[:] if self.conllu_paths is not None else None  # make a copy
-        for tsvname in self.args.input:
-            tsv, conllu = [], []
-            iter_conllu = open(conllu_paths.pop(0)) if conllu_paths else None
-            with open(tsvname) as iter_parsemetsv:
-                for tsv_line in iter_parsemetsv:
-                    tsv.append(tsv_line)
-                    if iter_conllu:
-                        conllu.append(next(iter_conllu))
-
-                    if not tsv_line.strip():
-                        yield tsv, conllu
-                        tsv, conllu = [], []
-            if tsv:
-                yield tsv, conllu
+    def iter_sentence_with_subcorpus(self, sentences: list):
+        r"""Yield (Sentence, Subcorpus) pairs."""
+        cur_subcorpus = None
+        for sent in sentences:
+            sentid = sent.unique_toplevel_metadata('source_sent_id').split()[-1]
+            if sentid in self.first2subcorpus:
+                assert cur_subcorpus is None, ("Sentence inside multiple subcorpora", sentid)
+                cur_subcorpus = self.first2subcorpus[sentid]
+            assert cur_subcorpus, ("Sentence not in any subcorpus", sentid)
+            yield sent, cur_subcorpus
+            if sentid in self.last2subcorpus:
+                cur_subcorpus = None
+        assert cur_subcorpus is None
 
 
-class FileInfo:
-    r"""Mutable namedtuple (tsv_lines, conllu_lines, mwecount)."""
-    def __init__(self):
-        self.tsv_lines = []
-        self.conllu_lines = []
-        self.mwecount = {"TOTAL":0}
+
+class Subcorpus:
+    r"""Subcorpus information."""
+    def __init__(self, json_dict):
+        self.regex = json_dict["regex"]  # type: str
+        self.ranges = json_dict["ranges"]  # type: list[dict]
+        self.n_sents = 0
+        self.n_mwes = 0
+        self.subsplit = None  # type: Split
+
+
+class IntSplit:
+    r"""Like a tuple of (int, int, int), but allows assignment."""
+    def __init__(self, train: int, test: int, dev: int):
+        self.train, self.test, self.dev = train, test, dev
+
+def decide_split(n_mwes: int) -> IntSplit:
+    r"""Return an IntSplit."""
+    if n_mwes < 500:
+        tenth = n_mwes//10
+        return IntSplit(train=tenth, test=n_mwes-tenth, dev=0)
+    if n_mwes < 1500:
+        return IntSplit(train=n_mwes-500, test=500, dev=0)
+    if n_mwes < 3000:
+        return IntSplit(train=n_mwes-1000, test=500, dev=500)
+    tenth = n_mwes//10
+    return IntSplit(train=n_mwes-2*tenth, test=tenth, dev=tenth)
+
+
+DedicatedSentence = collections.namedtuple('DedicatedSentence', 'sent dedicated_to')
+
 
 
 #####################################################

@@ -75,7 +75,7 @@ COLOR_STDERR = (sys.stderr.isatty() and 'DISABLE_ANSI_COLOR' not in os.environ)
 class ToplevelComment:
     r"""Represents a bare comment in a conllup file. May represent metadata."""
     GLOBAL_COLUMNS_REGEX = re.compile(rb'^# *global\.columns *= *(.*)$', re.MULTILINE)
-    KEYVALUE_REGEX = re.compile(rb'^# *(\S+) *= *(.*?) *$', re.MULTILINE)
+    KEYVALUE_REGEX = re.compile(r'^ *(\S+) *= *(.*?) *$')
 
     def __init__(self, file_path: str, lineno: int, text: str):
         self.file_path, self.lineno, self.text = file_path, lineno, text
@@ -89,7 +89,7 @@ class ToplevelComment:
         returns (key, value); otherwise returns (None, self.text).
         """
         match = self.KEYVALUE_REGEX.match(self.text)
-        return match.group() if match else (None, self.text)
+        return (match.group(1), match.group(2)) if match else (None, self.text)
 
 
 class UserInfoComment:
@@ -288,10 +288,17 @@ class Token(collections.Mapping):
         return 'DEPREL' in self and 'HEAD' in self
 
 
+class CorpusInfo:
+    r"""Information from the input corpus."""
+    def __init__(self, file_path: str, colnames: tuple):
+        self.file_path = file_path
+        self.colnames = colnames
+
 class Sentence:
     r"""A sequence of tokens."""
-    def __init__(self, file_path, nth_sent, lineno):
-        self.file_path = file_path
+    def __init__(self, corpusinfo: CorpusInfo, nth_sent: int, lineno: int):
+        self.corpusinfo = corpusinfo
+        self.file_path = corpusinfo.file_path
         self.nth_sent = nth_sent
         self.lineno = lineno
         self.toplevel_comments = []  # type: list[ToplevelComment]
@@ -431,7 +438,7 @@ class Sentence:
         kv_pairs = (comment.keyvalue_pair() for comment in self.toplevel_comments)
         ret = [v for (k, v) in kv_pairs if k == metadata_key]
         if len(ret) != 1:
-            raise ValueError('Metadata is not unique ' + metadata_key)
+            raise ValueError('Metadata is not unique {} (found {})'.format(metadata_key, len(ret)))
         return ret[0]
 
 
@@ -1070,8 +1077,9 @@ class FoliaIterator:
                 do_warn('Ignoring MWE outside the scope of a single sentence: {id!r}',
                         prefix=os.path.basename(self.file_path), id=folia_nonembedded_entity.id)
 
+        corpusinfo = CorpusInfo(self.file_path, None)
         for nth, folia_sentence in enumerate(doc.select(folia.Sentence), 1):
-            current_sentence = Sentence(self.file_path, nth, None)
+            current_sentence = Sentence(corpusinfo, nth, None)
             mwes = list(folia_sentence.select(folia.Entity))
             self.calc_mweannots(mwes, folia_sentence, current_sentence)
 
@@ -1111,6 +1119,7 @@ class AbstractFileIterator:
     '''
     def __init__(self, file_path, fileobj, default_mwe_category):
         self.file_path = file_path
+        self.corpusinfo = CorpusInfo(file_path, None)
         self.fileobj = fileobj
         self.default_mwe_category = default_mwe_category
         self.nth_sent = 0
@@ -1119,7 +1128,7 @@ class AbstractFileIterator:
 
     def _new_sent(self):
         self.nth_sent += 1
-        self.curr_sent = Sentence(self.file_path, self.nth_sent, self.lineno+1)
+        self.curr_sent = Sentence(self.corpusinfo, self.nth_sent, self.lineno+1)
         self.pending_userinfo = []
         self.id2mwe_categ = {}
         self.id2mwe_ranks = collections.defaultdict(list)
@@ -1202,7 +1211,7 @@ class ConllIterator(AbstractFileIterator):
 
     def get_token_and_mwecodes(self, data):
         if len(data) != 10:
-            self.warn("Line has {n} columns, not 10", n=len(data))
+            self.warn("CoNLL-U line has {n} columns, not 10", n=len(data))
         return Token(zip(self.UD_KEYS, data)), []
 
 
@@ -1211,12 +1220,12 @@ class ConllpIterator(AbstractFileIterator):
         super().__init__(file_path, fileobj, default_mwe_category)
         first_lines = fileobj.buffer.peek(1024*10)
         colnames = ToplevelComment.GLOBAL_COLUMNS_REGEX.search(first_lines).group(1)
-        self.colnames = tuple(colnames.decode('utf8').split())
+        self.corpusinfo.colnames = tuple(colnames.decode('utf8').split())
 
     def get_token_and_mwecodes(self, data):
-        if len(data) != len(self.colnames):
-            self.warn("Line has {n} columns, not {n_exp}", n=len(data), n_exp=len(self.colnames))
-        tokendict = dict(zip(self.colnames, data))
+        if len(data) != len(self.corpusinfo.colnames):
+            self.warn("Line has {n} columns, not {n_exp}", n=len(data), n_exp=len(self.corpusinfo.colnames))
+        tokendict = dict(zip(self.corpusinfo.colnames, data))
         mwe_codes = tokendict.pop('PARSEME:MWE') or "_"
         m = mwe_codes.split(";") if mwe_codes not in "_*" else []
         return Token(tokendict), m
@@ -1230,7 +1239,7 @@ class ParsemeTSVIterator(AbstractFileIterator):
                 "Silently ignoring 5th parsemetsv column")
             data.pop()  # remove data[-1]
         elif len(data) != 4:
-            self.warn("Line has {n} columns, not 4", n=len(data))
+            self.warn("PARSEMETSV line has {n} columns, not 4", n=len(data))
         # ID FORM LEMMA UPOS XPOS FEATS HEAD DEPREL DEPS MISC
         conllu = {
             'ID': data[0],
@@ -1241,6 +1250,38 @@ class ParsemeTSVIterator(AbstractFileIterator):
         m = mwe_codes.split(";") if mwe_codes not in "_*" else []
         return Token(conllu), m
 
+
+
+############################################################
+
+class AbstractWriter:
+    def __init__(self, output=sys.stdout):
+        self.output = output
+        self.sentno = 0
+
+    def write_sentences(self, sents: list):
+        r"""Write all sentences to output file."""
+        for sent in sents:
+            self.sentno += 1
+            self._do_write_sentence(sent)
+
+    def _do_write_sentence(self, sent: Sentence):
+        r"""(Must be defined in subclasses)."""
+        raise NotImplementedError
+
+
+class ConllupWriter(AbstractWriter):
+    def _do_write_sentence(self, sent):
+        if self.sentno == 1:
+            print("# global.columns =", " ".join(sent.corpusinfo.colnames), file=self.output)
+        for comment in sent.toplevel_comments:
+            print(comment.to_tsv(), file=self.output)
+        for tok, mwecodes in sent.tokens_and_mwecodes():
+            mwe = ";".join(mwecodes) if mwecodes else '*'
+            line = "\t".join(tok.get(col, "_") if col != 'PARSEME:MWE' else mwe
+                             for col in sent.corpusinfo.colnames)
+            print(line, file=self.output)
+        print(file=self.output)
 
 
 ############################################################
