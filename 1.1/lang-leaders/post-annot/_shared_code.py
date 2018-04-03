@@ -23,21 +23,44 @@ def global_box_and_warning_modal():
         </div>
 
         <style>
-        #mapping-warning-modal-title {
+        #mapping-warning-modal-title, #badentries-warning-modal-title {
             font-weight: bold;
             color: red;
         }
-        #mapping-warning-modal-body {
+        #mapping-warning-modal-body, #badentries-warning-modal-body {
             font-weight: bold;
         }
-        #mapping-warning-html, #mapping-warning-json {
-            font-size: 11px;
+        #mapping-warning-html, #mapping-warning-json, #badentries-warning-entries {
+            font-size: 12px;
             margin-bottom: 20px;
             font-weight: normal;
         }
         </style>
 
-        <!-- "Warning" modal -->
+
+        <!-- Warning modal: bad ParsemeNotes entries -->
+        <div id="badentries-warning-modal" class="modal fade" role="dialog">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <!-- <button type="button" class="close" data-dismiss="modal">&times;</button> -->
+                <h4 id="badentries-warning-modal-title" class="modal-title">Warning</h4>
+              </div>
+              <div id="badentries-warning-modal-body" class="modal-body">
+                  <p>The following entries were specified in the JSON file, but cannot be matched in the webpage below:</p>
+                  <ul id="badentries-warning-entries">
+                  </ul>
+                  <p>You may want to manually fix your JSON file and re-load it before continuing.</p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Warning modal: bad ParsemeNotes mapping -->
         <div id="mapping-warning-modal" class="modal fade" role="dialog">
           <div class="modal-dialog">
             <div class="modal-content">
@@ -141,14 +164,22 @@ def consistency_and_adjudication_shared_javascript():
                   $('#mapping-warning-json').text(JSON.stringify(window.parsemeFilenameMapping, null, 1));
                   $('#mapping-warning-modal').modal();
               }
+
+              var unseen = new Set(Object.keys(decisions));
               $(".mweoccur-decide-button").each(function() {
                   var entryID = calculateEntryID(this);
                   if (decisions[entryID]) {
                       var annotEntry = decisions[entryID];
                       addNote($(this), annotEntry);
+                      unseen.delete(entryID);
                   }
               });
               window.havePendingParsemeNotes = havePending;
+              if (unseen.size != 0) {
+                  entries = $('#badentries-warning-entries').html("");
+                  unseen.forEach(x => entries.append($("<li>").text(x)));
+                  $('#badentries-warning-modal').modal();
+              }
             };
             reader.readAsText(filePath);
         }
