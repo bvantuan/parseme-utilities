@@ -39,12 +39,12 @@ class Main:
         UD_COLS = 'ID FORM LEMMA UPOS XPOS FEATS HEAD DEPREL DEPS MISC'.split()
         print('# global.columns =', ' '.join(UD_COLS + ['PARSEME:MWE']))
 
-        written_sentid, written_text = False, False
         for sentence in dataalign.iter_aligned_files(
                 self.args.input, self.conllu_paths,
                 default_mwe_category='TODO', keep_nvmwes=True):
 
             #TODO sentence.print_tsv_comments()
+            written_sentid = written_text = False
             for comment in sentence.toplevel_comments:
                 text = comment.text
                 m = RE_SENT_ID.match(text)

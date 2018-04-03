@@ -874,7 +874,7 @@ class AlignedIterator:
             main_s = self.main.popleft()
             conllu_s = self.conllu.popleft()
 
-            if self.conllu:
+            if conllu_s:
                 # Ignore all ToplevelComments in TSV (do NOT yield them)
                 # Yield ToplevelComments in from CoNLL-U instead
                 main_s.toplevel_comments = conllu_s.toplevel_comments
