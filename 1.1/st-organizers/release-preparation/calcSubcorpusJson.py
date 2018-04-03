@@ -46,7 +46,7 @@ class Main:
 
         for regex in self.args.regexes:
             if regex not in regex2groups:
-                dataalign.msg_stderr('WARNING', 'Regex does not match anything: {!r}'.format(regex))
+                dataalign.do_warn('Regex does not match anything: {regex!r}', regex=regex)
 
         objs = [{"regex": k, "ranges": v} for (k, v) in regex2groups.items()]
         j = {'subcorpora': objs}
