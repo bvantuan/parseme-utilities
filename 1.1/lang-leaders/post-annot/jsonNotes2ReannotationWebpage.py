@@ -230,7 +230,7 @@ class Main(object):
                     raise KeyError
                 else:
                     id2foliasent = dict(enumerate(self.fname2foliadoc[new_fname].sentences(), 1))
-                    print('Using \"{f}\" instead (you must CHECK if this is correct!)', f=new_fname, header=True)
+                    dataalign.do_warn('Using \"{f}\" instead (you must CHECK if this is correct!)', f=new_fname, header=True)
             except KeyError:
                 id2foliasent = None  # We cannot shortcut here, because we still need to filter `only_special`
 
