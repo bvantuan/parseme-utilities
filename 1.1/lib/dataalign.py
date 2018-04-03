@@ -442,6 +442,12 @@ class Sentence:
         return ret[0]
 
 
+    def keep_toplevel_metadata_if(self, predicate):
+        r"""Keep only ToplevelComments that satisfy the predicate."""
+        self.toplevel_comments = [tlc for tlc in self.toplevel_comments if predicate(tlc)]
+
+
+
 class MWEOccur:
     r"""Represents an instance of a MWE in text.
     In a type/token distinction: MWELexicalItem is a type and MWEOccur is a token.
@@ -847,7 +853,7 @@ def _iter_parseme_file(file_path, default_mwe_category):
     if b'FoLiA' in fileobj.buffer.peek(1024):
         return FoliaIterator(file_path, fileobj)
     if b'global.columns' in fileobj.buffer.peek(1024):
-        return ConllpIterator(file_path, fileobj, default_mwe_category)
+        return ConllupIterator(file_path, fileobj, default_mwe_category)
     return ParsemeTSVIterator(file_path, fileobj, default_mwe_category)
 
 
@@ -1215,7 +1221,7 @@ class ConllIterator(AbstractFileIterator):
         return Token(zip(self.UD_KEYS, data)), []
 
 
-class ConllpIterator(AbstractFileIterator):
+class ConllupIterator(AbstractFileIterator):
     def __init__(self, file_path, fileobj, default_mwe_category):
         super().__init__(file_path, fileobj, default_mwe_category)
         first_lines = fileobj.buffer.peek(1024*10)
@@ -1274,6 +1280,7 @@ class ConllupWriter(AbstractWriter):
     def _do_write_sentence(self, sent):
         if self.sentno == 1:
             print("# global.columns =", " ".join(sent.corpusinfo.colnames), file=self.output)
+            sent.keep_toplevel_metadata_if(lambda x: x.keyvalue_pair()[0] != 'global.columns')
         for comment in sent.toplevel_comments:
             print(comment.to_tsv(), file=self.output)
         for tok, mwecodes in sent.tokens_and_mwecodes():

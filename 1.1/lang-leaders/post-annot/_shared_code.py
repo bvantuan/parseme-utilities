@@ -50,7 +50,7 @@ def global_box_and_warning_modal():
                   <p>The following entries were specified in the JSON file, but cannot be matched in the webpage below:</p>
                   <ul id="badentries-warning-entries">
                   </ul>
-                  <p>You may want to manually fix your JSON file and re-load it before continuing.</p>
+                  <p>You should check if you are using the correct JSON file before continuing.</p>
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
