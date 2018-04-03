@@ -11,9 +11,9 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../lib"))
 import dataalign
 
 parser = argparse.ArgumentParser(description="""
-        Calculate subcorpus.json file representing all subcorpora
+        Calculate subcorpora.json file representing all subcorpora
         (with different genres or domains). The train/test/dev split
-        will take this subcorpora divisioninto account.""")
+        will take this subcorpora division into account.""")
 parser.add_argument("--lang", choices=sorted(dataalign.LANGS), metavar="LANG", required=True,
         help="""Name of the target language (e.g. EN, FR, PL, DE...)""")
 parser.add_argument("--regexes", nargs="*", default=(),

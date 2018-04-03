@@ -13,27 +13,23 @@ parser = argparse.ArgumentParser(description="""
         Split input files into SPLIT/{train,test,dev}.cupt.""")
 parser.add_argument("--lang", choices=sorted(dataalign.LANGS), metavar="LANG", required=True,
         help="""Name of the target language (e.g. EN, FR, PL, DE...)""")
-parser.add_argument("--subcorpus-json", required=True,
-        help="""JSON file describing subcorpora (see calcSubcorpusJson.py)""")
+parser.add_argument("--subcorpora-json", required=True,
+        help="""JSON file describing subcorpora (see calcSubcorporaJson.py)""")
 parser.add_argument("--input", nargs="+", type=str, required=True,
-        help="""Path to input files (in FoLiA XML or PARSEME TSV format)""")
-parser.add_argument("--conllu", nargs="+", type=str,
-        help="""Path to parallel input CoNLL files""")
+        help="""Path to input files (in CUPT format)""")
 
 
 class Main:
     def __init__(self, args):
         self.args = args
-        self.conllu_paths = self.args.conllu or \
-            dataalign.calculate_conllu_paths(self.args.input) or []
-        subcorpus_json = json.load(open(self.args.subcorpus_json))
-        self.subcorpora = [Subcorpus(x) for x in subcorpus_json["subcorpora"]]
+        subcorpora_json = json.load(open(self.args.subcorpora_json))
+        self.subcorpora = [Subcorpus(x) for x in subcorpora_json["subcorpora"]]
         self.first2subcorpus = {rng["first"]: sc for sc in self.subcorpora for rng in sc.ranges}
         self.last2subcorpus = {rng["last"]: sc for sc in self.subcorpora for rng in sc.ranges}
 
     def run(self):
         sents = list(dataalign.iter_aligned_files(
-            self.args.input, self.conllu_paths, keep_nvmwes=False))
+            self.args.input, None, keep_nvmwes=False))
 
         # Calculate number of sentences and MWEs for subcorpora
         for sent, subcorpus in self.iter_sentence_with_subcorpus(sents):
