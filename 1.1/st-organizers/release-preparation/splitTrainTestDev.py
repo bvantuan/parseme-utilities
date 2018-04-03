@@ -52,23 +52,42 @@ class Main:
         largest_subcorpus.subsplit.test += delta_test
         largest_subcorpus.subsplit.dev += delta_dev
 
+        # Print EXPECTED-MWES
+        print("-"*50)
         for subcorpus in self.subcorpora:
-            print("COUNT-MWEs: {regex}: train={ss.train} test={ss.test} dev={ss.dev}".format(
-                regex=subcorpus.regex, ss=subcorpus.subsplit), file=sys.stderr)
-        print("COUNT-MWEs: TOTAL: train={ss.train} test={ss.test} dev={ss.dev}" \
-              .format(ss=split), file=sys.stderr)
+            print("IDEALLY-SPLIT-MWES: {regex}: train={ss.train} test={ss.test} dev={ss.dev}".format(
+                regex=subcorpus.regex, ss=subcorpus.subsplit))
+        print("IDEALLY-SPLIT-MWES: TOTAL: train={ss.train} test={ss.test} dev={ss.dev}".format(ss=split))
 
         # Dedicate each sentence to one of {test,train,dev}
         dedic_sents = []
         for sent, subcorpus in self.iter_sentence_with_subcorpus(sents):
-            if subcorpus.subsplit.test > 0:
+            if subcorpus.taken_mwes.test < subcorpus.subsplit.test:
                 dedic_sents.append(DedicatedSentence(sent, 'test'))
-                subcorpus.subsplit.test -= len(sent.mweannots)
-            elif subcorpus.subsplit.dev > 0:
+                subcorpus.taken_mwes.test += len(sent.mweannots)
+                subcorpus.taken_sents.test += 1
+            elif subcorpus.taken_mwes.dev < subcorpus.subsplit.dev:
                 dedic_sents.append(DedicatedSentence(sent, 'dev'))
-                subcorpus.subsplit.dev -= len(sent.mweannots)
+                subcorpus.taken_mwes.dev += len(sent.mweannots)
+                subcorpus.taken_sents.dev += 1
             else:
                 dedic_sents.append(DedicatedSentence(sent, 'train'))
+                subcorpus.taken_mwes.train += len(sent.mweannots)
+                subcorpus.taken_sents.train += 1
+
+        # Print TAKEN-{MWES,SENTS}
+        for attrname in ['taken_mwes', 'taken_sents']:
+            print("-"*50)
+            total = IntSplit(0, 0, 0)
+            for subcorpus in self.subcorpora:
+                taken = getattr(subcorpus, attrname)
+                print("{title}: {regex}: train={tak.train} test={tak.test} dev={tak.dev}".format(
+                    title=attrname.upper(), regex=subcorpus.regex, tak=taken))
+                total.train += taken.train
+                total.test += taken.test
+                total.dev += taken.dev
+            print("{title}: TOTAL: train={tak.train} test={tak.test} dev={tak.dev}".format(
+                title=attrname.upper(), tak=total))
 
         # Print sentences
         subprocess.check_call("mkdir -p ./SPLIT", shell=True)
@@ -101,7 +120,9 @@ class Subcorpus:
         self.ranges = json_dict["ranges"]  # type: list[dict]
         self.n_sents = 0
         self.n_mwes = 0
-        self.subsplit = None  # type: Split
+        self.subsplit = None  # type: IntSplit
+        self.taken_sents = IntSplit(0, 0, 0)
+        self.taken_mwes = IntSplit(0, 0, 0)
 
 
 class IntSplit:
