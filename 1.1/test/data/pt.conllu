@@ -1,4 +1,5 @@
-# sent_id a_tree-pt-s37-root
+# sent_id = sample-s1
+# text = Por causa disso , foram eliminados e retirados das salas de prova 37 candidatos . 
 1	Por	por	ADP	ADP	AdpType=Prep	6	nmod	_	_
 2	causa	causa	NOUN	NOUN	_	1	mwe	_	_
 3	disso	de+isso	X	ADPPRON	AdpType=Prep|Gender=Masc|Number=Sing|PronType=Dem	1	mwe	_	_
@@ -15,7 +16,8 @@
 14	candidatos	candidato	NOUN	NOUN	Gender=Masc|Number=Plur	6	nsubjpass	_	_
 15	.	.	PUNCT	.	_	6	punct	_	_
 
-# sent_id a_tree-pt-s38-root
+# sent_id = sample-s2
+# text = Também foi conduzido à sede da PF para prestar depoimento . 
 1	Também	também	ADV	ADV	_	3	advmod	_	_
 2	foi	ser	AUX	AUX	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	3	auxpass	_	_
 3	conduzido	conduzir	VERB	VERB	Gender=Masc|Number=Sing|VerbForm=Part	0	root	_	_
@@ -28,7 +30,8 @@
 10	depoimento	depoimento	NOUN	NOUN	Gender=Masc|Number=Sing	9	dobj	_	_
 11	.	.	PUNCT	.	_	3	punct	_	_
 
-# sent_id a_tree-pt-s39-root
+# sent_id = sample-s3
+# text = Ele ficou em sétimo no campeonato , com 111 pontos . 
 1	Ele	ele	PRON	PRON	Case=Nom|Gender=Masc|Number=Sing|Person=3|PronType=Prs	2	nsubj	_	_
 2	ficou	ficar	VERB	VERB	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	0	root	_	_
 3	em	em	ADP	ADP	AdpType=Prep	4	case	_	_
@@ -41,7 +44,8 @@
 10	pontos	ponto	NOUN	NOUN	Gender=Masc|Number=Plur	2	nmod	_	_
 11	.	.	PUNCT	.	_	2	punct	_	_
 
-# sent_id a_tree-pt-s40-root
+# sent_id = sample-s4
+# text = Barthélemy Charles Joseph Du Mortier ( ou Dumortier ) ( Tournai , 3 de abril de 1797 -- Tournai , 9 de junho de 1878 ) foi um botânico , naturalista e político belga . 
 1	Barthélemy	Barthélemy	PROPN	PNOUN	_	0	root	_	_
 2	Charles	Charles	PROPN	PNOUN	_	1	name	_	_
 3	Joseph	Joseph	PROPN	PNOUN	_	1	name	_	_
@@ -78,7 +82,8 @@
 34	belga	belga	ADJ	ADJ	Gender=Masc|Number=Sing	29	amod	_	_
 35	.	.	PUNCT	.	_	1	punct	_	_
 
-# sent_id a_tree-pt-s41-root
+# sent_id = sample-s5
+# text = O executivo comemorou ainda a participação da marca no mercado brasileiro chegou a 3,2 % . 
 1	O	o	DET	DET	Definite=Def|Gender=Masc|Number=Sing|PronType=Art	2	det	_	_
 2	executivo	executivo	NOUN	NOUN	Gender=Masc|Number=Sing	3	nsubj	_	_
 3	comemorou	comemorer	VERB	VERB	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	0	root	_	_
@@ -96,7 +101,8 @@
 15	%	%	NOUN	NOUN	Gender=Masc|Number=Plur	12	nmod	_	_
 16	.	.	PUNCT	.	_	3	punct	_	_
 
-# sent_id a_tree-pt-s42-root
+# sent_id = sample-s6
+# text = Além de ser uma oportunidade ótima para adquirir peças Alix Shop , Left , PopUp Store , Fabulous Agilita , Lulu , Joulik , Mizeiko , Luiza Barcelos , Schutz e Studio TMLS , vale a pena garantir os presentes de natal para a família e amigas . 
 1	Além	além	ADV	ADV	AdpType=Prep	35	advmod	_	_
 2	de	de	ADP	ADP	AdpType=Prep	5	mark	_	_
 3	ser	ser	VERB	VERB	VerbForm=Inf	5	cop	_	_
@@ -146,7 +152,8 @@
 47	amigas	amigo	NOUN	NOUN	Gender=Fem|Number=Plur	45	conj	_	_
 48	.	.	PUNCT	.	_	35	punct	_	_
 
-# sent_id a_tree-pt-s43-root
+# sent_id = sample-s7
+# text = Não separa o SUS , manter uma maternidade ( com toda essa equipe ) onde nasçam menos de 60 crianças por mês . 
 1	Não	não	ADV	ADV	_	2	neg	_	_
 2	separa	separa	VERB	VERB	AdpType=Prep	0	root	_	_
 3	o	o	DET	DET	Definite=Def|Gender=Masc|Number=Sing|PronType=Art	4	det	_	_
@@ -171,7 +178,8 @@
 22	mês	mês	NOUN	NOUN	Gender=Masc|Number=Sing	16	nmod	_	_
 23	.	.	PUNCT	.	_	2	punct	_	_
 
-# sent_id a_tree-pt-s44-root
+# sent_id = sample-s8
+# text = " Ela viu muita coisa louca . 
 1	"	"	PUNCT	.	_	3	punct	_	_
 2	Ela	ela	PRON	PRON	Case=Nom|Gender=Fem|Number=Sing|Person=3|PronType=Prs	3	nsubj	_	_
 3	viu	vir	VERB	VERB	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	0	root	_	_
@@ -180,7 +188,8 @@
 6	louca	louco	ADJ	ADJ	Gender=Fem|Number=Sing	5	amod	_	_
 7	.	.	PUNCT	.	_	3	punct	_	_
 
-# sent_id a_tree-pt-s45-root
+# sent_id = sample-s9
+# text = A noiva chega à cerimônia de carruagem e os cavalos desembestam e não querem parar . 
 1	A	o	DET	DET	Definite=Def|Gender=Fem|Number=Sing|PronType=Art	2	det	_	_
 2	noiva	noiva	NOUN	NOUN	Gender=Fem|Number=Sing	3	nsubj	_	_
 3	chega	chegar	VERB	VERB	Gender=Fem|Number=Sing|VerbForm=Part	0	root	_	_
@@ -198,7 +207,8 @@
 15	parar	parar	VERB	VERB	VerbForm=Inf	14	xcomp	_	_
 16	.	.	PUNCT	.	_	3	punct	_	_
 
-# sent_id a_tree-pt-s46-root
+# sent_id = sample-s10
+# text = Orloff começou na indústria cinematográfica como assistente de direção do filme Life Sold Separately de 1997 . 
 1	Orloff	Orloff	PROPN	PNOUN	Gender=Masc|Number=Sing	2	nsubj	_	_
 2	começou	começar	VERB	VERB	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	0	root	_	_
 3	na	em+o	ADP	ADP	AdpType=Prep|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	4	case	_	_
@@ -217,7 +227,8 @@
 16	1997	1997	NUM	NUM	Gender=Masc|Number=Plur|NumType=Card	11	nmod	_	_
 17	.	.	PUNCT	.	_	2	punct	_	_
 
-# sent_id a_tree-pt-s47-root
+# sent_id = sample-s11
+# text = Em 22 de abril de 1995 , no 30 º Congresso do ÖVP , Schüssel foi eleito líder nacional . 
 1	Em	em	ADP	ADP	AdpType=Prep	2	case	_	_
 2	22	22	NUM	NUM	Gender=Fem|Number=Plur|NumType=Card	18	nmod	_	_
 3	de	de	ADP	ADP	AdpType=Prep	4	case	_	_
@@ -239,7 +250,8 @@
 19	nacional	nacional	ADJ	ADJ	Gender=Masc|Number=Sing	18	amod	_	_
 20	.	.	PUNCT	.	_	18	punct	_	_
 
-# sent_id a_tree-pt-s48-root
+# sent_id = sample-s12
+# text = A liminar deverá ser referendada pelo Plenário do STF . 
 1	A	o	DET	DET	Definite=Def|Gender=Fem|Number=Sing|PronType=Art	2	det	_	_
 2	liminar	liminar	NOUN	NOUN	Number=Sing|Person=3|VerbForm=Inf	5	nsubjpass	_	_
 3	deverá	dever	AUX	AUX	Mood=Ind|Number=Sing|Person=3|Tense=Fut|VerbForm=Fin	5	aux	_	_
@@ -251,7 +263,8 @@
 9	STF	Stf	PROPN	PNOUN	_	7	nmod	_	_
 10	.	.	PUNCT	.	_	5	punct	_	_
 
-# sent_id a_tree-pt-s49-root
+# sent_id = sample-s13
+# text = Promovido pela Sociedade Brasileira de Computação ( SBC ) e pela Associação Brasileira de Desenvolvedores de Jogos Digitais ( ABRAGAMES ) , a feira tem entrada gratuita e disponibilizará para teste mais de 200 jogos desenvolvidos por empresas brasileiras . 
 1	Promovido	promover	VERB	VERB	AdpType=Prep	24	acl:part	_	_
 2	pela	por+o	ADP	ADP	AdpType=Prep|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	3	case	_	_
 3	Sociedade	sociedade	PROPN	PNOUN	_	1	nmod	_	_
@@ -293,7 +306,8 @@
 39	brasileiras	brasileiro	ADJ	ADJ	Gender=Fem|Number=Plur	38	amod	_	_
 40	.	.	PUNCT	.	_	25	punct	_	_
 
-# sent_id a_tree-pt-s50-root
+# sent_id = sample-s14
+# text = O violonista e compositor Laurindo Almeida nasceu na pequena cidade litorânea " Prainha " , hoje Miracatu , no Vale do Ribeira , no Estado de São Paulo . 
 1	O	o	DET	DET	Definite=Def|Gender=Masc|Number=Sing|PronType=Art	2	det	_	_
 2	violonista	violonista	NOUN	NOUN	Gender=Masc|Number=Sing	7	nsubj	_	_
 3	e	e	CONJ	CONJ	_	2	cc	_	_
@@ -324,7 +338,8 @@
 28	Paulo	Paulo	PROPN	PNOUN	_	27	name	_	_
 29	.	.	PUNCT	.	_	7	punct	_	_
 
-# sent_id a_tree-pt-s51-root
+# sent_id = sample-s15
+# text = A intervenção integra as obras do Macrossistema de Esgoto de Fortaleza , onde estão sendo assentados 22km de tubulação de esgoto de grande porte . 
 1	A	o	DET	DET	Definite=Def|Gender=Fem|Number=Sing|PronType=Art	2	det	_	_
 2	intervenção	intervenção	NOUN	NOUN	Gender=Fem|Number=Sing	3	nsubj	_	_
 3	integra	integrar	VERB	VERB	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	_
@@ -351,7 +366,8 @@
 24	porte	porte	NOUN	NOUN	Gender=Fem|Number=Sing	19	nmod	_	_
 25	.	.	PUNCT	.	_	3	punct	_	_
 
-# sent_id a_tree-pt-s52-root
+# sent_id = sample-s16
+# text = Pelo cronograma , votarão nos próximos dias os ministros Rosa Maria Weber , Luiz Fux , José Antônio Dias Toffoli , Cármen Lúcia , Cezar Peluso , Gilmar Mendes , Marco Aurélio Mello , Celso de Mello e Carlos Ayres Britto , o presidente da Corte Suprema . 
 1	Pelo	por+o	ADP	ADP	AdpType=Prep|Definite=Def|Gender=Masc|Number=Sing|PronType=Art	2	case	_	_
 2	cronograma	cronograma	NOUN	NOUN	Gender=Masc|Number=Sing	4	nmod	_	_
 3	,	,	PUNCT	.	_	2	punct	_	_
@@ -401,7 +417,8 @@
 47	Suprema	suprem	PROPN	PNOUN	_	46	amod	_	_
 48	.	.	PUNCT	.	_	4	punct	_	_
 
-# sent_id a_tree-pt-s53-root
+# sent_id = sample-s17
+# text = O processo deve durar toda a semana . 
 1	O	o	DET	DET	Definite=Def|Gender=Masc|Number=Sing|PronType=Art	2	det	_	_
 2	processo	processo	NOUN	NOUN	Gender=Masc|Number=Sing	4	nsubj	_	_
 3	deve	dever	AUX	AUX	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	4	aux	_	_
@@ -411,7 +428,8 @@
 7	semana	semana	NOUN	NOUN	Gender=Fem|Number=Sing	4	nmod	_	_
 8	.	.	PUNCT	.	_	4	punct	_	_
 
-# sent_id a_tree-pt-s54-root
+# sent_id = sample-s18
+# text = º Senhor e Administrador do Morgado do Espírito - Santo na Lombada dos Esmeraldos , de Ponta Delgada , e doutros Morgados na Ilha da Madeira , em sucessão a seu pai . 
 1	º	º	PUNCT	.	Gender=Masc|Number=Sing|NumType=Ord	2	punct	_	_
 2	Senhor	Senhor	PROPN	PNOUN	_	0	root	_	_
 3	e	e	CONJ	CONJ	_	2	cc	_	_
@@ -446,7 +464,8 @@
 32	pai	pai	NOUN	NOUN	Gender=Masc|Number=Sing	29	nmod	_	_
 33	.	.	PUNCT	.	_	2	punct	_	_
 
-# sent_id a_tree-pt-s55-root
+# sent_id = sample-s19
+# text = O IPA passou de 0,01 % para -0,35 % . 
 1	O	o	DET	DET	Definite=Def|Gender=Masc|Number=Sing|PronType=Art	2	det	_	_
 2	IPA	IPA	PROPN	PNOUN	Gender=Masc|Number=Sing	3	nsubj	_	_
 3	passou	passar	VERB	VERB	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	0	root	_	_
@@ -458,7 +477,8 @@
 9	%	%	NOUN	NOUN	Gender=Masc|Number=Plur	3	nmod	_	_
 10	.	.	PUNCT	.	_	3	punct	_	_
 
-# sent_id a_tree-pt-s56-root
+# sent_id = sample-s20
+# text = A estreia está marcada para o dia 3 de setembro ea partir desta data será possível acompanhar todas as segundas - feiras um episódio diferente . 
 1	A	o	DET	DET	Definite=Def|Gender=Fem|Number=Sing|PronType=Art	2	det	_	_
 2	estreia	estreia	NOUN	NOUN	Gender=Fem|Number=Sing	3	nsubj	_	_
 3	está	estar	VERB	VERB	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	_
@@ -486,7 +506,8 @@
 25	diferente	diferente	ADJ	ADJ	Gender=Masc|Number=Sing	24	amod	_	_
 26	.	.	PUNCT	.	_	3	punct	_	_
 
-# sent_id a_tree-pt-s57-root
+# sent_id = sample-s21
+# text = Como não havia saído gol em Varsóvia , estavam com a vaga nas quartas de final . 
 1	Como	como	CONJ	CONJ	AdpType=Prep	4	mark	_	_
 2	não	não	ADV	ADV	_	4	neg	_	_
 3	havia	haver	AUX	AUX	Mood=Ind|Number=Sing|Person=3|Tense=Imp|VerbForm=Fin	4	aux	_	_
@@ -505,7 +526,8 @@
 16	final	final	NOUN	NOUN	Gender=Fem|Number=Sing	14	nmod	_	_
 17	.	.	PUNCT	.	_	9	punct	_	_
 
-# sent_id a_tree-pt-s58-root
+# sent_id = sample-s22
+# text = De acordo com o censo realizado pelo IBGE em 2010 , sua população é de 18.490 habitantes . 
 1	De	de	ADP	ADP	AdpType=Prep	2	case	_	_
 2	acordo	acordo	NOUN	NOUN	_	14	nmod	_	_
 3	com	com	ADP	ADP	AdpType=Prep	5	case	_	_
@@ -525,7 +547,8 @@
 17	habitantes	habitante	NOUN	NOUN	Gender=Masc|Number=Plur	14	nmod	_	_
 18	.	.	PUNCT	.	_	14	punct	_	_
 
-# sent_id a_tree-pt-s59-root
+# sent_id = sample-s23
+# text = Uma das filhas de Harlan Wade , Alma sofre com freqüêntes pesadelos e alucinações . 
 1	Uma	um	PRON	PRON	Gender=Fem|Number=Sing|NumType=Card	9	nsubj	_	_
 2	das	de+o	ADP	ADP	AdpType=Prep|Definite=Def|Gender=Fem|Number=Plur|PronType=Art	3	case	_	_
 3	filhas	filho	NOUN	NOUN	Gender=Fem|Number=Plur	1	nmod	_	_
@@ -542,7 +565,8 @@
 14	alucinações	alucinação	NOUN	NOUN	Gender=Fem|Number=Plur	12	conj	_	_
 15	.	.	PUNCT	.	_	9	punct	_	_
 
-# sent_id a_tree-pt-s60-root
+# sent_id = sample-s24
+# text = " Como aqui é caminho para a Bola da Suframa , é constante o fluxo de caminhões . 
 1	"	"	PUNCT	.	_	5	punct	_	_
 2	Como	como	CONJ	CONJ	PronType=Int	5	mark	_	_
 3	aqui	aqui	ADV	ADV	_	5	advmod	_	_
@@ -562,7 +586,8 @@
 17	caminhões	caminhão	NOUN	NOUN	Gender=Masc|Number=Plur	15	nmod	_	_
 18	.	.	PUNCT	.	_	12	punct	_	_
 
-# sent_id a_tree-pt-s61-root
+# sent_id = sample-s25
+# text = Nós São Paulinos ficamos achando que vencer a Libertadores era obrigação em 2006 , 2007 , 2008 e 2009 e pedimos as cabeças de dois bons treinadores por não termos vencido campeonato tão difícil e que poucos a venceram e muito poucos repetiram o feito . 
 1	Nós	nós	PRON	PRON	AdpType=Prep	5	nsubj	_	_
 2	São	São	PROPN	PNOUN	_	1	appos	_	_
 3	Paulinos	Paulinos	PROPN	PNOUN	_	2	name	_	_
@@ -610,7 +635,8 @@
 45	feito	feito	NOUN	NOUN	Gender=Masc|Number=Sing|VerbForm=Part	43	dobj	_	_
 46	.	.	PUNCT	.	_	5	punct	_	_
 
-# sent_id a_tree-pt-s62-root
+# sent_id = sample-s26
+# text = Se eleito , Fernando Siqueira pretende criar a carreira de reciclador de lixo e ampliar o programa de reciclagem da cidade . 
 1	Se	se	CONJ	CONJ	_	2	mark	_	_
 2	eleito	eleger	VERB	VERB	Gender=Masc|Number=Sing|VerbForm=Part	6	advcl	_	_
 3	,	,	PUNCT	.	_	2	punct	_	_
@@ -634,7 +660,8 @@
 21	cidade	cidade	NOUN	NOUN	Gender=Fem|Number=Sing	19	nmod	_	_
 22	.	.	PUNCT	.	_	6	punct	_	_
 
-# sent_id a_tree-pt-s63-root
+# sent_id = sample-s27
+# text = O fruto possui uma forma que vai da ovaloide à oblonga , entre uma faixa de 2,5 a 6 cm de comprimento e 1,5 a 3 cm de largura . 
 1	O	o	DET	DET	Definite=Def|Gender=Masc|Number=Sing|PronType=Art	2	det	_	_
 2	fruto	fruto	NOUN	NOUN	Gender=Masc|Number=Sing	3	nsubj	_	_
 3	possui	possuir	VERB	VERB	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	_
@@ -666,7 +693,8 @@
 29	largura	largura	NOUN	NOUN	Gender=Fem|Number=Sing	27	nmod	_	_
 30	.	.	PUNCT	.	_	3	punct	_	_
 
-# sent_id a_tree-pt-s64-root
+# sent_id = sample-s28
+# text = Na festa , a pira olímpica será apagada e os organizadores do evento anunciam a cidade - sede dos Jogos Olímpicos de 2016 , que serão realizados no Rio de Janeiro . 
 1	Na	em+o	ADP	ADP	AdpType=Prep|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	2	case	_	_
 2	festa	festa	NOUN	NOUN	Gender=Fem|Number=Sing	8	nmod	_	_
 3	,	,	PUNCT	.	_	2	punct	_	_
@@ -700,7 +728,8 @@
 31	Janeiro	Janeiro	PROPN	PNOUN	_	29	nmod	_	_
 32	.	.	PUNCT	.	_	8	punct	_	_
 
-# sent_id a_tree-pt-s65-root
+# sent_id = sample-s29
+# text = " O Conca sabe que a casa dele é o Fluminense , mas ele tem contrato de um ano lá . 
 1	"	"	PUNCT	.	_	4	punct	_	_
 2	O	o	DET	DET	Definite=Def|Gender=Masc|Number=Sing|PronType=Art	3	det	_	_
 3	Conca	Conca	PROPN	PNOUN	_	4	nsubj	_	_
@@ -723,14 +752,16 @@
 20	lá	lá	ADV	ADV	_	15	advmod	_	_
 21	.	.	PUNCT	.	_	4	punct	_	_
 
-# sent_id a_tree-pt-s66-root
+# sent_id = sample-s30
+# text = Foram impressos 744.632 carnês . 
 1	Foram	ser	AUX	AUX	Mood=Ind|Number=Plur|Person=3|Tense=Imp,Pqp|VerbForm=Fin	2	auxpass	_	_
 2	impressos	impresso	VERB	VERB	Gender=Masc|Number=Plur	0	root	_	_
 3	744.632	744.632	NUM	NUM	Gender=Masc|Number=Plur|NumType=Card	4	nummod	_	_
 4	carnês	carnês	NOUN	NOUN	Gender=Masc|Number=Plur	2	nsubjpass	_	_
 5	.	.	PUNCT	.	_	2	punct	_	_
 
-# sent_id a_tree-pt-s67-root
+# sent_id = sample-s31
+# text = Oportunista , marcou dois gols nas duas chances que teve e foi o grande responsável pela vitória por 2 a 1 , que fechou o primeiro turno do Campeonato Brasileiro ( veja no vídeo ao lado ) . 
 1	Oportunista	Oportunista	ADJ	ADJ	Gender=Fem|Number=Sing	3	amod	_	_
 2	,	,	PUNCT	.	_	1	punct	_	_
 3	marcou	marcor	VERB	VERB	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	0	root	_	_
@@ -770,7 +801,8 @@
 37	)	)	PUNCT	.	_	32	punct	_	_
 38	.	.	PUNCT	.	_	3	punct	_	_
 
-# sent_id a_tree-pt-s68-root
+# sent_id = sample-s32
+# text = Fontes disseram à Reuters que ele machucou as costas nadando , mas oficialmente não há nenhuma explicação para sua ausência . 
 1	Fontes	fontes	NOUN	NOUN	_	2	nsubj	_	_
 2	disseram	dizer	VERB	VERB	Mood=Ind|Number=Plur|Person=3|Tense=Past|VerbForm=Fin	0	root	_	_
 3	à	a+o	ADP	ADP	AdpType=Prep|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	4	case	_	_
@@ -793,7 +825,8 @@
 20	ausência	ausência	NOUN	NOUN	Gender=Fem|Number=Sing	15	nmod	_	_
 21	.	.	PUNCT	.	_	2	punct	_	_
 
-# sent_id a_tree-pt-s69-root
+# sent_id = sample-s33
+# text = A informação de que Gurgel teria pedido investigação sobre as denúncias e remetido a documentação à primeira instância , uma vez que Lula não tem mais foro privilegiado , foi publicada na edição de hoje do jornal O Estado de S. Paulo . 
 1	A	o	DET	DET	Definite=Def|Gender=Fem|Number=Sing|PronType=Art	2	det	_	_
 2	informação	informação	NOUN	NOUN	Gender=Fem|Number=Sing	31	nsubjpass	_	_
 3	de	de	ADP	ADP	AdpType=Prep	7	mark	_	_
@@ -838,7 +871,8 @@
 42	Paulo	Paulo	PROPN	PNOUN	_	41	name	_	_
 43	.	.	PUNCT	.	_	31	punct	_	_
 
-# sent_id a_tree-pt-s70-root
+# sent_id = sample-s34
+# text = A perda desse financiamento contribuiu para a redução da cultura , mas ainda há famílias que a mantém . " 
 1	A	o	DET	DET	Definite=Def|Gender=Fem|Number=Sing|PronType=Art	2	det	_	_
 2	perda	perda	NOUN	NOUN	Gender=Fem|Number=Sing	5	nsubj	_	_
 3	desse	de+esse	ADP	ADP	AdpType=Prep|Gender=Masc|Number=Sing|PronType=Dem	4	case	_	_
@@ -860,7 +894,8 @@
 19	.	.	PUNCT	.	_	5	punct	_	_
 20	"	"	PUNCT	.	_	5	punct	_	_
 
-# sent_id a_tree-pt-s71-root
+# sent_id = sample-s35
+# text = Sinopse : O detetive Philip Marlowe é chamado por um veterano general milionário para investigar uma chantagem que esta sofrendo . 
 1	Sinopse	Sinopse	NOUN	NOUN	Gender=Fem|Number=Sing	0	root	_	_
 2	:	:	PUNCT	.	_	1	punct	_	_
 3	O	o	DET	DET	Definite=Def|Gender=Masc|Number=Sing|PronType=Art	4	det	_	_
@@ -883,7 +918,8 @@
 20	sofrendo	sofrer	VERB	VERB	VerbForm=Ger	17	acl:relcl	_	_
 21	.	.	PUNCT	.	_	1	punct	_	_
 
-# sent_id a_tree-pt-s72-root
+# sent_id = sample-s36
+# text = Outra possibilidade é abrir novos mercados para cooperativas gaúchas de suínos , frango e leite . 
 1	Outra	outro	DET	DET	Degree=Cmp|Gender=Fem|Number=Sing	2	det	_	_
 2	possibilidade	possibilidade	NOUN	NOUN	Gender=Fem|Number=Sing	0	root	_	_
 3	é	ser	VERB	VERB	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	2	cop	_	_
@@ -901,7 +937,8 @@
 15	leite	leite	NOUN	NOUN	Gender=Masc|Number=Sing	11	conj	_	_
 16	.	.	PUNCT	.	_	2	punct	_	_
 
-# sent_id a_tree-pt-s73-root
+# sent_id = sample-s37
+# text = Isto explica porque durante um largo período de tempo só se encontram dulzainas no sul , citadas nos textos com variantes arábicas do vocábulo zolami , muito comum nos escritos sobre música do Al - Andalus . 
 1	Isto	isto	PRON	PRON	Gender=Masc|Number=Sing|PronType=Dem	2	nsubj	_	_
 2	explica	explicar	VERB	VERB	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	_
 3	porque	porque	ADV	ADV	_	12	advmod	_	_
@@ -940,7 +977,8 @@
 36	Andalus	Andalus	PROPN	PNOUN	Gender=Masc|Number=Sing	34	name	_	_
 37	.	.	PUNCT	.	_	2	punct	_	_
 
-# sent_id a_tree-pt-s74-root
+# sent_id = sample-s38
+# text = De acordo com a chefe do Núcleo de Aquisições da SEE , Janaína Albuquerque , 5.521 carteiras foram distribuídas em mais de 20 escolas localizadas nas 1 ª , 12 ª , 13 ª e 14 ª CRE 's . 
 1	De	de	ADP	ADP	AdpType=Prep	2	case	_	_
 2	acordo	acordo	NOUN	NOUN	_	19	nmod	_	_
 3	com	com	ADP	ADP	AdpType=Prep	5	case	_	_
@@ -982,7 +1020,8 @@
 39	's	'	PROPN	PNOUN	Gender=Masc|Number=Plur	38	appos	_	_
 40	.	.	PUNCT	.	_	19	punct	_	_
 
-# sent_id a_tree-pt-s75-root
+# sent_id = sample-s39
+# text = Essa foi a quarta etapa da Volta da França vencida por Millar , sendo a primeira delas desde 2003 . 
 1	Essa	Essa	PRON	PRON	Gender=Masc|Number=Sing	5	nsubj	_	_
 2	foi	ser	VERB	VERB	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	5	cop	_	_
 3	a	o	DET	DET	Definite=Def|Gender=Fem|Number=Sing|PronType=Art	5	det	_	_
@@ -1004,7 +1043,8 @@
 19	2003	2003	NUM	NUM	Gender=Masc|Number=Plur|NumType=Card	14	nmod	_	_
 20	.	.	PUNCT	.	_	5	punct	_	_
 
-# sent_id a_tree-pt-s76-root
+# sent_id = sample-s40
+# text = Assim , aquando do planeamento da capa , foi pedido à equipa gráfica que fosse ao encontro do tema geral do disco : a mudança . 
 1	Assim	assim	ADV	ADV	_	10	advmod	_	_
 2	,	,	PUNCT	.	_	1	punct	_	_
 3	aquando	aquar	ADV	ADV	VerbForm=Ger	10	advmod	_	_
@@ -1032,7 +1072,8 @@
 25	mudança	mudança	NOUN	NOUN	Gender=Fem|Number=Sing	19	appos	_	_
 26	.	.	PUNCT	.	_	10	punct	_	_
 
-# sent_id a_tree-pt-s77-root
+# sent_id = sample-s41
+# text = O Instituto de Arte Contemporânea também publicou vários catálogos registrando suas exposições , entre eles : Campo Ampliado , Absorção e Intimismo em Volpi , O Olhar do Colecionador -- Coleção Tuiuiu , Sergio Camargo -- Claro Enigma . 
 1	O	o	DET	DET	Definite=Def|Gender=Masc|Number=Sing|PronType=Art	2	det	_	_
 2	Instituto	Instituto	PROPN	PNOUN	_	7	nsubj	_	_
 3	de	de	ADP	ADP	AdpType=Prep	4	case	_	_
@@ -1073,7 +1114,8 @@
 38	Enigma	Enigma	PROPN	PNOUN	_	34	appos	_	_
 39	.	.	PUNCT	.	_	7	punct	_	_
 
-# sent_id a_tree-pt-s78-root
+# sent_id = sample-s42
+# text = Anaciaeschna é um género de libelinha da família Aeshnidae . 
 1	Anaciaeschna	Anaciaeschna	PROPN	PNOUN	Gender=Masc|Number=Sing	4	nsubj	_	_
 2	é	ser	VERB	VERB	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	4	cop	_	_
 3	um	um	DET	DET	Definite=Ind|Gender=Masc|Number=Sing|PronType=Art	4	det	_	_
@@ -1085,7 +1127,8 @@
 9	Aeshnidae	Aeshnidae	PROPN	PNOUN	Gender=Fem|Number=Sing	8	appos	_	_
 10	.	.	PUNCT	.	_	4	punct	_	_
 
-# sent_id a_tree-pt-s79-root
+# sent_id = sample-s43
+# text = Diversas opções artísticas e de assistência pública estão disponíveis esta semana em Manaus . 
 1	Diversas	diversos	DET	DET	Gender=Fem|Number=Plur|NumType=Card|PronType=Ind,Neg,Tot	2	det	_	_
 2	opções	opção	NOUN	NOUN	Gender=Fem|Number=Plur	8	nsubj	_	_
 3	artísticas	artístico	ADJ	ADJ	Gender=Fem|Number=Plur|VerbForm=Part	2	amod	_	_
@@ -1101,7 +1144,8 @@
 13	Manaus	Manaus	PROPN	PNOUN	Gender=Masc|Number=Sing	8	nmod	_	_
 14	.	.	PUNCT	.	_	8	punct	_	_
 
-# sent_id a_tree-pt-s80-root
+# sent_id = sample-s44
+# text = " Estou realmente impressionado com a quantidade de serviços sob demanda disponíveis pela AWS " , diz Aaron Kenny , antes engenheiro da McAfee e agora CTO da startup eMeals.com , um site completamente hospedado na nuvem da AWS e que ajuda os usuários com planos de alimentação saudáveis . 
 1	"	"	PUNCT	.	_	2	punct	_	_
 2	Estou	Estar	VERB	VERB	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	17	ccomp	_	_
 3	realmente	realmente	ADV	ADV	_	2	advmod	_	_
@@ -1153,7 +1197,8 @@
 49	saudáveis	saudável	ADJ	ADJ	Gender=Fem|Number=Plur	46	amod	_	_
 50	.	.	PUNCT	.	_	17	punct	_	_
 
-# sent_id a_tree-pt-s81-root
+# sent_id = sample-s45
+# text = A magistrada é titular da 3 ª Vara de Fazenda Pública e Registros Públicos da Comarca de Campo Grande e assume a vaga deixada pela Desa . 
 1	A	o	DET	DET	Definite=Def|Gender=Fem|Number=Sing|PronType=Art	2	det	_	_
 2	magistrada	magistrada	NOUN	NOUN	Gender=Fem|Number=Sing	4	nsubj	_	_
 3	é	ser	VERB	VERB	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	4	cop	_	_
@@ -1182,7 +1227,8 @@
 26	Desa	Desa	PROPN	PNOUN	Gender=Fem|Number=Sing	24	nmod	_	_
 27	.	.	PUNCT	.	_	4	punct	_	_
 
-# sent_id a_tree-pt-s82-root
+# sent_id = sample-s46
+# text = O acordo contempla ainda o incremento da participação de agricultores familiares na cadeia do biodiesel , com geração de até 2.430 postos de trabalhos rurais . 
 1	O	o	DET	DET	Definite=Def|Gender=Masc|Number=Sing|PronType=Art	2	det	_	_
 2	acordo	acordo	NOUN	NOUN	Gender=Masc|Number=Sing	3	nsubj	_	_
 3	contempla	contemplar	VERB	VERB	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	_
@@ -1210,7 +1256,8 @@
 25	rurais	rural	ADJ	ADJ	Gender=Masc|Number=Plur	24	amod	_	_
 26	.	.	PUNCT	.	_	3	punct	_	_
 
-# sent_id a_tree-pt-s83-root
+# sent_id = sample-s47
+# text = " Sabemos que o problema não se resume a apenas a escola , mas a única forma de garantir a vida ea integridade física de alunos , professores e diretores foi essa . 
 1	"	"	PUNCT	.	_	2	punct	_	_
 2	Sabemos	saber	VERB	VERB	Mood=Ind|Number=Plur|Person=1|Tense=Pres|VerbForm=Fin	0	root	_	_
 3	que	que	CONJ	CONJ	_	8	mark	_	_
@@ -1245,7 +1292,8 @@
 32	essa	imir	PRON	PRON	Gender=Fem|Number=Sing|VerbForm=Part	17	nsubj	_	_
 33	.	.	PUNCT	.	_	2	punct	_	_
 
-# sent_id a_tree-pt-s84-root
+# sent_id = sample-s48
+# text = Essa dívida , que permanceu depois da negociação entre Galo e Vasco , era de 900 mil euros , algo em torno de R $ 2,221,816,77 milhões , se convertido atualmente . 
 1	Essa	esse	DET	DET	Gender=Fem|Number=Sing|PronType=Dem	2	det	_	_
 2	dívida	dívida	NOUN	NOUN	Gender=Fem|Number=Sing	14	nsubj	_	_
 3	,	,	PUNCT	.	_	5	punct	_	_
@@ -1279,7 +1327,8 @@
 31	atualmente	atualmente	ADV	ADV	_	30	advmod	_	_
 32	.	.	PUNCT	.	_	14	punct	_	_
 
-# sent_id a_tree-pt-s85-root
+# sent_id = sample-s49
+# text = O Brasil tem problemas imensos e grandes dificuldades para enfrentá - los . 
 1	O	o	DET	DET	Definite=Def|Gender=Masc|Number=Sing|PronType=Art	2	det	_	_
 2	Brasil	Brasil	PROPN	PNOUN	Gender=Masc|Number=Sing	3	nsubj	_	_
 3	tem	ter	VERB	VERB	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	_
@@ -1294,7 +1343,8 @@
 12	los	eles	PRON	PRON	Case=Acc|Gender=Masc|Number=Plur|Person=3|PronType=Prs	10	dobj	_	_
 13	.	.	PUNCT	.	_	3	punct	_	_
 
-# sent_id a_tree-pt-s86-root
+# sent_id = sample-s50
+# text = Com a negativa dessas companhias em aderir ao novo modelo , a economia média nas contas dos consumidores ficará em 16,7 % em 2013 . 
 1	Com	com	ADP	ADP	AdpType=Prep	3	case	_	_
 2	a	o	DET	DET	Definite=Def|Gender=Fem|Number=Sing|PronType=Art	3	det	_	_
 3	negativa	negativa	NOUN	NOUN	Gender=Fem|Number=Sing	19	nmod	_	_
@@ -1321,7 +1371,8 @@
 24	2013	2013	NUM	NUM	Gender=Masc|Number=Plur|NumType=Card	19	nmod	_	_
 25	.	.	PUNCT	.	_	19	punct	_	_
 
-# sent_id a_tree-pt-s87-root
+# sent_id = sample-s51
+# text = A construção das estações de embarque e desembarque de ônibus do Corredor Leste - Oeste já está deixando o trânsito mais lento na Avenida Caxangá , na Zona Oeste do Recife . 
 1	A	o	DET	DET	Definite=Def|Gender=Fem|Number=Sing|PronType=Art	2	det	_	_
 2	construção	construção	NOUN	NOUN	Gender=Fem|Number=Sing	18	nsubj	_	_
 3	das	de+o	ADP	ADP	AdpType=Prep|Definite=Def|Gender=Fem|Number=Plur|PronType=Art	4	case	_	_
@@ -1355,7 +1406,8 @@
 31	Recife	Recife	PROPN	PNOUN	_	28	nmod	_	_
 32	.	.	PUNCT	.	_	18	punct	_	_
 
-# sent_id a_tree-pt-s88-root
+# sent_id = sample-s52
+# text = Não vou colocar nossas prioridades em leilão ou virar aposta para " se " fulano se eleger " . 
 1	Não	não	ADV	ADV	_	3	neg	_	_
 2	vou	ir	AUX	AUX	Mood=Ind|Number=Sing|Person=1|Tense=Pres|VerbForm=Fin	3	aux	_	_
 3	colocar	colocar	VERB	VERB	VerbForm=Inf	0	root	_	_
@@ -1376,7 +1428,8 @@
 18	"	"	PUNCT	.	_	3	punct	_	_
 19	.	.	PUNCT	.	_	3	punct	_	_
 
-# sent_id a_tree-pt-s89-root
+# sent_id = sample-s53
+# text = Atualmente , o PSD tem a quarta maior bancada na Câmara dos Deputados , com 52 deputados eleitos e 48 em exercício . 
 1	Atualmente	atualmente	ADV	ADV	_	5	advmod	_	_
 2	,	,	PUNCT	.	_	1	punct	_	_
 3	o	o	DET	DET	Definite=Def|Gender=Masc|Number=Sing|PronType=Art	4	det	_	_
@@ -1401,7 +1454,8 @@
 22	exercício	exercício	NOUN	NOUN	Gender=Masc|Number=Sing	20	nmod	_	_
 23	.	.	PUNCT	.	_	5	punct	_	_
 
-# sent_id a_tree-pt-s90-root
+# sent_id = sample-s54
+# text = Pagu era conhecida como a " musca " da Semana de Arte Moderna e escolheu Santos como a última cidade em que viveu . 
 1	Pagu	Pagu	PROPN	PNOUN	Case=Nom|Gender=Fem|Number=Sing|Person=1|PronType=Prs	3	nsubjpass	_	_
 2	era	ser	AUX	AUX	Mood=Ind|Number=Sing|Person=3|Tense=Imp|VerbForm=Fin	3	auxpass	_	_
 3	conhecida	conhecer	VERB	VERB	Gender=Fem|Number=Sing|VerbForm=Part	0	root	_	_
@@ -1427,7 +1481,8 @@
 23	viveu	viver	VERB	VERB	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	20	acl:relcl	_	_
 24	.	.	PUNCT	.	_	3	punct	_	_
 
-# sent_id a_tree-pt-s91-root
+# sent_id = sample-s55
+# text = " É um elenco forte , com jogadores que já atuaram pelas séries A e B do Campeonato Brasileiro e até no exterior , além de jogador que já passou pela seleção sub - 20 ( se referindo a Tiago Marabá ) " , disse . 
 1	"	"	PUNCT	.	_	4	punct	_	_
 2	É	ser	VERB	VERB	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	4	cop	_	_
 3	um	um	DET	DET	Definite=Ind|Gender=Masc|Number=Sing|PronType=Art	4	det	_	_
@@ -1475,7 +1530,8 @@
 45	disse	dizer	VERB	VERB	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	0	root	_	_
 46	.	.	PUNCT	.	_	45	punct	_	_
 
-# sent_id a_tree-pt-s92-root
+# sent_id = sample-s56
+# text = Segundo a assessoria de comunicação da Câmara de São Paulo , existe apenas um contrato de locação de veículos no valor fixo de R $ 2.331 para cada parlamentar . 
 1	Segundo	segundo	ADP	ADP	AdpType=Prep	3	case	_	_
 2	a	o	DET	DET	Definite=Def|Gender=Fem|Number=Sing|PronType=Art	3	det	_	_
 3	assessoria	assessoria	NOUN	NOUN	Gender=Fem|Number=Sing	12	nmod	_	_
@@ -1507,7 +1563,8 @@
 29	parlamentar	parlamentar	NOUN	NOUN	Gender=Masc|Number=Sing	15	nmod	_	_
 30	.	.	PUNCT	.	_	12	punct	_	_
 
-# sent_id a_tree-pt-s93-root
+# sent_id = sample-s57
+# text = Ele disse que o homem que organizava a sessão era um egípcio radicado nos Estados Unidos e que havia contratado dois seguranças egípcios para a ocasião . 
 1	Ele	ele	PRON	PRON	Case=Nom|Gender=Masc|Number=Sing|Person=3|PronType=Prs	2	nsubj	_	_
 2	disse	dizer	VERB	VERB	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	0	root	_	_
 3	que	que	CONJ	CONJ	_	12	mark	_	_
@@ -1536,7 +1593,8 @@
 26	ocasião	ocasião	NOUN	NOUN	Gender=Fem|Number=Sing	20	nmod	_	_
 27	.	.	PUNCT	.	_	2	punct	_	_
 
-# sent_id a_tree-pt-s94-root
+# sent_id = sample-s58
+# text = A zona era já conhecida pelos russos , com a companhia Lebedev Lastochkin a já lá ter estabelecido um posto de tratamento de peles na foz do rio Kenai . 
 1	A	o	DET	DET	Definite=Def|Gender=Fem|Number=Sing|PronType=Art	2	det	_	_
 2	zona	zona	NOUN	NOUN	Gender=Fem|Number=Sing	5	nsubjpass	_	_
 3	era	ser	AUX	AUX	Mood=Ind|Number=Sing|Person=3|Tense=Imp|VerbForm=Fin	5	auxpass	_	_
@@ -1568,7 +1626,8 @@
 29	Kenai	Kenai	PROPN	PNOUN	Gender=Masc|Number=Sing	28	appos	_	_
 30	.	.	PUNCT	.	_	5	punct	_	_
 
-# sent_id a_tree-pt-s95-root
+# sent_id = sample-s59
+# text = Esse investimento diminuiria consideravelmente também o consumo de derivados de hidrocarbonetos . 
 1	Esse	esse	DET	DET	Gender=Masc|Number=Sing|PronType=Dem	2	det	_	_
 2	investimento	investimento	NOUN	NOUN	Gender=Masc|Number=Sing	3	nsubj	_	_
 3	diminuiria	diminuir	VERB	VERB	Mood=Cnd|Number=Sing|Person=3|VerbForm=Fin	0	root	_	_
@@ -1582,7 +1641,8 @@
 11	hidrocarbonetos	hidrocarboneto	NOUN	NOUN	Gender=Masc|Number=Plur	9	nmod	_	_
 12	.	.	PUNCT	.	_	3	punct	_	_
 
-# sent_id a_tree-pt-s96-root
+# sent_id = sample-s60
+# text = A peoa Keyla Polizello venceu a final da prova dos Três Tambores em Barretos ( SP ) na noite deste domingo ( 19 ) e garantiu um prêmio de R $ 80 mil , além de uma vaga para uma competição internacional em Las Vegas , nos EUA . 
 1	A	o	DET	DET	Definite=Def|Gender=Fem|Number=Sing|PronType=Art	2	det	_	_
 2	peoa	peoar	NOUN	NOUN	Gender=Fem|Number=Sing	5	nsubj	_	_
 3	Keyla	Keyla	PROPN	PNOUN	_	2	appos	_	_
@@ -1633,7 +1693,8 @@
 48	EUA	EUA	PROPN	PNOUN	Gender=Masc|Number=Plur	45	nmod	_	_
 49	.	.	PUNCT	.	_	5	punct	_	_
 
-# sent_id a_tree-pt-s97-root
+# sent_id = sample-s61
+# text = Nilton cruzou na área e Tenório , sozinho , cabeceou para o gol . 
 1	Nilton	Nilton	PROPN	PNOUN	Gender=Masc|Number=Sing	2	nsubj	_	_
 2	cruzou	cruzar	VERB	VERB	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	0	root	_	_
 3	na	em+o	ADP	ADP	AdpType=Prep|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	4	case	_	_
@@ -1649,7 +1710,8 @@
 13	gol	gol	NOUN	NOUN	Gender=Masc|Number=Sing	10	nmod	_	_
 14	.	.	PUNCT	.	_	2	punct	_	_
 
-# sent_id a_tree-pt-s98-root
+# sent_id = sample-s62
+# text = No entanto , a iniciativa deverá ainda ser tipificada como lei por uma comissão parlamentar , um trâmite que demorará várias semanas até sua promulgação , segundo fontes do Parlamento . 
 1	No	em+o	ADP	ADP	AdpType=Prep|Definite=Def|Gender=Masc|Number=Sing|PronType=Art	2	mark	_	_
 2	entanto	entanto	ADV	ADV	_	9	nmod	_	_
 3	,	,	PUNCT	.	_	2	punct	_	_
@@ -1682,7 +1744,8 @@
 30	Parlamento	Parlamento	PROPN	PNOUN	Gender=Masc|Number=Sing	28	nmod	_	_
 31	.	.	PUNCT	.	_	9	punct	_	_
 
-# sent_id a_tree-pt-s99-root
+# sent_id = sample-s63
+# text = Destaque também para as apreensões de cigarro com 248.282 pacotes . 
 1	Destaque	Destaque	NOUN	NOUN	Mood=Sub|Number=Sing|Person=1,3|Tense=Pres|VerbForm=Fin	0	root	_	_
 2	também	também	ADV	ADV	_	1	advmod	_	_
 3	para	para	ADP	ADP	AdpType=Prep	5	case	_	_
@@ -1695,7 +1758,8 @@
 10	pacotes	pacote	NOUN	NOUN	Gender=Masc|Number=Plur	5	nmod	_	_
 11	.	.	PUNCT	.	_	1	punct	_	_
 
-# sent_id a_tree-pt-s100-root
+# sent_id = sample-s64
+# text = Mas os Estados Unidos ea União Europeia se recusaram a dar números precisos relativos ao financiamento entre 2013 e 2020 , alegando sérios problemas financeiros . 
 1	Mas	mas	CONJ	CONJ	_	9	cc	_	_
 2	os	o	DET	DET	Definite=Def|Gender=Masc|Number=Plur|PronType=Art	3	det	_	_
 3	Estados	Estados	PROPN	PNOUN	_	9	nsubj	_	_
@@ -1723,7 +1787,8 @@
 25	financeiros	financeiro	ADJ	ADJ	Gender=Masc|Number=Plur	24	amod	_	_
 26	.	.	PUNCT	.	_	9	punct	_	_
 
-# sent_id a_tree-pt-s1-root
+# sent_id = sample-s65
+# text = Aos sábados , domingos e feriados , devido ao esquema de plantão desta redação , os comentários podem não ser publicados . 
 1	Aos	a+o	ADP	ADP	AdpType=Prep|Definite=Def|Gender=Masc|Number=Plur|PronType=Art	2	case	_	_
 2	sábados	sábado	PROPN	PNOUN	Gender=Masc|Number=Plur	21	nmod	_	_
 3	,	,	PUNCT	.	_	2	punct	_	_
@@ -1747,7 +1812,8 @@
 21	publicados	publicar	VERB	VERB	Gender=Masc|Number=Plur|VerbForm=Part	0	root	_	_
 22	.	.	PUNCT	.	_	21	punct	_	_
 
-# sent_id a_tree-pt-s2-root
+# sent_id = sample-s66
+# text = Garcia disse que é indissociável imaginar a possibilidade de união e parceria , sem respeitar os preceitos democráticos . 
 1	Garcia	Garcia	PROPN	PNOUN	Gender=Masc|Number=Sing	2	nsubj	_	_
 2	disse	dizer	VERB	VERB	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	0	root	_	_
 3	que	que	CONJ	CONJ	_	4	mark	_	_
@@ -1768,7 +1834,8 @@
 18	democráticos	democrático	ADJ	ADJ	Gender=Masc|Number=Plur	17	amod	_	_
 19	.	.	PUNCT	.	_	2	punct	_	_
 
-# sent_id a_tree-pt-s3-root
+# sent_id = sample-s67
+# text = Os dados , referentes a setembro , são do Conselho Nacional de Desenvolvimento Científico e Tecnológico ( CNPq ) e da Coordenação de Aperfeiçoamento de Pessoal de Nível Superior ( Capes ) . 
 1	Os	o	DET	DET	Definite=Def|Gender=Masc|Number=Plur|PronType=Art	2	det	_	_
 2	dados	dado	NOUN	NOUN	Gender=Masc|Number=Plur	8	nsubj	_	_
 3	,	,	PUNCT	.	_	4	punct	_	_
@@ -1803,7 +1870,8 @@
 32	)	)	PUNCT	.	_	31	punct	_	_
 33	.	.	PUNCT	.	_	8	punct	_	_
 
-# sent_id a_tree-pt-s4-root
+# sent_id = sample-s68
+# text = O efeito máximo da queda nos preços da energia cobrada pela Eletropaulo , calculou , deverá ser sentido no fechamento de julho , e pode ser de 0,01 ponto porcentual . 
 1	O	o	DET	DET	Definite=Def|Gender=Masc|Number=Sing|PronType=Art	2	det	_	_
 2	efeito	efeito	NOUN	NOUN	Gender=Masc|Number=Sing	18	nsubjpass	_	_
 3	máximo	grande	ADJ	ADJ	Gender=Masc|Number=Sing	2	amod	_	_
@@ -1836,7 +1904,8 @@
 30	porcentual	porcentual	ADJ	ADJ	Gender=Masc|Number=Sing	29	amod	_	_
 31	.	.	PUNCT	.	_	18	punct	_	_
 
-# sent_id a_tree-pt-s5-root
+# sent_id = sample-s69
+# text = " Inseguro em relação ao futuro profissional , o consumidor automaticamente pisa no freio e reduz as compras " , conclui Edison . 
 1	"	"	PUNCT	.	_	2	punct	_	_
 2	Inseguro	Insegurar	PROPN	PNOUN	Mood=Ind|Number=Sing|Person=1|Tense=Pres|VerbForm=Fin	10	amod	_	_
 3	em	em	ADP	ADP	AdpType=Prep	4	case	_	_
@@ -1861,7 +1930,8 @@
 22	Edison	Edison	PROPN	PNOUN	Gender=Masc|Number=Sing	21	nsubj	_	_
 23	.	.	PUNCT	.	_	21	punct	_	_
 
-# sent_id a_tree-pt-s6-root
+# sent_id = sample-s70
+# text = ' Bella ' foi levada a um hospital veterinário na cidade de Norman , onde os espinhos foram retirados . 
 1	'	'	PUNCT	.	_	2	punct	_	_
 2	Bella	Bella	PROPN	PNOUN	Case=Nom|Gender=Fem|Number=Sing|Person=3|PronType=Prs	5	nsubjpass	_	_
 3	'	'	PUNCT	.	_	2	punct	_	_
@@ -1883,7 +1953,8 @@
 19	retirados	retirado	VERB	VERB	Gender=Masc|Number=Plur|VerbForm=Part	8	acl:relcl	_	_
 20	.	.	PUNCT	.	_	5	punct	_	_
 
-# sent_id a_tree-pt-s7-root
+# sent_id = sample-s71
+# text = Tem 60 anos e revela que seu interesse partidário nasceu há dois anos . 
 1	Tem	ter	VERB	VERB	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	_
 2	60	60	NUM	NUM	Gender=Masc|Number=Plur|NumType=Card	3	nummod	_	_
 3	anos	ano	NOUN	NOUN	Gender=Masc|Number=Plur	1	dobj	_	_
@@ -1899,7 +1970,8 @@
 13	anos	ano	NOUN	NOUN	Gender=Masc|Number=Plur	11	nmod	_	_
 14	.	.	PUNCT	.	_	1	punct	_	_
 
-# sent_id a_tree-pt-s8-root
+# sent_id = sample-s72
+# text = A Fiorentina está interessada na contratação do atacante do Schalke 04 e da seleção holandesa Huntelaar . 
 1	A	o	DET	DET	Definite=Def|Gender=Fem|Number=Sing|PronType=Art	2	det	_	_
 2	Fiorentina	Fiorentina	PROPN	PNOUN	Gender=Fem|Number=Sing	3	nsubj	_	_
 3	está	estar	VERB	VERB	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	_
@@ -1918,7 +1990,8 @@
 16	Huntelaar	Huntelaar	PROPN	PNOUN	_	8	appos	_	_
 17	.	.	PUNCT	.	_	3	punct	_	_
 
-# sent_id a_tree-pt-s9-root
+# sent_id = sample-s73
+# text = Como uma regra geral , explosivos primários são considerados aqueles compostos que são mais sensíveis que o PETN . 
 1	Como	como	ADP	ADP	AdpType=Prep	3	case	_	_
 2	uma	um	DET	DET	Definite=Ind|Gender=Fem|Number=Sing|PronType=Art	3	det	_	_
 3	regra	regra	NOUN	NOUN	Gender=Fem|Number=Sing	11	nmod	_	_
@@ -1939,7 +2012,8 @@
 18	PETN	PETN	PROPN	PNOUN	Gender=Masc|Number=Sing	13	nmod	_	_
 19	.	.	PUNCT	.	_	11	punct	_	_
 
-# sent_id a_tree-pt-s10-root
+# sent_id = sample-s74
+# text = " Eles tentam impedir , de forma hipócrita , que outros países usem esta tecnologia para fins pacíficos , como na medicina ou na produção de energia elétrica . 
 1	"	"	PUNCT	.	_	3	punct	_	_
 2	Eles	eles	PRON	PRON	Case=Nom|Gender=Masc|Number=Plur|Person=3|PronType=Prs	3	nsubj	_	_
 3	tentam	tentar	VERB	VERB	Mood=Ind|Number=Plur|Person=3|Tense=Imp|VerbForm=Fin	0	root	_	_
@@ -1970,7 +2044,8 @@
 28	elétrica	elétrico	ADJ	ADJ	Gender=Fem|Number=Sing	27	amod	_	_
 29	.	.	PUNCT	.	_	3	punct	_	_
 
-# sent_id a_tree-pt-s11-root
+# sent_id = sample-s75
+# text = Para enfrentar o avanço dos acidentes de trânsito , o Governo Federal expandiu o Projeto Vida no Trânsito a todas as capitais brasileiras . 
 1	Para	para	ADP	ADP	AdpType=Prep	2	mark	_	_
 2	enfrentar	enfrentar	VERB	VERB	VerbForm=Inf	13	advcl	_	_
 3	o	o	DET	DET	Definite=Def|Gender=Masc|Number=Sing|PronType=Art	4	det	_	_
@@ -1996,7 +2071,8 @@
 23	brasileiras	brasileiro	ADJ	ADJ	Gender=Fem|Number=Plur	22	amod	_	_
 24	.	.	PUNCT	.	_	13	punct	_	_
 
-# sent_id a_tree-pt-s12-root
+# sent_id = sample-s76
+# text = Decepcionada , ela procurou seu amigo Milt Gabler ( tio do comediante Billy Crystal ) , cuja selo , a Commodore Records , gravava músicas de jazz alternativo . 
 1	Decepcionada	Decepcionada	ADJ	ADJ	Gender=Fem|Number=Sing|VerbForm=Part	3	amod	_	_
 2	,	,	PUNCT	.	_	1	punct	_	_
 3	ela	ele	PRON	PRON	Case=Nom|Gender=Fem|Number=Sing|Person=3|PronType=Prs	4	nsubj	_	_
@@ -2027,7 +2103,8 @@
 28	alternativo	alternativo	ADJ	ADJ	Gender=Masc|Number=Sing	27	amod	_	_
 29	.	.	PUNCT	.	_	4	punct	_	_
 
-# sent_id a_tree-pt-s13-root
+# sent_id = sample-s77
+# text = Para algumas vítimas é nossa câmara de gás . 
 1	Para	para	ADP	ADP	AdpType=Prep	3	case	_	_
 2	algumas	algum	DET	DET	Gender=Fem|Number=Plur|NumType=Card|PronType=Ind,Neg,Tot	3	det	_	_
 3	vítimas	vítima	NOUN	NOUN	Gender=Fem|Number=Plur	6	nmod	_	_
@@ -2038,7 +2115,8 @@
 8	gás	gás	NOUN	NOUN	Gender=Masc|Number=Sing	6	nmod	_	_
 9	.	.	PUNCT	.	_	6	punct	_	_
 
-# sent_id a_tree-pt-s14-root
+# sent_id = sample-s78
+# text = O próximo adversário brasileiro é a Coreia do Sul . 
 1	O	o	DET	DET	Definite=Def|Gender=Masc|Number=Sing|PronType=Art	3	det	_	_
 2	próximo	próximo	ADJ	ADJ	Gender=Masc|Number=Sing	3	amod	_	_
 3	adversário	adversário	NOUN	NOUN	Gender=Masc|Number=Sing	7	nsubj	_	_
@@ -2050,7 +2128,8 @@
 9	Sul	sul	PROPN	PNOUN	_	7	nmod	_	_
 10	.	.	PUNCT	.	_	7	punct	_	_
 
-# sent_id a_tree-pt-s15-root
+# sent_id = sample-s79
+# text = Perim destaca que escolher as comunidades pacificadas para sediar o festival é uma forma de unir o entretenimento ea inclusão social . 
 1	Perim	Perim	PROPN	PNOUN	Gender=Masc|Number=Sing	2	nsubj	_	_
 2	destaca	destaca	VERB	VERB	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	_
 3	que	que	CONJ	CONJ	_	14	mark	_	_
@@ -2074,7 +2153,8 @@
 21	social	social	ADJ	ADJ	Gender=Fem|Number=Sing	20	amod	_	_
 22	.	.	PUNCT	.	_	2	punct	_	_
 
-# sent_id a_tree-pt-s16-root
+# sent_id = sample-s80
+# text = Indico , como ministra , a psicanalista e colunista deste jornal , Ana Verônica Mautner , que além de mulher é húngara , povo que pode ser acusado de muitas coisas ( não sei quais , essa é só uma frase de efeito ) , menos de refugar na hora do salto . 
 1	Indico	Indico	VERB	VERB	NumType=Card|PronType=Ind,Neg,Tot	0	root	_	_
 2	,	,	PUNCT	.	_	4	punct	_	_
 3	como	como	ADP	ADP	PronType=Rel	4	case	_	_
@@ -2129,7 +2209,8 @@
 52	salto	salto	NOUN	NOUN	Gender=Masc|Number=Sing	50	nmod	_	_
 53	.	.	PUNCT	.	_	1	punct	_	_
 
-# sent_id a_tree-pt-s17-root
+# sent_id = sample-s81
+# text = Olívia faz uma notificação para os pais dos meninos . 
 1	Olívia	Olívia	PROPN	PNOUN	Gender=Fem|Number=Sing	2	nsubj	_	_
 2	faz	fazer	VERB	VERB	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	_
 3	uma	um	DET	DET	Definite=Ind|Gender=Fem|Number=Sing|PronType=Art	4	det	_	_
@@ -2141,7 +2222,8 @@
 9	meninos	menino	NOUN	NOUN	Gender=Masc|Number=Plur	7	nmod	_	_
 10	.	.	PUNCT	.	_	2	punct	_	_
 
-# sent_id a_tree-pt-s18-root
+# sent_id = sample-s82
+# text = Este asteroide foi descoberto no dia 8 de fevereiro de 1994 por Eric Walter Elst em La Silla . 
 1	Este	este	DET	DET	Gender=Masc|Number=Sing|PronType=Dem	2	det	_	_
 2	asteroide	asteroidir	NOUN	NOUN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	4	nsubjpass	_	_
 3	foi	ser	AUX	AUX	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	4	auxpass	_	_
@@ -2162,7 +2244,8 @@
 18	Silla	Silla	PROPN	PNOUN	_	4	nmod	_	_
 19	.	.	PUNCT	.	_	4	punct	_	_
 
-# sent_id a_tree-pt-s19-root
+# sent_id = sample-s83
+# text = Em pouco mais de 10 anos de estudo , conseguiu 31 aprovações em concursos de diferentes regiões do país . 
 1	Em	em	ADP	ADP	AdpType=Prep	6	case	_	_
 2	pouco	pouco	ADV	ADV	NumType=Card|PronType=Ind,Neg,Tot	3	advmod	_	_
 3	mais	mais	ADV	ADV	NumType=Card|PronType=Ind,Neg,Tot	5	advmod	_	_
@@ -2184,7 +2267,8 @@
 19	país	país	NOUN	NOUN	Gender=Masc|Number=Sing	17	nmod	_	_
 20	.	.	PUNCT	.	_	10	punct	_	_
 
-# sent_id a_tree-pt-s20-root
+# sent_id = sample-s84
+# text = O jogo aéreo é o sexto pior da temporada em jardas , mas o quarterback Alex Smith continua protegendo a bola e já anotou oito touchdowns , sendo interceptado apenas uma vez . 
 1	O	o	DET	DET	Definite=Def|Gender=Masc|Number=Sing|PronType=Art	2	det	_	_
 2	jogo	jogo	NOUN	NOUN	Gender=Masc|Number=Sing	6	nsubj	_	_
 3	aéreo	aéreo	ADJ	ADJ	Gender=Masc|Number=Sing	2	amod	_	_
@@ -2219,7 +2303,8 @@
 32	vez	vez	NOUN	NOUN	_	29	nmod	_	_
 33	.	.	PUNCT	.	_	6	punct	_	_
 
-# sent_id a_tree-pt-s21-root
+# sent_id = sample-s85
+# text = São estas as tarefas , estes são os desafios . 
 1	São	ser	VERB	VERB	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	4	cop	_	_
 2	estas	este	PRON	PRON	Gender=Fem|Number=Plur|PronType=Dem	4	nsubj	_	_
 3	as	o	DET	DET	Definite=Def|Gender=Fem|Number=Plur|PronType=Art	4	det	_	_
@@ -2231,7 +2316,8 @@
 9	desafios	desafio	NOUN	NOUN	Gender=Masc|Number=Plur	4	conj	_	_
 10	.	.	PUNCT	.	_	4	punct	_	_
 
-# sent_id a_tree-pt-s22-root
+# sent_id = sample-s86
+# text = A indisponibilidade da verba direcionada aos hospitais Júlio Muller , Santa Casa , Santa Helena , Hospital Geral Universitário , Hospital do Câncer , Pronto - Socorro de Cuiabá ea outros setores de atendimento à saúde da população gerou uma ameaça de corte no atendimento pelo SUS nestas instituições . 
 1	A	o	DET	DET	Definite=Def|Gender=Fem|Number=Sing|PronType=Art	2	det	_	_
 2	indisponibilidade	indisponibilidade	NOUN	NOUN	Gender=Fem|Number=Sing	39	nsubj	_	_
 3	da	de+o	ADP	ADP	AdpType=Prep|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	4	case	_	_
@@ -2283,7 +2369,8 @@
 49	instituições	instituição	NOUN	NOUN	Gender=Fem|Number=Plur	39	nmod	_	_
 50	.	.	PUNCT	.	_	39	punct	_	_
 
-# sent_id a_tree-pt-s23-root
+# sent_id = sample-s87
+# text = A cidade teve , desde a última eleição em 2008 , três prefeitos diferentes . 
 1	A	o	DET	DET	Definite=Def|Gender=Fem|Number=Sing|PronType=Art	2	det	_	_
 2	cidade	cidade	NOUN	NOUN	Gender=Fem|Number=Sing	3	nsubj	_	_
 3	teve	ter	VERB	VERB	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	0	root	_	_
@@ -2300,7 +2387,8 @@
 14	diferentes	diferente	ADJ	ADJ	Gender=Masc|Number=Plur	13	amod	_	_
 15	.	.	PUNCT	.	_	3	punct	_	_
 
-# sent_id a_tree-pt-s24-root
+# sent_id = sample-s88
+# text = O evento acontecerá no Sindicato dos Trabalhadores da Indústria de Alimentação , Açúcar , Álcool e afins , que fica localizada na Rua Terêncio Ricciard , 1048 , no município de Sertãozinho . 
 1	O	o	DET	DET	Definite=Def|Gender=Masc|Number=Sing|PronType=Art	2	det	_	_
 2	evento	evento	NOUN	NOUN	Gender=Masc|Number=Sing	3	nsubj	_	_
 3	acontecerá	acontecer	VERB	VERB	Mood=Ind|Number=Sing|Person=3|Tense=Fut|VerbForm=Fin	0	root	_	_
@@ -2335,7 +2423,8 @@
 32	Sertãozinho	Sertãozinho	PROPN	PNOUN	Gender=Masc|Number=Sing	30	nmod	_	_
 33	.	.	PUNCT	.	_	3	punct	_	_
 
-# sent_id a_tree-pt-s25-root
+# sent_id = sample-s89
+# text = No ano passado , aquele episódio do meu afastamento chegou a causar um mal - estar , mas agora fica claro que está tudo superado ( Tite o tirou do time titular e até do banco de reservas depois de Chicão se recusar a ficar na reserva na véspera de uma partida contra o São Paulo , pelo Brasileiro ) . 
 1	No	em+o	ADP	ADP	AdpType=Prep|Definite=Def|Gender=Masc|Number=Sing|PronType=Art	2	case	_	_
 2	ano	ano	NOUN	NOUN	Gender=Masc|Number=Sing	12	nmod	_	_
 3	passado	passar	ADJ	ADJ	Gender=Masc|Number=Sing|VerbForm=Part	2	amod	_	_
@@ -2398,7 +2487,8 @@
 60	)	)	PUNCT	.	_	29	punct	_	_
 61	.	.	PUNCT	.	_	12	punct	_	_
 
-# sent_id a_tree-pt-s26-root
+# sent_id = sample-s90
+# text = O conhecimento de transporte é um impresso fiscal em papel , como a nota fiscal de produtos ou serviços . 
 1	O	o	DET	DET	Definite=Def|Gender=Masc|Number=Sing|PronType=Art	2	det	_	_
 2	conhecimento	conhecimento	NOUN	NOUN	Gender=Masc|Number=Sing	7	nsubj	_	_
 3	de	de	ADP	ADP	AdpType=Prep	4	case	_	_
@@ -2420,7 +2510,8 @@
 19	serviços	serviço	NOUN	NOUN	Gender=Masc|Number=Plur	17	conj	_	_
 20	.	.	PUNCT	.	_	7	punct	_	_
 
-# sent_id a_tree-pt-s27-root
+# sent_id = sample-s91
+# text = O referendo foi organizado pelo governo de Ponta . 
 1	O	o	DET	DET	Definite=Def|Gender=Masc|Number=Sing|PronType=Art	2	det	_	_
 2	referendo	referendo	NOUN	NOUN	Gender=Masc|Number=Sing	4	nsubjpass	_	_
 3	foi	ser	AUX	AUX	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	4	auxpass	_	_
@@ -2431,7 +2522,8 @@
 8	Ponta	ponta	PROPN	PNOUN	Gender=Fem|Number=Sing	6	nmod	_	_
 9	.	.	PUNCT	.	_	4	punct	_	_
 
-# sent_id a_tree-pt-s28-root
+# sent_id = sample-s92
+# text = Os oficiais que nãoo estão na primeira linha ( p.e. engenheiros , médicos ) podem ser nomeados por méritos em tempo de guerra . 
 1	Os	o	DET	DET	Definite=Def|Gender=Masc|Number=Plur|PronType=Art	2	det	_	_
 2	oficiais	oficial	NOUN	NOUN	Gender=Masc|Number=Plur	17	nsubjpass	_	_
 3	que	que	PRON	PRON	Gender=Masc|Number=Plur|PronType=Rel	5	nsubj	_	_
@@ -2457,7 +2549,8 @@
 23	guerra	guerra	NOUN	NOUN	Gender=Fem|Number=Sing	21	nmod	_	_
 24	.	.	PUNCT	.	_	17	punct	_	_
 
-# sent_id a_tree-pt-s29-root
+# sent_id = sample-s93
+# text = As duas vêm fazendo boa campanha nesta competição e protagonizam mais um confronto direto pelo G - 4 , que garante vaga na Série A. 
 1	As	o	DET	DET	Definite=Def|Gender=Fem|Number=Plur|PronType=Art	2	det	_	_
 2	duas	duas	NUM	NUM	Gender=Fem|Number=Plur|NumType=Card	4	nsubj	_	_
 3	vêm	vir	AUX	AUX	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	4	aux	_	_
@@ -2484,7 +2577,8 @@
 24	Série	série	PROPN	PNOUN	_	21	nmod	_	_
 25	A.	A.	NOUN	NOUN	_	24	appos	_	_
 
-# sent_id a_tree-pt-s30-root
+# sent_id = sample-s94
+# text = Dois candidatos a vereador e dois eleitores foram autuados por boca de urna ou tentando comprar votos . 
 1	Dois	dois	NUM	NUM	Gender=Masc|Number=Plur|NumType=Card	2	nummod	_	_
 2	candidatos	candidato	NOUN	NOUN	Gender=Masc|Number=Plur	9	nsubjpass	_	_
 3	a	o	ADP	ADP	AdpType=Prep	4	case	_	_
@@ -2504,7 +2598,8 @@
 17	votos	voto	NOUN	NOUN	Gender=Masc|Number=Plur	16	dobj	_	_
 18	.	.	PUNCT	.	_	9	punct	_	_
 
-# sent_id a_tree-pt-s31-root
+# sent_id = sample-s95
+# text = O vídeo do grupo londrino foi gravado em Edimburgo , na Escócia , sob direção de Lewis Gourlay . 
 1	O	o	DET	DET	Definite=Def|Gender=Masc|Number=Sing|PronType=Art	2	det	_	_
 2	vídeo	vídeo	NOUN	NOUN	Gender=Masc|Number=Sing	7	nsubjpass	_	_
 3	do	de+o	ADP	ADP	AdpType=Prep|Definite=Def|Gender=Masc|Number=Sing|PronType=Art	4	case	_	_
@@ -2525,7 +2620,8 @@
 18	Gourlay	Gourlay	PROPN	PNOUN	_	17	name	_	_
 19	.	.	PUNCT	.	_	7	punct	_	_
 
-# sent_id a_tree-pt-s32-root
+# sent_id = sample-s96
+# text = Os Vinci dominam a tecnologia . 
 1	Os	o	DET	DET	Definite=Def|Gender=Masc|Number=Plur|PronType=Art	2	det	_	_
 2	Vinci	Vinci	PROPN	PNOUN	Gender=Masc|Number=Sing	3	nsubj	_	_
 3	dominam	dominar	VERB	VERB	Mood=Ind|Number=Plur|Person=3|Tense=Imp|VerbForm=Fin	0	root	_	_
@@ -2533,7 +2629,8 @@
 5	tecnologia	tecnologia	NOUN	NOUN	Gender=Fem|Number=Sing	3	dobj	_	_
 6	.	.	PUNCT	.	_	3	punct	_	_
 
-# sent_id a_tree-pt-s33-root
+# sent_id = sample-s97
+# text = Ele não conta com Valdivia , Márcio Araújo , Daniel Carvalho e Luan , machucados e Leandro Amaro , suspenso , só para lembrar os mais importantes no esquema do treinador palmeirense . 
 1	Ele	ele	PRON	PRON	Case=Nom|Gender=Masc|Number=Sing|Person=3|PronType=Prs	3	nsubj	_	_
 2	não	não	ADV	ADV	_	3	neg	_	_
 3	conta	contar	VERB	VERB	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	_
@@ -2568,7 +2665,8 @@
 32	palmeirense	palmeirense	ADJ	ADJ	Gender=Masc|Number=Sing	31	amod	_	_
 33	.	.	PUNCT	.	_	3	punct	_	_
 
-# sent_id a_tree-pt-s34-root
+# sent_id = sample-s98
+# text = As matrículas devem ser feitas até o dia 31 nas próprias escolas , das 9h às 16h , de acordo com o zoneamento escolar . 
 1	As	o	DET	DET	Definite=Def|Gender=Fem|Number=Plur|PronType=Art	2	det	_	_
 2	matrículas	matrícula	NOUN	NOUN	Gender=Fem|Number=Plur	5	nsubjpass	_	_
 3	devem	dever	AUX	AUX	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	5	aux	_	_
@@ -2595,7 +2693,8 @@
 24	escolar	escolar	ADJ	ADJ	Gender=Masc|Number=Sing	23	amod	_	_
 25	.	.	PUNCT	.	_	5	punct	_	_
 
-# sent_id a_tree-pt-s35-root
+# sent_id = sample-s99
+# text = Criou as missionárias da caridade , onde todas as freiras iriam ajudar não a ela , mas sim a todos os necessitados . 
 1	Criou	Criar	VERB	VERB	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	0	root	_	_
 2	as	o	DET	DET	Definite=Def|Gender=Fem|Number=Plur|PronType=Art	3	det	_	_
 3	missionárias	missionária	NOUN	NOUN	Gender=Fem|Number=Plur	1	dobj	_	_
@@ -2620,7 +2719,8 @@
 22	necessitados	necessitado	NOUN	NOUN	Gender=Masc|Number=Plur	12	conj	_	_
 23	.	.	PUNCT	.	_	1	punct	_	_
 
-# sent_id a_tree-pt-s36-root
+# sent_id = sample-s100
+# text = O órgão meteorológico informou que a tempestade perdeu as características de um ciclone , mas ainda poderá causar temporais na região dos Grandes Lagos , enchentes e ventos fortes em toda a costa leste . 
 1	O	o	DET	DET	Definite=Def|Gender=Masc|Number=Sing|PronType=Art	2	det	_	_
 2	órgão	órgão	NOUN	NOUN	Gender=Masc|Number=Sing	4	nsubj	_	_
 3	meteorológico	meteorológico	ADJ	ADJ	Gender=Masc|Number=Sing	2	amod	_	_
@@ -2657,7 +2757,8 @@
 34	leste	leste	ADJ	ADJ	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	33	amod	_	_
 35	.	.	PUNCT	.	_	4	punct	_	_
 
-# sent_id a_tree-pt-s37-root
+# sent_id = sample-s101
+# text = Ela pilota a nave chamada " Hanvester " . 
 1	Ela	ela	PRON	PRON	Case=Nom|Gender=Fem|Number=Sing|Person=3|PronType=Prs	2	nsubj	_	_
 2	pilota	pilotar	VERB	VERB	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	_
 3	a	o	DET	DET	Definite=Def|Gender=Fem|Number=Sing|PronType=Art	4	det	_	_
@@ -2668,7 +2769,8 @@
 8	"	"	PUNCT	.	_	7	punct	_	_
 9	.	.	PUNCT	.	_	2	punct	_	_
 
-# sent_id a_tree-pt-s38-root
+# sent_id = sample-s102
+# text = Agora , Sunny deve equilibrar de algum modo estas novas amizades enquanto se adapta a maneira de viver em Hollywood que , decididamente , é muito diferente da que vivia com sua família em . 
 1	Agora	agora	ADV	ADV	_	5	advmod	_	_
 2	,	,	PUNCT	.	_	1	punct	_	_
 3	Sunny	Sunny	PROPN	PNOUN	Gender=Masc|Number=Sing	5	nsubj	_	_
@@ -2705,7 +2807,8 @@
 34	em	em	ADP	ADP	AdpType=Prep	30	nmod	_	_
 35	.	.	PUNCT	.	_	5	punct	_	_
 
-# sent_id a_tree-pt-s39-root
+# sent_id = sample-s103
+# text = Dependendo do resultado , que será divulgado nesta quarta , Felipe deve continuar por mais algum tempo na posição e , indiretamente , precisará cada vez mais da ajuda de seus companheiros . 
 1	Dependendo	depender	VERB	VERB	VerbForm=Ger	13	acl:part	_	_
 2	do	de+o	ADP	ADP	AdpType=Prep|Definite=Def|Gender=Masc|Number=Sing|PronType=Art	3	case	_	_
 3	resultado	resultado	NOUN	NOUN	Gender=Masc|Number=Sing	1	nmod	_	_
@@ -2740,7 +2843,8 @@
 32	companheiros	companheiro	NOUN	NOUN	Gender=Masc|Number=Plur	29	nmod	_	_
 33	.	.	PUNCT	.	_	13	punct	_	_
 
-# sent_id a_tree-pt-s40-root
+# sent_id = sample-s104
+# text = Ele explica que a Lei 12.350 , de 2010 , que possibilitou o ressarcimento para essas empresas , ainda não foi regulamentada . 
 1	Ele	ele	PRON	PRON	Case=Nom|Gender=Masc|Number=Sing|Person=3|PronType=Prs	2	nsubj	_	_
 2	explica	explicar	VERB	VERB	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	_
 3	que	que	CONJ	CONJ	_	22	mark	_	_
@@ -2765,7 +2869,8 @@
 22	regulamentada	regulamentar	VERB	VERB	Gender=Fem|Number=Sing|VerbForm=Part	2	ccomp	_	_
 23	.	.	PUNCT	.	_	2	punct	_	_
 
-# sent_id a_tree-pt-s41-root
+# sent_id = sample-s105
+# text = Munida das fotos que provam que Carminha trai Tufão ( Murilo Benício ) com Max ( Marcello Novaes ) , Nina provoca tanto a outra que ela acaba surtando no casamento de Roni ( Daniel Rocha ) e Suelen ( Isis Valverde ) . 
 1	Munida	Munida	VERB	VERB	Gender=Fem|Number=Sing|VerbForm=Part	21	acl:part	_	_
 2	das	de+o	ADP	ADP	AdpType=Prep|Definite=Def|Gender=Fem|Number=Plur|PronType=Art	3	case	_	_
 3	fotos	foto	NOUN	NOUN	Gender=Fem|Number=Plur	1	nmod	_	_
@@ -2811,7 +2916,8 @@
 43	)	)	PUNCT	.	_	41	punct	_	_
 44	.	.	PUNCT	.	_	22	punct	_	_
 
-# sent_id a_tree-pt-s42-root
+# sent_id = sample-s106
+# text = Siga também o Globo Natureza no Twitter . 
 1	Siga	seguir	VERB	VERB	Gender=Masc|Number=Sing	0	root	_	_
 2	também	também	ADV	ADV	_	1	advmod	_	_
 3	o	o	DET	DET	Definite=Def|Gender=Masc|Number=Sing|PronType=Art	4	det	_	_
@@ -2821,7 +2927,8 @@
 7	Twitter	Twitter	PROPN	PNOUN	Gender=Masc|Number=Sing	1	nmod	_	_
 8	.	.	PUNCT	.	_	1	punct	_	_
 
-# sent_id a_tree-pt-s43-root
+# sent_id = sample-s107
+# text = Um dos temas será a análise sobre a atuação na guerrilha da etnia Suruí , que atualmente vive na Terra Indígena Sororó . 
 1	Um	um	PRON	PRON	Gender=Masc|Number=Sing|NumType=Card	6	nsubj	_	_
 2	dos	de+o	ADP	ADP	AdpType=Prep|Definite=Def|Gender=Masc|Number=Plur|PronType=Art	3	case	_	_
 3	temas	tema	NOUN	NOUN	Gender=Masc|Number=Plur	1	nmod	_	_
@@ -2846,7 +2953,8 @@
 22	Sororó	Sororó	PROPN	PNOUN	_	20	appos	_	_
 23	.	.	PUNCT	.	_	6	punct	_	_
 
-# sent_id a_tree-pt-s44-root
+# sent_id = sample-s108
+# text = Sempre utiliza sua lábia para ludibriar os malfeitores , sempre acaba fugindo da briga . 
 1	Sempre	sempre	ADV	ADV	_	2	advmod	_	_
 2	utiliza	utilizar	VERB	VERB	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	_
 3	sua	seu	DET	DET	Gender=Fem|Number=Sing|Number[psor]=Sing|Person=3|Poss=Yes|PronType=Prs|Reflex=Yes	4	det:poss	_	_
@@ -2863,7 +2971,8 @@
 14	briga	briga	NOUN	NOUN	Gender=Fem|Number=Sing	12	nmod	_	_
 15	.	.	PUNCT	.	_	2	punct	_	_
 
-# sent_id a_tree-pt-s45-root
+# sent_id = sample-s109
+# text = Dirceu Barbano , diretor - presidente da Anvisa , diz que essa falta de controle , considerada por ele danosa para a sociedade , é uma falha em um sistema que tem um início de ciclo bem atendido . 
 1	Dirceu	Dirceu	PROPN	PNOUN	Gender=Masc|Number=Sing|Number[psor]=Sing|Person=3|Poss=Yes|PronType=Prs	10	nsubj	_	_
 2	Barbano	Barbano	PROPN	PNOUN	Gender=Masc|Number=Sing	1	name	_	_
 3	,	,	PUNCT	.	_	4	punct	_	_
@@ -2904,7 +3013,8 @@
 38	atendido	atendido	VERB	VERB	Gender=Masc|Number=Sing|VerbForm=Part	34	acl:part	_	_
 39	.	.	PUNCT	.	_	10	punct	_	_
 
-# sent_id a_tree-pt-s46-root
+# sent_id = sample-s110
+# text = É uma proeza de bom tamanho . 
 1	É	ser	VERB	VERB	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	3	cop	_	_
 2	uma	um	DET	DET	Definite=Ind|Gender=Fem|Number=Sing|PronType=Art	3	det	_	_
 3	proeza	proeza	NOUN	NOUN	Gender=Fem|Number=Sing	0	root	_	_
@@ -2913,7 +3023,8 @@
 6	tamanho	tamanho	NOUN	NOUN	Gender=Masc|Number=Sing	3	nmod	_	_
 7	.	.	PUNCT	.	_	3	punct	_	_
 
-# sent_id a_tree-pt-s47-root
+# sent_id = sample-s111
+# text = A ideia é que as propostas sejam " racionais , curtas , realistas , para que realmente sirvam de insumo nas mesas para que possamos chegar a estes acordos de paz " , pediu nesta sexta - feira o presidente Juan Manuel Santos através de seu programa de rádio semanal . 
 1	A	o	DET	DET	Definite=Def|Gender=Fem|Number=Sing|PronType=Art	2	det	_	_
 2	ideia	ideia	NOUN	NOUN	Gender=Fem|Number=Sing	34	ccomp	_	_
 3	é	ser	VERB	VERB	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	2	cop	_	_
@@ -2966,7 +3077,8 @@
 50	semanal	semanal	ADJ	ADJ	Gender=Masc|Number=Sing	47	amod	_	_
 51	.	.	PUNCT	.	_	34	punct	_	_
 
-# sent_id a_tree-pt-s48-root
+# sent_id = sample-s112
+# text = Missionária norte - americana foi morta com seis tiros em 2005 . 
 1	Missionária	Missionária	NOUN	NOUN	Gender=Fem|Number=Sing	6	nsubjpass	_	_
 2	norte	norte	ADJ	ADJ	Gender=Fem|Number=Sing	4	amod	_	_
 3	-	--	PUNCT	.	_	4	punct	_	_
@@ -2980,7 +3092,8 @@
 11	2005	2005	NUM	NUM	Gender=Masc|Number=Plur|NumType=Card	6	nmod	_	_
 12	.	.	PUNCT	.	_	6	punct	_	_
 
-# sent_id a_tree-pt-s49-root
+# sent_id = sample-s113
+# text = Nos minutos finais , o jogo ficou concentrado no meio , mas o Naútico ainda teve tempo de desperdiçar uma oportunidade . 
 1	Nos	em+o	ADP	ADP	AdpType=Prep|Definite=Def|Gender=Masc|Number=Plur|PronType=Art	2	case	_	_
 2	minutos	minutos	NOUN	NOUN	Gender=Masc|Number=Plur	7	nmod	_	_
 3	finais	fional	ADJ	ADJ	Gender=Masc|Number=Plur	2	amod	_	_
@@ -3004,7 +3117,8 @@
 21	oportunidade	oportunidade	NOUN	NOUN	Gender=Fem|Number=Sing	19	dobj	_	_
 22	.	.	PUNCT	.	_	7	punct	_	_
 
-# sent_id a_tree-pt-s50-root
+# sent_id = sample-s114
+# text = " A solução Oracle WebCenter Sites é reconhecida mundialmente por permitir que as empresas criem e gerenciem facilmente seus conteúdos interativos on - line por meio de múltiplos canais , impulsionando as oportunidades ea fidelização . 
 1	"	"	PUNCT	.	_	8	punct	_	_
 2	A	o	DET	DET	Definite=Def|Gender=Fem|Number=Sing|PronType=Art	3	det	_	_
 3	solução	solução	NOUN	NOUN	Gender=Fem|Number=Sing	8	nsubjpass	_	_
@@ -3042,7 +3156,8 @@
 35	fidelização	fidelização	NOUN	NOUN	Gender=Fem|Number=Sing	33	conj	_	_
 36	.	.	PUNCT	.	_	8	punct	_	_
 
-# sent_id a_tree-pt-s51-root
+# sent_id = sample-s115
+# text = Os encartes e anúncios estarão adaptados ao tema da campanha . 
 1	Os	o	DET	DET	Definite=Def|Gender=Masc|Number=Plur|PronType=Art	2	det	_	_
 2	encartes	encarte	NOUN	NOUN	Gender=Masc|Number=Plur	5	nsubj	_	_
 3	e	e	CONJ	CONJ	_	2	cc	_	_
@@ -3055,7 +3170,8 @@
 10	campanha	campanha	NOUN	NOUN	Gender=Fem|Number=Sing	8	nmod	_	_
 11	.	.	PUNCT	.	_	5	punct	_	_
 
-# sent_id a_tree-pt-s52-root
+# sent_id = sample-s116
+# text = Depois de Luan Santana , é a vez de Luciano Huck . 
 1	Depois	depois	ADV	ADV	_	3	case	_	_
 2	de	de	ADP	ADP	AdpType=Prep	1	mwe	_	_
 3	Luan	Luan	PROPN	PNOUN	_	6	nmod	_	_
@@ -3069,7 +3185,8 @@
 11	Huck	Huck	PROPN	PNOUN	_	10	name	_	_
 12	.	.	PUNCT	.	_	6	punct	_	_
 
-# sent_id a_tree-pt-s53-root
+# sent_id = sample-s117
+# text = Com a camisa tricolor , o atacante teve o gostinho de marcar pela primeira vez contra o Rubro - Negro na vitória por 1 a 0 no primeiro turno , centenário do Fla - Flu . 
 1	Com	com	ADP	ADP	AdpType=Prep	3	case	_	_
 2	a	o	DET	DET	Definite=Def|Gender=Fem|Number=Sing|PronType=Art	3	det	_	_
 3	camisa	camisa	NOUN	NOUN	Gender=Fem|Number=Sing	7	nmod	_	_
@@ -3107,7 +3224,8 @@
 35	Flu	Flu	PROPN	PNOUN	Gender=Masc|Number=Sing	33	name	_	_
 36	.	.	PUNCT	.	_	8	punct	_	_
 
-# sent_id a_tree-pt-s54-root
+# sent_id = sample-s118
+# text = Registre - se que não se tem notícia de ação judicial que tenha por objeto essa temática . 
 1	Registre	Registrar	VERB	VERB	Mood=Sub|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	_
 2	-	_	PUNCT	.	_	1	punct	_	_
 3	se	se	PRON	PRON	Case=Acc|Person=3|PronType=Prs	1	dobj	_	_
@@ -3127,7 +3245,8 @@
 17	temática	temática	NOUN	NOUN	Gender=Fem|Number=Sing	13	dobj	_	_
 18	.	.	PUNCT	.	_	1	punct	_	_
 
-# sent_id a_tree-pt-s55-root
+# sent_id = sample-s119
+# text = Ajudou - o a conseguir um visto para os Estados Unidos e casaram - se em março de 1934 , e tiveram três filhos . 
 1	Ajudou	ajudar	VERB	VERB	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	0	root	_	_
 2	-	_	PUNCT	.	_	1	punct	_	_
 3	o	o	PRON	PRON	Case=Acc|Gender=Masc|Number=Sing|Person=3|PronType=Prs	1	dobj	_	_
@@ -3154,7 +3273,8 @@
 24	filhos	filho	NOUN	NOUN	Gender=Masc|Number=Plur	22	dobj	_	_
 25	.	.	PUNCT	.	_	1	punct	_	_
 
-# sent_id a_tree-pt-s56-root
+# sent_id = sample-s120
+# text = Além disso , a internet tem sido usada por meio das mídias sociais . 
 1	Além	além	ADV	ADV	AdpType=Prep	8	advmod	_	_
 2	disso	de+isso	X	ADPPRON	AdpType=Prep|Gender=Masc|Number=Sing|PronType=Dem	1	nmod	_	_
 3	,	,	PUNCT	.	_	1	punct	_	_
@@ -3170,7 +3290,8 @@
 13	sociais	social	ADJ	ADJ	Gender=Fem|Number=Plur	12	amod	_	_
 14	.	.	PUNCT	.	_	8	punct	_	_
 
-# sent_id a_tree-pt-s57-root
+# sent_id = sample-s121
+# text = Este , com o decorrer do tempo , parece ter decrescido de importância , pelo que passaram a chamar - lhe Coutinho , na acepção de pequeno couto . 
 1	Este	este	PRON	PRON	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	9	nsubj	_	_
 2	,	,	PUNCT	.	_	5	punct	_	_
 3	com	com	ADP	ADP	AdpType=Prep	5	case	_	_
@@ -3201,7 +3322,8 @@
 28	couto	couto	NOUN	NOUN	Gender=Masc|Number=Sing	25	nmod	_	_
 29	.	.	PUNCT	.	_	9	punct	_	_
 
-# sent_id a_tree-pt-s58-root
+# sent_id = sample-s122
+# text = " Nós vamos ver na justiça quem tem razão " , concluiu o presidente . 
 1	"	"	PUNCT	.	_	4	punct	_	_
 2	Nós	nós	PRON	PRON	Case=Nom|Number=Plur|Person=1|PronType=Prs	4	nsubj	_	_
 3	vamos	ir	AUX	AUX	Mood=Ind|Number=Plur|Person=1|Tense=Pres|VerbForm=Fin	4	aux	_	_
@@ -3218,7 +3340,8 @@
 14	presidente	presidente	NOUN	NOUN	Gender=Masc|Number=Sing	12	nsubj	_	_
 15	.	.	PUNCT	.	_	12	punct	_	_
 
-# sent_id a_tree-pt-s59-root
+# sent_id = sample-s123
+# text = Interveio junto ao presidente Monge em numerosas ocasiões e colaborou no desenvolvimento de uma base de apoio logístico da oposição unida na Nicarágua às forças enviadas para o norte da Costa Rica . 
 1	Interveio	Interver	VERB	VERB	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	0	root	_	_
 2	junto	junto	ADV	ADV	_	1	advmod	_	_
 3	ao	a+o	ADP	ADP	AdpType=Prep|Definite=Def|Gender=Masc|Number=Sing|PronType=Art	4	case	_	_
@@ -3253,7 +3376,8 @@
 32	Rica	Rica	PROPN	PNOUN	_	31	amod	_	_
 33	.	.	PUNCT	.	_	1	punct	_	_
 
-# sent_id a_tree-pt-s60-root
+# sent_id = sample-s124
+# text = O Governador Siqueira Campos lembrou que o BIRD tem sido parceiro de primeira hora do Tocantins e tem uma participação muito grande no desenvolvimento do Estado . 
 1	O	o	DET	DET	Definite=Def|Gender=Masc|Number=Sing|PronType=Art	2	det	_	_
 2	Governador	governador	NOUN	NOUN	Gender=Masc|Number=Sing	5	nsubj	_	_
 3	Siqueira	Siqueira	PROPN	PNOUN	_	2	name	_	_
@@ -3282,7 +3406,8 @@
 26	Estado	estado	PROPN	PNOUN	Gender=Masc|Number=Sing	24	nmod	_	_
 27	.	.	PUNCT	.	_	5	punct	_	_
 
-# sent_id a_tree-pt-s61-root
+# sent_id = sample-s125
+# text = « Todos compreenderam que partindo para a Espanha iriam acelerar o processo de absorção política que o conde - duque de Olivares pretendia » , segundo Veríssimo Serrão , e « na recusa de muitos em cumprir o mandado régio terá de ver - se o detonador do movimento que veio a estalar em 1 º de Dezembro seguinte . 
 1	«	«	PUNCT	.	_	3	punct	_	_
 2	Todos	todo	PRON	PRON	Gender=Masc|Number=Plur|NumType=Card|PronType=Ind,Neg,Tot	3	nsubj	_	_
 3	compreenderam	compreender	VERB	VERB	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	_
@@ -3344,7 +3469,8 @@
 59	seguinte	seguinte	ADJ	ADJ	Gender=Masc|Number=Plur|NumType=Card	55	amod	_	_
 60	.	.	PUNCT	.	_	3	punct	_	_
 
-# sent_id a_tree-pt-s62-root
+# sent_id = sample-s126
+# text = A Spiders ea Cyanide divulgaram novas imagens do game Of Orcs and Men . 
 1	A	o	DET	DET	Definite=Def|Gender=Fem|Number=Sing|PronType=Art	2	det	_	_
 2	Spiders	Spiders	PROPN	PNOUN	_	5	nsubj	_	_
 3	ea	eo	CONJ	CONJ	Gender=Fem|Number=Sing	2	cc	_	_
@@ -3360,7 +3486,8 @@
 13	Men	Men	PROPN	PNOUN	_	11	conj	_	_
 14	.	.	PUNCT	.	_	5	punct	_	_
 
-# sent_id a_tree-pt-s63-root
+# sent_id = sample-s127
+# text = Foi al - Ala quem liderou o exército abássida que desembarcou no al - Andalus , provavelmente perto de Beja ( no atual Portugal ) . 
 1	Foi	ser	VERB	VERB	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	0	root	_	_
 2	al	al	PROPN	PNOUN	Gender=Masc|Number=Sing	1	nsubj	_	_
 3	-	-	PUNCT	.	_	2	punct	_	_
@@ -3388,7 +3515,8 @@
 25	)	)	PUNCT	.	_	24	punct	_	_
 26	.	.	PUNCT	.	_	1	punct	_	_
 
-# sent_id a_tree-pt-s64-root
+# sent_id = sample-s128
+# text = Haddad prometeu fortes investimentos no sistema viário e de transporte urbano , para reduzir o tempo de viagem entre os moradores da zona sul eo centro da cidade , e construir um hospital em Parelheiros . 
 1	Haddad	Haddad	PROPN	PNOUN	Gender=Masc|Number=Sing	2	nsubj	_	_
 2	prometeu	prometer	VERB	VERB	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	0	root	_	_
 3	fortes	forte	ADJ	ADJ	Gender=Masc|Number=Plur	4	amod	_	_
@@ -3426,7 +3554,8 @@
 35	Parelheiros	Parelheiros	NOUN	NOUN	Gender=Masc|Number=Sing	31	nmod	_	_
 36	.	.	PUNCT	.	_	2	punct	_	_
 
-# sent_id a_tree-pt-s65-root
+# sent_id = sample-s129
+# text = Tufão e Leleco contam para Jorginho que Max morreu . 
 1	Tufão	Tufão	PROPN	PNOUN	Gender=Masc|Number=Sing	4	nsubj	_	_
 2	e	e	CONJ	CONJ	_	1	cc	_	_
 3	Leleco	Leleco	PROPN	PNOUN	Gender=Masc|Number=Sing	1	conj	_	_
@@ -3438,7 +3567,8 @@
 9	morreu	morrer	VERB	VERB	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	4	ccomp	_	_
 10	.	.	PUNCT	.	_	4	punct	_	_
 
-# sent_id a_tree-pt-s66-root
+# sent_id = sample-s130
+# text = Pessoalmente , penso que , se isso vai ser útil para retomar a democracia eo processo de mudança no Paraguai , sou um soldado " . 
 1	Pessoalmente	Pessoalmente	ADV	ADV	_	3	advmod	_	_
 2	,	,	PUNCT	.	_	1	punct	_	_
 3	penso	pensar	VERB	VERB	Mood=Ind|Number=Sing|Person=1|Tense=Pres|VerbForm=Fin	0	root	_	_
@@ -3466,7 +3596,8 @@
 25	"	"	PUNCT	.	_	3	punct	_	_
 26	.	.	PUNCT	.	_	3	punct	_	_
 
-# sent_id a_tree-pt-s67-root
+# sent_id = sample-s131
+# text = Mas o Cuca falou para gente deixar isso de lado " , afirmou o atacante alvinegro , que deixa claro que mesmo com o pedido do treinador , que a vontade de devolver o revés sofrido para os flamenguistas no turno é grande . 
 1	Mas	mas	CONJ	CONJ	_	4	cc	_	_
 2	o	o	DET	DET	Definite=Def|Gender=Masc|Number=Sing|PronType=Art	3	det	_	_
 3	Cuca	Cuca	PROPN	PNOUN	Gender=Fem|Number=Sing	4	nsubj	_	_
@@ -3512,7 +3643,8 @@
 43	grande	grande	ADJ	ADJ	Gender=Masc|Number=Sing	42	xcomp:adj	_	_
 44	.	.	PUNCT	.	_	13	punct	_	_
 
-# sent_id a_tree-pt-s68-root
+# sent_id = sample-s132
+# text = Entre as queixas da população estão a aplicação de multas , cobrança injusta de tarifas , maus - tratos entre outras . 
 1	Entre	entre	ADP	ADP	AdpType=Prep	3	case	_	_
 2	as	o	DET	DET	Definite=Def|Gender=Fem|Number=Plur|PronType=Art	3	det	_	_
 3	queixas	queixa	NOUN	NOUN	Gender=Fem|Number=Plur	6	nmod	_	_
@@ -3536,7 +3668,8 @@
 21	outras	outro	PRON	PRON	Degree=Cmp|Gender=Fem|Number=Plur	8	nmod	_	_
 22	.	.	PUNCT	.	_	6	punct	_	_
 
-# sent_id a_tree-pt-s69-root
+# sent_id = sample-s133
+# text = Tal reforma deve prever o financiamento público de campanhas -- uma vez que as mulheres enfrentam grandes dificuldades na captação de recursos dentro dos partidos -- e também abraçar a lista partidária , da qual sou defensora , de forma paritária . 
 1	Tal	tal	DET	DET	Gender=Masc|Number=Sing	2	det	_	_
 2	reforma	reforma	NOUN	NOUN	Gender=Masc|Number=Sing	4	nsubj	_	_
 3	deve	dever	AUX	AUX	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	4	aux	_	_
@@ -3580,7 +3713,8 @@
 41	paritária	paritário	ADJ	ADJ	Gender=Fem|Number=Sing	40	amod	_	_
 42	.	.	PUNCT	.	_	4	punct	_	_
 
-# sent_id a_tree-pt-s70-root
+# sent_id = sample-s134
+# text = Fideliza clientes por meio de campanhas específicas ou em datas sazonais , promove incremento no ticket e agrega valor à marca . 
 1	Fideliza	Fidelizar	VERB	VERB	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	_
 2	clientes	cliente	NOUN	NOUN	Gender=Masc|Number=Plur	1	dobj	_	_
 3	por	por	ADP	ADP	AdpType=Prep	4	case	_	_
@@ -3604,7 +3738,8 @@
 21	marca	marca	NOUN	NOUN	Gender=Fem|Number=Sing	18	iobj	_	_
 22	.	.	PUNCT	.	_	1	punct	_	_
 
-# sent_id a_tree-pt-s71-root
+# sent_id = sample-s135
+# text = Os cortes e reformas também estão sendo combatidos com greves , como a que protagonizam hoje trabalhadores de veículos da imprensa , de hospitais públicos , farmácias e cartórios . 
 1	Os	o	DET	DET	Definite=Def|Gender=Masc|Number=Plur|PronType=Art	2	det	_	_
 2	cortes	corte	NOUN	NOUN	Gender=Masc|Number=Plur	8	nsubjpass	_	_
 3	e	e	CONJ	CONJ	_	2	cc	_	_
@@ -3636,7 +3771,8 @@
 29	cartórios	cartório	NOUN	NOUN	Gender=Masc|Number=Plur	24	conj	_	_
 30	.	.	PUNCT	.	_	8	punct	_	_
 
-# sent_id a_tree-pt-s72-root
+# sent_id = sample-s136
+# text = Lia e Gil tocam guitarra juntos . 
 1	Lia	Lia	PROPN	PNOUN	Gender=Masc|Number=Sing	4	nsubj	_	_
 2	e	e	CONJ	CONJ	_	1	cc	_	_
 3	Gil	Gil	PROPN	PNOUN	Gender=Masc|Number=Sing	1	conj	_	_
@@ -3645,7 +3781,8 @@
 6	juntos	junto	ADJ	ADJ	Gender=Masc|Number=Plur|VerbForm=Part	4	xcomp:adj	_	_
 7	.	.	PUNCT	.	_	4	punct	_	_
 
-# sent_id a_tree-pt-s73-root
+# sent_id = sample-s137
+# text = O XYplorer é um gerenciador de arquivos portátil ( stand - alone ) . 
 1	O	o	DET	DET	Definite=Def|Gender=Masc|Number=Sing|PronType=Art	2	det	_	_
 2	XYplorer	XYplorer	PROPN	PNOUN	Gender=Masc|Number=Sing	5	nsubj	_	_
 3	é	ser	VERB	VERB	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	5	cop	_	_
@@ -3661,7 +3798,8 @@
 13	)	)	PUNCT	.	_	10	punct	_	_
 14	.	.	PUNCT	.	_	5	punct	_	_
 
-# sent_id a_tree-pt-s74-root
+# sent_id = sample-s138
+# text = São versos retirados de Prelúdio , canção de Raul Seixas , que dimensionam com exatidão o que cada gremista está prestes a viver neste 8 de dezembro de 2012 . 
 1	São	ser	VERB	VERB	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	2	cop	_	_
 2	versos	versos	NOUN	NOUN	Gender=Masc|Number=Plur	0	root	_	_
 3	retirados	retirado	VERB	VERB	Gender=Masc|Number=Plur	2	acl:part	_	_
@@ -3693,7 +3831,8 @@
 29	2012	2012	NUM	NUM	Gender=Masc|Number=Plur|NumType=Card	27	nmod	_	_
 30	.	.	PUNCT	.	_	2	punct	_	_
 
-# sent_id a_tree-pt-s75-root
+# sent_id = sample-s139
+# text = Já nesta quinta - feira , haverá atividades em dois períodos -- manhã ( 8h ) , no Centro Comunitário do Paranapungá , e tarde ( 14h ) , na Vila Vicentina . 
 1	Já	já	ADV	ADV	_	5	advmod	_	_
 2	nesta	em+este	ADP	ADP	AdpType=Prep|Gender=Fem|Number=Sing|PronType=Dem	5	case	_	_
 3	quinta	quinta	PROPN	PNOUN	Gender=Fem|Number=Sing	5	amod	_	_
@@ -3728,7 +3867,8 @@
 32	Vicentina	Vicentina	PROPN	PNOUN	_	31	name	_	_
 33	.	.	PUNCT	.	_	7	punct	_	_
 
-# sent_id a_tree-pt-s76-root
+# sent_id = sample-s140
+# text = Com talento e carisma de sobra , ele cativou os jurados e conquistou uma legião de fãs pelo Brasil . 
 1	Com	com	ADP	ADP	AdpType=Prep	2	case	_	_
 2	talento	talento	NOUN	NOUN	Gender=Masc|Number=Sing	9	nmod	_	_
 3	e	e	CONJ	CONJ	_	2	cc	_	_
@@ -3750,7 +3890,8 @@
 19	Brasil	Brasil	PROPN	PNOUN	Gender=Masc|Number=Sing	13	nmod	_	_
 20	.	.	PUNCT	.	_	9	punct	_	_
 
-# sent_id a_tree-pt-s77-root
+# sent_id = sample-s141
+# text = -- O euro abriu nesta quarta - feira em baixa no mercado de divisas de Frankfurt e era cotado a US $ 1,2759 , frente aos US $ 1,2801 da sessão anterior . 
 1	--	--	PUNCT	.	_	4	punct	_	_
 2	O	o	DET	DET	Definite=Def|Gender=Masc|Number=Sing|PronType=Art	3	det	_	_
 3	euro	euro	NOUN	NOUN	Gender=Masc|Number=Sing	4	nsubj	_	_
@@ -3785,7 +3926,8 @@
 32	anterior	anterior	ADJ	ADJ	Gender=Fem|Number=Sing	31	amod	_	_
 33	.	.	PUNCT	.	_	4	punct	_	_
 
-# sent_id a_tree-pt-s78-root
+# sent_id = sample-s142
+# text = O delegado Rafael Schimidt reforçou que o ex - policial foi expulso da corporação devido o envolvimento dele com o tráfico de drogas . 
 1	O	o	DET	DET	Definite=Def|Gender=Masc|Number=Sing|PronType=Art	2	det	_	_
 2	delegado	delegado	NOUN	NOUN	Gender=Masc|Number=Sing	5	nsubj	_	_
 3	Rafael	Rafael	PROPN	PNOUN	_	2	appos	_	_
@@ -3811,7 +3953,8 @@
 23	drogas	droga	NOUN	NOUN	Gender=Fem|Number=Plur	21	nmod	_	_
 24	.	.	PUNCT	.	_	5	punct	_	_
 
-# sent_id a_tree-pt-s79-root
+# sent_id = sample-s143
+# text = Será que as lojas vão mesmo lotar em Porto Velho e em todo o interior , neste penúltimo sábado antes do Natal ? 
 1	Será	ser	VERB	VERB	Mood=Ind|Number=Sing|Person=3|Tense=Fut|VerbForm=Fin	0	root	_	_
 2	que	que	CONJ	CONJ	_	7	mark	_	_
 3	as	o	DET	DET	Definite=Def|Gender=Fem|Number=Plur|PronType=Art	4	det	_	_
@@ -3836,7 +3979,8 @@
 22	Natal	Natal	PROPN	PNOUN	Gender=Masc|Number=Sing	19	nmod	_	_
 23	?	?	PUNCT	.	_	1	punct	_	_
 
-# sent_id a_tree-pt-s80-root
+# sent_id = sample-s144
+# text = Já o Flamengo entrou em campo no ritmo da torcida . 
 1	Já	já	ADV	ADV	_	4	advmod	_	_
 2	o	o	DET	DET	Definite=Def|Gender=Masc|Number=Sing|PronType=Art	3	det	_	_
 3	Flamengo	Flamengo	PROPN	PNOUN	Gender=Masc|Number=Sing	4	nsubj	_	_
@@ -3849,7 +3993,8 @@
 10	torcida	torcida	NOUN	NOUN	Gender=Fem|Number=Sing	8	nmod	_	_
 11	.	.	PUNCT	.	_	4	punct	_	_
 
-# sent_id a_tree-pt-s81-root
+# sent_id = sample-s145
+# text = O coágulo , que teria origem , segundo os médicos , em uma má - formação de vasos sanguíneos , interrompeu o fluxo de sangue para um parte do seu cérebro , fazendo com que o local ficasse temporariamente sem oxigênio e sem nutrientes . 
 1	O	o	DET	DET	Definite=Def|Gender=Masc|Number=Sing|PronType=Art	2	det	_	_
 2	coágulo	coágulo	NOUN	NOUN	Gender=Masc|Number=Sing	21	nsubj	_	_
 3	,	,	PUNCT	.	_	5	punct	_	_
@@ -3896,7 +4041,8 @@
 44	nutrientes	nutriente	NOUN	NOUN	Gender=Masc|Number=Plur	41	conj	_	_
 45	.	.	PUNCT	.	_	21	punct	_	_
 
-# sent_id a_tree-pt-s82-root
+# sent_id = sample-s146
+# text = Sem saída , Rosário decide criar a menina , a quem acaba se apegando . 
 1	Sem	sem	ADP	ADP	AdpType=Prep	2	case	_	_
 2	saída	saída	NOUN	NOUN	Gender=Fem|Number=Sing	5	nmod	_	_
 3	,	,	PUNCT	.	_	2	punct	_	_
@@ -3913,7 +4059,8 @@
 14	apegando	apegar	VERB	VERB	VerbForm=Ger	8	acl:relcl	_	_
 15	.	.	PUNCT	.	_	5	punct	_	_
 
-# sent_id a_tree-pt-s83-root
+# sent_id = sample-s147
+# text = O sonho ainda é possível , Raposa . 
 1	O	o	DET	DET	Definite=Def|Gender=Masc|Number=Sing|PronType=Art	2	det	_	_
 2	sonho	sonho	NOUN	NOUN	Gender=Masc|Number=Sing	4	nsubj	_	_
 3	ainda	ainda	ADV	ADV	_	4	advmod	_	_
@@ -3923,7 +4070,8 @@
 7	Raposa	Raposa	PROPN	PNOUN	Gender=Masc|Number=Sing	4	dep	_	_
 8	.	.	PUNCT	.	_	4	punct	_	_
 
-# sent_id a_tree-pt-s84-root
+# sent_id = sample-s148
+# text = Skoczów é uma cidade da Polónia , na voivodia de Silésia e no condado de Cieszyński . 
 1	Skoczów	Skoczów	NOUN	NOUN	Gender=Fem|Number=Sing	4	nsubj	_	_
 2	é	ser	VERB	VERB	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	4	cop	_	_
 3	uma	um	DET	DET	Definite=Ind|Gender=Fem|Number=Sing|PronType=Art	4	det	_	_
@@ -3942,7 +4090,8 @@
 16	Cieszyński	Cieszyński	PROPN	PNOUN	Gender=Masc|Number=Sing	14	nmod	_	_
 17	.	.	PUNCT	.	_	4	punct	_	_
 
-# sent_id a_tree-pt-s85-root
+# sent_id = sample-s149
+# text = Eram transportados na carroceria de um caminhão por motorista sem habilitação e cumpriam regime de dez a onze horas , com intervalo de apenas 15 minutos para almoço . 
 1	Eram	ser	AUX	AUX	Mood=Ind|Number=Plur|Person=3|Tense=Imp,Pqp|VerbForm=Fin	2	auxpass	_	_
 2	transportados	transportar	VERB	VERB	Gender=Masc|Number=Plur|VerbForm=Part	0	root	_	_
 3	na	em+o	ADP	ADP	AdpType=Prep|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	4	case	_	_
@@ -3973,7 +4122,8 @@
 28	almoço	almoço	NOUN	NOUN	Gender=Masc|Number=Sing	22	nmod	_	_
 29	.	.	PUNCT	.	_	2	punct	_	_
 
-# sent_id a_tree-pt-s86-root
+# sent_id = sample-s150
+# text = Mesmo criticados e ridicularizados como pioneiros do " movimento emo " no Brasil -- responsabilidade que eles garantem nunca ter assumido -- Di Ferrero ( vocal ) , Gee Rocha ( guitarra ) , Daniel Weksler ( bateria ) , Caco Grandino ( baixo ) e Fi Duarte ( guitarra ) não tiveram vergonha de assumir as influências de pop punk e hardcore melódico , e há mais de dez anos buscam construir a identidade própria do pop rock que os popularizou . 
 1	Mesmo	mesmo	ADV	ADV	Degree=Cmp|Gender=Masc|Number=Sing	2	advmod	_	_
 2	criticados	criticar	VERB	VERB	Gender=Masc|Number=Plur|VerbForm=Part	23	acl:part	_	_
 3	e	e	CONJ	CONJ	_	2	cc	_	_
@@ -4058,7 +4208,8 @@
 82	popularizou	popularizou	VERB	VERB	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	78	acl:relcl	_	_
 83	.	.	PUNCT	.	_	53	punct	_	_
 
-# sent_id a_tree-pt-s87-root
+# sent_id = sample-s151
+# text = De fã , virou amigo . 
 1	De	de	ADP	ADP	AdpType=Prep	2	case	_	_
 2	fã	fã	NOUN	NOUN	Gender=Fem|Number=Sing	5	nmod	_	_
 3	,	,	PUNCT	.	_	2	punct	_	_
@@ -4066,7 +4217,8 @@
 5	amigo	amigo	NOUN	NOUN	Gender=Masc|Number=Sing	0	root	_	_
 6	.	.	PUNCT	.	_	5	punct	_	_
 
-# sent_id a_tree-pt-s88-root
+# sent_id = sample-s152
+# text = Os álcoois secundários , diferente dos primários , são oxidados de apenas uma forma gerando sempre como produto uma cetona . 
 1	Os	o	DET	DET	Definite=Def|Gender=Masc|Number=Plur|PronType=Art	2	det	_	_
 2	álcoois	álcoois	NOUN	NOUN	Gender=Masc|Number=Plur|NumType=Card	10	nsubjpass	_	_
 3	secundários	secundário	ADJ	ADJ	Gender=Masc|Number=Plur	2	amod	_	_
@@ -4089,7 +4241,8 @@
 20	cetona	cetonar	NOUN	NOUN	Gender=Fem|Number=Sing	15	dobj	_	_
 21	.	.	PUNCT	.	_	10	punct	_	_
 
-# sent_id a_tree-pt-s89-root
+# sent_id = sample-s153
+# text = Com a intenção de presentear sobrinhos e afilhados , a manicure Paloma Costa , pesquisava o preço de carrinhos e bonecas . 
 1	Com	com	ADP	ADP	AdpType=Prep	3	case	_	_
 2	a	o	DET	DET	Definite=Def|Gender=Fem|Number=Sing|PronType=Art	3	det	_	_
 3	intenção	intenção	NOUN	NOUN	Gender=Fem|Number=Sing	15	nmod	_	_
@@ -4113,7 +4266,8 @@
 21	bonecas	boneca	NOUN	NOUN	Gender=Fem|Number=Plur	19	conj	_	_
 22	.	.	PUNCT	.	_	15	punct	_	_
 
-# sent_id a_tree-pt-s90-root
+# sent_id = sample-s154
+# text = Aprovadonas comissões deAssuntos Sociais ( CAS ) ; 
 1	Aprovadonas	Aprovadoem+o	VERB	VERB	Gender=Fem|Number=Plur	0	root	_	_
 2	comissões	comissõe	NOUN	NOUN	Gender=Fem|Number=Plur	1	dobj	_	_
 3	deAssuntos	deAssuntos	ADP	ADP	_	4	case	_	_
@@ -4123,7 +4277,8 @@
 7	)	)	PUNCT	.	_	6	punct	_	_
 8	;	;	PUNCT	.	_	1	punct	_	_
 
-# sent_id a_tree-pt-s91-root
+# sent_id = sample-s155
+# text = A Estação pode ser acedida pela Avenida 25 de Abril , junto à localidade de Ramalhal . 
 1	A	o	DET	DET	Definite=Def|Gender=Fem|Number=Sing|PronType=Art	2	det	_	_
 2	Estação	Estação	PROPN	PNOUN	Gender=Fem|Number=Sing	5	nsubjpass	_	_
 3	pode	poder	AUX	AUX	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	5	aux	_	_
@@ -4142,7 +4297,8 @@
 16	Ramalhal	Ramalhal	PROPN	PNOUN	Gender=Masc|Number=Sing	14	nmod	_	_
 17	.	.	PUNCT	.	_	5	punct	_	_
 
-# sent_id a_tree-pt-s92-root
+# sent_id = sample-s156
+# text = Pelo rubro - negro carioca , Kléberson fez cinco gols em 11 jogos no ano . 
 1	Pelo	por+o	ADP	ADP	AdpType=Prep|Definite=Def|Gender=Masc|Number=Sing|PronType=Art	4	case	_	_
 2	rubro	rubro	ADJ	ADJ	Gender=Masc|Number=Sing	4	amod	_	_
 3	-	--	PUNCT	.	_	4	punct	_	_
@@ -4160,7 +4316,8 @@
 15	ano	ano	NOUN	NOUN	Gender=Masc|Number=Sing	8	nmod	_	_
 16	.	.	PUNCT	.	_	8	punct	_	_
 
-# sent_id a_tree-pt-s93-root
+# sent_id = sample-s157
+# text = Na decisão liminar , o juiz proíbe o Estado de privilegiar pagamentos , em detrimento dos demais entes municipais , às organizações sociais . 
 1	Na	em+o	ADP	ADP	AdpType=Prep|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	2	case	_	_
 2	decisão	decisão	NOUN	NOUN	Gender=Fem|Number=Sing	7	nmod	_	_
 3	liminar	liminar	ADJ	ADJ	Number=Sing|Person=3|VerbForm=Inf	2	amod	_	_
@@ -4186,7 +4343,8 @@
 23	sociais	social	ADJ	ADJ	Gender=Fem|Number=Plur	22	amod	_	_
 24	.	.	PUNCT	.	_	7	punct	_	_
 
-# sent_id a_tree-pt-s94-root
+# sent_id = sample-s158
+# text = Já em Terra Caída , no município de Indiaroba , a parte de terraplanagem está quase concluída para , em seguida , ser feita uma limpeza e receber asfalto . 
 1	Já	já	ADV	ADV	_	15	advmod	_	_
 2	em	em	ADP	ADP	AdpType=Prep	3	case	_	_
 3	Terra	terra	PROPN	PNOUN	_	15	nmod	_	_
@@ -4218,7 +4376,8 @@
 29	asfalto	asfalto	NOUN	NOUN	Gender=Masc|Number=Sing	28	dobj	_	_
 30	.	.	PUNCT	.	_	24	punct	_	_
 
-# sent_id a_tree-pt-s95-root
+# sent_id = sample-s159
+# text = O presidente venezuelano , Hugo Chávez , foi reeleito pela segunda vez no último dia 7 com mais de 55 % de votos . 
 1	O	o	DET	DET	Definite=Def|Gender=Masc|Number=Sing|PronType=Art	2	det	_	_
 2	presidente	presidente	NOUN	NOUN	Gender=Masc|Number=Sing	9	nsubjpass	_	_
 3	venezuelano	venezuelano	ADJ	ADJ	Gender=Masc|Number=Sing	2	amod	_	_
@@ -4244,7 +4403,8 @@
 23	votos	voto	NOUN	NOUN	Gender=Masc|Number=Plur	21	nmod	_	_
 24	.	.	PUNCT	.	_	9	punct	_	_
 
-# sent_id a_tree-pt-s96-root
+# sent_id = sample-s160
+# text = Destaque para as atuações do armador Deron Williams e do ala - armador Carmelo Anthony . 
 1	Destaque	Destaque	NOUN	NOUN	_	0	root	_	_
 2	para	para	ADP	ADP	AdpType=Prep	4	case	_	_
 3	as	o	DET	DET	Definite=Def|Gender=Fem|Number=Plur|PronType=Art	4	det	_	_
@@ -4262,7 +4422,8 @@
 15	Anthony	Anthony	PROPN	PNOUN	_	14	name	_	_
 16	.	.	PUNCT	.	_	1	punct	_	_
 
-# sent_id a_tree-pt-s97-root
+# sent_id = sample-s161
+# text = A Rio - Bahia se estendia até Feira de Santana e , desta cidade até Fortaleza , foi construída , por Getúlio , a Rodovia Transnordestina , atual BR - 116 . 
 1	A	o	DET	DET	Definite=Def|Gender=Fem|Number=Sing|PronType=Art	2	det	_	_
 2	Rio	Rio	PROPN	PNOUN	_	6	nsubj	_	_
 3	-	-	PUNCT	.	_	2	punct	_	_
@@ -4296,7 +4457,8 @@
 31	116	116	NUM	NUM	Gender=Masc|Number=Plur|NumType=Card	29	appos	_	_
 32	.	.	PUNCT	.	_	6	punct	_	_
 
-# sent_id a_tree-pt-s98-root
+# sent_id = sample-s162
+# text = O treino desta terça - feira foi o último da semana no Arruda . 
 1	O	o	DET	DET	Definite=Def|Gender=Masc|Number=Sing|PronType=Art	2	det	_	_
 2	treino	treino	NOUN	NOUN	Gender=Masc|Number=Sing	9	nsubj	_	_
 3	desta	de+este	ADP	ADP	AdpType=Prep|Gender=Fem|Number=Sing|PronType=Dem	6	case	_	_
@@ -4312,7 +4474,8 @@
 13	Arruda	Arruda	PROPN	PNOUN	Gender=Fem|Number=Sing	9	nmod	_	_
 14	.	.	PUNCT	.	_	9	punct	_	_
 
-# sent_id a_tree-pt-s99-root
+# sent_id = sample-s163
+# text = portanto , há produção e perda constante de gases atmosféricos . 
 1	portanto	portanto	ADV	ADV	_	3	advmod	_	_
 2	,	,	PUNCT	.	_	1	punct	_	_
 3	há	haver	VERB	VERB	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	_
@@ -4325,7 +4488,8 @@
 10	atmosféricos	atmosférico	ADJ	ADJ	Gender=Masc|Number=Plur	9	amod	_	_
 11	.	.	PUNCT	.	_	3	punct	_	_
 
-# sent_id a_tree-pt-s100-root
+# sent_id = sample-s164
+# text = Em nota a corporação informou que os Bombeiros ea secretaria estadual de Saúde estão analisando a possibilidade de rever os procedimentos e requisitos para aprovar reformas e construções de novos prédios em hospitais do Rio de Janeiro . 
 1	Em	em	ADP	ADP	AdpType=Prep	2	case	_	_
 2	nota	nota	NOUN	NOUN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	5	nmod	_	_
 3	a	o	DET	DET	Definite=Def|Gender=Fem|Number=Sing|PronType=Art	4	det	_	_

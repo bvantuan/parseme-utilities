@@ -33,7 +33,7 @@ parser.add_argument("--only-special", action='store_true',
 ISOTIME = datetime.datetime.now().isoformat()
 
 
-class IndexInfo(collections.namedtuple('AnnotEntry', 'filename sent_id indexes')):
+class IndexInfo(collections.namedtuple('IndexInfo', 'filename sent_id indexes')):
     r"""`sent_id` is 0-based, `indexes` is 0-based."""
     def likely_the_same_as(self, other):
         r"""True iff the IndexInfo instances are likely to be related.
@@ -257,7 +257,7 @@ class Main(object):
                      annot: AnnotEntry, recently_auto_annotated: list):
         r"""Modify the FoliA data (raise NoteError on failure)."""
         if foliasent is None:
-            raise annot.err("File {} does not have sentence #{}!", annot.filename, annot.sent_id)
+            raise annot.err("File does not have sentence #{}!", annot.index_infos[0].sent_id)
 
         if annot.json_data["type"] == "DO-NOTHING":
             return annot.good("Nothing do to")  # literally do nothing

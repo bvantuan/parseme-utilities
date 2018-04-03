@@ -32,9 +32,10 @@ run_devnull() {
 ###### Testing if we can run all scripts to completion ######
 #############################################################
 
+# XXX for edition 2.0, we will remove support for parsemetsv+conllu (and provide parsemetsv2cupt instead)
 paired_annot_files=(data/pt.folia.xml data/pt.parsemetsv)
 annot_files=("${paired_annot_files[@]}" data/pt_unpaired.parsemetsv)
-annot_file2=(data/pt2.folia.xml)
+annot_file2=data/pt2.folia.xml
 
 
 for paired_annot_file in "${paired_annot_files[@]}"; do
@@ -73,11 +74,13 @@ for json_file in data/ParsemeNotesCC.json data/ParsemeNotesAdj.json; do
 done
 
 
-#===> release-preparation scripts (for some reason, does not accept folia xml format... This should be fixed)
-#XXX run_devnull ../st-organizers/release-preparation/splitTrainTest.py --lang PT --input data/pt.parsemetsv --test-mwesize 15
-#XXX run_devnull rm -rf OUT
+#===> release-preparation scripts
+run_devnull ../st-organizers/release-preparation/calcSubcorpusJson.py --lang PT --input data/pt.cupt
+run_devnull ../st-organizers/release-preparation/splitTrainTestDev.py --lang PT --input data/pt.cupt --subcorpora data/subcorpora.json
+run_devnull rm -rf SPLIT
 
-#===> check all skipped methods
+
+#===> check all skipped-finding methods
 for skipped_method in Dependency UnlabeledDep BagOfDeps WindowGap5; do
     run_devnull ../lang-leaders/post-annot/folia2consistencyCheckWebpage.py --lang PT --input data/pt.folia.xml --find-skipped --skipped-finding-method "$skipped_method"
 done

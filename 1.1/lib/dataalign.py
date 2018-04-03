@@ -438,7 +438,7 @@ class Sentence:
         kv_pairs = (comment.keyvalue_pair() for comment in self.toplevel_comments)
         ret = [v for (k, v) in kv_pairs if k == metadata_key]
         if len(ret) != 1:
-            raise ValueError('Metadata is not unique {} (found {})'.format(metadata_key, len(ret)))
+            raise ValueError('Metadata is not unique: "{}" (found {})'.format(metadata_key, len(ret)))
         return ret[0]
 
 
@@ -1333,6 +1333,25 @@ def do_warn(msg_fmt, *, prefix=None, warntype=None, error=False, header=True, **
     if warntype == "ERROR":
         exit(1)
 
+
+############################################################
+
+class InputContext:
+    r"""Context manager to indicate sentence where an error occurred."""
+    def __init__(self, sent: Sentence, token: Token = None):
+        self.sent = sent
+        self.token = token
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        if exc_value and not isinstance(exc_value, SystemExit):
+            if self.token:
+                self.sent.warn('Error when processing token {tokid} in this sentence',
+                    tokid=self.token.get('ID', '??'), warntype="FATAL")
+            else:
+                self.sent.warn('Error when processing this sentence', warntype="FATAL")
 
 
 ############################################################

@@ -31,7 +31,7 @@
       "source_categ": "LVC.full",
       "target_categ": "IRV"
     },
-    "MWE_KEY=[[1, 21, [8, 9, 11]],[2, 21, [8, 9, 11]]]": {
+    "MWE_KEY=[[1, 21, [8, 9, 11]],[2, 21, [8, 9, 10, 11]]]": {
       "adjudication": "CUSTOM_ANNOTATION",
       "type": "RE-ANNOT",
       "source_mwe": [

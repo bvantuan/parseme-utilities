@@ -1,0 +1,14 @@
+{
+   "subcorpora": [
+      {
+         "ranges": [
+            {
+               "first": "sample-s1",
+               "last": "sample-s164",
+               "n-sents": 163
+            }
+         ],
+         "regex": "sample-s(\\d+)"
+      }
+   ]
+}

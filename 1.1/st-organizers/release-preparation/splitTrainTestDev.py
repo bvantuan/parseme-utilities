@@ -101,14 +101,15 @@ class Main:
         r"""Yield (Sentence, Subcorpus) pairs."""
         cur_subcorpus = None
         for sent in sentences:
-            sentid = sent.unique_toplevel_metadata('source_sent_id').split()[-1]
-            if sentid in self.first2subcorpus:
-                assert cur_subcorpus is None, ("Sentence inside multiple subcorpora", sentid)
-                cur_subcorpus = self.first2subcorpus[sentid]
-            assert cur_subcorpus, ("Sentence not in any subcorpus", sentid)
-            yield sent, cur_subcorpus
-            if sentid in self.last2subcorpus:
-                cur_subcorpus = None
+            with dataalign.InputContext(sent):
+                sentid = sent.unique_toplevel_metadata('source_sent_id').split()[-1]
+                if sentid in self.first2subcorpus:
+                    assert cur_subcorpus is None, ("Sentence inside multiple subcorpora", sentid)
+                    cur_subcorpus = self.first2subcorpus[sentid]
+                assert cur_subcorpus, ("Sentence not in any subcorpus", sentid)
+                yield sent, cur_subcorpus
+                if sentid in self.last2subcorpus:
+                    cur_subcorpus = None
         assert cur_subcorpus is None
 
 
