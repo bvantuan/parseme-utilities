@@ -1284,7 +1284,13 @@ class ConllupWriter(AbstractWriter):
         for comment in sent.toplevel_comments:
             print(comment.to_tsv(), file=self.output)
         for tok, mwecodes in sent.tokens_and_mwecodes():
-            mwe = ";".join(mwecodes) if mwecodes else '*'
+            if mwecodes :
+                mwe = ";".join(mwecodes) 
+            elif "-" in tok["ID"] :            
+                mwe = "*" # The PARSEME:MWE column is not defined for multiword tokens <= CHANGE THIS IN THE FUTURE PUT _
+            else :
+                mwe = '*'
+            
             line = "\t".join(tok.get(col, "_") if col != 'PARSEME:MWE' else mwe
                              for col in sent.corpusinfo.colnames)
             print(line, file=self.output)
@@ -1307,11 +1313,11 @@ def warn_once(first_seen_here, msg_fmt, **kwargs):
 
 def do_info(msg_fmt, **kwargs):
     r"""Same as do_warn, but using warntype=="INFO"."""
-    do_warn(msg_fmt, **kwargs, warntype="INFO")
+    do_warn(msg_fmt, warntype="INFO", **kwargs)
 
 def do_error(msg_fmt, **kwargs):
     r"""Same as do_warn, but using warntype=="ERROR" (calls exit)."""
-    do_warn(msg_fmt, **kwargs, warntype="ERROR")
+    do_warn(msg_fmt, warntype="ERROR", **kwargs)
 
 
 def do_warn(msg_fmt, *, prefix=None, warntype=None, error=False, header=True, **kwargs):
