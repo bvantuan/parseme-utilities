@@ -11,7 +11,7 @@ cd "${PARSEME_SHAREDTASK_DATA_DEV:?}"
 # change line 18 below to (train|dev|test) if you also want test data stats
 
 
-cat 1.1/*/*/*stats.md | 
+cat 1.1/*/*/*-stats.md | 
 grep -v "=" | 
 sed -e 's@## File: [A-Z][A-Z]/@@g' -e 's/.cupt//g'\
     -e 's/Language: //g' -e 's/^\*.*: //g' |   
@@ -20,7 +20,7 @@ awk '/(train|dev)/{ # (train|data|dev) #<= CHANGEME IF NEEDED!
   getline; sent=$1; tsent+=sent; 
   getline; tok=$1; ttok += tok; 
   getline; vmwe=$1;tvmwe+=vmwe; 
-  vid = 0; irv=0; lvcfull=0; vpcfull=0; vpcsemi=0; lvccause=0; iav=0; mvc=0;
+  vid = 0; irv=0; lvcfull=0; vpcfull=0; vpcsemi=0; lvccause=0; iav=0; mvc=0; lsicv=0;
   do{
     getline; 
     if($2 == "`VID`:"){    vid = $3; tvid += vid;    }
@@ -31,34 +31,47 @@ awk '/(train|dev)/{ # (train|data|dev) #<= CHANGEME IF NEEDED!
     else if($2 == "`VPC.semi`:"){   vpcsemi = $3; tvpcsemi += vpcsemi;    }            
     else if($2 == "`IAV`:"){   iav = $3; tiav += iav;    }                
     else if($2 == "`MVC`:"){   mvc = $3; tmvc += mvc;    }                
-  }while(NF > 1);
-  print bline lang "-" head, sent, tok, vmwe, vid, irv, lvcfull, lvccause, vpcfull, vpcsemi, iav, mvc eline;
+    else if($2 == "`LS.ICV`:"){   lsicv = $3; tlsicv += lsicv;    }                    
+  }while(NF > 1);  
+  if(prevlang != lang){
+    print rowsep;
+  }
+  prevlang = lang;
+
+  print bline lang "-" head, sent, tok, vmwe, vid, irv, lvcfull, lvccause, vpcfull, vpcsemi, iav, mvc, lsicv eline;
 }
 /^[A-Z][A-Z]$/{
-  lang=$0;
+  lang=$0;  
   if(NR==1){
     if(outformat == "html"){
       print "<table style=\"text-align:right\">\n<tbody>";          
       bline = "<tr><td style=\"font-weight:bold\">";
       OFS = "</td><td style=\"font-weight:bold\">";
       eline = "</td></tr>";
+      rowsep = "<tr><td colspan="13"><hr/></td></tr>";    
     }
     else if(outformat == "latex"){
       bline = "\\hline\n";      eline = " \\\\";    OFS = " & ";
       print("\\begin{tabular}{lrrrrrrrr}");
+      rowsep = "\\hline";
     }
     else{
       bline = "";      eline = "";      OFS = "\t";
-    }
-    print bline "Language","Sentences","Tokens","VMWE", "VID", "IRV", "LVC.full", "LVC.cause", "VPC.full", "VPC.semi", "IAV", "MVC" eline;    
+      rowsep = "---------------------------------------------------------"
+    }    
+    print bline "Language","Sentences","Tokens","VMWE", "VID", "IRV", "LVC.full", "LVC.cause", "VPC.full", "VPC.semi", "IAV", "MVC", "LS.ICV" eline;    
     if(outformat == "html"){  
       bline = "<tr><td style=\"text-align:left\">";
       OFS = "</td><td>";
     }
   }
+  
+
+  
 }
 END{ 
-  print bline "Total",tsent,ttok,tvmwe,tvid,tirv,tlvcfull,tlvccause,tvpcfull, tvpcsemi, tiav, tmvc eline;
+  print rowsep
+  print bline "Total",tsent,ttok,tvmwe,tvid,tirv,tlvcfull,tlvccause,tvpcfull, tvpcsemi, tiav, tmvc, tlsicv eline;
   if(outformat == "html"){ 
     print("</tbody>\n</table>");
   }
