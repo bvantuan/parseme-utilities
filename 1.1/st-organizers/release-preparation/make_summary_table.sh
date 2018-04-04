@@ -7,31 +7,32 @@ source ../../lib/parseme_st_data_dev_path.bash
 cd "${PARSEME_SHAREDTASK_DATA_DEV:?}"
 
 
-# Simply makes a pretty table summarizing stats for all languages training set
+# Simply makes a pretty table summarizing stats for all languages train/dev set
+# change line 18 below to (train|dev|test) if you also want test data stats
 
-# change to test if you want test data stats
 
-
-cat */*/stats.md | 
-#grep -v '^  *' | 
+cat 1.1/*/*/*stats.md | 
 grep -v "=" | 
-sed -e 's/### //g' -e 's/.parsemetsv//g'\
-    -e 's/Statistics //g' -e 's/^\*.*: //g' | #  cat
-awk '/(test)/{
-  head=$1; 
+sed -e 's@## File: [A-Z][A-Z]/@@g' -e 's/.cupt//g'\
+    -e 's/Language: //g' -e 's/^\*.*: //g' |   
+awk '/(train|dev)/{ # (train|data|dev) #<= CHANGEME IF NEEDED!
+  head=$0; 
   getline; sent=$1; tsent+=sent; 
   getline; tok=$1; ttok += tok; 
   getline; vmwe=$1;tvmwe+=vmwe; 
-  id = 0; ireflv=0; lvc=0; vpc=0; oth=0;
+  vid = 0; irv=0; lvcfull=0; vpcfull=0; vpcsemi=0; lvccause=0; iav=0; mvc=0;
   do{
     getline; 
-    if($2 == "`ID`:"){    id = $3; tid += id;    }
-    else if($2 == "`IReflV`:"){   ireflv = $3; tireflv += ireflv;    }
-    else if($2 == "`LVC`:"){   lvc = $3; tlvc += lvc;    }
-    else if($2 == "`OTH`:"){   oth = $3; toth += oth;    }
-    else if($2 == "`VPC`:"){   vpc = $3; tvpc += vpc;    }        
+    if($2 == "`VID`:"){    vid = $3; tvid += vid;    }
+    else if($2 == "`IRV`:"){   irv = $3; tirv += irv;    }
+    else if($2 == "`LVC.full`:"){   lvcfull = $3; tlvcfull += lvcfull;    }
+    else if($2 == "`LVC.cause`:"){   lvccause = $3; tlvccause += lvccause;    }
+    else if($2 == "`VPC.full`:"){   vpcfull = $3; tvpcfull += vpcfull;    }        
+    else if($2 == "`VPC.semi`:"){   vpcsemi = $3; tvpcsemi += vpcsemi;    }            
+    else if($2 == "`IAV`:"){   iav = $3; tiav += iav;    }                
+    else if($2 == "`MVC`:"){   mvc = $3; tmvc += mvc;    }                
   }while(NF > 1);
-  print bline lang, sent, tok, vmwe, id, ireflv, lvc, oth, vpc eline;
+  print bline lang "-" head, sent, tok, vmwe, vid, irv, lvcfull, lvccause, vpcfull, vpcsemi, iav, mvc eline;
 }
 /^[A-Z][A-Z]$/{
   lang=$0;
@@ -49,7 +50,7 @@ awk '/(test)/{
     else{
       bline = "";      eline = "";      OFS = "\t";
     }
-    print bline "Language","Sentences","Tokens","VMWE", "ID", "IReflV", "LVC", "OTH", "VPC" eline;    
+    print bline "Language","Sentences","Tokens","VMWE", "VID", "IRV", "LVC.full", "LVC.cause", "VPC.full", "VPC.semi", "IAV", "MVC" eline;    
     if(outformat == "html"){  
       bline = "<tr><td style=\"text-align:left\">";
       OFS = "</td><td>";
@@ -57,7 +58,7 @@ awk '/(test)/{
   }
 }
 END{ 
-  print bline "Total",tsent,ttok,tvmwe,tid,tireflv,tlvc,toth,tvpc eline;
+  print bline "Total",tsent,ttok,tvmwe,tvid,tirv,tlvcfull,tlvccause,tvpcfull, tvpcsemi, tiav, tmvc eline;
   if(outformat == "html"){ 
     print("</tbody>\n</table>");
   }
