@@ -138,7 +138,7 @@ def decide_split(n_mwes: int) -> IntSplit:
         return IntSplit(train=tenth, test=n_mwes-tenth, dev=0)
     if n_mwes < 1500:
         return IntSplit(train=n_mwes-500, test=500, dev=0)
-    if n_mwes < 3000:
+    if n_mwes < 5000:
         return IntSplit(train=n_mwes-1000, test=500, dev=500)
     tenth = n_mwes//10
     return IntSplit(train=n_mwes-2*tenth, test=tenth, dev=tenth)
