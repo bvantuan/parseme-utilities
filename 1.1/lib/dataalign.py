@@ -1637,7 +1637,7 @@ class _SingleMWEFinder(collections.namedtuple(
         for i, sentence_token, rooted_token in self._find_matched_tokens(
                  i_start, already_matched, unmatched_lemmabag):
             new_already_matched = already_matched.including(sentence_token, rooted_token)
-            new_unmatched_lemmabag = unmatched_lemmabag.excluding(rooted_token.lemma_or_surface(), rooted_token)
+            new_unmatched_lemmabag = unmatched_lemmabag.excluding(rooted_token.lemma_or_surface().lower(), rooted_token)
             yield from self._recursive_find_ranks(i+1, new_already_matched, new_unmatched_lemmabag)
 
 
