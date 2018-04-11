@@ -385,14 +385,10 @@ class Sentence:
 
 
     def check_token_data(self):
-        r"""Check token data and emit warnings if they are malformed
-        (e.g. if a token contains spaces inside the surface form).
-        """
-        for token in self.tokens:
-            for fieldname in ['FORM', 'LEMMA']:
-                if " " in token.get(fieldname, ""):
-                    self.warn("Token #{} contains spaces in field `{}`"
-                              .format(token.rank, fieldname))
+        r"""Check token data and emit warnings if they are malformed."""
+        # We used to check if {LEMMA,FORM} contained spaces, but
+        # UD 2.x now allows spaces, so we'll just skip these checks
+        pass
 
 
     def iter_root_to_leaf_all_tokens(self):
