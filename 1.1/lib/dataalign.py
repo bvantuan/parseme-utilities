@@ -65,9 +65,13 @@ LANGS_WITH_VERB_OCCURRENCES_ON_RIGHT = LANGS_WITH_CANONICAL_VERB_ON_RIGHT - set(
 
 
 ############################################################
+def interpret_color_request(stream, color_req: str) -> bool:
+    r"""Interpret environment variables COLOR_STDOUT and COLOR_STDERR ("always/never/auto")."""
+    return color_req == 'always' or (color_req == 'auto' and stream.isatty())
 
-# Flag indicating whether we want to use colors when writing to stderr
-COLOR_STDERR = (sys.stderr.isatty() and 'DISABLE_ANSI_COLOR' not in os.environ)
+# Flags indicating whether we want to use colors when writing to stderr/stdout
+COLOR_STDOUT = interpret_color_request(sys.stdout, os.getenv('COLOR_STDOUT', 'auto'))
+COLOR_STDERR = interpret_color_request(sys.stderr, os.getenv('COLOR_STDERR', 'auto'))
 
 
 ############################################################
