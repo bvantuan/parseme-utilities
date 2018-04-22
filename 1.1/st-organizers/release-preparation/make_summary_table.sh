@@ -6,6 +6,10 @@ set -o errexit    # Exit on error, do not continue quietly
 source ../../lib/parseme_st_data_dev_path.bash
 cd "${PARSEME_SHAREDTASK_DATA_DEV:?}"
 
+if [ $# -ne 1 ]; then
+  echo "This script requires an argument, choose one output format among {txt,html,latex}"
+  exit -1
+fi
 
 # Simply makes a pretty table summarizing stats for all languages train/dev set
 # change line 18 below to (train|dev|test) if you also want test data stats
