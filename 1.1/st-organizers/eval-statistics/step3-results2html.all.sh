@@ -5,6 +5,9 @@
 # $1 = results directory (should contain a XX.ranked.txt file for each language)
 #
 # The HTML table is printed to the results.html file in $1
+#
+# Sample call:
+# ./step3-results2html.all.sh ~/shared-task/Gitlab/sharedtask-data-dev/1.1/system-results
 
 #Check the number of parameters
 if [ $# -ne 1 ]; then
@@ -31,9 +34,9 @@ for f in `ls $1/*.ranked.txt`; do
 	#Get the language code
 	fname=`echo $f | sed 's/.*\///g'` 
 	lang=${fname:0:2}
-#	echo "LANG=$lang"
+	echo "Formatting the results for $lang..."
 
-	gawk -f results2html.gawk $lang $f >> $1results.html
+	gawk -f ../../lib/results2html.gawk $lang $f >> $1/results.html
 done
 
 
