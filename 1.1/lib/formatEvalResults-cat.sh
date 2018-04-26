@@ -87,7 +87,7 @@ fi
 if [ $# -ne 2 ]; then
 	echo "usage: $0 results-dir gold-data-dir"
 	echo "   results-dir = directory of system results. It should contain one folder per system, with one folder per language, with one test.system.parsemetsv file in each."
-	echo "   gold-data-dir = directory with the test gold data. It should contain one folder per language, with the parsemetgz/OUT/test.parsemetsv file in each."
+	echo "   gold-data-dir = directory with the test gold data. It should contain one folder per language, with the SPLIT/test.cupt file in each."
 	exit 1
 fi
 
@@ -95,16 +95,16 @@ RESULTS_DIR=$1
 GOLD_DIR=$2
 
 #Initiate the file for all results
-echo "Language System Track P-lvc-full-mwe R-lvc-full-mwe" \
-"P-iav-mwe R-iav-mwe F-iav-mwe P-iav-token R-iav-token F-iav-token" \
-"P-irv-mwe R-irv-mwe F-irv-mwe P-irv-token R-irv-token F-ireflv-token" \
-"P-lvc-cause-mwe R-lvc-cause-mwe F-lvc-cause-mwe P-lvc-cause-token R-lvc-cause-token F-lvc-cause-token" \
-"F-lvc-full-mwe P-lvc-full-token R-lvc-full-token F-lvc-full-token" \
-"P-mvc-mwe R-mvc-mwe F-mvc-mwe P-mvc-token R-mvc-token F-mvc-token" \
-"P-vid-mwe R-vid-mwe F-vid-mwe P-vid-token R-vid-token F-vid-token" \
-"P-vpc-full-mwe R-vpc-full-mwe F-vpc-full-mwe P-vpc-full-token R-vpc-full-token F-vpc-full-token" \
-"P-vpc-semi-mwe R-vpc-semi-mwe F-vpc-semi-mwe P-vpc-semi-token R-vpc-semi-token F-vpc-semi-token" \
-> $RESULTS_DIR/all-results-percat.txt
+#echo "Language System Track P-lvc-full-mwe R-lvc-full-mwe" \
+#"P-iav-mwe R-iav-mwe F-iav-mwe P-iav-token R-iav-token F-iav-token" \
+#"P-irv-mwe R-irv-mwe F-irv-mwe P-irv-token R-irv-token F-ireflv-token" \
+#"P-lvc-cause-mwe R-lvc-cause-mwe F-lvc-cause-mwe P-lvc-cause-token R-lvc-cause-token F-lvc-cause-token" \
+#"F-lvc-full-mwe P-lvc-full-token R-lvc-full-token F-lvc-full-token" \
+#"P-mvc-mwe R-mvc-mwe F-mvc-mwe P-mvc-token R-mvc-token F-mvc-token" \
+#"P-vid-mwe R-vid-mwe F-vid-mwe P-vid-token R-vid-token F-vid-token" \
+#"P-vpc-full-mwe R-vpc-full-mwe F-vpc-full-mwe P-vpc-full-token R-vpc-full-token F-vpc-full-token" \
+#"P-vpc-semi-mwe R-vpc-semi-mwe F-vpc-semi-mwe P-vpc-semi-token R-vpc-semi-token F-vpc-semi-token" \
+#> $RESULTS_DIR/all-results-percat.txt
 
 #Run the evaluation for each language
 for LANG in ${LANGUAGES[*]}; do
@@ -127,7 +127,7 @@ for LANG in ${LANGUAGES[*]}; do
 #		res=""
 		res=`getResultsLanSys $GOLD_DIR $LANG $RESULTS_DIR/$SYS_DIR`
 		if [ "$res" != "" ]; then
-			echo $res >> $RESULTS_DIR/all-results-percat.txt
+			#echo $res >> $RESULTS_DIR/all-results-percat.txt
 			#Print to the result files for the language
 			echo $res | cut -d' ' -f2-100 >> $RESULTS_DIR/${LANG}.percat.txt
 		fi

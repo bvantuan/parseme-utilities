@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #This script formats the PARSEME shared task general (i.e. not phenomenon-specific) evaluation results for display.
-# 3 types tables are created: 
+# 3 types of tables are created: 
 #	* per language disregarding VMWE categories
 #	* per language, including VMWE categories
 #	* per system, including VMWE categories
@@ -102,8 +102,8 @@ fi
 RESULTS_DIR=$1
 GOLD_DIR=$2
 
-r=0 #Index of the results lines in the results table
-echo "Language System Track P-token R-token F-token P-MWE R-MWE F-MWE Rank-token Rank-MWE" > $RESULTS_DIR/all-results.txt #Initiate the file for all results
+#r=0 #Index of the results lines in the results table
+#echo "Language System Track P-token R-token F-token P-MWE R-MWE F-MWE Rank-token Rank-MWE" > $RESULTS_DIR/all-results.txt #Initiate the file for all results
 
 #Run the evaluation for each language
 for LANG in ${LANGUAGES[*]}; do
@@ -119,7 +119,7 @@ for LANG in ${LANGUAGES[*]}; do
 			res=`getResultsLanSys $GOLD_DIR $LANG $RESULTS_DIR/$SYS_DIR`
 			#echo "res=$res"
 			if [ "$res" != "" ]; then
-				echo $res >> $RESULTS_DIR/all-results.txt
+				#echo $res >> $RESULTS_DIR/all-results.txt
 				#RESULTS[$r]=$res
 				#r=$[$r+1]
 				#Print to the result files for the language
