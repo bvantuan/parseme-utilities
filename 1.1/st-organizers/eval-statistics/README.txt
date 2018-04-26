@@ -1,6 +1,6 @@
 This directory contains scripts used to run the shared task system evaluation and publish the system results.
 
-Perform teh following steps:
+Perform the following steps:
 
 =====
 Step 0
@@ -30,4 +30,10 @@ Convert the (unranked) per-category evaluation results to HTML tables, one per l
 
 ./step3-results2html-cat.all.sh ~/shared-task/Gitlab/sharedtask-data-dev/1.1/system-results
 
+=====
+Step 4
+
+Convert the macro-average results to HTML tables. The resulting .html page is printed into the macro-ave.html file in sharedtask-data-dev/1.1/system-results:
+
+./step4-macroave2html.sh ~/shared-task/Gitlab/sharedtask-data-dev/1.1/system-results
 

@@ -85,7 +85,7 @@ for LANG in ${LANGUAGES[*]}; do
 "P-iav-mwe R-iav-mwe F-iav-mwe P-iav-token R-iav-token F-iav-token" \
 "P-irv-mwe R-irv-mwe F-irv-mwe P-irv-token R-irv-token F-ireflv-token" \
 "P-lvc-cause-mwe R-lvc-cause-mwe F-lvc-cause-mwe P-lvc-cause-token R-lvc-cause-token F-lvc-cause-token" \
-"F-lvc-full-mwe P-lvc-full-token R-lvc-full-token F-lvc-full-token" \
+"F-lvc-full-mwe P-lvc-full-token R-lvc-full-token F-lvc-full-token" \ 
 "P-mvc-mwe R-mvc-mwe F-mvc-mwe P-mvc-token R-mvc-token F-mvc-token" \
 "P-vid-mwe R-vid-mwe F-vid-mwe P-vid-token R-vid-token F-vid-token" \
 "P-vpc-full-mwe R-vpc-full-mwe F-vpc-full-mwe P-vpc-full-token R-vpc-full-token F-vpc-full-token" \
