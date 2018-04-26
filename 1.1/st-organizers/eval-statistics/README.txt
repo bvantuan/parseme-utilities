@@ -21,13 +21,13 @@ Step 2
 
 Convert the global evaluation (for all categories in total) to HTML tables, one per language. The resulting .html page is printed into the results.html file in sharedtask-data-dev/1.1/system-results:
 
-./step2-results2html.sh ~/shared-task/Gitlab/sharedtask-data-dev/1.1/system-results ~/shared-task/Gitlab/sharedtask-data-dev/1.1/preliminary-sharedtask-data/
+./step2-results2html.sh ~/shared-task/Gitlab/sharedtask-data-dev/1.1/system-results 
 
 =====
 Step 3
 
 Convert the (unranked) per-category evaluation results to HTML tables, one per language. The resulting .html page is printed into the results-cat.html file in sharedtask-data-dev/1.1/system-results:
 
-./step3-results2html-cat.all.sh ~/shared-task/Gitlab/sharedtask-data-dev/1.1/system-results ~/shared-task/Gitlab/sharedtask-data-dev/1.1/preliminary-sharedtask-data/
+./step3-results2html-cat.all.sh ~/shared-task/Gitlab/sharedtask-data-dev/1.1/system-results
 
 
