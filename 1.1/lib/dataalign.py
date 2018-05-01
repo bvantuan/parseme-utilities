@@ -312,11 +312,11 @@ class Sentence:
 
     def __str__(self):
         r"""Return a string representation of the tokens"""
-        return " ".join(map(lambda x: x.surface,self.tokens))
+        return " ".join(map(lambda x: x.surface, self.tokens))
 
-    def __bool__(self):
-        r"""True iff this Sentence is not empty."""
-        return bool(self.tokens or self.toplevel_comments or self.mweannots)
+    def empty(self):
+        r"""True iff this Sentence is empty."""
+        return not (self.tokens or self.toplevel_comments or self.mweannots)
 
     def rank2index(self):
         r"""Return a dictionary mapping string ranks to indexes."""
@@ -1201,13 +1201,14 @@ class AbstractFileIterator:
                     if line.startswith("#"):
                         self.make_comment(line)
                     elif not line.strip():
-                        yield self.finish_sentence()
+                        if not self.curr_sent.empty():
+                            yield self.finish_sentence()
                     else:
                         self.append_token(line)
                 except:
                     self.warn("Error when reading token", warntype="FATAL")
                     raise
-            if self.curr_sent:
+            if not self.curr_sent.empty():
                 yield self.finish_sentence()
             yield from self.iter_footer(self.fileobj)
 
