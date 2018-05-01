@@ -4,7 +4,7 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 set -o nounset    # Using "$UNDEF" var raises error
 set -o errexit    # Exit on error, do not continue quietly
 
-UDPIPE_PATH="${UDPIPE_PATH:-./udpipe}"
+UDPIPE_PATH="${UDPIPE_PATH:-"$HERE/udpipe"}"
 
 
 usage() {
