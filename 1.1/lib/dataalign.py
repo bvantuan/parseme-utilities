@@ -314,6 +314,10 @@ class Sentence:
         r"""Return a string representation of the tokens"""
         return " ".join(map(lambda x: x.surface,self.tokens))
 
+    def __bool__(self):
+        r"""True iff this Sentence is not empty."""
+        return bool(self.tokens or self.toplevel_comments or self.mweannots)
+
     def rank2index(self):
         r"""Return a dictionary mapping string ranks to indexes."""
         return {t.rank: index for (index, t) in enumerate(self.tokens)}
@@ -1203,6 +1207,8 @@ class AbstractFileIterator:
                 except:
                     self.warn("Error when reading token", warntype="FATAL")
                     raise
+            if self.curr_sent:
+                yield self.finish_sentence()
             yield from self.iter_footer(self.fileobj)
 
     def iter_header(self, f):
