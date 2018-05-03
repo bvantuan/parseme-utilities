@@ -24,27 +24,7 @@ delete ARGV[1]
 
 print "<table>"
 print "<tbody>"
-print "<tr>"
-print "<th rowspan=\"3\">System</th><th rowspan=\"3\">Track</th><th colspan=\"6\">IAV</th><th colspan=\"6\">IRV</th>"
-print "<th colspan=\"6\">LVC.cause</th><th colspan=\"6\">LVC.full</th><th colspan=\"6\">MVC</th>"
-print "<th colspan=\"6\">VID</th><th colspan=\"6\">VPC.full</th><th colspan=\"6\">VPC.semi</th>"
-if (LANG == "IT") #Italian has a languge-specific category
-	print "<th colspan=\"6\">LS.ICV</th>"
-print "</tr>"
 
-print "<tr>"
-for (i=1; i<=NB_CATS; i++)
-	print "<th colspan=\"3\">Per-MWE results</th><th colspan=\"3\">Per-token results</th>"
-if (LANG == "IT")
-	print "<th colspan=\"3\">Per-MWE results</th><th colspan=\"3\">Per-token results</th>"
-print "</tr>"
-
-print "<tr>"
-for (i=1; i<=NB_CATS; i++)
-	print "<th>Precision</th><th>Recall</th><th>F-measure</th><th>Precision</th><th>Recall</th><th>F-measure</th>"
-if (LANG == "IT")
-	print "<th>Precision</th><th>Recall</th><th>F-measure</th><th>Precision</th><th>Recall</th><th>F-measure</th>"
-print "<tr>"
 
 track=""
 }
@@ -58,6 +38,32 @@ if (NR!=1) {
 	print "<tr>"
 	track = $2
 }
+else {
+  print "<tr>"
+  print "<th rowspan=\"3\">System</th><th rowspan=\"3\">Track</th>"
+  prevcat = ""
+  catcount = 0
+  for(i=3;i<=NF;i++){
+    split($i,catarray,"-")
+    category = catarray[2]
+    if(category != prevcat) {
+      print "<th colspan=\"6\">" category "</th>"
+      catcount++
+    }
+    prevcat = category
+  }
+  print "</tr>\n"
+
+  print "<tr>"
+  for (i=1; i<=catcount; i++)
+    print "<th colspan=\"3\">Per-MWE results</th><th colspan=\"3\">Per-token results</th>"
+  print "</tr>\n"
+
+  print "<tr>"
+  for (i=1; i<=catcount; i++)
+    print "<th>Precision</th><th>Recall</th><th>F-measure</th><th>Precision</th><th>Recall</th><th>F-measure</th>"  
+  print "<tr>"
+  }
 }
 
 END {

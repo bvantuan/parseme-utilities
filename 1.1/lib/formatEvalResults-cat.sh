@@ -9,13 +9,13 @@
 # As a result, a file named <LANG>.percat.txt is created for every language in $1, containing (unranked) results of all systems for this language.
 #
 # Sample call:
-#  ./step4-formatEvalResults-cat.sh ~/shared-task/Gitlab/sharedtask-data-dev/1.1/system-results ~/shared-task/Gitlab/sharedtask-data-dev/1.1/preliminary-sharedtask-data/
+#  ./formatEvalResults-cat.sh ~/shared-task/Gitlab/sharedtask-data-dev/1.1/system-results
 #
 # Author: Agata Savary
 
 source ../../lib/parseme_st_data_dev_path.bash #Define the PARSEME_SHAREDTASK_DATA_DEV variable
 LANGUAGES=(AR BG DE EL EN ES EU FA FR HE HI HR HU IT LT PL PT RO SL TR)
-CATS=(IAV IRV LVC.full LVC.cause MVC VID VPC.full VPC.semi LS.ICV) #VMWE categories
+CATS=(IAV IRV LVC.cause LVC.full MVC VID VPC.full VPC.semi LS.ICV) #VMWE categories
 
 ##############################################################################
 # Get the evaluation results for a given system and a given language
@@ -42,24 +42,22 @@ PRED=$SYS_PATH/$LANG/test.system.cupt #Get the expected results file name
 #Check if the system submitted results
 if [ -f $PRED ]; then
 	echo -n "$LANG $SNAME $STRACK "
-	for CAT in ${CATS[*]}; do
-		if [ $CAT != "LS.ICV" -o  $LANG == "IT" ]; then
-			#echo $CAT
-			#Check if the category is relevant for the language
-			cat $SYS_PATH/$LANG/results.txt > results.txt
-			P_MWE=`cat results.txt | grep "$CAT: MWE-based" | cut -d' ' -f4 | cut -d= -f 3`
-			R_MWE=`cat results.txt | grep "$CAT: MWE-based" | cut -d' ' -f5 | cut -d= -f 3`
-			F_MWE=`cat results.txt | grep "$CAT: MWE-based" | cut -d' ' -f6 | cut -d= -f 2`
-			P_TOKEN=`cat results.txt | grep "$CAT: Tok-based" | cut -d' ' -f4 | cut -d= -f 3`
-			R_TOKEN=`cat results.txt | grep "$CAT: Tok-based" | cut -d' ' -f5 | cut -d= -f 3`
-			F_TOKEN=`cat results.txt | grep "$CAT: Tok-based" | cut -d' ' -f6 | cut -d= -f 2`
-			if [ $P_MWE ]; then  
-				echo -n "$P_MWE $R_MWE $F_MWE $P_TOKEN $R_TOKEN $F_TOKEN "
-			else
-				echo -n "n/a n/a n/a n/a n/a n/a "
-			fi
-			rm results.txt
-		fi
+	for CAT in ${CATS[*]}; do		
+    #echo $CAT
+    #Check if the category is relevant for the language
+    cat $SYS_PATH/$LANG/results.txt > results.txt
+    P_MWE=`cat results.txt | grep "$CAT: MWE-based" | cut -d' ' -f4 | cut -d= -f 3`
+    R_MWE=`cat results.txt | grep "$CAT: MWE-based" | cut -d' ' -f5 | cut -d= -f 3`
+    F_MWE=`cat results.txt | grep "$CAT: MWE-based" | cut -d' ' -f6 | cut -d= -f 2`
+    P_TOKEN=`cat results.txt | grep "$CAT: Tok-based" | cut -d' ' -f4 | cut -d= -f 3`
+    R_TOKEN=`cat results.txt | grep "$CAT: Tok-based" | cut -d' ' -f5 | cut -d= -f 3`
+    F_TOKEN=`cat results.txt | grep "$CAT: Tok-based" | cut -d' ' -f6 | cut -d= -f 2`
+    if [ $P_MWE ]; then  
+      echo -n "$P_MWE $R_MWE $F_MWE $P_TOKEN $R_TOKEN $F_TOKEN "
+    else
+      echo -n "n/a n/a n/a n/a n/a n/a "
+    fi
+    rm results.txt		
 	done
 	echo ""
 fi
@@ -80,17 +78,16 @@ RESULTS_DIR=$1
 
 #Run the evaluation for each language
 for LANG in ${LANGUAGES[*]}; do
-
-	echo "System Track P-lvc-full-mwe R-lvc-full-mwe" \
-"P-iav-mwe R-iav-mwe F-iav-mwe P-iav-token R-iav-token F-iav-token" \
-"P-irv-mwe R-irv-mwe F-irv-mwe P-irv-token R-irv-token F-ireflv-token" \
-"P-lvc-cause-mwe R-lvc-cause-mwe F-lvc-cause-mwe P-lvc-cause-token R-lvc-cause-token F-lvc-cause-token" \
-"F-lvc-full-mwe P-lvc-full-token R-lvc-full-token F-lvc-full-token" \ 
-"P-mvc-mwe R-mvc-mwe F-mvc-mwe P-mvc-token R-mvc-token F-mvc-token" \
-"P-vid-mwe R-vid-mwe F-vid-mwe P-vid-token R-vid-token F-vid-token" \
-"P-vpc-full-mwe R-vpc-full-mwe F-vpc-full-mwe P-vpc-full-token R-vpc-full-token F-vpc-full-token" \
-"P-vpc-semi-mwe R-vpc-semi-mwe F-vpc-semi-mwe P-vpc-semi-token R-vpc-semi-token F-vpc-semi-token" \
-> $RESULTS_DIR/${LANG}.percat.txt
+	echo "System Track P-IAV-mwe R-IAV-mwe F-IAV-mwe P-IAV-token R-IAV-token F-IAV-token" \
+"P-IRV-mwe R-IRV-mwe F-IRV-mwe P-IRV-token R-IRV-token F-IRV-token" \
+"P-LVC.cause-mwe R-LVC.cause-mwe F-LVC.cause-mwe P-LVC.cause-token R-LVC.cause-token F-LVC.cause-token" \
+"P-LVC.full-mwe R-LVC.full-mwe F-LVC.full-mwe P-LVC.full-token R-LVC.full-token F-LVC.full-token" \
+"P-MVC-mwe R-MVC-mwe F-MVC-mwe P-MVC-token R-MVC-token F-MVC-token" \
+"P-VID-mwe R-VID-mwe F-VID-mwe P-VID-token R-VID-token F-VID-token" \
+"P-VPC.full-mwe R-VPC.full-mwe F-VPC.full-mwe P-VPC.full-token R-VPC.full-token F-VPC.full-token" \
+"P-VPC.semi-mwe R-VPC.semi-mwe F-VPC.semi-mwe P-VPC.semi-token R-VPC.semi-token F-VPC.semi-token" \
+"P-LS.ICV-mwe R-LS.ICV-mwe F-LS.ICV-mwe P-LS.ICV-token R-LS.ICV-token F-LS.ICV-token" \
+> $RESULTS_DIR/${LANG}.percat.txt.withna
 
 	#For a given language, evaluate each system
 	for SYS_DIR in `ls $RESULTS_DIR | grep -E '(closed)|(open)$'`; do
@@ -98,9 +95,24 @@ for LANG in ${LANGUAGES[*]}; do
 		res=`getResultsLanSys $LANG $RESULTS_DIR/$SYS_DIR`
 		if [ "$res" != "" ]; then
 			#Print to the result files for the language
-			echo $res | cut -d' ' -f2-100 >> $RESULTS_DIR/${LANG}.percat.txt
+      #echo $res
+			echo $res | cut -d' ' -f2-100 >> $RESULTS_DIR/${LANG}.percat.txt.withna     
 		fi
 	done
+  
+  # Remove all columns containing n/a
+  nlines=`wc -l $RESULTS_DIR/${LANG}.percat.txt.withna | awk '{print $1}'`
+  for n in `seq $nlines`; do    
+    cat $RESULTS_DIR/${LANG}.percat.txt.withna | 
+    head -n $n | tail -n 1 | 
+    sed 's/ /\n/g' > $RESULTS_DIR/${LANG}.percat.txt.col${n}    
+  done
+  paste $RESULTS_DIR/${LANG}.percat.txt.col* | 
+  grep -v "n/a" | 
+  awk '{for (i=1;i<=NF;i++) {lines[i] = lines[i] $i " "; max=i} }\
+       END{for (i=1;i<=max;i++){ print lines[i] }}' > $RESULTS_DIR/${LANG}.percat.txt
+  rm $RESULTS_DIR/${LANG}.percat.txt.col*
+  rm $RESULTS_DIR/${LANG}.percat.txt.withna
 done
 
 

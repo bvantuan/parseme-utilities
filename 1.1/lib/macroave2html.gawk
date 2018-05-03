@@ -32,17 +32,25 @@ print "<tr><th rowspan=\"2\">System</th><th rowspan=\"2\">Track</th><th colspan=
 print "<tr><th>Precision</th><th>Recall</th><th>F-measure</th><th>Rank</th></tr>"
 
 track=""
+prevfm=-1
+rank=0
 }
 
 {
 if (NR!=1) {
 	#Separate tracks by a thick line
-	if ( ((track=="open") && ($2=="closed")) || ((track=="closed") && ($2=="open")) )
+	if ( ((track=="open") && ($2=="closed")) || ((track=="closed") && ($2=="open")) ) {
 		print "<tr style=\"border-top: 4px solid\">"
-	else
+    prevfm = -1
+    rank=0
+  }
+	else {
 		print "<tr>"
-	print "<td style=\"text-align:left\">" $1 "</td><td style=\"text-align:left\">" $2 "</td><td>" $3 "</td><td>" $4 "</td><td>" $5 "</td><td>" $6 "</td></tr>"
+  }    
+  if(prevfm != $5){ rank++ }
+	print "<td style=\"text-align:left\">" $1 "</td><td style=\"text-align:left\">" $2 "</td><td>" $3 "</td><td>" $4 "</td><td>" $5 "</td><td>" rank "</td></tr>"
 	track = $2
+  prevfm=$5
 }
 }
 

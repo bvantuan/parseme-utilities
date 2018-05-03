@@ -52,7 +52,7 @@ done
 
 #Delete the formatted results
 for LANG in ${LANGUAGES[*]}; do
-	rm -f $RES_DIR/$LANG.percat.txt
+	rm -f $RES_DIR/$LANG.percat.txt  
 done
 
 

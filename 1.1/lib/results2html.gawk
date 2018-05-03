@@ -1,6 +1,6 @@
 #This script formats the PARSEME shared task evaluation results into HTML tables for display.
 #Parameters:
-#	ARGV[1] = langauge code
+#	ARGV[1] = language code
 # The input file is in a space-separated CSV format with the following fields:
 #	System Track P-token R-token F-token P-MWE R-MWE F-MWE Rank-token Rank-MWE
 #	X-token and X-MWE are token-based and MWE-based P/R/F results 

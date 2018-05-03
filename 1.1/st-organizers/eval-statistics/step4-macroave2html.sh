@@ -23,6 +23,8 @@ fi
 RES_DIR=$1
 RES_HTML=$1/macro-ave.html
 
+echo -e "\e[31m\e[1mTODO: add dummy eval for all languages not submitted\e[0m"
+
 #Rank and format the global evaluation (for all categories in total). If different systems run for a given language in both tracks, the rankings are done separately.
 #As a result, a file named macro-ave-<PH>.<TRACK>.ranked.txt is created for every phenomenon PH and every TRACK
 ../../lib/formatMacroAve.sh $RES_DIR
@@ -47,6 +49,6 @@ for PH in ${PHENOMENA[*]}; do
 	echo "Formatting the global results for $PH..."
 	gawk -f ../../lib/macroave2html.gawk $PH $RES_DIR/macro-ave-${PH}.ranked.txt >> $RES_HTML
 	rm $RES_DIR/macro-ave-${PH}.ranked.txt
-#	rm -f $RES_DIR/macro-ave-${PH}.ranked.txt #Delete the formatted fileb
+	rm -f $RES_DIR/macro-ave-${PH}.ranked.txt #Delete the formatted fileb
 done
 

@@ -8,8 +8,8 @@ UDPIPE_PATH="${UDPIPE_PATH:-"$HERE/udpipe"}"
 
 
 usage() {
-    echo "Usage: $(basename "$0") <udpipe-model> <xml-or-parsemetsv-files...>"
-    echo "Run UDPipe on input XML/parsemetsv files using given UDPipe model."
+    echo "Usage: $(basename "$0") <udpipe-model> <FoliaXml-or-parsemetsv-files...>"
+    echo "Run UDPipe on input Folia-XML/parsemetsv files using given UDPipe model."
     echo "Creates conllu files in the same directory as the input files."
 }
 fail() {

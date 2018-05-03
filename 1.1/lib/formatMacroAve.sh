@@ -43,26 +43,26 @@ STRACK=${SDIR#*.} #Get the track (directory suffix: open or closed)
 #echo "System track: $STRACK"
 
 #Get the macro-average for the system for all languages
-$MACRO_AVE $SYS_PATH/*/results.txt > results.txt
+$MACRO_AVE $SYS_PATH/*/results.txt > $SYS_PATH/ave-results.txt
   
 #General macro-averages
-AVE_P_MWE=`cat results.txt | grep '* MWE-based' | cut -d' ' -f3 | cut -d= -f2`
-AVE_R_MWE=`cat results.txt | grep '* MWE-based' | cut -d' ' -f4 | cut -d= -f2`
-AVE_F_MWE=`cat results.txt | grep '* MWE-based' | cut -d' ' -f5 | cut -d= -f2`
-AVE_P_TOKEN=`cat results.txt | grep '* Tok-based' | cut -d' ' -f3 | cut -d= -f2`
-AVE_R_TOKEN=`cat results.txt | grep '* Tok-based' | cut -d' ' -f4 | cut -d= -f2`
-AVE_F_TOKEN=`cat results.txt | grep '* Tok-based' | cut -d' ' -f5 | cut -d= -f2`
+AVE_P_MWE=`cat $SYS_PATH/ave-results.txt | grep '* MWE-based' | cut -d' ' -f3 | cut -d= -f2`
+AVE_R_MWE=`cat $SYS_PATH/ave-results.txt | grep '* MWE-based' | cut -d' ' -f4 | cut -d= -f2`
+AVE_F_MWE=`cat $SYS_PATH/ave-results.txt | grep '* MWE-based' | cut -d' ' -f5 | cut -d= -f2`
+AVE_P_TOKEN=`cat $SYS_PATH/ave-results.txt | grep '* Tok-based' | cut -d' ' -f3 | cut -d= -f2`
+AVE_R_TOKEN=`cat $SYS_PATH/ave-results.txt | grep '* Tok-based' | cut -d' ' -f4 | cut -d= -f2`
+AVE_F_TOKEN=`cat $SYS_PATH/ave-results.txt | grep '* Tok-based' | cut -d' ' -f5 | cut -d= -f2`
 echo "$SNAME $STRACK $AVE_P_MWE $AVE_R_MWE $AVE_F_MWE $AVE_P_TOKEN $AVE_R_TOKEN $AVE_F_TOKEN" >> $RESULTS_DIR/macro-ave.${STRACK}.txt
 
 #Phenomenon-specific macro-averages
 for PH in ${PHENOMENA[*]}; do
-	AVE_P_MWE=`cat results.txt | grep "* $PH: MWE-based" | cut -d' ' -f4 | cut -d= -f2`
-	AVE_R_MWE=`cat results.txt | grep "* $PH: MWE-based" | cut -d' ' -f5 | cut -d= -f2`
-	AVE_F_MWE=`cat results.txt | grep "* $PH: MWE-based" | cut -d' ' -f6 | cut -d= -f2`
+	AVE_P_MWE=`cat $SYS_PATH/ave-results.txt | grep "* $PH: MWE-based" | cut -d' ' -f4 | cut -d= -f2`
+	AVE_R_MWE=`cat $SYS_PATH/ave-results.txt | grep "* $PH: MWE-based" | cut -d' ' -f5 | cut -d= -f2`
+	AVE_F_MWE=`cat $SYS_PATH/ave-results.txt | grep "* $PH: MWE-based" | cut -d' ' -f6 | cut -d= -f2`
 	echo "$SNAME $STRACK $AVE_P_MWE $AVE_R_MWE $AVE_F_MWE" >> $RESULTS_DIR/macro-ave-${PH}.${STRACK}.txt
 done
 
-rm results.txt
+#rm results.txt
 } 
 
 ##############################################################################
@@ -74,13 +74,15 @@ makeRanking() {
 RESULTS_DIR=$1
 #Rank general macro-averages
 echo "system track ave-P-mwe ave-R-mwe ave-F-mwe ave-P-token ave-R-token ave-F-token rank-token rank-MWE" > $RESULTS_DIR/macro-ave.ranked.txt
-for TRACK in `echo closed open`; do
+for PH in ${PHENOMENA[*]}; do
+		echo "system track ave-P-mwe ave-R-mwe ave-F-mwe rank" > $RESULTS_DIR/macro-ave-${PH}.ranked.txt #Initiate the ranking file
+done
+for TRACK in closed open; do
 	cat $RESULTS_DIR/macro-ave.${TRACK}.txt | sort -nr --key=8 | gawk '{if ($8=="0.0000") print $0, "n/a"; else print $0, NR}' | sort -nr --key=5 | gawk '{if ($5=="0.0000") print $0, "n/a"; else print $0, NR}' >> $RESULTS_DIR/macro-ave.ranked.txt	
 	rm $RESULTS_DIR/macro-ave.${TRACK}.txt
 	
 	#Rank per-phenomenon macro-averages
-	for PH in ${PHENOMENA[*]}; do
-		echo "system track ave-P-mwe ave-R-mwe ave-F-mwe rank" > $RESULTS_DIR/macro-ave-${PH}.ranked.txt #Initiate the ranking file
+	for PH in ${PHENOMENA[*]}; do		
 		cat $RESULTS_DIR/macro-ave-${PH}.${TRACK}.txt | sort -nr --key=5 | gawk '{if ($5=="0.0000") print $0, "n/a"; else print $0, NR}' >> $RESULTS_DIR/macro-ave-${PH}.ranked.txt	
 		rm $RESULTS_DIR/macro-ave-${PH}.${TRACK}.txt
 	done

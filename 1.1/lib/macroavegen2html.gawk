@@ -29,16 +29,28 @@ print "<tr><th rowspan=\"2\">System</th><th rowspan=\"2\">Track</th><th colspan=
 print "<tr><th>Precision</th><th>Recall</th><th>F-measure</th><th>Rank</th><th>Precision</th><th>Recall</th><th>F-measure</th><th>Rank</th></tr>"
 
 track=""
+prevfm=-1
+prevft=-1
+rankm=0
+rankt=0
 }
 
 {
 if (NR!=1) {
 	#Separate tracks by a thick line
-	if ( ((track=="open") && ($2=="closed")) || ((track=="closed") && ($2=="open")) )
+	if ( ((track=="open") && ($2=="closed")) || ((track=="closed") && ($2=="open")) ) {
 		print "<tr style=\"border-top: 4px solid\">"
-	else
+    prevfm=-1
+    prevft=-1
+    rankm=0
+    rankt=0
+  }
+	else {
 		print "<tr>"
-	print "<td style=\"text-align:left\">" $1 "</td><td style=\"text-align:left\">" $2 "</td><td>" $3 "</td><td>" $4 "</td><td>" $5 "</td><td>" $9 "</td><td>" $6 "</td><td>" $7 "</td><td>" $8 "</td><td>" $10 "</td>"
+  }
+  if(prevfm != $5){ rankm++ }
+  if(prevft != $5){ rankt++ }
+	print "<td style=\"text-align:left\">" $1 "</td><td style=\"text-align:left\">" $2 "</td><td>" $3 "</td><td>" $4 "</td><td>" $5 "</td><td>" rankt "</td><td>" $6 "</td><td>" $7 "</td><td>" $8 "</td><td>" rankm "</td>"
 	track = $2
 }
 }
