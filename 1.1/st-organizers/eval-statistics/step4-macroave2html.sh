@@ -50,6 +50,6 @@ for PH in ${PHENOMENA[*]}; do
 	echo "Formatting the global results for $PH..."
 	gawk -f ../../lib/macroave2html.gawk $PH $RES_DIR/macro-ave-${PH}.ranked.txt >> $RES_HTML
 	rm $RES_DIR/macro-ave-${PH}.ranked.txt
-	#rm -f $RES_DIR/macro-ave-${PH}.ranked.txt #Delete the formatted fileb
+	rm -f $RES_DIR/macro-ave-${PH}.ranked.txt #Delete the formatted fileb
 done
 
