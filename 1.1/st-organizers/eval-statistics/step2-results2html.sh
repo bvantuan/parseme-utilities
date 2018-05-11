@@ -40,6 +40,8 @@ echo "    padding: 5px;" >> $RES_HTML
 echo "}" >> $RES_HTML
 echo "</style>" >> $RES_HTML
 
+echo "<h1 id=\"lang\">Language-specific system rankings</h1>" >> $RES_HTML
+
 
 for f in `ls $RES_DIR/*.ranked.txt`; do 
 	#Get the language code
@@ -50,7 +52,7 @@ for f in `ls $RES_DIR/*.ranked.txt`; do
 done
 
 #Delete the formatted results
-#for LANG in ${LANGUAGES[*]}; do
-	#rm -f $RES_DIR/$LANG.ranked.txt
-#done
+for LANG in ${LANGUAGES[*]}; do
+	rm -f $RES_DIR/$LANG.ranked.txt
+done
 

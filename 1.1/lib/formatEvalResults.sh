@@ -43,12 +43,12 @@ PRED=$SYS_PATH/$LANG/test.system.cupt #Get the expected results file name
 #Check if the system submitted results
 if [ -f $PRED ]; then
 	cat $SYS_PATH/$LANG/results.txt > results.txt
-	P_MWE=`cat results.txt | head -2 | tail -1 | cut -d' ' -f3 | cut -d= -f3`
-	R_MWE=`cat results.txt | head -2 | tail -1 | cut -d' ' -f4 | cut -d= -f3`
-	F_MWE=`cat results.txt | head -2 | tail -1 | cut -d' ' -f5 | cut -d= -f2`
-	P_TOKEN=`cat results.txt | head -3 | tail -1 | cut -d' ' -f3 | cut -d= -f3`
-	R_TOKEN=`cat results.txt | head -3 | tail -1 | cut -d' ' -f4 | cut -d= -f3`
-	F_TOKEN=`cat results.txt | head -3 | tail -1 | cut -d' ' -f5 | cut -d= -f2`
+	P_MWE=`cat results.txt | head -2 | tail -1 | cut -d' ' -f3 | cut -d= -f3 | awk '{print $0 * 100}'`
+	R_MWE=`cat results.txt | head -2 | tail -1 | cut -d' ' -f4 | cut -d= -f3 | awk '{print $0 * 100}'`
+	F_MWE=`cat results.txt | head -2 | tail -1 | cut -d' ' -f5 | cut -d= -f2 | awk '{print $0 * 100}'`
+	P_TOKEN=`cat results.txt | head -3 | tail -1 | cut -d' ' -f3 | cut -d= -f3 | awk '{print $0 * 100}'`
+	R_TOKEN=`cat results.txt | head -3 | tail -1 | cut -d' ' -f4 | cut -d= -f3 | awk '{print $0 * 100}'`
+	F_TOKEN=`cat results.txt | head -3 | tail -1 | cut -d' ' -f5 | cut -d= -f2 | awk '{print $0 * 100}'`
 	rm results.txt
 	echo "$LANG $SNAME $STRACK $P_MWE $R_MWE $F_MWE $P_TOKEN $R_TOKEN $F_TOKEN"
 fi
@@ -69,11 +69,11 @@ for LANG in ${LANGUAGES[*]}; do
 		if [ -f $1/$LANG.$TRACK.txt ]; then
 			#Rank the systems according to 2 measures. If a system F-measure is 0, the ranking is not applicable
 			cat $1/$LANG.$TRACK.txt | 
-      sort -nr --key=5 | gawk 'BEGIN{prev=-1}{if(prev != $5){r++} prev=$5; if ($5=="0.0000") print $0, "n/a"; else print $0, r; }' | 
-      sort -nr --key=8 | gawk 'BEGIN{prev=-1}{if(prev != $8){r++} prev=$8; if ($8=="0.0000") print $0, "n/a"; else print $0, r; }' |
+      sort -nr --key=5 | gawk 'BEGIN{prev=-1}{if(prev != $5){r++} prev=$5; if ($5=="0") print $0, "n/a"; else print $0, r; }' | 
+      sort -nr --key=8 | gawk 'BEGIN{prev=-1}{if(prev != $8){r++} prev=$8; if ($8=="0") print $0, "n/a"; else print $0, r; }' |
       sort -nr --key=5 |
       cat >> $1/$LANG.ranked.txt
-			#rm -f $1/$LANG.$TRACK.txt
+			rm -f $1/$LANG.$TRACK.txt
 		fi
 	done
 done

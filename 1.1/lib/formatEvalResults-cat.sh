@@ -14,7 +14,8 @@
 # Author: Agata Savary
 
 source ../../lib/parseme_st_data_dev_path.bash #Define the PARSEME_SHAREDTASK_DATA_DEV variable
-LANGUAGES=(AR BG DE EL EN ES EU FA FR HE HI HR HU IT LT PL PT RO SL TR)
+#LANGUAGES=(AR BG DE EL EN ES EU FA FR HE HI HR HU IT LT PL PT RO SL TR)
+LANGUAGES=(BG DE EL EN ES EU FA FR HE HI HR HU IT LT PL PT RO SL TR)
 CATS=(IAV IRV LVC.cause LVC.full MVC VID VPC.full VPC.semi LS.ICV) #VMWE categories
 
 ##############################################################################
@@ -45,19 +46,19 @@ if [ -f $PRED ]; then
 	for CAT in ${CATS[*]}; do		
     #echo $CAT
     #Check if the category is relevant for the language
-    cat $SYS_PATH/$LANG/results.txt > results.txt
-    P_MWE=`cat results.txt | grep "$CAT: MWE-based" | cut -d' ' -f4 | cut -d= -f 3`
-    R_MWE=`cat results.txt | grep "$CAT: MWE-based" | cut -d' ' -f5 | cut -d= -f 3`
-    F_MWE=`cat results.txt | grep "$CAT: MWE-based" | cut -d' ' -f6 | cut -d= -f 2`
-    P_TOKEN=`cat results.txt | grep "$CAT: Tok-based" | cut -d' ' -f4 | cut -d= -f 3`
-    R_TOKEN=`cat results.txt | grep "$CAT: Tok-based" | cut -d' ' -f5 | cut -d= -f 3`
-    F_TOKEN=`cat results.txt | grep "$CAT: Tok-based" | cut -d' ' -f6 | cut -d= -f 2`
+    cat $SYS_PATH/$LANG/results.txt > resultsCat.txt
+    P_MWE=`cat resultsCat.txt | grep "$CAT: MWE-based" | cut -d' ' -f4 | cut -d= -f 3 | awk '{print $0 * 100}'`
+    R_MWE=`cat resultsCat.txt | grep "$CAT: MWE-based" | cut -d' ' -f5 | cut -d= -f 3 | awk '{print $0 * 100}'`
+    F_MWE=`cat resultsCat.txt | grep "$CAT: MWE-based" | cut -d' ' -f6 | cut -d= -f 2 | awk '{print $0 * 100}'`
+    P_TOKEN=`cat resultsCat.txt | grep "$CAT: Tok-based" | cut -d' ' -f4 | cut -d= -f 3 | awk '{print $0 * 100}'`
+    R_TOKEN=`cat resultsCat.txt | grep "$CAT: Tok-based" | cut -d' ' -f5 | cut -d= -f 3 | awk '{print $0 * 100}'`
+    F_TOKEN=`cat resultsCat.txt | grep "$CAT: Tok-based" | cut -d' ' -f6 | cut -d= -f 2 | awk '{print $0 * 100}'`
     if [ $P_MWE ]; then  
       echo -n "$P_MWE $R_MWE $F_MWE $P_TOKEN $R_TOKEN $F_TOKEN "
     else
       echo -n "n/a n/a n/a n/a n/a n/a "
     fi
-    rm results.txt		
+    rm resultsCat.txt		
 	done
 	echo ""
 fi

@@ -11,11 +11,13 @@
 # Sample call:
 # ./step3-results2html-cat.all.sh ~/shared-task/Gitlab/sharedtask-data-dev/1.1/system-results 
 
-LANGUAGES=(AR BG DE EL EN ES EU FA FR HE HI HR HU IT LT PL PT RO SL TR)
+
+LANGUAGES=(BG DE EL EN ES EU FA FR HE HI HR HU IT LT PL PT RO SL TR)
+#LANGUAGES=(AR BG DE EL EN ES EU FA FR HE HI HR HU IT LT PL PT RO SL TR)
 
 #Check the number of parameters
 if [ $# -ne 1 ]; then
-	echo "usage: $0 results-dir gold-data-dir"
+	echo "usage: $0 results-dir"
 	echo "   results-dir = directory of system results. It should contain one folder per system, with one folder per language, with a results.txt file in each."
 	exit 1
 fi
@@ -38,6 +40,8 @@ echo "    border: 1px solid black;" >> $RES_HTML
 echo "    padding: 5px;" >> $RES_HTML
 echo "}" >> $RES_HTML
 echo "</style>" >> $RES_HTML
+
+echo "<h1 id=\"cat\">Results per VMWE category (not ranked)</h1>" >> $RES_HTML
 
 
 for f in `ls $RES_DIR/*.percat.txt`; do 

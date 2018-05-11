@@ -12,7 +12,8 @@
 # ./formatMacroAve.sh ~/shared-task/Gitlab/sharedtask-data-dev/1.1/system-results
 
 source ../../lib/parseme_st_data_dev_path.bash #Define the PARSEME_SHAREDTASK_DATA_DEV variable
-LANGUAGES=(AR BG DE EL EN ES EU FA FR HE HI HR HU IT LT PL PT RO SL TR)
+LANGUAGES=(BG DE EL EN ES EU FA FR HE HI HR HU IT LT PL PT RO SL TR)
+#LANGUAGES=(AR BG DE EL EN ES EU FA FR HE HI HR HU IT LT PL PT RO SL TR)
 PHENOMENA=(Continuous Discontinuous Multi-token Single-token Seen-in-train Unseen-in-train Variant-of-train Identical-to-train)
 MACRO_AVE="$PARSEME_SHAREDTASK_DATA_DEV/bin/average_of_evaluations.py" #Script for calculating macro-averages
 
@@ -42,24 +43,45 @@ SNAME=${SDIR%.*}  #Get the system name (directory prefix without .open or .close
 STRACK=${SDIR#*.} #Get the track (directory suffix: open or closed)
 #echo "System track: $STRACK"
 
+DUMMIES=""
+submitted=0
+total=0
+for lang in ${LANGUAGES[*]}; do
+  if [ ! -f ${SYS_PATH}/${lang}/results.txt ]; then
+    DUMMIES="$DUMMIES $SYS_PATH/../dummy/$lang/results.txt"
+  else
+    (( submitted++ ))
+  fi
+  (( total++ ))
+done
+
+# Ugly workaround to ignore languages that do not have single-token VMWEs
+for a in $SYS_PATH/*/results.txt $DUMMIES; do 
+  sed -i -e '/Single-token.*R=[0-9]*\/0=/d' -e '/Single-token.*gold=0\//d' $a 
+done
+
 #Get the macro-average for the system for all languages
-$MACRO_AVE $SYS_PATH/*/results.txt > $SYS_PATH/ave-results.txt
+#echo "Average over" $SYS_PATH/*/results.txt $DUMMIES > /dev/stderr
+$MACRO_AVE --operation avg $SYS_PATH/*/results.txt $DUMMIES > $SYS_PATH/ave-results.txt  
   
 #General macro-averages
-AVE_P_MWE=`cat $SYS_PATH/ave-results.txt | grep '* MWE-based' | cut -d' ' -f3 | cut -d= -f2`
-AVE_R_MWE=`cat $SYS_PATH/ave-results.txt | grep '* MWE-based' | cut -d' ' -f4 | cut -d= -f2`
-AVE_F_MWE=`cat $SYS_PATH/ave-results.txt | grep '* MWE-based' | cut -d' ' -f5 | cut -d= -f2`
-AVE_P_TOKEN=`cat $SYS_PATH/ave-results.txt | grep '* Tok-based' | cut -d' ' -f3 | cut -d= -f2`
-AVE_R_TOKEN=`cat $SYS_PATH/ave-results.txt | grep '* Tok-based' | cut -d' ' -f4 | cut -d= -f2`
-AVE_F_TOKEN=`cat $SYS_PATH/ave-results.txt | grep '* Tok-based' | cut -d' ' -f5 | cut -d= -f2`
-echo "$SNAME $STRACK $AVE_P_MWE $AVE_R_MWE $AVE_F_MWE $AVE_P_TOKEN $AVE_R_TOKEN $AVE_F_TOKEN" >> $RESULTS_DIR/macro-ave.${STRACK}.txt
+AVE_P_MWE=`cat $SYS_PATH/ave-results.txt | grep '* MWE-based' | cut -d' ' -f3 | cut -d= -f2 | awk '{print $0*100}'`
+AVE_R_MWE=`cat $SYS_PATH/ave-results.txt | grep '* MWE-based' | cut -d' ' -f4 | cut -d= -f2 | awk '{print $0*100}'`
+AVE_F_MWE=`cat $SYS_PATH/ave-results.txt | grep '* MWE-based' | cut -d' ' -f5 | cut -d= -f2 | awk '{print $0*100}'`
+AVE_P_TOKEN=`cat $SYS_PATH/ave-results.txt | grep '* Tok-based' | cut -d' ' -f3 | cut -d= -f2 | awk '{print $0*100}'`
+AVE_R_TOKEN=`cat $SYS_PATH/ave-results.txt | grep '* Tok-based' | cut -d' ' -f4 | cut -d= -f2 | awk '{print $0*100}'`
+AVE_F_TOKEN=`cat $SYS_PATH/ave-results.txt | grep '* Tok-based' | cut -d' ' -f5 | cut -d= -f2 | awk '{print $0*100}'`
+#AVE_LANGS=`cat $SYS_PATH/ave-results.txt | grep '* MWE-based' | cut -d' ' -f7 | sed 's/[)(@]//g'`
+echo "$SNAME $STRACK $AVE_P_MWE $AVE_R_MWE $AVE_F_MWE $AVE_P_TOKEN $AVE_R_TOKEN $AVE_F_TOKEN $total/$submitted" >> $RESULTS_DIR/macro-ave.${STRACK}.txt
 
 #Phenomenon-specific macro-averages
 for PH in ${PHENOMENA[*]}; do
-	AVE_P_MWE=`cat $SYS_PATH/ave-results.txt | grep "* $PH: MWE-based" | cut -d' ' -f4 | cut -d= -f2`
-	AVE_R_MWE=`cat $SYS_PATH/ave-results.txt | grep "* $PH: MWE-based" | cut -d' ' -f5 | cut -d= -f2`
-	AVE_F_MWE=`cat $SYS_PATH/ave-results.txt | grep "* $PH: MWE-based" | cut -d' ' -f6 | cut -d= -f2`
-	echo "$SNAME $STRACK $AVE_P_MWE $AVE_R_MWE $AVE_F_MWE" >> $RESULTS_DIR/macro-ave-${PH}.${STRACK}.txt
+	AVE_P_MWE=`cat $SYS_PATH/ave-results.txt | grep "* $PH: MWE-based" | cut -d' ' -f4 | cut -d= -f2 | awk '{print $0*100}'`
+	AVE_R_MWE=`cat $SYS_PATH/ave-results.txt | grep "* $PH: MWE-based" | cut -d' ' -f5 | cut -d= -f2 | awk '{print $0*100}'`
+	AVE_F_MWE=`cat $SYS_PATH/ave-results.txt | grep "* $PH: MWE-based" | cut -d' ' -f6 | cut -d= -f2  | awk '{print $0*100}'`
+  AVE_LANGS=`cat $SYS_PATH/ave-results.txt | grep "* $PH: MWE-based" | cut -d' ' -f8 | sed 's%@(\([0-9]*\)/.*)%\1%g'`
+  SUB_LANGS=`cat $SYS_PATH/*/results.txt | grep "* $PH: MWE-based" | wc -l | awk '{print $1}'`
+	echo "$SNAME $STRACK $AVE_P_MWE $AVE_R_MWE $AVE_F_MWE $SUB_LANGS/$AVE_LANGS" >> $RESULTS_DIR/macro-ave-${PH}.${STRACK}.txt
 done
 
 #rm results.txt
@@ -78,12 +100,18 @@ for PH in ${PHENOMENA[*]}; do
 		echo "system track ave-P-mwe ave-R-mwe ave-F-mwe rank" > $RESULTS_DIR/macro-ave-${PH}.ranked.txt #Initiate the ranking file
 done
 for TRACK in closed open; do
-	cat $RESULTS_DIR/macro-ave.${TRACK}.txt | sort -nr --key=8 | gawk '{if ($8=="0.0000") print $0, "n/a"; else print $0, NR}' | sort -nr --key=5 | gawk '{if ($5=="0.0000") print $0, "n/a"; else print $0, NR}' >> $RESULTS_DIR/macro-ave.ranked.txt	
+	cat $RESULTS_DIR/macro-ave.${TRACK}.txt | 
+  sort -nr --key=5 | gawk 'BEGIN{prev=-1}{if(prev != $5){r++} prev=$5; if ($5=="0") print $0, "n/a"; else print $0, r; }' | 
+  sort -nr --key=8 | gawk 'BEGIN{prev=-1}{if(prev != $8){r++} prev=$8; if ($8=="0") print $0, "n/a"; else print $0, r; }' |
+  sort -nr --key=5 |
+  cat  >> $RESULTS_DIR/macro-ave.ranked.txt	
 	rm $RESULTS_DIR/macro-ave.${TRACK}.txt
 	
 	#Rank per-phenomenon macro-averages
 	for PH in ${PHENOMENA[*]}; do		
-		cat $RESULTS_DIR/macro-ave-${PH}.${TRACK}.txt | sort -nr --key=5 | gawk '{if ($5=="0.0000") print $0, "n/a"; else print $0, NR}' >> $RESULTS_DIR/macro-ave-${PH}.ranked.txt	
+		cat $RESULTS_DIR/macro-ave-${PH}.${TRACK}.txt | 
+    sort -nr --key=5 | gawk 'BEGIN{prev=-1}{if(prev != $5){r++} prev=$5; if ($5=="0") print $0, "n/a"; else print $0, r; }' |
+    cat >> $RESULTS_DIR/macro-ave-${PH}.ranked.txt	
 		rm $RESULTS_DIR/macro-ave-${PH}.${TRACK}.txt
 	done
 done
@@ -94,7 +122,7 @@ done
 
 #Check the number of parameters
 if [ $# -ne 1 ]; then
-	echo "usage: $0 results-dir gold-data-dir"
+	echo "usage: $0 results-dir"
 	echo "   results-dir = directory of system results. It should contain one folder per system, with one folder per language, with a results.txt file in each."
 	exit 1
 fi

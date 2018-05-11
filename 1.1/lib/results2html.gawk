@@ -7,30 +7,15 @@
 # The output is an HTML table for the given language.
 
 BEGIN {
-#Print the language section and the table heading
-#print "<!DOCTYPE html>"
-#print "<html>"
-#print "<head>"
-#print "<style>"
-#print "table, th, td { "
-#print "    text-align:center;"
-#print "    border-collapse: collapse;"
-#print "    border: 1px solid black;"
-#print "    padding: 5px;"
-#print "}"
-#print "</style>"
-#print "</head>"
-#print "<body>"
-
 print "<!----------------------->"
-print "<h1>" ARGV[1] "</h1>"
+print "<h2 id=\"lang-" ARGV[1] "\">" ARGV[1] "</h2>"
 delete ARGV[1]
 
 print "<table>"
 print "<tbody>"
-print "<tr><th rowspan=\"2\">System</th><th rowspan=\"2\">Track</th><th colspan=\"4\">MWE-based results</th><th colspan=\"4\">Token-based results</th></tr>"
+print "<tr><th rowspan=\"2\">System</th><th rowspan=\"2\">Track</th><th colspan=\"4\">MWE-based </th><th colspan=\"4\">Token-based </th></tr>"
 
-print "<tr><th>Precision</th><th>Recall</th><th>F-measure</th><th>Rank</th><th>Precision</th><th>Recall</th><th>F-measure</th><th>Rank</th></tr>"
+print "<tr><th>P</th><th>R</th><th>F1</th><th>Rank</th><th>P</th><th>R</th><th>F1</th><th>Rank</th></tr>"
 
 track=""
 }
@@ -42,7 +27,7 @@ if (NR!=1) {
 		print "<tr style=\"border-top: 4px solid\">"
 	else
 		print "<tr>"
-	print "<td style=\"text-align:left\">" $1 "</td><td style=\"text-align:left\">" $2 "</td><td>" $3 "</td><td>" $4 "</td><td>" $5 "</td><td>" $9 "</td><td>" $6 "</td><td>" $7 "</td><td>" $8 "</td><td>" $10 "</td>"
+	print "<td style=\"text-align:left\">" $1 "</td><td style=\"text-align:left\">" $2 "</td><td>" $3 "</td><td>" $4 "</td><td><b>" $5 "</b></td><td>" $9 "</td><td>" $6 "</td><td>" $7 "</td><td><b>" $8 "</b></td><td>" $10 "</td>"
 	track = $2
 }
 }
@@ -51,8 +36,8 @@ END {
 #Print the table closing tags
 print "</tbody>"
 print "</table>"
-#print "</body>"
-#print "</html>"
+print "<br/>"
+print "<a href=\"#top-menu\">↑ Back to top</a>"
 }
 
 

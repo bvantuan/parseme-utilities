@@ -22,18 +22,16 @@ BEGIN {
 #print "<body>"
 
 print "<!----------------------->"
-print "<h1>" ARGV[1] " VMWEs</h1>"
+print "<h2 id=\"avg-" ARGV[1] "\">" ARGV[1] " VMWEs</h2>"
 delete ARGV[1]
 
 print "<table>"
 print "<tbody>"
-print "<tr><th rowspan=\"2\">System</th><th rowspan=\"2\">Track</th><th colspan=\"4\">MWE-based results</th></tr>"
+print "<tr><th rowspan=\"2\">System</th><th rowspan=\"2\">Track</th><th rowspan=\"2\">#Langs</th><th colspan=\"4\">MWE-based</th></tr>"
 
-print "<tr><th>Precision</th><th>Recall</th><th>F-measure</th><th>Rank</th></tr>"
+print "<tr><th>P</th><th>R</th><th>F1</th><th>Rank</th></tr>"
 
 track=""
-prevfm=-1
-rank=0
 }
 
 {
@@ -47,10 +45,8 @@ if (NR!=1) {
 	else {
 		print "<tr>"
   }    
-  if(prevfm != $5){ rank++ }
-	print "<td style=\"text-align:left\">" $1 "</td><td style=\"text-align:left\">" $2 "</td><td>" $3 "</td><td>" $4 "</td><td>" $5 "</td><td>" rank "</td></tr>"
+	print "<td style=\"text-align:left\">" $1 "</td><td style=\"text-align:left\">" $2 "</td><td>" $6 "<td>" $3 "</td><td>" $4 "</td><td><b>" $5 "</b></td><td>" $7 "</td></tr>"
 	track = $2
-  prevfm=$5
 }
 }
 
@@ -58,8 +54,8 @@ END {
 #Print the table closing tags
 print "</tbody>"
 print "</table>"
-#print "</body>"
-#print "</html>"
+print "<br/>"
+print "<a href=\"#top-menu\">↑ Back to top</a>"
 }
 
 

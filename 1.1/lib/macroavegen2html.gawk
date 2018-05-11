@@ -20,19 +20,15 @@ BEGIN {
 #print "<body>"
 
 print "<!----------------------->"
-print "<h1>General macro-average</h1>"
+print "<h2 id=\"avg-general\">General ranking</h2>"
 
 print "<table>"
 print "<tbody>"
-print "<tr><th rowspan=\"2\">System</th><th rowspan=\"2\">Track</th><th colspan=\"4\">Token-based results</th><th colspan=\"4\">MWE-based results</th></tr>"
+print "<tr><th rowspan=\"2\">System</th><th rowspan=\"2\">Track</th><th rowspan=\"2\">#Langs</th><th colspan=\"4\">MWE-based</th><th colspan=\"4\">Token-based</th></tr>"
 
-print "<tr><th>Precision</th><th>Recall</th><th>F-measure</th><th>Rank</th><th>Precision</th><th>Recall</th><th>F-measure</th><th>Rank</th></tr>"
+print "<tr><th>P</th><th>R</th><th>F1</th><th>Rank</th><th>P</th><th>R</th><th>F1</th><th>Rank</th></tr>"
 
 track=""
-prevfm=-1
-prevft=-1
-rankm=0
-rankt=0
 }
 
 {
@@ -40,17 +36,11 @@ if (NR!=1) {
 	#Separate tracks by a thick line
 	if ( ((track=="open") && ($2=="closed")) || ((track=="closed") && ($2=="open")) ) {
 		print "<tr style=\"border-top: 4px solid\">"
-    prevfm=-1
-    prevft=-1
-    rankm=0
-    rankt=0
   }
 	else {
 		print "<tr>"
   }
-  if(prevfm != $5){ rankm++ }
-  if(prevft != $5){ rankt++ }
-	print "<td style=\"text-align:left\">" $1 "</td><td style=\"text-align:left\">" $2 "</td><td>" $3 "</td><td>" $4 "</td><td>" $5 "</td><td>" rankt "</td><td>" $6 "</td><td>" $7 "</td><td>" $8 "</td><td>" rankm "</td>"
+	print "<td style=\"text-align:left\">" $1 "</td><td style=\"text-align:left\">" $2 "</td><td>" $9 "</td><td>" $3 "</td><td>" $4 "</td><td><b>" $5 "</b></td><td>" $10 "</td><td>" $6 "</td><td>" $7 "</td><td><b>" $8 "</b></td><td>" $11 "</td>"
 	track = $2
 }
 }
@@ -59,8 +49,8 @@ END {
 #Print the table closing tags
 print "</tbody>"
 print "</table>"
-#print "</body>"
-#print "</html>"
+print "<br/>"
+print "<a href=\"#top-menu\">↑ Back to top</a>"
 }
 
 

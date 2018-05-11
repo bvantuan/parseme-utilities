@@ -18,7 +18,7 @@ BEGIN {
 NB_CATS=8
 
 print "<!----------------------->"
-print "<h1>" ARGV[1] "</h1>"
+print "<h2 id=\"cat-" ARGV[1] "\">" ARGV[1] "</h2>"
 LANG = ARGV[1]
 delete ARGV[1]
 
@@ -33,8 +33,9 @@ track=""
 if (NR!=1) {
 	print "<tr>"
 	print "<td style=\"text-align:left\">" $1 "</td><td style=\"text-align:left\">" $2 "</td>"
-	for (i = 3; i <= NF; i++)
+	for (i = 3; i <= NF; i++) {    
 		print "<td>" $i "</td>"
+  }
 	print "<tr>"
 	track = $2
 }
@@ -56,12 +57,12 @@ else {
 
   print "<tr>"
   for (i=1; i<=catcount; i++)
-    print "<th colspan=\"3\">Per-MWE results</th><th colspan=\"3\">Per-token results</th>"
+    print "<th colspan=\"3\">MWE-based</th><th colspan=\"3\">Token-based</th>"
   print "</tr>\n"
 
   print "<tr>"
   for (i=1; i<=catcount; i++)
-    print "<th>Precision</th><th>Recall</th><th>F-measure</th><th>Precision</th><th>Recall</th><th>F-measure</th>"  
+    print "<th>P</th><th>R</th><th>F1</th><th>P</th><th>R</th><th>F1</th>"  
   print "<tr>"
   }
 }
@@ -70,8 +71,9 @@ END {
 #Print the table closing tags
 print "</tbody>"
 print "</table>"
-#print "</body>"
-#print "</html>"
+print "<br/>"
+print "<a href=\"#top-menu\">↑ Back to top</a>"
+
 }
 
 
