@@ -15,7 +15,9 @@
 # ./step2-formatEvalResults.sh ~/shared-task/Gitlab/sharedtask-data-dev/1.1/system-results
 
 source ../../lib/parseme_st_data_dev_path.bash #Define the PARSEME_SHAREDTASK_DATA_DEV variable
-LANGUAGES=(AR BG DE EL EN ES EU FA FR HE HI HR HU IT LT PL PT RO SL TR)
+#LANGUAGES=(AR BG DE EL EN ES EU FA FR HE HI HR HU IT LT PL PT RO SL TR)
+LANGUAGES=(BG DE EL EN ES EU FA FR HE HI HR HU IT LT PL PT RO SL TR)
+
 
 ##############################################################################
 # Get the evaluation results for a given system and a given language
@@ -66,8 +68,12 @@ for LANG in ${LANGUAGES[*]}; do
 #		echo "Processing $LANG.$TRACK.txt"
 		if [ -f $1/$LANG.$TRACK.txt ]; then
 			#Rank the systems according to 2 measures. If a system F-measure is 0, the ranking is not applicable
-			cat $1/$LANG.$TRACK.txt | sort -nr --key=5 | gawk '{if ($5=="0.0000") print $0, "n/a"; else print $0, NR}' | sort -nr --key=8 | gawk '{if ($8=="0.0000") print $0, "n/a"; else print $0, NR}' >> $1/$LANG.ranked.txt
-			rm -f $1/$LANG.$TRACK.txt
+			cat $1/$LANG.$TRACK.txt | 
+      sort -nr --key=5 | gawk 'BEGIN{prev=-1}{if(prev != $5){r++} prev=$5; if ($5=="0.0000") print $0, "n/a"; else print $0, r; }' | 
+      sort -nr --key=8 | gawk 'BEGIN{prev=-1}{if(prev != $8){r++} prev=$8; if ($8=="0.0000") print $0, "n/a"; else print $0, r; }' |
+      sort -nr --key=5 |
+      cat >> $1/$LANG.ranked.txt
+			#rm -f $1/$LANG.$TRACK.txt
 		fi
 	done
 done

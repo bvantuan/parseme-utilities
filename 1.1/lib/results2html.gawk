@@ -28,7 +28,7 @@ delete ARGV[1]
 
 print "<table>"
 print "<tbody>"
-print "<tr><th rowspan=\"2\">System</th><th rowspan=\"2\">Track</th><th colspan=\"4\">Token-based results</th><th colspan=\"4\">MWE-based results</th></tr>"
+print "<tr><th rowspan=\"2\">System</th><th rowspan=\"2\">Track</th><th colspan=\"4\">MWE-based results</th><th colspan=\"4\">Token-based results</th></tr>"
 
 print "<tr><th>Precision</th><th>Recall</th><th>F-measure</th><th>Rank</th><th>Precision</th><th>Recall</th><th>F-measure</th><th>Rank</th></tr>"
 

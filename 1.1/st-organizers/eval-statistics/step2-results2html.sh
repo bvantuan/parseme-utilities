@@ -11,11 +11,12 @@
 # Sample call:
 # ./step2-results2html.all.sh ~/shared-task/Gitlab/sharedtask-data-dev/1.1/system-results
 
-LANGUAGES=(AR BG DE EL EN ES EU FA FR HE HI HR HU IT LT PL PT RO SL TR)
+#LANGUAGES=(AR BG DE EL EN ES EU FA FR HE HI HR HU IT LT PL PT RO SL TR)
+LANGUAGES=(BG DE EL EN ES EU FA FR HE HI HR HU IT LT PL PT RO SL TR)
 
 #Check the number of parameters
 if [ $# -ne 1 ]; then
-	echo "usage: $0 results-dir gold-data-dir"
+	echo "usage: $0 results-dir"
 	echo "   results-dir = directory of system results. It should contain one folder per system, with one folder per language, with a results.txt file in each."
 	exit 1
 fi
@@ -49,7 +50,7 @@ for f in `ls $RES_DIR/*.ranked.txt`; do
 done
 
 #Delete the formatted results
-for LANG in ${LANGUAGES[*]}; do
-	rm -f $RES_DIR/$LANG.ranked.txt
-done
+#for LANG in ${LANGUAGES[*]}; do
+	#rm -f $RES_DIR/$LANG.ranked.txt
+#done
 
