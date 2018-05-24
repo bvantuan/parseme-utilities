@@ -55,7 +55,7 @@ class Main:
         if ( not self.categs or mwe_occur.category in self.categs ) : 
           order = mwe_occur.fixed if self.args.no_reorder else mwe_occur.reordered
           # test if filtering lemmas contained in VMWE lemmas
-          if ( not self.lemmas or set(self.lemmas) <= set(order.mwe_lemmatized_form) ) : 
+          if ( not self.lemmas or set(self.lemmas) <= set(order.likely_lemmatizedform) ) : 
             inflect = order.likely_canonicform if self.args.canonical else order.likely_lemmatizedform
             self.canonic2occurs[tuple(inflect)].append(mwe_occur)
     for canonic, mwe_occurs in self.canonic2occurs.items():
