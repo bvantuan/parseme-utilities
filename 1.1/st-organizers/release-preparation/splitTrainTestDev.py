@@ -133,7 +133,7 @@ class IntSplit:
 
 def decide_split(n_mwes: int) -> IntSplit:
     r"""Return an IntSplit."""
-    if n_mwes < 500:
+    if n_mwes < 550:
         tenth = n_mwes//10
         return IntSplit(train=tenth, test=n_mwes-tenth, dev=0)
     if n_mwes < 1500:
