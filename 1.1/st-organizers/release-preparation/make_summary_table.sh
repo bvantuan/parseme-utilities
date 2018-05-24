@@ -15,11 +15,17 @@ fi
 # change line 18 below to (train|dev|test) if you also want test data stats
 
 
-cat 1.1/*/*/*-stats.md | 
+for a in 1.1/*/??/; do
+  if [ -f $a/dev-stats.md ]; then
+    cat $a/{train,dev,test}-stats.md
+  elif [ -f $a/train-stats.md ]; then
+    cat $a/{train,test}-stats.md
+  fi
+done |
 grep -v "=" | 
 sed -e 's@## File: [A-Z][A-Z]/@@g' -e 's/.cupt//g'\
     -e 's/Language: //g' -e 's/^\*.*: //g' |   
-awk '/(train|dev)/{ # (train|data|dev) #<= CHANGEME IF NEEDED!
+awk '/(train|dev|test)/{ # (train|test|dev) #<= CHANGEME IF NEEDED!
   head=$0; 
   getline; sent=$1; tsent+=sent; 
   getline; tok=$1; ttok += tok; 
@@ -55,15 +61,15 @@ awk '/(train|dev)/{ # (train|data|dev) #<= CHANGEME IF NEEDED!
       rowsep = "<tr><td colspan="13"><hr/></td></tr>";    
     }
     else if(outformat == "latex"){
-      bline = "\\hline\n";      eline = " \\\\";    OFS = " & ";
-      print("\\begin{tabular}{lrrrrrrrr}");
+      bline = "";      eline = " \\\\";    OFS = " & ";
+      print("\\begin{tabular}{lrrrrrrrrrrrrrr}");
       rowsep = "\\hline";
     }
     else{
       bline = "";      eline = "";      OFS = "\t";
       rowsep = "---------------------------------------------------------"
     }    
-    print bline "Language","Sentences","Tokens","VMWE", "VID", "IRV", "LVC.full", "LVC.cause", "VPC.full", "VPC.semi", "IAV", "MVC", "LS.ICV" eline;    
+    print bline "Lang-split","Sentences","Tokens","VMWE", "VID", "IRV", "LVC.full", "LVC.cause", "VPC.full", "VPC.semi", "IAV", "MVC", "LS.ICV" eline;    
     if(outformat == "html"){  
       bline = "<tr><td style=\"text-align:left\">";
       OFS = "</td><td>";
