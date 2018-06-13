@@ -401,17 +401,24 @@ class Sentence:
 
     def iter_root_to_leaf_all_tokens(self):
         r'''Yield all Tokens in sentence, from root to leaves (aka topological sort).
-        May NOT yield all tokens if there is missing dependency information.
+        Tokens with missing HEAD information are yielded first.
         '''
         children = collections.defaultdict(list)  # dict[str, list[Token]]
         for token in self.tokens:
             if token.has_dependency_info():
                 children[token['HEAD']].append(token)
-        to_visit = collections.deque(children['0'])
+
+        to_visit, output = collections.deque(children['0']), []
         while to_visit:
             current = to_visit.popleft()
             to_visit.extend(children[current.rank])
-            yield current
+            output.append(current)
+
+        seen = set(output)
+        for token in self.tokens:
+            if not token in seen:
+                yield token
+        yield from output
 
 
     def check_and_convert_categ(self, categ):
@@ -627,17 +634,13 @@ class MWEOccurView:
 
     def iter_root_to_leaf_mwe_tokens(self):
         r'''Yield Tokens in MWE, from closest-to-root to leaves (aka topological sort).
-        May NOT yield all tokens if there is missing dependency information.
+        Tokens with missing HEAD information are yielded first.
         '''
         # We use ranks because we sometimes replace tokens (e.g. _fixed_token above)...
         mwe_ranks = set(token.rank for token in self.tokens)
         for token in self.mwe_occur.sentence.iter_root_to_leaf_all_tokens():
             if token.rank in mwe_ranks:
                 yield token
-
-    def rerooted_tokens(self):
-        r'''Return re-rooted Tokens (sorted from the closest-to-root towards the leaves).'''
-        return rerooted(self.iter_root_to_leaf_mwe_tokens())
 
 
 def rerooted(tokens):
@@ -652,7 +655,9 @@ def rerooted(tokens):
         oldrank2new[t.rank] = str(len(ret)+1)
         t = t.with_update(ID=oldrank2new[t.rank])
 
-        if t['HEAD'] in oldrank2new:
+        if 'HEAD' not in t:
+            pass  # leave `t` unrooted
+        elif t['HEAD'] in oldrank2new:
             t = t.with_update(HEAD=oldrank2new[t['HEAD']])
         else:
             t = t.with_update(DEPREL='root', HEAD='0')
@@ -663,6 +668,10 @@ def rerooted(tokens):
 
 class RootedMWEOccur(collections.namedtuple('RootedMWEOccur', 'mweoccur rooted_tokens')):
     r"""Represents an MWEOccur along with its tokens in root-to-leaf order"""
+    def n_dangling_unrooted(self):
+        r"""Number of tokens that are not rooted (these are bad!)."""
+        return len(self.mweoccur.raw.tokens) - len(self.rooted_tokens)
+
     def n_attachments_to_root(self):
         r"""Return the number of syntactic attachments where HEAD=='0'."""
         return sum(1 for t in self.rooted_tokens if t.get('HEAD') == '0')
@@ -676,12 +685,16 @@ class RootedMWEOccurList(list):
     r"""List of RootedMWEOccur objects sharing the same lemma+syntax)."""
     def __gt__(self, other):
         r"""A RootedMWEOccurList is greater than another one if (in this order):
+        * It has the fewest number of unrooted tokens (we need 0 unrooted tokens).
         * It has the fewest attachments to root (we don't like disconnected subtrees).
         * It has the most number of examples in rooted_tokens (we want the most common lemma+syntax).
         * It has smaller RootedMWEOccur.cmp_key() value (tie-breaker, for determinism).
         """
+        # (all elements in a RootedMWEOccurList should have the same `n` attachments, so we just use self[0])
+        if self[0].n_dangling_unrooted() < other[0].n_dangling_unrooted():
+            return True
         if self[0].n_attachments_to_root() < other[0].n_attachments_to_root():
-            return True  # (all elements in a RootedMWEOccurList should have the same `n` attachments)
+            return True
         if len(self) > len(other):
             return True
         return [t.cmp_key() for t in self] < [t.cmp_key() for t in other]
@@ -743,7 +756,7 @@ class MWELexicalItem:
 
 
     def most_common_rooted_tokens_and_example(self):
-        r'''Return the most common output from `mweoccur.rerooted_tokens()`
+        r'''Return the most common output from `rerooted(mweoccur.raw.iter_root_to_leaf_mwe_tokens())`
         for all mweoccurs in `self`, along with an example MWEOccur which has these re-rooted tokens.
 
         @rtype RootedMWEOccur.
@@ -754,7 +767,7 @@ class MWELexicalItem:
             rooted_tokens = tuple(rerooted(mweoccur.raw.iter_root_to_leaf_mwe_tokens()))
             lemmasyntax = tuple((t.lemma_or_surface(), t.get('HEAD'), t.get('DEPREL')) for t in rooted_tokens)
             lemmasyntax2rootedmweoccur[lemmasyntax].append(
-                RootedMWEOccur(mweoccur, rooted_tokens))
+                RootedMWEOccur(mweoccur, rooted_tokens))  # append to RootedMWEOccurList
 
         majority_mweoccurs = max(lemmasyntax2rootedmweoccur.values())
         return max(majority_mweoccurs, key=RootedMWEOccur.cmp_key)
@@ -1590,6 +1603,7 @@ class DependencyBasedSkippedFinder(AbstractSkippedFinder):
             example_mweoccur, rooted_tokens = rootedmweoccur
             n_roots = rootedmweoccur.n_attachments_to_root()
 
+            assert rootedmweoccur.n_dangling_unrooted() == 0, rootedmweoccur
             if not all(t.has_dependency_info() for t in rooted_tokens):
                 example_mweoccur.sentence.warn(
                     'Skipping MWE with partial dependency info: {}'.format("_".join(mwe.canonicform)))
@@ -1627,6 +1641,8 @@ class _SingleMWEFinder(collections.namedtuple(
 
     def find_indexes(self):
         r"""Yield Skipped MWE occurrence indexes in sentence (may yield 2+ MWEs in rare cases)."""
+        assert len(self.mwe.canonicform) == sum(len(v) for v in self.lemmabag.dict.values()), \
+                (self.mwe.canonicform, self.lemmabag.dict)
         rank2index = self.sentence.rank2index()
 
         already_matched = MWEBagAlreadyMatched.EMPTY
