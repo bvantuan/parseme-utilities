@@ -62,12 +62,15 @@ class Main:
                    for m in self.args.literal_finding_method]
 
         sentences = list(sentences)  # allow multiple iterations
+        gold_mweoccurs = dataalign.MWEOccurSet()
+        gold_mweoccurs.add_mweoccurs_from_all(sentences, self.args.lang)
+
         for finder, find_method in zip(finders, self.args.literal_finding_method):
             for mwe, mweoccur in finder.find_skipped_in(sentences):
-                # Only add 'Skipped' if a MWE was not seen at this position
-                if mweoccur.mweo_id() not in self.mweoccur_id2finders:
+                # Only add 'Skipped' if no MWE has been annotated at this position
+                if not gold_mweoccurs.contains_suspiciously_similar(mweoccur):
                     mwe.add_skipped_mweoccur(mweoccur)
-                self.mweoccur_id2finders[mweoccur.mweo_id()].add(find_method)
+                    self.mweoccur_id2finders[mweoccur.mweo_id()].add(find_method)
 
 
     def print_categories(self):

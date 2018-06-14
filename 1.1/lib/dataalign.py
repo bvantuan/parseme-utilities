@@ -515,6 +515,29 @@ class MWEOccur:
             and (set(self.indexes) & set(other.indexes))
 
 
+class MWEOccurSet:
+    r'''Represents a set of MWEOccur objects.'''
+    def __init__(self):
+        self._mweos = collections.defaultdict(list)
+
+    def add_mweoccur(self, mweo: MWEOccur):
+        r'''Add the MWEOccur to this set.'''
+        self._mweos[(mweo.sentence.file_path, mweo.sentence.nth_sent)].append(mweo)
+
+    def add_mweoccurs_from_all(self, sentences: list, lang: str):
+        r'''Add MWEOccur instances for all sentences.'''
+        for sent in sentences:
+            for mweo in sent.mwe_occurs(lang):
+                self.add_mweoccur(mweo)
+
+    def contains_suspiciously_similar(self, mweo: MWEOccur):
+        r'''Return True iff `mwe.suspiciously_similar(x)` is True for some `x` stored in `self`.'''
+        for other in self._mweos[(mweo.sentence.file_path, mweo.sentence.nth_sent)]:
+            if mweo.suspiciously_similar(other):
+                return True
+        return False
+
+
 class MWEOccurView:
     r'''Represents a view of the tokens inside an MWEOccur.
     The token order may be different from the literal order in the Sentence.

@@ -221,7 +221,7 @@ class VerbInfoCalculator:
         sentences = list(sentences)  # allow multiple iterations
         for finder in finders:
             for mwe, mweoccur in finder.find_skipped_in(sentences):
-                # Add 'Skipped', but only if a MWE was not seen at this position
+                # Add 'Skipped', but only if this MWE was not seen at this position
                 mwe.add_skipped_mweoccur(mweoccur)
 
 
