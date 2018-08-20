@@ -25,12 +25,18 @@ done |
 grep -v "=" | 
 sed -e 's@## File: [A-Z][A-Z]/@@g' -e 's/.cupt//g'\
     -e 's/Language: //g' -e 's/^\*.*: //g' |   
-awk 'BEGIN{ }
-/(train|dev|test)/{ # (train|test|dev) #<= CHANGEME IF NEEDED!  
+awk 'BEGIN{   prevlang = "XX";}
+/(test|train|dev)/{ # (train|test|dev) #<= CHANGEME IF NEEDED!  
   head=$0 "  ";   
-  if(prevlang!=lang && NR != 3){
+  if(prevlang!=lang && prevlang != "XX"){    
     print rowsep;
-    print bline prevlang "-Total" , langsent, langtok, int(10*(langtok/langsent))/10,langvmwe, langvid, langirv, langlvcfull, langlvccause, langvpcfull, langvpcsemi, langiav, langmvc, langlsicv eline;    
+    if (langsent!=0){
+      avglength = int(10*(langtok/langsent))/10;
+    }
+    else{
+      avglength = NR;
+    }
+    print bline prevlang "-Total" , langsent, langtok, avglength,langvmwe, langvid, langirv, langlvcfull, langlvccause, langvpcfull, langvpcsemi, langiav, langmvc, langlsicv eline;    
     print langsep;    
     langsent=0; langtok=0; langvmwe=0; langvid=0; langlvcfull=0; langlvccause=0; langvpcfull=0; langvpccause=0; langvpcsemi=0; langiav=0; langmvc=0; langlsicv=0;
   }
@@ -82,7 +88,7 @@ awk 'BEGIN{ }
 
     }    
     print langsep; 
-    print bline "Lang-split","Sent","Tok","Avg. sent","VMWE", "VID", "IRV", "LVC.full", "LVC.cause", "VPC.full", "VPC.semi", "IAV", "MVC", "LS.ICV" eline;   
+    print bline "Lang-split","Sent","Tok","Avg.","VMWE", "VID", "IRV", "LVC.f", "LVC.c", "VPC.f", "VPC.s", "IAV", "MVC", "LS.ICV" eline;   
     print langsep; 
     if(outformat == "html"){  
       bline = "<tr><td style=\"text-align:left\">";
