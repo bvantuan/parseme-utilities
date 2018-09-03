@@ -1542,7 +1542,8 @@ class WindowBasedSkippedFinder(AbstractSkippedFinder):
 
     def _find_skipped_mwe_at(self, sentence, mwe, i_head):
         r"""Yield a Skipped MWE or nothing at all."""
-        unmatched_words = collections.Counter(mwe.lemma_or_surface_list())
+        unmatched_words = collections.Counter(
+            x.lower() for x in mwe.lemma_or_surface_list())
         matched_indexes = []
 
         def matched(wordform, i):
