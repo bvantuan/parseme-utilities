@@ -15,7 +15,7 @@ fi
 # change line 18 below to (train|dev|test) if you also want test data stats
 
 
-for a in 1.1/*/??/; do
+for a in preliminary-sharedtask-data/??/; do
   if [ -f $a/dev-stats.md ]; then
     cat $a/{train,dev,test}-stats.md
   elif [ -f $a/train-stats.md ]; then
@@ -24,7 +24,7 @@ for a in 1.1/*/??/; do
 done |
 grep -v "=" | 
 sed -e 's@## File: [A-Z][A-Z]/@@g' -e 's/.cupt//g'\
-    -e 's/Language: //g' -e 's/^\*.*: //g' |   
+    -e 's/Language: //g' -e 's/^\*.*: //g' |
 awk 'BEGIN{   prevlang = "XX";}
 /(test|train|dev)/{ # (train|test|dev) #<= CHANGEME IF NEEDED!  
   head=$0 "  ";   
@@ -44,7 +44,6 @@ awk 'BEGIN{   prevlang = "XX";}
   getline; tok=$1; ttok += tok; langtok+=tok;
   getline; vmwe=$1;tvmwe+=vmwe; langvmwe+=vmwe;
   vid = 0; irv=0; lvcfull=0; vpcfull=0; vpcsemi=0; lvccause=0; iav=0; mvc=0; lsicv=0;
-  langvid = 0; langirv=0; langlvcfull=0; langvpcfull=0; langvpcsemi=0; langlvccause=0; langiav=0; langmvc=0; langlsicv=0; 
   do{
     getline; 
     if($2 == "`VID`:"){    vid = $3; tvid += vid; langvid+= vid;   }
