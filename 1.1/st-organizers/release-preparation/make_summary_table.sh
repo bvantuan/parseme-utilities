@@ -87,7 +87,7 @@ awk 'BEGIN{   prevlang = "XX";}
 
     }    
     print langsep; 
-    print bline "Lang-split","Sent","Tok","Avg.","VMWE", "VID", "IRV", "LVC.f", "LVC.c", "VPC.f", "VPC.s", "IAV", "MVC", "LS.ICV" eline;   
+    print bline "Lang-split","Sentences","Tokens","Avg. length","VMWE", "VID", "IRV", "LVC.full", "LVC.cause", "VPC.full", "VPC.semi", "IAV", "MVC", "LS.ICV" eline;   
     print langsep; 
     if(outformat == "html"){  
       bline = "<tr><td style=\"text-align:left\">";
