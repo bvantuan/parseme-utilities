@@ -38,7 +38,7 @@ awk 'BEGIN{   prevlang = "XX";}
     }
     print bline prevlang "-Total" , langsent, langtok, avglength,langvmwe, langvid, langirv, langlvcfull, langlvccause, langvpcfull, langvpcsemi, langiav, langmvc, langlsicv eline;    
     print langsep;    
-    langsent=0; langtok=0; langvmwe=0; langvid=0; langlvcfull=0; langlvccause=0; langvpcfull=0; langvpccause=0; langvpcsemi=0; langiav=0; langmvc=0; langlsicv=0;
+    langsent=0; langtok=0; langvmwe=0; langvid=0; langlvcfull=0; langlvccause=0; langvpcfull=0; langvpccause=0; langvpcsemi=0; langiav=0; langmvc=0; langlsicv=0; langirv=0;
   }
   getline; sent=$1; tsent+=sent; langsent+=sent;
   getline; tok=$1; ttok += tok; langtok+=tok;
