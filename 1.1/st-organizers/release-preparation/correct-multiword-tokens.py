@@ -48,7 +48,7 @@ class Main:
 
   def iter_sentences(self, verbose=True):
     r"""Yield all sentences in `self.args.cupt`"""
-    for elem in dataalign.iter_aligned_files(self.args.cupt, None, keep_nvmwes=True, debug=verbose):
+    for elem in dataalign.IterAlignedFiles(self.args.lang, self.args.cupt, None, keep_nvmwes=True, debug=verbose):
       if isinstance(elem, dataalign.Sentence):
         yield elem
 

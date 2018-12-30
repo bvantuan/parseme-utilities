@@ -27,8 +27,8 @@ class Main:
     def run(self):
         self.conllu_paths = self.args.conllu \
                 or dataalign.calculate_conllu_paths(self.args.input, warn=False)
-        for sentence in dataalign.iter_aligned_files(self.args.input, self.conllu_paths,
-                keep_nvmwes=False, debug=False):
+        for sentence in dataalign.IterAlignedFiles(self.args.lang,
+                self.args.input, self.conllu_paths, keep_nvmwes=False, debug=False):
             for mweannot in sentence.mweannots:
                 self.counter[mweannot.category] += 1
             self.sents += 1

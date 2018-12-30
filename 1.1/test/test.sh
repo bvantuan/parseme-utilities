@@ -53,8 +53,8 @@ for annot_file in "${annot_files[@]}"; do
     #===> st-organization scripts
     run_devnull ../st-organizers/folia2parsemetsv.py --lang PT --input "$annot_file"
     run_devnull ../st-organizers/folia2parsemetsv.py --lang PT --input "$annot_file" --keep-non-vmwes
-    run_devnull ../st-organizers/parsemetsv2cupt.py --input "$annot_file" --artificial
-    run_devnull ../st-organizers/parsemetsv2cupt.py --input "$annot_file" --artificial --underspecified-mwes
+    run_devnull ../st-organizers/parsemetsv2cupt.py  --lang PT --input "$annot_file" --artificial
+    run_devnull ../st-organizers/parsemetsv2cupt.py  --lang PT --input "$annot_file" --artificial --underspecified-mwes
 
     #===> corpus-stats scripts
     run_devnull ../st-organizers/corpus-statistics/folia2idiomaticityStats.py --lang PT --input "$annot_file" --literal-finding-method WindowGap0  --out-mweoccurs _deleteme1

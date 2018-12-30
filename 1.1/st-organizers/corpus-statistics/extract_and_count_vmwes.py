@@ -71,8 +71,8 @@ class Main:
 
   def iter_sentences(self, verbose=True):
     r"""Yield all sentences in `self.args.parsemetsv` (aligned, if CoNLL-U was provided)"""
-    conllu_path = self.args.conllu or dataalign.calculate_conllu_paths(self.args.parsemetsv, warn=verbose)
-    for elem in dataalign.iter_aligned_files(self.args.parsemetsv, conllu_path, keep_nvmwes=True, debug=verbose):
+    conllu_paths = self.args.conllu or dataalign.calculate_conllu_paths(self.args.parsemetsv, warn=verbose)
+    for elem in dataalign.IterAlignedFiles(self.args.lang, self.args.parsemetsv, conllu_paths, keep_nvmwes=True, debug=verbose):
       if isinstance(elem, dataalign.Sentence):
         yield elem
 

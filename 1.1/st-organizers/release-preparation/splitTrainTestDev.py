@@ -28,8 +28,8 @@ class Main:
         self.last2subcorpus = {rng["last"]: sc for sc in self.subcorpora for rng in sc.ranges}
 
     def run(self):
-        sents = list(dataalign.iter_aligned_files(
-            self.args.input, None, keep_nvmwes=False))
+        sents = list(dataalign.IterAlignedFiles(
+            self.args.lang, self.args.input, None, keep_nvmwes=False))
 
         # Calculate number of sentences and MWEs for subcorpora
         for sent, subcorpus in self.iter_sentence_with_subcorpus(sents):
@@ -102,7 +102,7 @@ class Main:
         cur_subcorpus = None
         for sent in sentences:
             with dataalign.InputContext(sent):
-                sentid = sent.unique_toplevel_metadata('source_sent_id').split()[-1]
+                sentid = sent.unique_kv_pair('source_sent_id').value.split()[-1]
                 if sentid in self.first2subcorpus:
                     assert cur_subcorpus is None, ("Sentence inside multiple subcorpora", sentid)
                     cur_subcorpus = self.first2subcorpus[sentid]

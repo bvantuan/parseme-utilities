@@ -34,10 +34,10 @@ class Main:
     def run(self):
         self.tgz_begin()
         self.conllu_paths = self.args.conllu or dataalign.calculate_conllu_paths(self.args.input)
-        for sentence in dataalign.iter_aligned_files(self.args.input, self.conllu_paths,
+        for sentence in dataalign.IterAlignedFiles(self.args.lang, self.args.input, self.conllu_paths,
                 keep_nvmwes=self.args.keep_non_vmwes, debug=self.args.debug):
-            for toplevel_comment in sentence.toplevel_comments:
-                print(toplevel_comment.to_tsv())
+            for kv_pair in sentence.kv_pairs:
+                print(kv_pair.to_tsv())
             for token, mwecodes in sentence.tokens_and_mwecodes():
                 surface_form = token.surface or dataalign.EMPTY
                 nsp = "nsp" if token.nsp else dataalign.EMPTY
