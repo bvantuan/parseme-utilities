@@ -147,7 +147,6 @@ class Metadata(KVPair, abc.ABC):
     * nested: A list of `CommentMetadata`s
     """
     TSV_REGEX = re.compile(r'^# *metadata *= *(.*)$')
-    key = "metadata"
 
     def __init__(self, kind: str, *,
                  annotator: str = None, annotatortype: str = None,
@@ -219,18 +218,11 @@ class Metadata(KVPair, abc.ABC):
         r"""Return a Metadata for given dict."""
         kind = data_dict.pop("kind")
         if kind == "comment":
-            ret = CommentMetadata(data_dict.pop("value"))
+            return CommentMetadata(text=data_dict.pop("text"), **data_dict)
         elif kind == "mweinfo":
-            ret = MWEAnnotMetadata()
+            return MWEAnnotMetadata(**data_dict)
         else:
             raise Exception("Unknown metadata kind: {!r}".format(kind))
-
-        ret.annotator = data_dict.pop('annotator', None)
-        ret.annotatortype = data_dict.pop('annotatortype', None)
-        ret.datetime = data_dict.pop('datetime', None)
-        ret.confidence = data_dict.pop('confidence', None)
-        assert not data_dict, data_dict
-        return ret
 
     @property
     def key(self):
@@ -266,17 +258,17 @@ class CommentMetadata(Metadata):
 
 class MWEAnnotMetadata(Metadata):
     r"""Metadata representing an MWE annotation."""
-    def __init__(self, **kwargs):
+    def __init__(self, categ=None, token_ids=None, token_indexes=None, **kwargs):
         super().__init__(kind="mweannot", **kwargs)
-        self.linked_mweoccur = None  # type: MWEOccur
         self.mweid = None  # type: Optional[int]
+        # Ignore these values if given, we will link to an MWEOccur later anyway
+        _ignore = (categ, token_ids, token_indexes)
 
     def specific_properties(self):
-        if self.linked_mweoccur is None:
-            raise Exception("Not yet linked to an MWEOccur")
-        return [("mweid", self.mweid),
-                ("categ", self.linked_mweoccur.category),
-                ("indexes", self.linked_mweoccur.indexes)]
+        if self.mweid:
+            return [("mweid", self.mweid)]
+        do_warn("BUG: field mweid is missing from metadata")
+        return []
 
 
 
@@ -390,6 +382,7 @@ class Sentence:
         self.tokens = []              # type: list[Token]
         self.mweannots = []           # type: list[MWEAnnot]
         self.mweannots_folia = []     # type: list[folia.Entity]
+        self.mweoccurs = []           # type: list[MWEOccur]
 
     @property
     def file_path(self):
@@ -409,6 +402,10 @@ class Sentence:
 
     def mwe_occurs(self):
         r"""Yield MWEOccur instances for all MWEs in self."""
+        yield from self.mweoccurs
+        return
+
+        # XXX
         rank2index = self.rank2index()
         for mwe_index, mweannot in enumerate(self.mweannots):
             metadata = Metadata.from_folia(self.mweannots_folia[mwe_index]) \
@@ -450,18 +447,24 @@ class Sentence:
                 self.warn("Removed duplicate MWE: {}".format(mweannot))
 
 
-    def re_tokenize(self, new_tokens, indexmap):
+    def re_tokenize(self, new_tokens: 'list[Token]', indexmap: 'dict[int,list[int]]'):
         r"""Replace `self.tokens` with given tokens and fix `self.mweannot` based on `indexmap`"""
         rank2index = self.rank2index()
         self_nsps = set(i for (i, t) in enumerate(self.tokens) if t.nsp)
         self.tokens = [t.with_nospace(i in self_nsps) for (i, t) in enumerate(new_tokens)]
         self.mweannots = [self._remap(m, rank2index, indexmap) for m in self.mweannots]
+        self.mweoccurs = [self._remap_mweoccur(m, indexmap) for m in self.mweoccurs]
 
     def _remap(self, mweannot, rank2index, indexmap):
         r"""Remap `mweannot` using new `self.tokens`."""
         new_indexes = [i_new for i_old in mweannot.indexes(rank2index)
                 for i_new in indexmap[i_old]]  # Python's syntax for a flatmap...
         return MWEAnnot(tuple(self.tokens[i].rank for i in new_indexes), mweannot.category)
+
+    def _remap_mweoccur(self, mweoccur: 'MWEOccur', indexmap: 'dict[int,list[int]]'):
+        r"""Remap `mweoccur` using new `self.tokens`."""
+        new_indexes = [i_new  for i_old in mweoccur.indexes for i_new in indexmap[i_old]]  # flatmap
+        return MWEOccur(mweoccur.sentence, new_indexes, mweoccur.category, mweoccur.metadata)
 
 
     def errprefix(self, *, short=True):
@@ -517,16 +520,27 @@ class Sentence:
         return categ
 
 
-    def print_conllup_comments(self, output=sys.stdout):
-        r"""Print comments in CoNLL-UP format."""
-        if not any(kv.key == "sent_id" for kv in self.kv_pairs):
-            print(self.calc_artificial_sent_id().to_tsv(), file=output)
-        if not any(kv.key == "text" for kv in self.kv_pairs):
-            print(self.calc_artificial_text().to_tsv(), file=output)
+    def kvs_with_key(self, key: str):
+        r"""Return the number of kv_pairs with the given key."""
+        return sum(int(kv.key == key) for kv in self.kv_pairs)
 
-        for kv_pair in self.kv_pairs:
+    def print_conllup_comments(
+            self, *, output=sys.stdout,
+            gen_missing_req_keys=True, sent_id_key="sent_id"):
+        r"""Print comments in CoNLL-UP format."""
+        kv_pairs = list(self.kv_pairs)
+
+        if gen_missing_req_keys:
+            if self.kvs_with_key(sent_id_key) == 0:
+                kv_pairs.insert(0, self.calc_artificial_sent_id(sent_id_key))
+            if self.kvs_with_key("text") == 0:
+                idx_sentid = next(i for (i, kv) in enumerate(kv_pairs) if kv.key == sent_id_key)
+                kv_pairs.insert(idx_sentid+1, self.calc_artificial_text())
+
+        for kv_pair in kv_pairs:
             print(kv_pair.to_tsv(), file=output)
-        for mweoccur in self.mwe_occurs():
+        for mweid, mweoccur in enumerate(self.mwe_occurs(), 1):
+            mweoccur.metadata.mweid = mweid
             print(mweoccur.metadata.to_tsv(), file=output)
 
 
@@ -561,12 +575,10 @@ class MWEOccur:
     In a type/token distinction: MWELexicalItem is a type and MWEOccur is a token.
 
     Parameters:
-    @type  sentence: Sentence
     @param sentence: the sentence in which this MWEOccur was seen
-    @type  indexes: list[int]
     @param indexes: the indexes of the MWE inside `sentence`
-    @type  category: str
     @param category: one of {VID, LVC, IRV...}
+    @param metadata: an instance of MWEAnnotMetadata with extra information (may be a dummy empty instance)
 
     Attributes:
     @type  raw: MWEOccurView
@@ -576,7 +588,7 @@ class MWEOccur:
     @type  reordered: MWEOccurView
     @param reordered: represents tokens in reordered form (e.g. normalizing word-order for LVCs)
     """
-    def __init__(self, sentence: Sentence, indexes: list,
+    def __init__(self, sentence: Sentence, indexes: 'list[int]',
                  category: str, metadata: MWEAnnotMetadata):
         self.lang = sentence.corpusinfo.lang
         assert self.lang in LANGS
@@ -584,7 +596,6 @@ class MWEOccur:
         self.indexes = tuple(sorted(indexes))
         self.category = category
         self.metadata = metadata
-        self.metadata.linked_mweoccur = self
 
         self.raw = MWEOccurView(self, (sentence.tokens[i] for i in indexes))
         self.fixed = self.raw._with_fixed_tokens()
@@ -609,6 +620,22 @@ class MWEOccur:
         return self.sentence.file_path == other.sentence.file_path \
             and self.sentence.nth_sent == other.sentence.nth_sent \
             and (set(self.indexes) & set(other.indexes))
+
+
+    def with_mwes_from_ranges_absorbed_into_tokens(self):
+        r"""Return an MWEOccur where MWEs in ranges are moved into the element tokens."""
+        if not any("-" in self.sentence.tokens[i]['ID'] for i in self.indexes):
+            return self  # No ranges in this MWEOccur, nothing to do
+        r2i = self.sentence.rank2index()
+        new_indexes = []
+        for i in self.indexes:
+            wid = self.sentence.tokens[i]['ID']
+            if "-" in wid:
+                first, last = wid.split('-', 1)
+                new_indexes.extend(range(r2i(first), r2i(last)+1))
+            else:
+                new_indexes.append(i)
+        return MWEOccur(self.sentence, self.indexes, self.category, self.metadata)
 
 
 class MWEOccurSet:
@@ -980,14 +1007,15 @@ class IterAlignedFiles:
             lang, file_paths, conllu_paths, default_mwe_category=default_mwe_category, debug=debug)
 
     def __iter__(self):
-        for entity in self.aligned_iterator:
+        for sentence in self.aligned_iterator:
+            assert isinstance(sentence, Sentence)
             if not self.keep_nvmwes:
-                entity.remove_non_vmwes()
+                sentence.remove_non_vmwes()
             if not self.keep_dup_mwes:
-                entity.remove_duplicate_mwes()
+                sentence.remove_duplicate_mwes()
             if not self.keep_mwe_random_order:
-                entity.mweannots.sort()
-            yield entity
+                sentence.mweannots.sort()
+            yield sentence
 
 
 def _iter_parseme_file(lang, file_path, default_mwe_category):
@@ -1069,8 +1097,8 @@ def _warn_if_none(main_sentence, conllu_sentence):
 
 class SentenceAligner:
     def __init__(self, main_sentences, conllu_sentences, debug=False):
-        self.main_sentences = _filter_sentences(main_sentences)
-        self.conllu_sentences = _filter_sentences(conllu_sentences)
+        self.main_sentences = list(main_sentences)
+        self.conllu_sentences = list(conllu_sentences)
         self.debug = debug
         main_surfs = [tuple(t.surface for t in sent.tokens) for sent in self.main_sentences]
         conllu_surfs = [tuple(t.surface for t in sent.tokens) for sent in self.conllu_sentences]
@@ -1124,11 +1152,6 @@ class SentenceAligner:
         r"""@rtype: Iterable[(mismatch_main_range, mismatch_conllu_range)]"""
         for (main1,conll1,size1), (main2,conll2,_) in zip(self.matches_beg, self.matches_end):
             yield range(main1+size1, main2), range(conll1+size1, conll2)
-
-
-def _filter_sentences(elements):
-    return [e for e in elements if isinstance(e, Sentence)]
-
 
 
 class TokenAligner:
@@ -1233,8 +1256,6 @@ class FoliaIterator:
             current_sentence = Sentence(self.corpusinfo, nth, None)
             if folia_sentence.id:
                 current_sentence.kv_pairs.append(KVPair("sent_id", folia_sentence.id))
-            mwes = list(folia_sentence.select(folia.Entity))
-            self.calc_mweannots(mwes, folia_sentence, current_sentence)
 
             for rank, word in enumerate(folia_sentence.words(), 1):
                 # ID FORM LEMMA UPOS XPOS FEATS HEAD DEPREL DEPS MISC
@@ -1245,12 +1266,15 @@ class FoliaIterator:
                 }
                 current_sentence.tokens.append(Token(conllu))
 
+            folia_mwes = list(folia_sentence.select(folia.Entity))
+            self.calc_mweannots(folia_mwes, folia_sentence, current_sentence)
             yield current_sentence
 
 
-    def calc_mweannots(self, mwes, folia_sentence, output_sentence):
-        sent_word_ids = [w.id for w in folia_sentence.select(folia.Word)]
-        for mwe in mwes:
+    def calc_mweannots(self, folia_mwes, folia_sentence, output_sentence):
+        word_id2index = {w.id: i for i, w in enumerate(folia_sentence.words())}
+        sent_word_ids = [w.id for w in folia_sentence.words()]
+        for mwe in folia_mwes:
             mwe_word_ids = [w.id for w in mwe.wrefs()]
             if not mwe_word_ids:  # ignore empty Entities produced by FLAT
                 output_sentence.warn('Ignoring empty MWE: {id!r}', id=mwe.id)
@@ -1261,6 +1285,10 @@ class FoliaIterator:
                 categ = output_sentence.check_and_convert_categ(mwe.cls)
                 output_sentence.mweannots.append(MWEAnnot(ranks, categ))
                 output_sentence.mweannots_folia.append(mwe)
+
+                indexes = [word_id2index[w.id] for w in mwe.wrefs()]
+                output_sentence.mweoccurs.append(MWEOccur(
+                    output_sentence, indexes, categ, Metadata.from_folia(mwe)))
 
 
 
@@ -1284,6 +1312,7 @@ class AbstractFileIterator:
         self.pending_metadata = []
         self.id2mwe_categ = {}
         self.id2mwe_ranks = collections.defaultdict(list)
+        self.id2mwe_indexes = collections.defaultdict(list)
 
     def get_token_and_mwecodes(self, fields: list) -> (Token, list):
         r"""Return a Token and a list of mwecodes (str)
@@ -1302,6 +1331,8 @@ class AbstractFileIterator:
         try:
             s.mweannots = [MWEAnnot(tuple(self.id2mwe_ranks[id]),
                 self.id2mwe_categ[id]) for id in sorted(self.id2mwe_ranks)]
+            s.mweoccurs = [MWEOccur(s, tuple(self.id2mwe_indexes[id]), self.id2mwe_categ[id], MWEAnnotMetadata())
+                           for id in sorted(self.id2mwe_ranks)]
         except KeyError as e:
             self.warn("MWE has no category: {categ}", categ=e.args[0])
         self._new_sent()
@@ -1315,10 +1346,11 @@ class AbstractFileIterator:
         if self.curr_sent.tokens:
             self.warn("Comment in the middle of a sentence is not allowed")
         match = KVPair.KV_REGEX.match(line)
-        if not match:
-            self.curr_sent.kv_pairs.append(KVPair("rawline", line[1:].strip()))
+        keyval = KVPair.from_conllup(*match.groups()) if match else KVPair("rawline", line[1:].strip())
+        if isinstance(keyval, MWEAnnotMetadata):
+            self.pending_metadata.append(keyval)
         else:
-            self.curr_sent.kv_pairs.append(KVPair.from_conllup(*match.groups()))
+            self.curr_sent.kv_pairs.append(keyval)
 
     def append_token(self, line):
         token, mwecodes = self.get_token_and_mwecodes(line.split("\t"))  # method defined in subclass
@@ -1326,6 +1358,7 @@ class AbstractFileIterator:
         for mwecode in mwecodes:
             index_and_categ = mwecode.split(":")
             self.id2mwe_ranks[index_and_categ[0]].append(token.rank)
+            self.id2mwe_indexes[index_and_categ[0]].append(len(self.curr_sent.tokens))
             if len(index_and_categ) == 2 and index_and_categ[1]:
                 categ = self.curr_sent.check_and_convert_categ(index_and_categ[1])
                 self.id2mwe_categ.setdefault(index_and_categ[0], categ)
@@ -1345,7 +1378,7 @@ class AbstractFileIterator:
                     else:
                         self.append_token(line)
                 except:
-                    self.warn("Error when reading line", warntype="FATAL")
+                    self.warn("Unable to read & parse line", warntype="FATAL")
                     raise
             if not self.curr_sent.empty():
                 yield self.finish_sentence()
@@ -1523,16 +1556,6 @@ class InputContext:
 
 
 ############################################################
-
-def iter_sentences(lang, input_paths, conllu_paths, verbose=True):
-    r"""Utility function: yield all sentences in `input_paths`.
-    (Output sentences are aligned, if CoNLL-U was provided or could be automatically found).
-    """
-    conllu_paths = conllu_paths or calculate_conllu_paths(input_paths, warn=verbose)
-    for elem in IterAlignedFiles(lang, input_paths, conllu_paths, keep_nvmwes=True, debug=verbose):
-        if isinstance(elem, Sentence):
-            yield elem
-
 
 def read_mwelexitems(iter_sentences):
     r"""Return two lists: (list[MWELexicalItem], list[MWELexicalItem]).

@@ -50,7 +50,8 @@ class Main:
         self.print_html()
 
     def iter_sentences(self, verbose):
-        return dataalign.iter_sentences(self.args.lang, self.args.input, self.args.conllu, verbose=verbose)
+        conllu_paths = self.args.conllu or dataalign.calculate_conllu_paths(self.args.input, warn=verbose)
+        return dataalign.IterAlignedFiles(self.args.lang, self.args.input, conllu_paths, keep_nvmwes=True, debug=verbose)
 
 
     def print_html(self):

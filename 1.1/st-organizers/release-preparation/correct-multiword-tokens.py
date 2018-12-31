@@ -27,6 +27,7 @@ class Main:
   def run(self):
     out_sents = []     
     for sentence in self.iter_sentences():
+      sentence.mweoccurs = [m.with_mwes_from_ranges_absorbed_into_tokens() for m in sentence.mweoccurs]
       r2i = sentence.rank2index()
       new_annots = []
       for mweannot in sentence.mweannots:

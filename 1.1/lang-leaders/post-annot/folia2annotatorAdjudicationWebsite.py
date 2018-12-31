@@ -74,7 +74,7 @@ class Main:
 
 
     def iter_sentences(self, input_file):
-        return dataalign.iter_sentences(self.args.lang, [input_file], None, verbose=False)
+        return IterAlignedFiles(self.args.lang, [input_file], None, keep_nvmwes=True, debug=verbose):
 
 
     def extract_perfect_pairs(self, mwes1, mwes2):
