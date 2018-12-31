@@ -28,20 +28,6 @@ class Main:
     out_sents = []     
     for sentence in self.iter_sentences():
       sentence.mweoccurs = [m.with_mwes_from_ranges_absorbed_into_tokens() for m in sentence.mweoccurs]
-      r2i = sentence.rank2index()
-      new_annots = []
-      for mweannot in sentence.mweannots:
-        newranks = []
-        for r in mweannot.ranks:
-          if "-" in r:
-            tok_start,tok_end=map(lambda x:int(x),r.split("-"))
-            for j in range(tok_start,tok_end+1):
-              newranks.append(str(j))        
-          else:
-            if r not in newranks:            
-              newranks.append(r)                
-        new_annots.append(dataalign.MWEAnnot(newranks,mweannot.category))
-      sentence.mweannots = new_annots
       out_sents.append(sentence)        
     dataalign.ConllupWriter().write_sentences(out_sents)
 

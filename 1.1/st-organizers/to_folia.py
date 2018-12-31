@@ -54,10 +54,9 @@ class Main:
                 # TODO: add MWEs
                 # TODO: add comments
 
-                mwe_occurs = list(tsv_sentence.mwe_occurs())
-                if mwe_occurs:
+                if tsv_sentence.mwe_occurs:
                     folia_mwe_list = folia_sentence.add(folia.EntitiesLayer)
-                    for mweo in mwe_occurs:
+                    for mweo in tsv_sentence.mwe_occurs:
                         assert mweo.category, "Conversion to FoLiA requires all MWEs to have a category"  # checkme
                         folia_words = [folia_sentence[i] for i in mweo.indexes]
                         folia_mwe_list.append(folia.Entity, *folia_words, cls=mweo.category, annotatortype=folia.AnnotatorType.MANUAL)

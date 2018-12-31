@@ -47,8 +47,8 @@ class Main:
             assert len(s1.tokens) == len(s2.tokens), \
                    'Sentence sizes do not match (#{})'.format(sent_no)
 
-            mwes1 = list(s1.mwe_occurs())
-            mwes2 = list(s2.mwe_occurs())
+            mwes1 = tuple(s1.mweoccurs)
+            mwes2 = tuple(s2.mweoccurs)
             if not mwes1 and not mwes2:
                 print('<div class="sent-block">')
                 print(' <div class="sent-header sent-header-no-annotations">Sentence #{}</div>'.format(sent_no))
@@ -74,7 +74,7 @@ class Main:
 
 
     def iter_sentences(self, input_file):
-        return IterAlignedFiles(self.args.lang, [input_file], None, keep_nvmwes=True, debug=verbose):
+        return dataalign.IterAlignedFiles(self.args.lang, [input_file], None, keep_nvmwes=True, debug=False)
 
 
     def extract_perfect_pairs(self, mwes1, mwes2):

@@ -274,29 +274,6 @@ class MWEAnnotMetadata(Metadata):
 
 ############################################################
 
-class MWEAnnot(collections.namedtuple('MWEAnnot', 'ranks category')):
-    r"""Represents an MWE annotation.
-    @type ranks: tuple[str]
-    @type category: str
-    """
-    def __new__(cls, ranks, category):
-        assert ranks
-        new_ranks = list(set(ranks))
-        new_ranks.sort(key=lambda r: tuple(int(i) for i in r.split("-")))
-        return super().__new__(cls, tuple(new_ranks), category)
-
-
-    def indexes(self, rank2index):
-        r"""Return all indexes of this MWEAnnot inside a `rank2index` dict.
-        Missing entries are SILENTLY IGNORED (useful for AlignedIterator).
-
-        @type rank2index: dict[str, int]
-        @rtype: tuple[int]
-        """
-        return tuple(rank2index[r] for r in self.ranks if (r in rank2index))
-
-
-
 class Token(collections.Mapping):
     r"""Represents a token in an input file.
 
@@ -380,8 +357,6 @@ class Sentence:
         self.lineno = lineno
         self.kv_pairs = []            # type: list[KVPair]
         self.tokens = []              # type: list[Token]
-        self.mweannots = []           # type: list[MWEAnnot]
-        self.mweannots_folia = []     # type: list[folia.Entity]
         self.mweoccurs = []           # type: list[MWEOccur]
 
     @property
@@ -394,72 +369,50 @@ class Sentence:
 
     def empty(self):
         r"""True iff this Sentence is empty."""
-        return not (self.tokens or self.mweannots)
+        return not (self.tokens or self.mweoccurs)
 
     def rank2index(self):
         r"""Return a dictionary mapping string ranks to indexes."""
         return {t.rank: index for (index, t) in enumerate(self.tokens)}
 
-    def mwe_occurs(self):
-        r"""Yield MWEOccur instances for all MWEs in self."""
-        yield from self.mweoccurs
-        return
-
-        # XXX
-        rank2index = self.rank2index()
-        for mwe_index, mweannot in enumerate(self.mweannots):
-            metadata = Metadata.from_folia(self.mweannots_folia[mwe_index]) \
-                if self.mweannots_folia else MWEAnnotMetadata()
-            indexes = mweannot.indexes(rank2index)
-            assert indexes, (mweannot, rank2index)
-            yield MWEOccur(self, indexes, mweannot.category, metadata)
-
     def tokens_and_mwecodes(self):
         r"""Yield pairs (token, mwecodes) of type (Token, list[str])."""
-        rank2index = self.rank2index()
         tokenindex2mweindex = collections.defaultdict(list)
-        for mweindex, mweannot in enumerate(self.mweannots):
-            for index in mweannot.indexes(rank2index):
+        for mweindex, mweoccur in enumerate(self.mweoccurs):
+            for index in mweoccur.indexes:
                 tokenindex2mweindex[index].append(mweindex)
 
-        for i, token in enumerate(self.tokens):
+        for itoken, token in enumerate(self.tokens):
             mwe_is = tokenindex2mweindex[i]
-            yield token, [self._mwecode(token, mwe_i) for mwe_i in mwe_is]
+            yield token, [self._mwecode(itoken, mwe_i) for mwe_i in mwe_is]
 
-    def _mwecode(self, token, mwe_i):
+    def _mwecode(self, itoken, mwe_i):
         r"""Return a string with mweid:category (or just mweid in some cases)."""
-        mweannot = self.mweannots[mwe_i]
-        if mweannot.category and mweannot.ranks[0] == token.rank:
-            return "{}:{}".format(mwe_i+1, mweannot.category)
+        mweoccur = self.mweoccurs[mwe_i]
+        if mweoccur.category and mweoccur.indexes[0] == itoken:
+            return "{}:{}".format(mwe_i+1, mweoccur.category)
         return str(mwe_i+1)
 
     def remove_non_vmwes(self):
         r"""Change the mwe_codes in `self.tokens` so as to remove all NonVMWE tags."""
-        self.mweannots = [m for m in self.mweannots if m.category not in Categories.NON_MWES]
+        self.mweoccurs = [m for m in self.mweoccurs if m.category not in Categories.NON_MWES]
 
     def remove_duplicate_mwes(self):
-        r"""Uniqs self.mweannots (keeps only first occurrence)"""
-        old_mweannots = self.mweannots
-        self.mweannots = [m for (i, m) in enumerate(self.mweannots) if m not in self.mweannots[:i]]
-        if len(self.mweannots) != len(old_mweannots):
-            duplicates = [m for m in old_mweannots if old_mweannots.count(m) > 1]
-            for mweannot in duplicates:
-                self.warn("Removed duplicate MWE: {}".format(mweannot))
+        r"""Uniqs self.mweoccurs (keeps only first occurrence)"""
+        old_mweoccurs = self.mweoccurs
+        self.mweoccurs = [m for (i, m) in enumerate(self.mweoccurs) if m not in self.mweoccurs[:i]]
+        if len(self.mweoccurs) != len(old_mweoccurs):
+            duplicates = [m for m in old_mweoccurs if old_mweoccurs.count(m) > 1]
+            for mweoccurs in duplicates:
+                self.warn("Removed duplicate MWE: {}".format(mweoccurs))
 
 
     def re_tokenize(self, new_tokens: 'list[Token]', indexmap: 'dict[int,list[int]]'):
-        r"""Replace `self.tokens` with given tokens and fix `self.mweannot` based on `indexmap`"""
+        r"""Replace `self.tokens` with given tokens and fix `self.mweoccurs` based on `indexmap`"""
         rank2index = self.rank2index()
         self_nsps = set(i for (i, t) in enumerate(self.tokens) if t.nsp)
         self.tokens = [t.with_nospace(i in self_nsps) for (i, t) in enumerate(new_tokens)]
-        self.mweannots = [self._remap(m, rank2index, indexmap) for m in self.mweannots]
         self.mweoccurs = [self._remap_mweoccur(m, indexmap) for m in self.mweoccurs]
-
-    def _remap(self, mweannot, rank2index, indexmap):
-        r"""Remap `mweannot` using new `self.tokens`."""
-        new_indexes = [i_new for i_old in mweannot.indexes(rank2index)
-                for i_new in indexmap[i_old]]  # Python's syntax for a flatmap...
-        return MWEAnnot(tuple(self.tokens[i].rank for i in new_indexes), mweannot.category)
 
     def _remap_mweoccur(self, mweoccur: 'MWEOccur', indexmap: 'dict[int,list[int]]'):
         r"""Remap `mweoccur` using new `self.tokens`."""
@@ -539,7 +492,7 @@ class Sentence:
 
         for kv_pair in kv_pairs:
             print(kv_pair.to_tsv(), file=output)
-        for mweid, mweoccur in enumerate(self.mwe_occurs(), 1):
+        for mweid, mweoccur in enumerate(self.mweoccurs, 1):
             mweoccur.metadata.mweid = mweid
             print(mweoccur.metadata.to_tsv(), file=output)
 
@@ -650,7 +603,7 @@ class MWEOccurSet:
     def add_mweoccurs_from_all(self, sentences: list):
         r'''Add MWEOccur instances for all sentences.'''
         for sent in sentences:
-            for mweo in sent.mwe_occurs():
+            for mweo in sent.mweoccurs:
                 self.add_mweoccur(mweo)
 
     def contains_suspiciously_similar(self, mweo: MWEOccur):
@@ -1014,7 +967,7 @@ class IterAlignedFiles:
             if not self.keep_dup_mwes:
                 sentence.remove_duplicate_mwes()
             if not self.keep_mwe_random_order:
-                sentence.mweannots.sort()
+                sentence.mweoccurs.sort(key=lambda m: m.indexes)
             yield sentence
 
 
@@ -1203,8 +1156,8 @@ class TokenAligner:
     def warn_mismatch(self, range_gap_main, range_gap_conllu):
         r"""Warn users when the two ranges do not match (one or both ranges may be empty)."""
         if range_gap_main:
-            affected_mweids = [mwe_i+1 for (mwe_i, m) in enumerate(self.main_sentence.mweannots) \
-                    if any((self.main_sentence.tokens[token_i].rank in m.ranks) for token_i in range_gap_main)]
+            affected_mweids = [mwe_i+1 for (mwe_i, m) in enumerate(self.main_sentence.mweoccurs) \
+                    if any((token_i in m.indexes) for token_i in range_gap_main)]
             self.warn_gap_main(range_gap_main, range_gap_conllu, affected_mweids)
 
         if range_gap_conllu:
@@ -1267,11 +1220,11 @@ class FoliaIterator:
                 current_sentence.tokens.append(Token(conllu))
 
             folia_mwes = list(folia_sentence.select(folia.Entity))
-            self.calc_mweannots(folia_mwes, folia_sentence, current_sentence)
+            self.calc_mweoccurs(folia_mwes, folia_sentence, current_sentence)
             yield current_sentence
 
 
-    def calc_mweannots(self, folia_mwes, folia_sentence, output_sentence):
+    def calc_mweoccurs(self, folia_mwes, folia_sentence, output_sentence):
         word_id2index = {w.id: i for i, w in enumerate(folia_sentence.words())}
         sent_word_ids = [w.id for w in folia_sentence.words()]
         for mwe in folia_mwes:
@@ -1281,11 +1234,7 @@ class FoliaIterator:
             elif any(w.id not in sent_word_ids for w in mwe.wrefs()):
                 output_sentence.warn('Ignoring misplaced MWE: {id!r}', id=mwe.id)
             else:
-                ranks = [w.id.rsplit(".",1)[-1] for w in mwe.wrefs()]
                 categ = output_sentence.check_and_convert_categ(mwe.cls)
-                output_sentence.mweannots.append(MWEAnnot(ranks, categ))
-                output_sentence.mweannots_folia.append(mwe)
-
                 indexes = [word_id2index[w.id] for w in mwe.wrefs()]
                 output_sentence.mweoccurs.append(MWEOccur(
                     output_sentence, indexes, categ, Metadata.from_folia(mwe)))
@@ -1329,8 +1278,7 @@ class AbstractFileIterator:
             for key in self.id2mwe_ranks:
                 self.id2mwe_categ.setdefault(key, self.default_mwe_category)
         try:
-            s.mweannots = [MWEAnnot(tuple(self.id2mwe_ranks[id]),
-                self.id2mwe_categ[id]) for id in sorted(self.id2mwe_ranks)]
+            raise "Not attaching the MWEAnnotMetadatas when available"
             s.mweoccurs = [MWEOccur(s, tuple(self.id2mwe_indexes[id]), self.id2mwe_categ[id], MWEAnnotMetadata())
                            for id in sorted(self.id2mwe_ranks)]
         except KeyError as e:
@@ -1578,7 +1526,7 @@ def _lemmatizedform2mweoccurs(iter_sentences):
     r'''Return a dict[tuple[str], list[MWEOccur]].'''
     ret = collections.defaultdict(list)  # type: dict[tuple[str], list[MWEOccur]]
     for sentence in iter_sentences:
-        for mwe_occur in sentence.mwe_occurs():
+        for mwe_occur in sentence.mweoccurs:
             lemmatizedform = FrozenCounter(mwe_occur.reordered.likely_lemmatizedform)
             ret[lemmatizedform].append(mwe_occur)
     return ret
