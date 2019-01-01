@@ -46,7 +46,7 @@ class Main:
                 self.args.lang, self.args.input, self.conllu_paths,
                 default_mwe_category='TODO', keep_nvmwes=True):
 
-            if sentence.kvs_with_key("sent_id") == sentence.kvs_with_key("source_sent_id") == 0:
+            if sentence.kvs_with_key("sent_id") == 0:
                 self.check_artificial_flag(sentence, 'sent_id', self.args.gen_sentid, "--gen-sentid")
             if sentence.kvs_with_key("text") == 0:
                 self.check_artificial_flag(sentence, 'text', self.args.gen_text, "--gen-text")
