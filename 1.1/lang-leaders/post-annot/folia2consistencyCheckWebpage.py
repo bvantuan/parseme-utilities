@@ -46,11 +46,12 @@ class Main:
 
     def run(self):
         self.mwe_mixed, self.mwe_nvmwe = dataalign.read_mwelexitems(
-            self.args.lang, self.iter_sentences(verbose=True))
+            self.iter_sentences(verbose=True))
         self.print_html()
 
     def iter_sentences(self, verbose):
-        return dataalign.iter_sentences(self.args.input, self.args.conllu, verbose=verbose)
+        conllu_paths = self.args.conllu or dataalign.calculate_conllu_paths(self.args.input, warn=verbose)
+        return dataalign.IterAlignedFiles(self.args.lang, self.args.input, conllu_paths, keep_nvmwes=True, debug=verbose)
 
 
     def print_html(self):
@@ -131,8 +132,8 @@ class Main:
         else:  # occur.category != "Skipped":
             file_info = 'Annotated in file &quot;{}&quot;, sentence #{}, by &quot;{}&quot; on {}'.format(
                     ESC(occur.sentence.file_path), ESC(str(occur.sentence.nth_sent)),
-                    ESC(occur.userinfo.annotator or "<unknown>"), ESC(str(occur.userinfo.datetime or "<unknown-date>")))
-        confidence_info = '' if occur.userinfo.confidence is None else ' {}%'.format(int(occur.userinfo.confidence*100))
+                    ESC(occur.metadata.annotator or "<unknown>"), ESC(str(occur.metadata.datetime or "<unknown-date>")))
+        confidence_info = '' if occur.metadata.confidence is None else ' {}%'.format(int(occur.metadata.confidence*100))
         css_mwe_label = dataalign.Categories.css_name(occur.category)
         yield '<span class="label mwe-label {css_mwe_label}"' \
               'data-toggle="tooltip" title="{title}">{mwe_label}{confidence_info}</span><span> </span>' \
@@ -152,8 +153,8 @@ class Main:
 
         yield ' <span class="mweoccur-decide-button"><span class="glyphicon glyphicon-edit"></span><span class="mwe-glyphtext"></span></span>'
 
-        for comment in occur.userinfo.ui_comments:
-            c = ESC(comment.text).replace("\n\n", "</p>").replace("\n", "<br/>")
+        for comment in occur.metadata.nested:
+            c = ESC(comment.value).replace("\n\n", "</p>").replace("\n", "<br/>")
             yield '<div class="mwe-occur-comment">{}</div>'.format(c)
 
 

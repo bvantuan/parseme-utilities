@@ -47,8 +47,8 @@ class Main:
             assert len(s1.tokens) == len(s2.tokens), \
                    'Sentence sizes do not match (#{})'.format(sent_no)
 
-            mwes1 = list(s1.mwe_occurs(self.args.lang))
-            mwes2 = list(s2.mwe_occurs(self.args.lang))
+            mwes1 = tuple(s1.mweoccurs)
+            mwes2 = tuple(s2.mweoccurs)
             if not mwes1 and not mwes2:
                 print('<div class="sent-block">')
                 print(' <div class="sent-header sent-header-no-annotations">Sentence #{}</div>'.format(sent_no))
@@ -74,7 +74,7 @@ class Main:
 
 
     def iter_sentences(self, input_file):
-        return dataalign.iter_sentences([input_file], None, verbose=False)
+        return dataalign.IterAlignedFiles(self.args.lang, [input_file], None, keep_nvmwes=True, debug=False)
 
 
     def extract_perfect_pairs(self, mwes1, mwes2):
@@ -199,8 +199,8 @@ class Main:
         else:  # occur.category != "Skipped":
             file_info = 'Annotated in file &quot;{}&quot;, sentence #{}, by &quot;{}&quot; on {}'.format(
                     ESC(occur.sentence.file_path), ESC(str(occur.sentence.nth_sent)),
-                    ESC(occur.userinfo.annotator or "<unknown>"), ESC(str(occur.userinfo.datetime or "<unknown-date>")))
-        confidence_info = '' if occur.userinfo.confidence is None else ' {}%'.format(int(occur.userinfo.confidence*100))
+                    ESC(occur.metadata.annotator or "<unknown>"), ESC(str(occur.metadata.datetime or "<unknown-date>")))
+        confidence_info = '' if occur.metadata.confidence is None else ' {}%'.format(int(occur.metadata.confidence*100))
         css_mwe_label = dataalign.Categories.css_name(occur.category)
         yield '<span class="label mwe-label {css_mwe_label}"' \
               'data-toggle="tooltip" title="{title}">{mwe_label}{confidence_info}</span><span> </span>' \
@@ -218,8 +218,8 @@ class Main:
             yield "" if t.nsp else " "
         yield '</span>'
 
-        for comment in occur.userinfo.ui_comments:
-            c = ESC(comment.text).replace("\n\n", "</p>").replace("\n", "<br/>")
+        for comment in occur.metadata.nested:
+            c = ESC(comment.value).replace("\n\n", "</p>").replace("\n", "<br/>")
             yield '<div class="mwe-occur-comment">{}</div>'.format(c)
 
 

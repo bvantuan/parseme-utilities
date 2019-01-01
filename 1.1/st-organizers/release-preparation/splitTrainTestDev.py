@@ -28,13 +28,13 @@ class Main:
         self.last2subcorpus = {rng["last"]: sc for sc in self.subcorpora for rng in sc.ranges}
 
     def run(self):
-        sents = list(dataalign.iter_aligned_files(
-            self.args.input, None, keep_nvmwes=False))
+        sents = list(dataalign.IterAlignedFiles(
+            self.args.lang, self.args.input, None, keep_nvmwes=False))
 
         # Calculate number of sentences and MWEs for subcorpora
         for sent, subcorpus in self.iter_sentence_with_subcorpus(sents):
             subcorpus.n_sents += 1
-            subcorpus.n_mwes += len(sent.mweannots)
+            subcorpus.n_mwes += len(sent.mweoccurs)
         total_n_mwes = sum(sc.n_mwes for sc in self.subcorpora)
 
         # Calculate split sizes for all subcorpora
@@ -64,15 +64,15 @@ class Main:
         for sent, subcorpus in self.iter_sentence_with_subcorpus(sents):
             if subcorpus.taken_mwes.test < subcorpus.subsplit.test:
                 dedic_sents.append(DedicatedSentence(sent, 'test'))
-                subcorpus.taken_mwes.test += len(sent.mweannots)
+                subcorpus.taken_mwes.test += len(sent.mweoccurs)
                 subcorpus.taken_sents.test += 1
             elif subcorpus.taken_mwes.dev < subcorpus.subsplit.dev:
                 dedic_sents.append(DedicatedSentence(sent, 'dev'))
-                subcorpus.taken_mwes.dev += len(sent.mweannots)
+                subcorpus.taken_mwes.dev += len(sent.mweoccurs)
                 subcorpus.taken_sents.dev += 1
             else:
                 dedic_sents.append(DedicatedSentence(sent, 'train'))
-                subcorpus.taken_mwes.train += len(sent.mweannots)
+                subcorpus.taken_mwes.train += len(sent.mweoccurs)
                 subcorpus.taken_sents.train += 1
 
         # Print TAKEN-{MWES,SENTS}
@@ -102,7 +102,7 @@ class Main:
         cur_subcorpus = None
         for sent in sentences:
             with dataalign.InputContext(sent):
-                sentid = sent.unique_toplevel_metadata('source_sent_id').split()[-1]
+                sentid = sent.unique_kv_pair('sent_id').value.split()[-1]
                 if sentid in self.first2subcorpus:
                     assert cur_subcorpus is None, ("Sentence inside multiple subcorpora", sentid)
                     cur_subcorpus = self.first2subcorpus[sentid]

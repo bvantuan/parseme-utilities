@@ -36,9 +36,9 @@ class Main:
             raise
 
     def do_run(self):
-        for sentence in dataalign.iter_sentences(self.args.input, None):
-            for mweoccur in sentence.mwe_occurs(self.args.lang):
-                    self.print_entry(sentence, mweoccur)
+        for sentence in dataalign.IterAlignedFiles(self.args.lang, self.args.input, None):
+            for mweoccur in sentence.mweoccurs:
+                self.print_entry(sentence, mweoccur)
 
     def print_entry(self, sentence: dataalign.Sentence, mweoccur: dataalign.MWEOccur):
         mwe_indexes = set(mweoccur.indexes)

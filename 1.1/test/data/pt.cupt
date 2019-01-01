@@ -4492,6 +4492,9 @@
 
 # source_sent_id = . . sample-s164
 # text = Em nota a corporação informou que os Bombeiros ea secretaria estadual de Saúde estão analisando a possibilidade de rever os procedimentos e requisitos para aprovar reformas e construções de novos prédios em hospitais do Rio de Janeiro . 
+# blablabla = Em nota a corporação informou que os Bombeiros ea secretaria estadual de Saúde estão analisando a possibilidade de rever os procedimentos e requisitos para aprovar reformas e construções de novos prédios em hospitais do Rio de Janeiro . 
+# blablablahhhhhhhhhhh Em nota a corporação informou que os Bombeiros ea secretaria estadual de Saúde estão analisando a possibilidade de rever os procedimentos e requisitos para aprovar reformas e construções de novos prédios em hospitais do Rio de Janeiro . 
+# metadata = {"kind": "comment", "text": "Em nota a corporação informou que os Bombeiros ea secretaria estadual de Saúde estão analisando a possibilidade de rever os procedimentos e requisitos para aprovar reformas e construções de novos prédios em hospitais do Rio de Janeiro ."}
 1	Em	em	ADP	ADP	AdpType=Prep	2	case	_	_	*
 2	nota	nota	NOUN	NOUN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	5	nmod	_	_	*
 3	a	o	DET	DET	Definite=Def|Gender=Fem|Number=Sing|PronType=Art	4	det	_	_	*

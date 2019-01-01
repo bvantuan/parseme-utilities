@@ -41,10 +41,11 @@ class Main:
 
 
     def run(self):
+        conllu_paths = self.args.conllu or dataalign.calculate_conllu_paths(self.args.input, warn=True)
         (self.mwes, _) = dataalign.read_mwelexitems(
-                self.args.lang, dataalign.iter_sentences(self.args.input, self.args.conllu))
+                dataalign.IterAlignedFiles(self.args.lang, self.args.input, conllu_paths))
         self.mweoccur_id2finders.update((o.mweo_id(), {'Human'}) for mwe in self.mwes for o in mwe.mweoccurs)
-        skip_sents = dataalign.iter_sentences(self.args.input, self.args.conllu, verbose=False)
+        skip_sents = dataalign.IterAlignedFiles(self.args.lang, self.args.input, self.args.conllu, debug=False)
         self.find_literals(skip_sents)
 
         if self.args.out_categories:
@@ -63,7 +64,7 @@ class Main:
 
         sentences = list(sentences)  # allow multiple iterations
         gold_mweoccurs = dataalign.MWEOccurSet()
-        gold_mweoccurs.add_mweoccurs_from_all(sentences, self.args.lang)
+        gold_mweoccurs.add_mweoccurs_from_all(sentences)
 
         for finder, find_method in zip(finders, self.args.literal_finding_method):
             for mwe, mweoccur in finder.find_skipped_in(sentences):

@@ -25,7 +25,7 @@ class Main:
         if not self.conllu_paths:
             exit("ERROR: You must specify CoNLL-U files to be checked against PARSEME-TSV")
 
-        aligned = dataalign.AlignedIterator.from_paths(self.args.input, self.conllu_paths)
+        aligned = dataalign.AlignedIterator.from_paths(self.args.lang, self.args.input, self.conllu_paths)
         sent_aligner = dataalign.SentenceAligner(aligned.main, aligned.conllu)
 
         print("-"*40)

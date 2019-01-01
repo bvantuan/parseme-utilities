@@ -27,20 +27,7 @@ class Main:
   def run(self):
     out_sents = []     
     for sentence in self.iter_sentences():
-      r2i = sentence.rank2index()
-      new_annots = []
-      for mweannot in sentence.mweannots:
-        newranks = []
-        for r in mweannot.ranks:
-          if "-" in r:
-            tok_start,tok_end=map(lambda x:int(x),r.split("-"))
-            for j in range(tok_start,tok_end+1):
-              newranks.append(str(j))        
-          else:
-            if r not in newranks:            
-              newranks.append(r)                
-        new_annots.append(dataalign.MWEAnnot(newranks,mweannot.category))
-      sentence.mweannots = new_annots
+      sentence.mweoccurs = [m.with_mwes_from_ranges_absorbed_into_tokens() for m in sentence.mweoccurs]
       out_sents.append(sentence)        
     dataalign.ConllupWriter().write_sentences(out_sents)
 
@@ -48,7 +35,7 @@ class Main:
 
   def iter_sentences(self, verbose=True):
     r"""Yield all sentences in `self.args.cupt`"""
-    for elem in dataalign.iter_aligned_files(self.args.cupt, None, keep_nvmwes=True, debug=verbose):
+    for elem in dataalign.IterAlignedFiles(self.args.lang, self.args.cupt, None, keep_nvmwes=True, debug=verbose):
       if isinstance(elem, dataalign.Sentence):
         yield elem
 

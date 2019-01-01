@@ -21,6 +21,7 @@ a canonical form (used e.g. when grouping MWEs during consistency check):
 """
 
 
+import abc
 import collections
 import difflib
 import itertools
@@ -63,6 +64,9 @@ LANGS_WITH_CANONICAL_VERB_ON_RIGHT = set("DE EU HI TR".split())
 # Languages where the verb occurrences usually appear to the right of the object complement (SOV/OSV/OVS)
 LANGS_WITH_VERB_OCCURRENCES_ON_RIGHT = LANGS_WITH_CANONICAL_VERB_ON_RIGHT - set(["DE"])
 
+# Languages that are written right-to-left (FLAT needs to know this for proper displaying)
+LANGS_WRITTEN_RTL = set(["FA HE YI"])
+
 
 ############################################################
 def interpret_color_request(stream, color_req: str) -> bool:
@@ -76,153 +80,212 @@ COLOR_STDERR = interpret_color_request(sys.stderr, os.getenv('COLOR_STDERR', 'au
 
 ############################################################
 
-class ToplevelComment:
-    r"""Represents a bare comment in a conllup file. May represent metadata."""
+class KVPair:
+    r"""Key-value pair for CoNLL-UP: `# <key> = <value>`.
+    May represent more elaborate metadata (see Metadata and subclasses).
+    """
     GLOBAL_COLUMNS_REGEX = re.compile(rb'^# *global\.columns *= *(.*)$', re.MULTILINE)
-    KEYVALUE_REGEX = re.compile(r'^ *(\S+) *= *(.*?) *$')
+    KV_REGEX = re.compile(r'^# *(\S+) *= *(.*?) *$')
 
-    def __init__(self, file_path: str, lineno: int, text: str):
-        self.file_path, self.lineno, self.text = file_path, lineno, text
+    def __init__(self, key: str, value: str):
+        self._key, self._value = key, value
+
+    @property
+    def key(self):
+        return self._key
+
+    @property
+    def value(self):
+        return self._value
+
+    def __repr__(self):
+        return '{}(key={!r}, value={!r})'.format(type(self).__name__, self.key, self.value)
 
     def to_tsv(self) -> str:
-        r"""Return comment line in TSV syntax."""
-        return '# {}'.format(self.text)
-
-    def keyvalue_pair(self) -> (str, str):
-        r"""If this comment contains a key-value metadata pair,
-        returns (key, value); otherwise returns (None, self.text).
-        """
-        match = self.KEYVALUE_REGEX.match(self.text)
-        return (match.group(1), match.group(2)) if match else (None, self.text)
-
-
-class UserInfoComment:
-    r"""Represents a annotator comment in one of the files.
-    In TSV files, this does NOT appear as top-level comment line
-    (it appears inside a userinfo line instead).
-    """
-    def __init__(self, file_path, lineno, text, userinfo):
-        self.file_path, self.lineno = file_path, lineno
-        self.text, self.userinfo = text, userinfo
+        r"""Return key-value line in CoNLL-UP syntax."""
+        if self.key == "RAWLINE":
+            return "# {}".format(self.value)
+        return "# {} = {}".format(self.key, self.value)
 
     @staticmethod
-    def from_folia(folia_comment: folia.Comment):
-        r"""Return a Comment instance for given FoLiA comment object."""
-        fpath, lineno = folia_comment.doc.filename, None
-        text = folia_comment.value
-        ui = UserInfo.from_folia('comment', folia_comment)
-        return UserInfoComment(fpath, lineno, text, ui)
+    def from_conllup(key: str, value: str):
+        r"""Return a KVPair for given line of CoNLL-UP."""
+        if key == "metadata":
+            return json.loads(value, object_hook=KVPair.object_hook)
+        return KVPair(key, value)
+
+    @staticmethod
+    def object_hook(obj):
+        r"""JSON object hook to recursively convert objects
+        to Metadata instances when appropriate, and OrderedDict otherwise."""
+        obj = collections.OrderedDict(obj)
+        if "kind" in obj:
+            return Metadata.from_dict(obj)
+        return obj
 
 
-class UserInfo:
-    r"""Represents common meta-information.
+class Metadata(KVPair, abc.ABC):
+    r"""Represents common metadata from user annotations
     (This is basically the set of key-value properties
     that are always acceptable in all FoLiA nodes).
+    Appears as "# metadata = ..." in CoNLL-UP files.
 
     Attributes:
+    * kind: Type of metadata (e.g. "comment" if CommentMetadata)
     * annotator: Name or ID of the system/human annotator (or None).
     * annotatortype: Either "manual" or "auto" (or None).
     * confidence: Floating point value between zero and one (or None).
     * datetime: Date in format "YYYY-MM-DDThh:mm:ss" (or None).
-    * int_id: Some 1-based integer identifier (or None). Corresponds to FoLiA "n".
-    * ui_comments: A list of UserInfoComment instances.
+    * nested: A list of `CommentMetadata`s
     """
-    # TODO XXX check if we actually need int_id...
+    TSV_REGEX = re.compile(r'^# *metadata *= *(.*)$')
 
-    TSV_REGEX = re.compile(r'^# *userinfo.(\S*) *= *(.*)$')
-
-    def __init__(self, scope: str, *,
+    def __init__(self, kind: str, *,
                  annotator: str = None, annotatortype: str = None,
                  datetime: str = None, confidence: float = None,
-                 int_id: int = None, ui_comments: list = None):
-        self.scope = scope
+                 nested: list = None):
+        super().__init__(None, None)
+        self.kind = kind
         self.annotator = annotator
         self.annotatortype = annotatortype
         self.datetime = datetime
         self.confidence = confidence
-        self.int_id = int_id
-        self.ui_comments = ui_comments or []
+        self.nested = nested or []
+        assert all(isinstance(x, Metadata) for x in self.nested), self.nested
+
 
     @staticmethod
-    def from_folia(scope: str, f: folia.AbstractElement):
-        r"""Return UserInfo for given FoLiA element `f`."""
-        ui_comments = [UserInfoComment.from_folia(c) for c in f.select(folia.Comment)]
-        return UserInfo(
-            scope, annotator=f.annotator, annotatortype=f.annotatortype,
-            datetime=f.datetime, confidence=f.confidence,
-            int_id=f.n, ui_comments=ui_comments)
+    def from_folia(f: folia.AbstractElement):
+        r"""Return Metadata for given FoLiA element `f`."""
+        return Metadata._instantiate_from_folia(
+            f, annotator=f.annotator, annotatortype=f.annotatortype,
+            datetime=(f.datetime.isoformat() if f.datetime else None), confidence=f.confidence,
+            nested=[Metadata.from_folia(c) for c in f.select(folia.Comment)])
 
-    def empty(self):
-        r'''True iff all of the properties of this UserInfo are empty.'''
-        return all(v is None for (k, v) in self._generic_properties()) and not self.ui_comments
+    @staticmethod
+    def _instantiate_from_folia(f: folia.AbstractElement, **kwargs):
+        if isinstance(f, (folia.Comment, folia.Description)):
+            # We convert <desc> tags to <comment>, for simplicity
+            return CommentMetadata(f.value, **kwargs)
+        elif isinstance(f, folia.Entity):
+            return MWEAnnotMetadata(**kwargs)  # [("class", f.cls), ("token_ids", .....)])  <-- useless repetition
+        else:
+            assert False, f
 
-    def _generic_properties(self):
-        return [('int_id', self.int_id),
-                ('annotator', self.annotator),
+
+    @abc.abstractmethod
+    def specific_properties(self):
+        r"""Return properties that are specific to this kind of metadata."""
+        raise NotImplementedError
+
+    def generic_properties(self):
+        r"""Return properties that are common to all metadata."""
+        return [('annotator', self.annotator),
                 ('annotatortype', self.annotatortype),
                 ('datetime', self.datetime),
                 ('confidence', self.confidence)]
 
+    def _folia_kwargs(self) -> dict:
+        r"""Return kwargs for FoLiA instantiation of subclasses."""
+        return dict((k, v) for (k, v) in self.generic_properties() if v is not None)
+
+
+    def is_empty(self):
+        r'''True iff all of the properties of this Metadata are empty.'''
+        return all(v is None for (k, v) in self.specific_properties()) and self.is_generically_empty()
+
+    def is_generically_empty(self):
+        r'''True iff all of the generic properties of this Metadata are empty.'''
+        return all(v is None for (k, v) in self.generic_properties()) and not self.nested
+
+
     def to_dict(self):
         r"""Return an OrderedDict object that represents
-        this userinfo (e.g. to be converted to JSON).
+        this metadata (e.g. to be converted to JSON).
         """
-        ret = collections.OrderedDict((k, v) \
-            for k, v in self._generic_properties() if v is not None)
-        if self.ui_comments:
-            ret['ui_comments'] = []
-            for ui_comment in self.ui_comments:
-                ret['ui_comments'].append(ui_comment.userinfo.to_dict())
-                ret['ui_comments'][-1]['text'] = ui_comment.text
+        ret = collections.OrderedDict()
+        ret["kind"] = self.kind
+        ret.update((k, v) for k, v in self.specific_properties() if v is not None)
+        ret.update((k, v) for k, v in self.generic_properties() if v is not None)
+        if self.nested:
+            ret["nested"] = [n.to_dict() for n in self.nested]
         return ret
 
     @staticmethod
-    def from_dict(scope, data_dict):
-        r"""Return a UserInfo for given dict."""
-        ret = UserInfo(scope)
-        ret.int_id = data_dict.pop('int_id')
-        ret.annotator = data_dict.pop('annotator')
-        ret.annotatortype = data_dict.pop('annotatortype')
-        ret.datetime = data_dict.pop('datetime')
-        ret.confidence = data_dict.pop('confidence')
-        ret.ui_comments = data_dict.pop('ui_comments', [])
-        assert not data_dict, data_dict
-        return ret
+    def from_dict(data_dict):
+        r"""Return a Metadata for given dict."""
+        kind = data_dict.pop("kind")
+        if kind == "comment":
+            return CommentMetadata(text=data_dict.pop("text"), **data_dict)
+        elif kind == "mweinfo":
+            return MWEAnnotMetadata(**data_dict)
+        else:
+            raise Exception("Unknown metadata kind: {!r}".format(kind))
 
-    def to_tsv(self) -> str:
-        r"""Return comment line in TSV syntax."""
-        import json
-        d = collections.OrderedDict(("text", self.text))
-        d['userinfo'] = self.userinfo.to_dict()
-        j = json.dumps(self.userinfo.to_dict(update_with={"text": self.text}))
-        return "# userinfo.{} = {}".format(scope, j)
+    @property
+    def key(self):
+        r"""Satisfy `key` element of base class KVPair"""
+        return "metadata"
+
+    @property
+    def value(self):
+        r"""Satisfy `value` element of base class KVPair"""
+        return json.dumps(self.to_dict())
+
+
+class CommentMetadata(Metadata):
+    r"""Metadata representing
+    a) A fully-fledged comment (as in FoLiA)
+    b) A raw comment (as possible in CoNLL-UP)
+
+    The actual type of comment depends on whether there are other specified metadata.
+    """
+    def __init__(self, text: str, **kwargs):
+        super().__init__(kind="comment", **kwargs)
+        self.text = text
+
+    def specific_properties(self):
+        return [("text", self.text)]
+
+    def to_folia(self, parent: folia.AbstractElement):
+        r"""Construct a `folia.Comment` object representing this comment.
+        The object will be appended to `parent`.
+        """
+        child = parent.append(folia.Comment, value=self.text, **self._folia_kwargs())
+        for sub in self.nested:
+            sub.to_folia(child)
+
+
+class MWEAnnotMetadata(Metadata):
+    r"""Metadata representing an MWE annotation."""
+    def __init__(self, mweid : str = None, categ=None, token_ids=None, token_indexes=None, **kwargs):
+        super().__init__(kind="mweinfo", **kwargs)
+        assert isinstance(mweid, (str, type(None))), mweid
+        self.mweid = mweid  # type: Optional[str]
+        # Ignore these values if given, we will link to an MWEOccur later anyway
+        _ignore = (categ, token_ids, token_indexes)
+
+    def specific_properties(self):
+        if self.mweid:
+            return [("mweid", self.mweid)]
+        do_warn("BUG: field mweid is missing from metadata")
+        return []
+
+    def to_folia(self, mweoccur: 'MWEOccur', sentence: folia.Sentence, layer: folia.EntitiesLayer):
+        r"""Construct a `folia.Entity` object representing this comment.
+        The object will refer to `sentence`, and will be appended to `layer`.
+        """
+        assert mweoccur.category, "Conversion to FoLiA requires all MWEs to have a category"  # checkme
+        folia_words = [sentence[i] for i in mweoccur.indexes]
+        child = layer.append(
+            folia.Entity, *folia_words, cls=mweoccur.category,
+            **self._folia_kwargs())
+        for sub in self.nested:
+            sub.to_folia(child)
 
 
 
 ############################################################
-
-class MWEAnnot(collections.namedtuple('MWEAnnot', 'ranks category')):
-    r"""Represents an MWE annotation.
-    @type ranks: tuple[str]
-    @type category: str
-    """
-    def __new__(cls, ranks, category):
-        assert ranks
-        new_ranks = list(set(ranks))
-        new_ranks.sort(key=lambda r: tuple(int(i) for i in r.split("-")))
-        return super().__new__(cls, tuple(new_ranks), category)
-
-
-    def indexes(self, rank2index):
-        r"""Return all indexes of this MWEAnnot inside a `rank2index` dict.
-        Missing entries are SILENTLY IGNORED (useful for AlignedIterator).
-
-        @type rank2index: dict[str, int]
-        @rtype: tuple[int]
-        """
-        return tuple(rank2index[r] for r in self.ranks if (r in rank2index))
-
-
 
 class Token(collections.Mapping):
     r"""Represents a token in an input file.
@@ -294,21 +357,27 @@ class Token(collections.Mapping):
 
 class CorpusInfo:
     r"""Information from the input corpus."""
-    def __init__(self, file_path: str, colnames: tuple):
+    def __init__(self, lang: str, file_path: str, colnames: tuple):
+        self.lang = lang
         self.file_path = file_path
         self.colnames = colnames
 
 class Sentence:
-    r"""A sequence of tokens."""
+    r"""A sequence of tokens.
+    Each MWE is represented as an MWEOccur (with a MWEAnnotMetadata).
+    Other KVPair metadata are stored in kv_pairs.
+    """
     def __init__(self, corpusinfo: CorpusInfo, nth_sent: int, lineno: int):
         self.corpusinfo = corpusinfo
-        self.file_path = corpusinfo.file_path
         self.nth_sent = nth_sent
         self.lineno = lineno
-        self.toplevel_comments = []  # type: list[ToplevelComment]
-        self.tokens = []
-        self.mweannots = []  # type: list[MWEAnnot]
-        self.mweannots_folia = []  # type: list[folia.Entity]
+        self.tokens = []              # type: list[Token]
+        self.mweoccurs = []           # type: list[MWEOccur]
+        self.kv_pairs = []            # type: list[KVPair]
+
+    @property
+    def file_path(self):
+        return self.corpusinfo.file_path
 
     def __str__(self):
         r"""Return a string representation of the tokens"""
@@ -316,74 +385,54 @@ class Sentence:
 
     def empty(self):
         r"""True iff this Sentence is empty."""
-        return not (self.tokens or self.toplevel_comments or self.mweannots)
+        return not (self.tokens or self.mweoccurs)
 
     def rank2index(self):
         r"""Return a dictionary mapping string ranks to indexes."""
         return {t.rank: index for (index, t) in enumerate(self.tokens)}
 
-    def mwe_occurs(self, lang):
-        r"""Yield MWEOccur instances for all MWEs in self."""
-        rank2index = self.rank2index()
-        for mwe_index, mweannot in enumerate(self.mweannots):
-            userinfo = UserInfo("mwe")
-            if self.mweannots_folia:
-                userinfo = UserInfo.from_folia("mwe", self.mweannots_folia[mwe_index])
-            userinfo.int_id = mwe_index
-            indexes = mweannot.indexes(rank2index)
-            assert indexes, (mweannot, rank2index)
-            yield MWEOccur(lang, self, indexes, mweannot.category, userinfo)
-
     def tokens_and_mwecodes(self):
-        r"""Yield pairs (token, mwecode)."""
-        rank2index = self.rank2index()
+        r"""Yield pairs (token, mwecodes) of type (Token, list[str])."""
         tokenindex2mweindex = collections.defaultdict(list)
-        for mweindex, mweannot in enumerate(self.mweannots):
-            for index in mweannot.indexes(rank2index):
+        for mweindex, mweoccur in enumerate(self.mweoccurs):
+            for index in mweoccur.indexes:
                 tokenindex2mweindex[index].append(mweindex)
 
-        for i, token in enumerate(self.tokens):
-            mwe_is = tokenindex2mweindex[i]
-            yield token, [self._mwecode(token, mwe_i) for mwe_i in mwe_is]
+        for itoken, token in enumerate(self.tokens):
+            mwe_is = tokenindex2mweindex[itoken]
+            yield token, [self._mwecode(itoken, mwe_i) for mwe_i in mwe_is]
 
-    def _mwecode(self, token, mwe_i):
+    def _mwecode(self, itoken, mwe_i):
         r"""Return a string with mweid:category (or just mweid in some cases)."""
-        mweannot = self.mweannots[mwe_i]
-        if mweannot.category and mweannot.ranks[0] == token.rank:
-            return "{}:{}".format(mwe_i+1, mweannot.category)
+        mweoccur = self.mweoccurs[mwe_i]
+        if mweoccur.category and mweoccur.indexes[0] == itoken:
+            return "{}:{}".format(mwe_i+1, mweoccur.category)
         return str(mwe_i+1)
 
     def remove_non_vmwes(self):
         r"""Change the mwe_codes in `self.tokens` so as to remove all NonVMWE tags."""
-        self.mweannots = [m for m in self.mweannots if m.category not in Categories.NON_MWES]
+        self.mweoccurs = [m for m in self.mweoccurs if m.category not in Categories.NON_MWES]
 
     def remove_duplicate_mwes(self):
-        r"""Uniqs self.mweannots (keeps only first occurrence)"""
-        old_mweannots = self.mweannots
-        self.mweannots = [m for (i, m) in enumerate(self.mweannots) if m not in self.mweannots[:i]]
-        if len(self.mweannots) != len(old_mweannots):
-            duplicates = [m for m in old_mweannots if old_mweannots.count(m) > 1]
-            for mweannot in duplicates:
-                self.warn("Removed duplicate MWE: {}".format(mweannot))
+        r"""Uniqs self.mweoccurs (keeps only first occurrence)"""
+        old_mweoccurs = self.mweoccurs
+        self.mweoccurs = [m for (i, m) in enumerate(self.mweoccurs) if m not in self.mweoccurs[:i]]
+        if len(self.mweoccurs) != len(old_mweoccurs):
+            duplicates = [m for m in old_mweoccurs if old_mweoccurs.count(m) > 1]
+            for mweoccurs in duplicates:
+                self.warn("Removed duplicate MWE: {}".format(mweoccurs))
 
 
-    def re_tokenize(self, new_tokens, indexmap):
-        r"""Replace `self.tokens` with given tokens and fix `self.mweannot` based on `indexmap`"""
-        rank2index = self.rank2index()
+    def re_tokenize(self, new_tokens: 'list[Token]', indexmap: 'dict[int,list[int]]'):
+        r"""Replace `self.tokens` with given tokens and fix `self.mweoccurs` based on `indexmap`"""
         self_nsps = set(i for (i, t) in enumerate(self.tokens) if t.nsp)
         self.tokens = [t.with_nospace(i in self_nsps) for (i, t) in enumerate(new_tokens)]
-        self.mweannots = [self._remap(m, rank2index, indexmap) for m in self.mweannots]
-
-    def _remap(self, mweannot, rank2index, indexmap):
-        r"""Remap `mweannot` using new `self.tokens`."""
-        new_indexes = [i_new for i_old in mweannot.indexes(rank2index)
-                for i_new in indexmap[i_old]]  # Python's syntax for a flatmap...
-        return MWEAnnot(tuple(self.tokens[i].rank for i in new_indexes), mweannot.category)
+        self.mweoccurs = [m.remapped_indexes(indexmap) for m in self.mweoccurs]
 
 
     def errprefix(self, *, short=True):
         r"""Return a sentence ID, such as "foo.xml(s.13):78"."""
-        ret = self.file_path if not short else os.path.basename(self.file_path)
+        ret = self.corpusinfo.file_path if not short else os.path.basename(self.corpusinfo.file_path)
         ret += "(s.{})".format(self.nth_sent) if self.nth_sent else ""
         return ret + (":{}".format(self.lineno) if self.lineno else "")
 
@@ -434,29 +483,55 @@ class Sentence:
         return categ
 
 
-    def print_tsv_comments(self, lang: str):
-        r"""Print comments in TSV format."""
-        for toplevel_comment in self.toplevel_comments:
-            print(toplevel_comment.to_tsv())
-        for mweoccur in self.mwe_occurs(lang):
-            print(mweoccur.userinfo.to_tsv())
+    def kvs_with_key(self, key: str):
+        r"""Return the number of kv_pairs with the given key."""
+        return sum(int(kv.key == key) for kv in self.kv_pairs)
+
+    def print_conllup_comments(
+            self, *, output=sys.stdout,
+            gen_missing_req_keys=True, sent_id_key="sent_id"):
+        r"""Print comments in CoNLL-UP format."""
+        kv_pairs = list(self.kv_pairs)
+
+        if gen_missing_req_keys:
+            if self.kvs_with_key(sent_id_key) == 0:
+                kv_pairs.insert(0, self.calc_artificial_sent_id(sent_id_key))
+            if self.kvs_with_key("text") == 0:
+                idx_sentid = next(i for (i, kv) in enumerate(kv_pairs) if kv.key == sent_id_key)
+                kv_pairs.insert(idx_sentid+1, self.calc_artificial_text())
+
+        for kv_pair in kv_pairs:
+            print(kv_pair.to_tsv(), file=output)
+        for mweid, mweoccur in enumerate(self.mweoccurs, 1):
+            mweoccur.metadata.mweid = str(mweid)
+            if not mweoccur.metadata.is_generically_empty():
+                print(mweoccur.metadata.to_tsv(), file=output)
 
 
-    def unique_toplevel_metadata(self, metadata_key: str) -> ToplevelComment:
-        r"""Return a ToplevelComment for given `metadata_key`.
-        If the comment is not unique, raises a ValueError.
+    def unique_kv_pair(self, key: str) -> KVPair:
+        r"""Return a KVPair for given `key`.
+        If the key is not unique, raises a ValueError.
         """
-        kv_pairs = (comment.keyvalue_pair() for comment in self.toplevel_comments)
-        ret = [v for (k, v) in kv_pairs if k == metadata_key]
+        ret = [kv for kv in self.kv_pairs if kv.key == key]
         if len(ret) != 1:
-            raise ValueError('Metadata is not unique: "{}" (found {})'.format(metadata_key, len(ret)))
+            raise ValueError('Metadata key is not unique: "{}" ' \
+                '(found {}, expected 1)'.format(key, len(ret)))
         return ret[0]
 
 
-    def keep_toplevel_metadata_if(self, predicate):
+    def keep_kv_pairs_if(self, predicate):
         r"""Keep only ToplevelComments that satisfy the predicate."""
-        self.toplevel_comments = [tlc for tlc in self.toplevel_comments if predicate(tlc)]
+        self.kv_pairs = [kvpair for kvpair in self.kv_pairs if predicate(kvpair)]
 
+
+    def calc_artificial_text(self) -> KVPair:
+        r"""Calculate required `text` attribute for CoNLL-UP."""
+        return KVPair('text', ''.join(token.surface + ('' if token.nsp else ' ') for token in self.tokens))
+
+    def calc_artificial_sent_id(self, sent_id_key="sent_id") -> KVPair:
+        r"""Calculate required `sent_id` attribute for CoNLL-UP."""
+        return KVPair(sent_id_key, 'autogen--{}--{}'.format(
+            os.path.basename(self.corpusinfo.file_path), self.nth_sent))
 
 
 class MWEOccur:
@@ -464,14 +539,10 @@ class MWEOccur:
     In a type/token distinction: MWELexicalItem is a type and MWEOccur is a token.
 
     Parameters:
-    @type  lang: str
-    @param lang: one of the languages from the `LANGS` global
-    @type  sentence: Sentence
     @param sentence: the sentence in which this MWEOccur was seen
-    @type  indexes: list[int]
     @param indexes: the indexes of the MWE inside `sentence`
-    @type  category: str
     @param category: one of {VID, LVC, IRV...}
+    @param metadata: an instance of MWEAnnotMetadata with extra information (may be a dummy empty instance)
 
     Attributes:
     @type  raw: MWEOccurView
@@ -481,14 +552,14 @@ class MWEOccur:
     @type  reordered: MWEOccurView
     @param reordered: represents tokens in reordered form (e.g. normalizing word-order for LVCs)
     """
-    def __init__(self, lang: str, sentence: Sentence,
-                 indexes: list, category: str, userinfo: UserInfo):
-        assert lang in LANGS
-        self.lang = lang
+    def __init__(self, sentence: Sentence, indexes: 'list[int]',
+                 category: str, metadata: MWEAnnotMetadata):
+        self.lang = sentence.corpusinfo.lang
+        assert self.lang in LANGS
         self.sentence = sentence
         self.indexes = tuple(sorted(indexes))
         self.category = category
-        self.userinfo = userinfo
+        self.metadata = metadata
 
         self.raw = MWEOccurView(self, (sentence.tokens[i] for i in indexes))
         self.fixed = self.raw._with_fixed_tokens()
@@ -514,6 +585,24 @@ class MWEOccur:
             and self.sentence.nth_sent == other.sentence.nth_sent \
             and (set(self.indexes) & set(other.indexes))
 
+    def remapped_indexes(self, indexmap: 'dict[int,list[int]]'):
+        r"""Remap the indexes in self based on indexmap."""
+        new_indexes = [i_new  for i_old in self.indexes for i_new in indexmap.get(i_old, (i_old,))]  # flatmap
+        return MWEOccur(self.sentence, new_indexes, self.category, self.metadata)
+
+    def with_mwes_from_ranges_absorbed_into_tokens(self):
+        r"""Return an MWEOccur where MWEs in ranges are moved into the element tokens."""
+        if not any("-" in self.sentence.tokens[i]['ID'] for i in self.indexes):
+            return self  # No ranges in this MWEOccur, nothing to do
+        r2i = self.sentence.rank2index()
+        indexmap = {}
+        for i in self.indexes:
+            wid = self.sentence.tokens[i]['ID']
+            if "-" in wid:
+                first, last = wid.split('-', 1)
+                indexmap[i] = range(r2i(first), r2i(last)+1)
+        return self.remapped_indexes(indexmap)
+
 
 class MWEOccurSet:
     r'''Represents a set of MWEOccur objects.'''
@@ -524,10 +613,10 @@ class MWEOccurSet:
         r'''Add the MWEOccur to this set.'''
         self._mweos[(mweo.sentence.file_path, mweo.sentence.nth_sent)].append(mweo)
 
-    def add_mweoccurs_from_all(self, sentences: list, lang: str):
+    def add_mweoccurs_from_all(self, sentences: list):
         r'''Add MWEOccur instances for all sentences.'''
         for sent in sentences:
-            for mweo in sent.mwe_occurs(lang):
+            for mweo in sent.mweoccurs:
                 self.add_mweoccur(mweo)
 
     def contains_suspiciously_similar(self, mweo: MWEOccur):
@@ -755,7 +844,7 @@ class MWELexicalItem:
 
     def only_non_vmwes(self):
         r'''True iff all mweoccurs are NonVMWEs.'''
-        return all((o.category in Categories.NON_MWES and o.userinfo.confidence is None) for o in self.mweoccurs)
+        return all((o.category in Categories.NON_MWES and o.metadata.confidence is None) for o in self.mweoccurs)
 
     def contains_mweoccur(self, mweoccur):
         r'''True iff self.mweoccurs contains given MWEOccur.'''
@@ -871,42 +960,54 @@ def basename_without_ext(filepath):
 
 #####################################################################
 
-def iter_aligned_files(file_paths, conllu_paths=None,
-        *, keep_nvmwes=False, default_mwe_category=None,
-        keep_dup_mwes=False, keep_mwe_random_order=False, debug=False):
-    r"""iter_aligned_files(list[str], list[str]) -> Iterable[Sentence]
-    Yield Sentence instances based on file_paths and conllu_paths.
-    """
-    for entity in AlignedIterator.from_paths(
-            file_paths, conllu_paths, default_mwe_category=default_mwe_category, debug=debug):
-        if not keep_nvmwes:
-            entity.remove_non_vmwes()
-        if not keep_dup_mwes:
-            entity.remove_duplicate_mwes()
-        if not keep_mwe_random_order:
-            entity.mweannots.sort()
-        yield entity
+class IterAlignedFiles:
+    r"""Class that yields Sentence instances based on file_paths and conllu_paths."""
+    def __init__(
+            self, lang: str, file_paths: list, conllu_paths=None,
+            *, keep_nvmwes=False, default_mwe_category=None,
+            keep_dup_mwes=False, keep_mwe_random_order=False, debug=False):
+        self.keep_nvmwes = keep_nvmwes
+        self.keep_dup_mwes = keep_dup_mwes
+        self.keep_mwe_random_order = keep_mwe_random_order
+        self.aligned_iterator = AlignedIterator.from_paths(
+            lang, file_paths, conllu_paths, default_mwe_category=default_mwe_category, debug=debug)
+
+    def __iter__(self):
+        for sentence in self.aligned_iterator:
+            assert isinstance(sentence, Sentence)
+            if not self.keep_nvmwes:
+                sentence.remove_non_vmwes()
+            if not self.keep_dup_mwes:
+                sentence.remove_duplicate_mwes()
+            if not self.keep_mwe_random_order:
+                sentence.mweoccurs.sort(key=lambda m: m.indexes)
+            yield sentence
 
 
-def _iter_parseme_file(file_path, default_mwe_category):
-    fileobj = open(file_path, 'r')
+def _iter_parseme_file(lang, file_path, default_mwe_category):
+    fileobj = open(file_path, 'r') if file_path != "-" else sys.stdin
+    corpusinfo = CorpusInfo(lang, file_path, None)
     if b'FoLiA' in fileobj.buffer.peek(1024):
-        return FoliaIterator(file_path, fileobj)
+        return FoliaIterator(corpusinfo, fileobj)
     if b'global.columns' in fileobj.buffer.peek(1024):
-        return ConllupIterator(file_path, fileobj, default_mwe_category)
-    return ParsemeTSVIterator(file_path, fileobj, default_mwe_category)
+        return ConllupIterator(corpusinfo, fileobj, default_mwe_category)
+    return ParsemeTSVIterator(corpusinfo, fileobj, default_mwe_category)
 
 
 class AlignedIterator:
     r"""Yield Sentence instances based on the given iterators."""
-    def __init__(self, main_iterator, conllu_iterator, debug=False):
-        self.main_iterator = main_iterator
-        self.conllu_iterator = conllu_iterator
-        self.main = collections.deque(main_iterator)
-        self.conllu = collections.deque(conllu_iterator)
+    def __init__(self, main_iterators: list, conllu_iterators: 'Optional[list]', debug=False):
+        self.main_iterators = main_iterators
+        self.conllu_iterators = conllu_iterators
+        self.main = collections.deque(itertools.chain.from_iterable(main_iterators))
+        self.conllu = collections.deque(itertools.chain.from_iterable(conllu_iterators)) if conllu_iterators else None
         self.debug = debug
 
     def __iter__(self):
+        if self.conllu_iterators is None:
+            yield from iter(self.main)
+            return
+
         while self.main or self.conllu:
             _warn_if_none(
                 self.main[0] if self.main else None,
@@ -917,7 +1018,7 @@ class AlignedIterator:
             if conllu_s:
                 # Ignore all ToplevelComments in TSV (do NOT yield them)
                 # Yield ToplevelComments in from CoNLL-U instead
-                main_s.toplevel_comments = conllu_s.toplevel_comments
+                main_s.kv_pairs = conllu_s.kv_pairs
 
             tok_aligner = TokenAligner(main_s, conllu_s, debug=self.debug)
             indexmap = tok_aligner.index_mapping(main_s, conllu_s)
@@ -939,15 +1040,14 @@ class AlignedIterator:
 
 
     @staticmethod
-    def from_paths(main_paths, conllu_paths, *, default_mwe_category=None, debug=False):
+    def from_paths(lang: str, main_paths, conllu_paths, *, default_mwe_category=None, debug=False):
         r"""Return an AlignedIterator for the given paths.
         (Special case: if conllu_paths is None, return a simpler kind of iterator)."""
         chain_iter = itertools.chain.from_iterable
-        main_iterator = chain_iter(_iter_parseme_file(p, default_mwe_category) for p in main_paths)
-        if not conllu_paths:
-            return main_iterator
-        conllu_iterator = chain_iter(ConllIterator(p, open(p, 'r'), default_mwe_category) for p in conllu_paths)
-        return AlignedIterator(main_iterator, conllu_iterator, debug)
+        main_iterators = [_iter_parseme_file(lang, p, default_mwe_category) for p in main_paths]
+        conllu_iterators = None if not conllu_paths else \
+            [ConlluIterator(CorpusInfo(lang, p, None), open(p, 'r'), default_mwe_category) for p in conllu_paths]
+        return AlignedIterator(main_iterators, conllu_iterators, debug)
 
 
 def _warn_if_none(main_sentence, conllu_sentence):
@@ -963,8 +1063,8 @@ def _warn_if_none(main_sentence, conllu_sentence):
 
 class SentenceAligner:
     def __init__(self, main_sentences, conllu_sentences, debug=False):
-        self.main_sentences = _filter_sentences(main_sentences)
-        self.conllu_sentences = _filter_sentences(conllu_sentences)
+        self.main_sentences = list(main_sentences)
+        self.conllu_sentences = list(conllu_sentences)
         self.debug = debug
         main_surfs = [tuple(t.surface for t in sent.tokens) for sent in self.main_sentences]
         conllu_surfs = [tuple(t.surface for t in sent.tokens) for sent in self.conllu_sentences]
@@ -1020,11 +1120,6 @@ class SentenceAligner:
             yield range(main1+size1, main2), range(conll1+size1, conll2)
 
 
-def _filter_sentences(elements):
-    return [e for e in elements if isinstance(e, Sentence)]
-
-
-
 class TokenAligner:
     def __init__(self, main_sentence, conllu_sentence, debug=False):
         self.main_sentence = main_sentence
@@ -1074,8 +1169,8 @@ class TokenAligner:
     def warn_mismatch(self, range_gap_main, range_gap_conllu):
         r"""Warn users when the two ranges do not match (one or both ranges may be empty)."""
         if range_gap_main:
-            affected_mweids = [mwe_i+1 for (mwe_i, m) in enumerate(self.main_sentence.mweannots) \
-                    if any((self.main_sentence.tokens[token_i].rank in m.ranks) for token_i in range_gap_main)]
+            affected_mweids = [mwe_i+1 for (mwe_i, m) in enumerate(self.main_sentence.mweoccurs) \
+                    if any((token_i in m.indexes) for token_i in range_gap_main)]
             self.warn_gap_main(range_gap_main, range_gap_conllu, affected_mweids)
 
         if range_gap_conllu:
@@ -1111,49 +1206,92 @@ class TokenAligner:
 
 class FoliaIterator:
     r"""Yield Sentence's for file_path."""
-    def __init__(self, file_path, fileobj):
-        self.file_path = file_path
+    XML_CONLLUP_SEP = "`"  # one-byte separator that is easier to read than a tab
+
+    def __init__(self, corpusinfo, fileobj):
         self.fileobj = fileobj
+        self.corpusinfo = corpusinfo
+        self.nth_sent = None
+
+    def do_warn(self, msg_fmt, **kwargs):
+        prefix = os.path.basename(self.corpusinfo.file_path)
+        if self.nth_sent:
+            prefix += "(s.{})".format(self.nth_sent)
+        do_warn(msg_fmt, prefix=prefix, **kwargs)
 
     def __iter__(self):
         doc = folia.Document(string=self.fileobj.read())
         doc.filename = self.fileobj
+        self.colnames = None if "conllup-colnames" not in doc.metadata \
+                else doc.metadata["conllup-colnames"].split(FoliaIterator.XML_CONLLUP_SEP)
+
         for folia_nonembedded_entitieslayer in doc.select(folia.EntitiesLayer, recursive=False):
             for folia_nonembedded_entity in folia_nonembedded_entitieslayer.select(folia.Entity):
-                do_warn('Ignoring MWE outside the scope of a single sentence: {id!r}',
-                        prefix=os.path.basename(self.file_path), id=folia_nonembedded_entity.id)
+                self.do_warn('Ignoring MWE outside the scope of a single sentence: {id!r}', id=folia_nonembedded_entity.id)
 
-        corpusinfo = CorpusInfo(self.file_path, None)
-        for nth, folia_sentence in enumerate(doc.select(folia.Sentence), 1):
-            current_sentence = Sentence(corpusinfo, nth, None)
-            mwes = list(folia_sentence.select(folia.Entity))
-            self.calc_mweannots(mwes, folia_sentence, current_sentence)
-
+        for self.nth_sent, folia_sentence in enumerate(doc.select(folia.Sentence), 1):
+            current_sentence = Sentence(self.corpusinfo, self.nth_sent, None)
             for rank, word in enumerate(folia_sentence.words(), 1):
-                # ID FORM LEMMA UPOS XPOS FEATS HEAD DEPREL DEPS MISC
-                conllu = {
+                tokendict = {
                     'ID': str(rank),
                     'FORM': word.text() or '_',
                     'MISC': ('' if word.space else 'SpaceAfter=No'),
                 }
-                current_sentence.tokens.append(Token(conllu))
+                if self.colnames:
+                    for foreign in word.select(folia.ForeignData):
+                        for _xmltag, kv_elem in self.foreign_tag_elems(foreign, ["conllup-columns"]):
+                            cols_str = kv_elem.attrib["columns"]
+                            cols = [c.replace(FoliaIterator.XML_CONLLUP_SEP, "\t")
+                                    for c in cols_str.split(FoliaIterator.XML_CONLLUP_SEP)]
+                            tokendict2 = {k: v for (k, v) in zip(self.colnames, cols) if v != "_"}
+                            tokendict2.pop("PARSEME:MWE", None)  # drop this info, if existent
+                            tokendict.update(tokendict2)
+                current_sentence.tokens.append(Token(tokendict))
 
+            self.iter_kv_pairs(current_sentence, folia_sentence)
+            folia_mwes = list(folia_sentence.select(folia.Entity))
+            self.calc_mweoccurs(current_sentence, folia_mwes, folia_sentence)
             yield current_sentence
 
 
-    def calc_mweannots(self, mwes, folia_sentence, output_sentence):
-        sent_word_ids = [w.id for w in folia_sentence.select(folia.Word)]
-        for mwe in mwes:
+    def iter_kv_pairs(self, output_sentence: Sentence, folia_sentence):
+        r"""Append instances of KVPair (or subclasses) to `output_sentence.kv_pairs`."""
+        conllup_columns = []
+        for fdata in folia_sentence.select((folia.ForeignData, folia.Comment), recursive=False):
+            if isinstance(fdata, folia.Comment):
+                output_sentence.kv_pairs.append(Metadata.from_folia(fdata))
+            else:
+                for _xmltag, kv_elem in self.foreign_tag_elems(fdata, ["kv-pair"]):
+                    output_sentence.kv_pairs.append(KVPair(kv_elem.attrib["key"], kv_elem.attrib["value"]))
+
+
+    def calc_mweoccurs(self, output_sentence: Sentence, folia_mwes, folia_sentence):
+        r"""Append instances of `MWEOccur` to `output_sentence.mweoccurs`."""
+        word_id2index = {w.id: i for i, w in enumerate(folia_sentence.words())}
+        sent_word_ids = [w.id for w in folia_sentence.words()]
+        for mwe in folia_mwes:
             mwe_word_ids = [w.id for w in mwe.wrefs()]
             if not mwe_word_ids:  # ignore empty Entities produced by FLAT
                 output_sentence.warn('Ignoring empty MWE: {id!r}', id=mwe.id)
             elif any(w.id not in sent_word_ids for w in mwe.wrefs()):
                 output_sentence.warn('Ignoring misplaced MWE: {id!r}', id=mwe.id)
             else:
-                ranks = [w.id.rsplit(".",1)[-1] for w in mwe.wrefs()]
                 categ = output_sentence.check_and_convert_categ(mwe.cls)
-                output_sentence.mweannots.append(MWEAnnot(ranks, categ))
-                output_sentence.mweannots_folia.append(mwe)
+                indexes = [word_id2index[w.id] for w in mwe.wrefs()]
+                output_sentence.mweoccurs.append(MWEOccur(
+                    output_sentence, indexes, categ, Metadata.from_folia(mwe)))
+
+
+    def foreign_tag_elems(self, foreign: folia.ForeignData, expected_tags: list):
+        r"""Yield (xmltag: str, elem: etree.Element) pairs for foreign elements
+        if `tag` is in the list of `expected` tags.
+        """
+        for kv_elem in foreign.node.getchildren():
+            xmltag = kv_elem.tag.split('}', 1)[-1]
+            if xmltag in expected_tags:
+                yield (xmltag, kv_elem)
+            else:
+                self.do_warn('Ignoring unknown foreign data in XML: <{tag}> (expecting: {exp})', tag=xmltag, exp=expected_tags)
 
 
 
@@ -1163,9 +1301,8 @@ class AbstractFileIterator:
     @param default_mwe_category: category to use when one is missing (str);
                                  if not specified, raises an error instead
     '''
-    def __init__(self, file_path, fileobj, default_mwe_category):
-        self.file_path = file_path
-        self.corpusinfo = CorpusInfo(file_path, None)
+    def __init__(self, corpusinfo, fileobj, default_mwe_category):
+        self.corpusinfo = corpusinfo
         self.fileobj = fileobj
         self.default_mwe_category = default_mwe_category
         self.nth_sent = 0
@@ -1175,9 +1312,10 @@ class AbstractFileIterator:
     def _new_sent(self):
         self.nth_sent += 1
         self.curr_sent = Sentence(self.corpusinfo, self.nth_sent, self.lineno+1)
-        self.pending_userinfo = []
+        self.mwe_metadata = {}
         self.id2mwe_categ = {}
         self.id2mwe_ranks = collections.defaultdict(list)
+        self.id2mwe_indexes = collections.defaultdict(list)
 
     def get_token_and_mwecodes(self, fields: list) -> (Token, list):
         r"""Return a Token and a list of mwecodes (str)
@@ -1194,8 +1332,12 @@ class AbstractFileIterator:
             for key in self.id2mwe_ranks:
                 self.id2mwe_categ.setdefault(key, self.default_mwe_category)
         try:
-            s.mweannots = [MWEAnnot(tuple(self.id2mwe_ranks[id]),
-                self.id2mwe_categ[id]) for id in sorted(self.id2mwe_ranks)]
+            s.mweoccurs = [MWEOccur(s, tuple(self.id2mwe_indexes[id]), self.id2mwe_categ[id],
+                                    self.mwe_metadata.pop(id, MWEAnnotMetadata()))
+                           for id in sorted(self.id2mwe_ranks)]
+            for meta in self.mwe_metadata.values():
+                s.warn("Metadata with mweid {mweid!r} refers to unknown MWE", mweid=meta.mweid)
+                s.kv_pairs.append(meta)
         except KeyError as e:
             self.warn("MWE has no category: {categ}", categ=e.args[0])
         self._new_sent()
@@ -1203,19 +1345,22 @@ class AbstractFileIterator:
         return s
 
     def warn(self, msg_fmt, **kwargs):
-        do_warn(msg_fmt, prefix="{}:{}".format(self.file_path, self.lineno), **kwargs)
+        do_warn(msg_fmt, prefix="{}:{}".format(self.corpusinfo.file_path, self.lineno), **kwargs)
 
     def make_comment(self, line):
         if self.curr_sent.tokens:
             self.warn("Comment in the middle of a sentence is not allowed")
-        match = UserInfo.TSV_REGEX.match(line)
-        if match:
-            scope, json_str = match.groups()
-            self.pending_userinfo.append(UserInfo.from_dict(
-                scope, json.loads(json_str)))
+        match = KVPair.KV_REGEX.match(line)
+        keyval = KVPair.from_conllup(*match.groups()) if match else KVPair("RAWLINE", line[1:].strip())
+        if isinstance(keyval, MWEAnnotMetadata):
+            assert keyval.mweid not in self.mwe_metadata
+            self.mwe_metadata[keyval.mweid] = keyval
+        elif keyval.key == "global.columns":
+            self.corpusinfo.colnames = keyval.value.strip().split()
         else:
-            self.curr_sent.toplevel_comments.append(ToplevelComment(
-                self.file_path, self.lineno, line[1:].strip()))
+            if keyval.key == "source_sent_id":
+                keyval = KVPair("sent_id", keyval.value)
+            self.curr_sent.kv_pairs.append(keyval)
 
     def append_token(self, line):
         token, mwecodes = self.get_token_and_mwecodes(line.split("\t"))  # method defined in subclass
@@ -1223,6 +1368,7 @@ class AbstractFileIterator:
         for mwecode in mwecodes:
             index_and_categ = mwecode.split(":")
             self.id2mwe_ranks[index_and_categ[0]].append(token.rank)
+            self.id2mwe_indexes[index_and_categ[0]].append(len(self.curr_sent.tokens))
             if len(index_and_categ) == 2 and index_and_categ[1]:
                 categ = self.curr_sent.check_and_convert_categ(index_and_categ[1])
                 self.id2mwe_categ.setdefault(index_and_categ[0], categ)
@@ -1242,7 +1388,7 @@ class AbstractFileIterator:
                     else:
                         self.append_token(line)
                 except:
-                    self.warn("Error when reading token", warntype="FATAL")
+                    self.warn("Unable to read & parse line", warntype="FATAL")
                     raise
             if not self.curr_sent.empty():
                 yield self.finish_sentence()
@@ -1255,7 +1401,7 @@ class AbstractFileIterator:
         return []  # Nothing to yield on footer
 
 
-class ConllIterator(AbstractFileIterator):
+class ConlluIterator(AbstractFileIterator):
     UD_KEYS = 'ID FORM LEMMA UPOS XPOS FEATS HEAD DEPREL DEPS MISC'.split()
 
     def get_token_and_mwecodes(self, data):
@@ -1265,11 +1411,12 @@ class ConllIterator(AbstractFileIterator):
 
 
 class ConllupIterator(AbstractFileIterator):
-    def __init__(self, file_path, fileobj, default_mwe_category):
-        super().__init__(file_path, fileobj, default_mwe_category)
+    def __init__(self, corpusinfo, fileobj, default_mwe_category):
+        super().__init__(corpusinfo, fileobj, default_mwe_category)
         first_lines = fileobj.buffer.peek(1024*10)
-        colnames = ToplevelComment.GLOBAL_COLUMNS_REGEX.search(first_lines).group(1)
-        self.corpusinfo.colnames = tuple(colnames.decode('utf8').split())
+        # XXX
+        #colnames = KVPair.GLOBAL_COLUMNS_REGEX.search(first_lines).group(1)
+        #self.corpusinfo.colnames = tuple(colnames.decode('utf8').split())
 
     def get_token_and_mwecodes(self, data):
         if len(data) != len(self.corpusinfo.colnames):
@@ -1284,7 +1431,7 @@ class ParsemeTSVIterator(AbstractFileIterator):
     def get_token_and_mwecodes(self, data):
         if len(data) == 5:
             warn_once(
-                "{}:{}".format(self.file_path, self.lineno),
+                "{}:{}".format(self.corpusinfo.file_path, self.lineno),
                 "Silently ignoring 5th parsemetsv column")
             data.pop()  # remove data[-1]
         elif len(data) != 4:
@@ -1304,7 +1451,7 @@ class ParsemeTSVIterator(AbstractFileIterator):
 ############################################################
 
 class AbstractWriter:
-    def __init__(self, output=sys.stdout):
+    def __init__(self, *, output=sys.stdout):
         self.output = output
         self.sentno = 0
 
@@ -1320,24 +1467,32 @@ class AbstractWriter:
 
 
 class ConllupWriter(AbstractWriter):
+    def __init__(self, *, output=sys.stdout, colnames=None):
+        super().__init__(output=output)
+        self.colnames = colnames
+
     def _do_write_sentence(self, sent):
         if self.sentno == 1:
-            print("# global.columns =", " ".join(sent.corpusinfo.colnames), file=self.output)
-            sent.keep_toplevel_metadata_if(lambda x: x.keyvalue_pair()[0] != 'global.columns')
-        for comment in sent.toplevel_comments:
-            print(comment.to_tsv(), file=self.output)
-        for tok, mwecodes in sent.tokens_and_mwecodes():
-            if mwecodes :
-                mwe = ";".join(mwecodes) 
-            elif "-" in tok["ID"] :            
-                mwe = "*" # The PARSEME:MWE column is not defined for multiword tokens <= CHANGE THIS IN THE FUTURE PUT _
-            else :
-                mwe = '*'
-            
-            line = "\t".join(tok.get(col, "_") if col != 'PARSEME:MWE' else mwe
-                             for col in sent.corpusinfo.colnames)
+            self.colnames = self.colnames or sent.corpusinfo.colnames \
+                or ConlluIterator.UD_KEYS + ["PARSEME:MWE"]
+            print("# global.columns =", " ".join(self.colnames), file=self.output)
+            sent.keep_kv_pairs_if(lambda x: x.key != 'global.columns')
+
+        sent.print_conllup_comments(output=self.output)
+        for token, mwecodes in sent.tokens_and_mwecodes():
+            line = "\t".join(self.token_values(token, self.colnames, mwecodes))
             print(line, file=self.output)
         print(file=self.output)
+
+    def token_values(self, token: Token, colnames: list, mwecodes: 'list[str]'):
+        for colname in colnames:
+            if colname == 'PARSEME:MWE':
+                if "-" in token["ID"]:
+                    yield "*" # The PARSEME:MWE column is not defined for multiword tokens <= CHANGE THIS IN THE FUTURE PUT _
+                else:
+                    yield ";".join(mwecodes) or "*"
+            else:
+                yield token.get(colname, EMPTY)
 
 
 ############################################################
@@ -1412,21 +1567,11 @@ class InputContext:
 
 ############################################################
 
-def iter_sentences(input_paths, conllu_paths, verbose=True):
-    r"""Utility function: yield all sentences in `input_paths`.
-    (Output sentences are aligned, if CoNLL-U was provided or could be automatically found).
-    """
-    conllu_paths = conllu_paths or calculate_conllu_paths(input_paths, warn=verbose)
-    for elem in iter_aligned_files(input_paths, conllu_paths, keep_nvmwes=True, debug=verbose):
-        if isinstance(elem, Sentence):
-            yield elem
-
-
-def read_mwelexitems(lang, iter_sentences):
+def read_mwelexitems(iter_sentences):
     r"""Return two lists: (list[MWELexicalItem], list[MWELexicalItem]).
     The first list concerns real MWEs, while the second concerns strictly NonVMWEs.
     """
-    lf2mweoccurs = _lemmatizedform2mweoccurs(lang, iter_sentences)  # type: dict[tuple[str], list[MWEOccur]]
+    lf2mweoccurs = _lemmatizedform2mweoccurs(iter_sentences)  # type: dict[tuple[str], list[MWEOccur]]
     lemmatizedform2mwe_mixed = collections.OrderedDict()  # type: dict[tuple[str], MWELexicalItem]
     lemmatizedform2mwe_nvmwe = collections.OrderedDict()  # type: dict[tuple[str], MWELexicalItem]
 
@@ -1439,11 +1584,11 @@ def read_mwelexitems(lang, iter_sentences):
     return (list(lemmatizedform2mwe_mixed.values()), list(lemmatizedform2mwe_nvmwe.values()))
 
 
-def _lemmatizedform2mweoccurs(lang, iter_sentences):
+def _lemmatizedform2mweoccurs(iter_sentences):
     r'''Return a dict[tuple[str], list[MWEOccur]].'''
     ret = collections.defaultdict(list)  # type: dict[tuple[str], list[MWEOccur]]
     for sentence in iter_sentences:
-        for mwe_occur in sentence.mwe_occurs(lang):
+        for mwe_occur in sentence.mweoccurs:
             lemmatizedform = FrozenCounter(mwe_occur.reordered.likely_lemmatizedform)
             ret[lemmatizedform].append(mwe_occur)
     return ret
@@ -1507,8 +1652,8 @@ class AbstractSkippedFinder:
         a new MWEOccur for "Skipped" MWE in sentence (at given indexes).
         """
         indexes = tuple(sorted(indexes))
-        userinfo = UserInfo("mwe", annotator='autodetect', annotatortype='auto')
-        new_occur = MWEOccur(self.lang, sentence, indexes, "Skipped", userinfo)
+        metadata = MWEAnnotMetadata(annotator='autodetect', annotatortype='auto')
+        new_occur = MWEOccur(sentence, indexes, "Skipped", metadata)
         return (mwelexitem, new_occur)
 
 
