@@ -988,11 +988,20 @@ class IterAlignedFiles:
 def _iter_parseme_file(lang, file_path, default_mwe_category):
     fileobj = open(file_path, 'r') if file_path != "-" else sys.stdin
     corpusinfo = CorpusInfo(lang, file_path, None)
-    if b'FoLiA' in fileobj.buffer.peek(1024):
+    header = fileobj.buffer.peek(4096)
+
+    if b'<FoLiA' in header:
         return FoliaIterator(corpusinfo, fileobj)
-    if b'global.columns' in fileobj.buffer.peek(1024):
+    if b'global.columns' in header:
         return ConllupIterator(corpusinfo, fileobj, default_mwe_category)
-    return ParsemeTSVIterator(corpusinfo, fileobj, default_mwe_category)
+
+    header_lines = [x for x in header.split(b"\n") if x.strip() and not x.startswith(b"#")]
+    n_cols = collections.Counter(len(x.split(b"\t")) for x in header_lines).most_common(1)[0][0]
+    if n_cols == 4:
+        return ParsemeTSVIterator(corpusinfo, fileobj, default_mwe_category)
+    if n_cols == 10:
+        return ConlluIterator(corpusinfo, fileobj, default_mwe_category)
+    raise Exception("Unknown file format (TSV with {} columns): {!r}".format(n_cols, file_path))
 
 
 class AlignedIterator:
@@ -1404,6 +1413,9 @@ class AbstractFileIterator:
 
 class ConlluIterator(AbstractFileIterator):
     UD_KEYS = 'ID FORM LEMMA UPOS XPOS FEATS HEAD DEPREL DEPS MISC'.split()
+    def __init__(self, corpusinfo, fileobj, default_mwe_category):
+        corpusinfo.colnames = self.UD_KEYS
+        super().__init__(corpusinfo, fileobj, default_mwe_category)
 
     def get_token_and_mwecodes(self, data):
         if len(data) != 10:
@@ -1412,13 +1424,6 @@ class ConlluIterator(AbstractFileIterator):
 
 
 class ConllupIterator(AbstractFileIterator):
-    def __init__(self, corpusinfo, fileobj, default_mwe_category):
-        super().__init__(corpusinfo, fileobj, default_mwe_category)
-        first_lines = fileobj.buffer.peek(1024*10)
-        # XXX
-        #colnames = KVPair.GLOBAL_COLUMNS_REGEX.search(first_lines).group(1)
-        #self.corpusinfo.colnames = tuple(colnames.decode('utf8').split())
-
     def get_token_and_mwecodes(self, data):
         if len(data) != len(self.corpusinfo.colnames):
             self.warn("Line has {n} columns, not {n_exp}", n=len(data), n_exp=len(self.corpusinfo.colnames))
@@ -1429,6 +1434,10 @@ class ConllupIterator(AbstractFileIterator):
 
 
 class ParsemeTSVIterator(AbstractFileIterator):
+    def __init__(self, corpusinfo, fileobj, default_mwe_category):
+        corpusinfo.colnames = ["ID", "FORM", "MISC", "PARSEME:MWE"]
+        super().__init__(corpusinfo, fileobj, default_mwe_category)
+
     def get_token_and_mwecodes(self, data):
         if len(data) == 5:
             warn_once(
