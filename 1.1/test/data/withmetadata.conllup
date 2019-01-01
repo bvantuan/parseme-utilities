@@ -1,0 +1,109 @@
+# global.columns = ID FORM LEMMA UPOS XPOS FEATS HEAD DEPREL DEPS MISC PARSEME:MWE
+#
+# sent_id = sample-s1
+# text = Por causa disso , foram eliminados e retirados das salas de prova 37 candidatos .
+1	Por	por	ADP	ADP	AdpType=Prep	6	nmod	_	_	*
+2	causa	causa	NOUN	NOUN	_	1	mwe	_	_	*
+3	disso	de+isso	X	ADPPRON	AdpType=Prep|Gender=Masc|Number=Sing|PronType=Dem	1	mwe	_	_	*
+4	,	,	PUNCT	.	_	1	punct	_	_	*
+5	foram	ser	AUX	AUX	Mood=Ind|Number=Plur|Person=3|Tense=Past|VerbForm=Fin	6	auxpass	_	_	*
+6	eliminados	eliminar	VERB	VERB	Gender=Masc|Number=Plur|VerbForm=Part	0	root	_	_	*
+7	e	e	CONJ	CONJ	_	6	cc	_	_	*
+8	retirados	retirado	VERB	VERB	Gender=Masc|Number=Plur|VerbForm=Part	6	conj	_	_	*
+9	das	de+o	ADP	ADP	AdpType=Prep|Definite=Def|Gender=Fem|Number=Plur|PronType=Art	10	case	_	_	*
+10	salas	sala	NOUN	NOUN	Gender=Fem|Number=Plur	6	nmod	_	_	*
+11	de	de	ADP	ADP	AdpType=Prep	12	case	_	_	*
+12	prova	prova	NOUN	NOUN	Gender=Fem|Number=Sing	10	nmod	_	_	*
+13	37	37	NUM	NUM	Gender=Fem|Number=Plur|NumType=Card	14	nummod	_	_	*
+14	candidatos	candidato	NOUN	NOUN	Gender=Masc|Number=Plur	6	nsubjpass	_	_	*
+15	.	.	PUNCT	.	_	6	punct	_	_	*
+
+# sent_id = sample-s47
+# text = " Sabemos que o problema não se resume a apenas a escola , mas a única forma de garantir a vida ea integridade física de alunos , professores e diretores foi essa .
+# metadata = {"kind": "comment", "text": "Some comment about this sentence.", "annotator": "silvio.cordeiro", "nested": [{"kind": "comment", "text": "Nested ONE"}, {"kind": "comment", "text": "Nested TWO"}]}
+# metadata = {"kind": "mweinfo", "mweid": "1", "annotator": "silvio.cordeiro", "annotatortype": "manual", "datetime": "2017-11-13T07:09:40"}
+1	"	"	PUNCT	.	_	2	punct	_	_	*
+2	Sabemos	saber	VERB	VERB	Mood=Ind|Number=Plur|Person=1|Tense=Pres|VerbForm=Fin	0	root	_	_	*
+3	que	que	CONJ	CONJ	_	8	mark	_	_	*
+4	o	o	DET	DET	Definite=Def|Gender=Masc|Number=Sing|PronType=Art	5	det	_	_	*
+5	problema	problema	NOUN	NOUN	Gender=Masc|Number=Sing	8	nsubj	_	_	*
+6	não	não	ADV	ADV	_	8	neg	_	_	*
+7	se	se	PRON	PRON	Case=Acc|Person=3|PronType=Prs	8	expl	_	_	1:IRV
+8	resume	resumer	VERB	VERB	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	2	ccomp	_	_	1
+9	a	o	ADP	ADP	Definite=Def|Gender=Fem|Number=Sing|PronType=Art	12	case	_	_	*
+10	apenas	apenas	ADV	ADV	_	12	advmod	_	_	*
+11	a	o	DET	DET	Definite=Def|Gender=Fem|Number=Sing|PronType=Art	12	dep	_	_	*
+12	escola	escola	NOUN	NOUN	Gender=Fem|Number=Sing	8	nmod	_	_	*
+13	,	,	PUNCT	.	_	12	punct	_	_	*
+14	mas	mas	CONJ	CONJ	_	8	cc	_	_	*
+15	a	o	DET	DET	Definite=Def|Gender=Fem|Number=Sing|PronType=Art	17	det	_	_	*
+16	única	único	ADJ	ADJ	Gender=Fem|Number=Sing	17	amod	_	_	*
+17	forma	forma	NOUN	NOUN	Gender=Fem|Number=Sing	8	conj	_	_	*
+18	de	de	ADP	ADP	AdpType=Prep	19	mark	_	_	*
+19	garantir	garantir	VERB	VERB	VerbForm=Inf	17	nmod	_	_	*
+20	a	o	DET	DET	Definite=Def|Gender=Fem|Number=Sing|PronType=Art	21	det	_	_	*
+21	vida	vida	NOUN	NOUN	Gender=Fem|Number=Sing	19	dobj	_	_	*
+22	ea	eo	CONJ	CONJ	Gender=Fem|Number=Sing	21	cc	_	_	*
+23	integridade	integridade	NOUN	NOUN	Gender=Fem|Number=Sing	21	conj	_	_	*
+24	física	físico	ADJ	ADJ	Gender=Fem|Number=Sing	23	amod	_	_	*
+25	de	de	ADP	ADP	AdpType=Prep	26	case	_	_	*
+26	alunos	aluno	NOUN	NOUN	Gender=Masc|Number=Plur	21	nmod	_	_	*
+27	,	,	PUNCT	.	_	26	punct	_	_	*
+28	professores	professores	NOUN	NOUN	Gender=Masc|Number=Plur	26	conj	_	_	*
+29	e	e	CONJ	CONJ	_	26	cc	_	_	*
+30	diretores	diretores	NOUN	NOUN	Gender=Masc|Number=Plur	26	conj	_	_	*
+31	foi	ser	VERB	VERB	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	17	cop	_	_	*
+32	essa	imir	PRON	PRON	Gender=Fem|Number=Sing|VerbForm=Part	17	nsubj	_	_	*
+33	.	.	PUNCT	.	_	2	punct	_	_	*
+
+# sent_id = sample-s52
+# text = Não vou colocar nossas prioridades em leilão ou virar aposta para " se " fulano se eleger " .
+# metadata = {"kind": "mweinfo", "mweid": "1", "annotator": "silvio.cordeiro", "annotatortype": "manual", "datetime": "2017-11-13T07:15:25", "confidence": 0.32}
+# metadata = {"kind": "mweinfo", "mweid": "2", "annotator": "silvio.cordeiro", "annotatortype": "manual", "datetime": "2017-11-13T07:16:00"}
+# metadata = {"kind": "mweinfo", "mweid": "3", "annotator": "silvio.cordeiro", "annotatortype": "manual", "datetime": "2017-11-13T07:15:48", "nested": [{"kind": "comment", "text": "Some comment about this MWE annotation", "annotator": "silvio.cordeiro"}]}
+1	Não	não	ADV	ADV	_	3	neg	_	_	*
+2	vou	ir	AUX	AUX	Mood=Ind|Number=Sing|Person=1|Tense=Pres|VerbForm=Fin	3	aux	_	_	*
+3	colocar	colocar	VERB	VERB	VerbForm=Inf	0	root	_	_	1:VID
+4	nossas	nosse	DET	DET	Gender=Fem|Number=Plur|PronType=Dem	5	det:poss	_	_	*
+5	prioridades	prioridade	NOUN	NOUN	Gender=Fem|Number=Plur	3	dobj	_	_	*
+6	em	em	ADP	ADP	AdpType=Prep	7	case	_	_	1
+7	leilão	leilão	NOUN	NOUN	Gender=Fem|Number=Sing	3	nmod	_	_	1
+8	ou	ou	CONJ	CONJ	_	3	cc	_	_	*
+9	virar	virar	VERB	VERB	VerbForm=Inf	3	conj	_	_	2:NotMWE
+10	aposta	aposta	NOUN	NOUN	Gender=Fem|Number=Sing	9	dobj	_	_	2
+11	para	para	ADP	ADP	AdpType=Prep	17	mark	_	_	*
+12	"	"	PUNCT	.	_	17	punct	_	_	*
+13	se	se	CONJ	CONJ	Case=Acc|Person=3|PronType=Prs	17	mark	_	_	*
+14	"	"	PUNCT	.	_	17	punct	_	_	*
+15	fulano	fulano	NOUN	NOUN	Gender=Masc|Number=Sing	17	nsubj	_	_	*
+16	se	se	PART	PRT	_	17	expl	_	_	3:NotMWE
+17	eleger	eleger	VERB	VERB	VerbForm=Inf	10	nmod	_	_	3
+18	"	"	PUNCT	.	_	3	punct	_	_	*
+19	.	.	PUNCT	.	_	3	punct	_	_	*
+
+# sent_id = sample-s53
+# text = Atualmente , o PSD tem a quarta maior bancada na Câmara dos Deputados , com 52 deputados eleitos e 48 em exercício .
+1	Atualmente	atualmente	ADV	ADV	_	5	advmod	_	_	*
+2	,	,	PUNCT	.	_	1	punct	_	_	*
+3	o	o	DET	DET	Definite=Def|Gender=Masc|Number=Sing|PronType=Art	4	det	_	_	*
+4	PSD	PSD	PROPN	PNOUN	Gender=Masc|Number=Sing	5	nsubj	_	_	*
+5	tem	ter	VERB	VERB	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	_	*
+6	a	o	DET	DET	Definite=Def|Gender=Fem|Number=Sing|PronType=Art	9	det	_	_	*
+7	quarta	quarto	ADJ	ADJ	Gender=Fem|Number=Sing	9	amod	_	_	*
+8	maior	grande	ADJ	ADJ	Degree=Cmp|Gender=Fem|Number=Sing	9	amod	_	_	*
+9	bancada	bancada	NOUN	NOUN	Gender=Fem|Number=Sing|VerbForm=Part	5	dobj	_	_	*
+10	na	em+o	ADP	ADP	AdpType=Prep|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	11	case	_	_	*
+11	Câmara	Câmara	PROPN	PNOUN	_	5	nmod	_	_	*
+12	dos	de+o	ADP	ADP	AdpType=Prep|Definite=Def|Gender=Masc|Number=Plur|PronType=Art	13	case	_	_	*
+13	Deputados	Deputados	PROPN	PNOUN	_	11	nmod	_	_	*
+14	,	,	PUNCT	.	_	17	punct	_	_	*
+15	com	com	ADP	ADP	AdpType=Prep	17	case	_	_	*
+16	52	52	NUM	NUM	Gender=Masc|Number=Plur|NumType=Card	17	nummod	_	_	*
+17	deputados	deputado	NOUN	NOUN	Gender=Masc|Number=Plur|VerbForm=Part	5	nmod	_	_	*
+18	eleitos	eleitos	ADJ	ADJ	Gender=Masc|Number=Plur	17	amod	_	_	*
+19	e	e	CONJ	CONJ	_	16	cc	_	_	*
+20	48	48	NUM	NUM	Gender=Masc|Number=Plur|NumType=Card	16	conj	_	_	*
+21	em	em	ADP	ADP	AdpType=Prep	22	case	_	_	*
+22	exercício	exercício	NOUN	NOUN	Gender=Masc|Number=Sing	20	nmod	_	_	*
+23	.	.	PUNCT	.	_	5	punct	_	_	*
+

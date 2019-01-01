@@ -23,8 +23,15 @@ bold_echo() {
 # run_devnull <command> [args...]
 # Runs command and discards its output.
 run_devnull() {
-    bold_echo "=> $@"
+    bold_echo "=> $@" >&2
     "$@" >/dev/null  # Run command and discard output
+}
+
+# run_and_pipe <command> [args...]
+# Runs command and keeps the output in stdout.
+run_and_pipe() {
+    bold_echo "=> $@" >&2
+    "$@"
 }
 
 
@@ -36,12 +43,23 @@ run_devnull() {
 paired_annot_files=(data/pt.folia.xml data/pt.parsemetsv)
 annot_files=("${paired_annot_files[@]}" data/pt_unpaired.parsemetsv)
 annot_file2=data/pt2.folia.xml
+withmetadata_file=data/withmetadata.conllup
 
 
 for paired_annot_file in "${paired_annot_files[@]}"; do
     #===> pre-annot scripts
     run_devnull ../lang-leaders/pre-annot/checkSentenceMatching.py --lang PT --input "$paired_annot_file"
 done
+
+
+
+#===> Check if metadata is preserved when going conllup=>folia=>conllup
+tmp_fname="/tmp/parseme.utilities.tmp"
+run_and_pipe ../st-organizers/to_folia.py   --lang PT --input "$withmetadata_file" >"$tmp_fname.1.xml"
+run_and_pipe ../st-organizers/to_conllup.py --lang PT --input "$tmp_fname.1.xml" >"$tmp_fname.2.conllup"
+cmp "$withmetadata_file" "$tmp_fname.2.conllup"  # fails if metadata was not preserved
+rm -f "$tmp_fname."*
+
 
 
 for annot_file in "${annot_files[@]}"; do
@@ -51,15 +69,16 @@ for annot_file in "${annot_files[@]}"; do
     run_devnull ../lang-leaders/post-annot/folia2annotatorAdjudicationWebsite.py --lang PT --annotation-1 "$annot_file" --annotation-2 "$annot_file2"
 
     #===> st-organization scripts
-    run_devnull ../st-organizers/folia2parsemetsv.py --lang PT --input "$annot_file"
-    run_devnull ../st-organizers/folia2parsemetsv.py --lang PT --input "$annot_file" --keep-non-vmwes
-    run_devnull ../st-organizers/parsemetsv2cupt.py  --lang PT --input "$annot_file" --gen-text --gen-sentid
-    run_devnull ../st-organizers/parsemetsv2cupt.py  --lang PT --input "$annot_file" --gen-text --gen-sentid --underspecified-mwes
+    run_devnull ../st-organizers/to_old_parsemetsv.py --lang PT --input "$annot_file"
+    run_devnull ../st-organizers/to_old_parsemetsv.py --lang PT --input "$annot_file" --keep-non-vmwes
+    run_devnull ../st-organizers/to_old_cupt.py  --lang PT --input "$annot_file" --gen-text --gen-sentid
+    run_devnull ../st-organizers/to_old_cupt.py  --lang PT --input "$annot_file" --gen-text --gen-sentid --underspecified-mwes
 
     #===> corpus-stats scripts
     run_devnull ../st-organizers/corpus-statistics/folia2idiomaticityStats.py --lang PT --input "$annot_file" --literal-finding-method WindowGap0  --out-mweoccurs _deleteme1
     run_devnull rm -rf _deleteme1
 done
+
 
 
 echo '%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%'

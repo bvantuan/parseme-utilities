@@ -104,7 +104,7 @@ class KVPair:
     def to_tsv(self) -> str:
         r"""Return key-value line in CoNLL-UP syntax."""
         if self.key == "RAWLINE":
-            return "# {}".format(self.value)
+            return "# {}".format(self.value).rstrip(" ")
         return "# {} = {}".format(self.key, self.value)
 
     @staticmethod
@@ -143,7 +143,7 @@ class Metadata(KVPair, abc.ABC):
     def __init__(self, kind: str, *,
                  annotator: str = None, annotatortype: str = None,
                  datetime: str = None, confidence: float = None,
-                 nested: list = None):
+                 nested: list = None, **kwargs):
         super().__init__(None, None)
         self.kind = kind
         self.annotator = annotator
@@ -152,6 +152,9 @@ class Metadata(KVPair, abc.ABC):
         self.confidence = confidence
         self.nested = nested or []
         assert all(isinstance(x, Metadata) for x in self.nested), self.nested
+        for key in kwargs:
+            do_warn("Ignoring unexpected key for {type}: {key!r}",
+                    type=type(self).__name__, key=key)
 
 
     @staticmethod
@@ -258,12 +261,10 @@ class CommentMetadata(Metadata):
 
 class MWEAnnotMetadata(Metadata):
     r"""Metadata representing an MWE annotation."""
-    def __init__(self, mweid : str = None, categ=None, token_ids=None, token_indexes=None, **kwargs):
+    def __init__(self, mweid : str = None, **kwargs):
         super().__init__(kind="mweinfo", **kwargs)
         assert isinstance(mweid, (str, type(None))), mweid
         self.mweid = mweid  # type: Optional[str]
-        # Ignore these values if given, we will link to an MWEOccur later anyway
-        _ignore = (categ, token_ids, token_indexes)
 
     def specific_properties(self):
         if self.mweid:
