@@ -1,8 +1,6 @@
 test:
   stage: test
   script:
-  - latest="$(echo [0-9].* | sed 's/ /\n/g' | sort -n | tail -n 1)"
-  - cd "$latest"
   - apt-get update -qy
   - apt-get install -y python3-pip
   - pip3 install pynlpl
