@@ -51,7 +51,7 @@ class Main:
 
   def run(self):
     for sentence in self.iter_sentences():
-      for mwe_occur in sentence.mwe_occurs(self.args.lang): 
+      for mwe_occur in sentence.mweoccurs: 
         if ( not self.categs or mwe_occur.category in self.categs ) : 
           order = mwe_occur.fixed if self.args.no_reorder else mwe_occur.reordered
           # test if filtering lemmas contained in VMWE lemmas
