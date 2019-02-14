@@ -70,9 +70,9 @@ class Main:
 #####################################################
 
   def iter_sentences(self, verbose=True):
-    r"""Yield all sentences in `self.args.parsemetsv` (aligned, if CoNLL-U was provided)"""
-    conllu_paths = self.args.conllu or dataalign.calculate_conllu_paths(self.args.parsemetsv, warn=verbose)
-    return dataalign.IterAlignedFiles(self.args.lang, self.args.parsemetsv, conllu_paths, keep_nvmwes=True, debug=verbose)
+    r"""Yield all sentences in `self.args.input` (aligned, if CoNLL-U was provided)"""
+    conllu_paths = self.args.conllu or dataalign.calculate_conllu_paths(self.args.input, warn=verbose)
+    return dataalign.IterAlignedFiles(self.args.lang, self.args.input, conllu_paths, keep_nvmwes=True, debug=verbose)
 
 #####################################################
 
