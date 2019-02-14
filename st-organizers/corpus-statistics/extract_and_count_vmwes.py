@@ -22,8 +22,8 @@ parser.add_argument("--filter-categs", type=str, default=None,
     help="""Only extract VMWEs with category labels in comma-separated list""")
 parser.add_argument("--filter-lemmas", type=str, default=None,
     help="""Only extract VMWEs containing *all* lemmas in comma-separated list""")
-parser.add_argument("--parsemetsv", type=str, nargs="+", required=True,
-    help="""Path to input files in PARSEME TSV with annotated VMWEs""")
+parser.add_argument("--input", type=str, nargs="+", required=True,
+    help="""Path to input files (cupt or parsemetsv), with annotated VMWEs""")
 parser.add_argument("--no-reorder", action="store_true",
     help="""Do not reorder VMWE components to be in canonical order""")    
 parser.add_argument("--canonical", action="store_true",
@@ -31,7 +31,7 @@ parser.add_argument("--canonical", action="store_true",
 parser.add_argument("--sentences", action="store_true",
     help="""Show list occurrence sentences after each VMWE""")
 parser.add_argument("--conllu", type=str, nargs="+",
-    help="""Path to parallel input CoNLL files""")
+    help="""Path to parallel input CoNLL files (if input not in cupt)""")
 
 #####################################################
 
