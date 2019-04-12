@@ -36,9 +36,9 @@ from categories import Categories
 
 
 try:
-    from pynlpl.formats import folia
+    from folia import main as folia
 except ImportError:
-    exit("ERROR: PyNLPl not found, please run this code: pip3 install pynlpl")
+    exit("ERROR: FoliaPY not found, please run this code: pip3 install folia")
 
 
 # The `empty` field in CoNLL-U and PARSEME-TSV

@@ -12,8 +12,7 @@ import sys
 import os, sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../lib"))
 import dataalign
-
-from pynlpl.formats import folia
+from dataalign import folia
 
 
 parser = argparse.ArgumentParser(description="""

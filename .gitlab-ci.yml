@@ -3,6 +3,6 @@ test:
   script:
   - apt-get update -qy
   - apt-get install -y python3-pip
-  - pip3 install pynlpl
+  - pip3 install folia
   - export TERM=xterm
   - ./test/test.sh

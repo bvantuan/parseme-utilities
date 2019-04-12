@@ -1,7 +1,5 @@
 #! /usr/bin/env python3
 
-from pynlpl.formats import folia
-
 import argparse
 import io
 import re
@@ -12,6 +10,7 @@ from lxml import etree as ElementTree
 import os, sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../lib"))
 import dataalign
+from dataalign import folia
 
 POS_SET_URL = "https://github.com/proycon/parseme-support/raw/master/parseme-pos.foliaset.xml"
 CATEG_SET_URL = "https://github.com/proycon/parseme-support/raw/master/parseme-mwe-alllanguages2018.foliaset.xml"
