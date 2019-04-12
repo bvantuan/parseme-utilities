@@ -40,15 +40,15 @@ run_and_pipe() {
 #############################################################
 
 # XXX for edition 2.0, we will remove support for parsemetsv+conllu (and provide parsemetsv2cupt instead)
-paired_annot_files=(data/pt.folia.xml data/pt.parsemetsv)
-annot_files=("${paired_annot_files[@]}" data/pt_unpaired.parsemetsv)
+paired_annot_files=(data/pt.folia.xml data/pt_OLD.parsemetsv)
+annot_files=(data/pt.folia.xml data/pt.cupt data/pt_noinfo.cupt)
 annot_file2=data/pt2.folia.xml
 withmetadata_file=data/withmetadata.conllup
 
 
 for paired_annot_file in "${paired_annot_files[@]}"; do
     #===> pre-annot scripts
-    run_devnull ../lang-leaders/pre-annot/checkSentenceMatching.py --lang PT --input "$paired_annot_file"
+    run_devnull ../lang-leaders/pre-annot/checkSentenceMatching.py --lang PT --input "$paired_annot_file" --conllu data/pt_OLD.conllu
 done
 
 

@@ -1,0 +1,4536 @@
+# global.columns = ID FORM PARSEME:MWE
+# 
+# source_sent_id = . . sample-s1
+# text = Por causa disso , foram eliminados e retirados das salas de prova 37 candidatos . 
+1	Por	*
+2	causa	*
+3	disso	*
+4	,	*
+5	foram	*
+6	eliminados	*
+7	e	*
+8	retirados	*
+9	das	*
+10	salas	*
+11	de	*
+12	prova	*
+13	37	*
+14	candidatos	*
+15	.	*
+
+# source_sent_id = . . sample-s2
+# text = Também foi conduzido à sede da PF para prestar depoimento . 
+1	Também	*
+2	foi	*
+3	conduzido	*
+4	à	*
+5	sede	*
+6	da	*
+7	PF	*
+8	para	*
+9	prestar	1:LVC.full
+10	depoimento	1
+11	.	*
+
+# source_sent_id = . . sample-s3
+# text = Ele ficou em sétimo no campeonato , com 111 pontos . 
+1	Ele	*
+2	ficou	*
+3	em	*
+4	sétimo	*
+5	no	*
+6	campeonato	*
+7	,	*
+8	com	*
+9	111	*
+10	pontos	*
+11	.	*
+
+# source_sent_id = . . sample-s4
+# text = Barthélemy Charles Joseph Du Mortier ( ou Dumortier ) ( Tournai , 3 de abril de 1797 -- Tournai , 9 de junho de 1878 ) foi um botânico , naturalista e político belga . 
+1	Barthélemy	*
+2	Charles	*
+3	Joseph	*
+4	Du	*
+5	Mortier	*
+6	(	*
+7	ou	*
+8	Dumortier	*
+9	)	*
+10	(	*
+11	Tournai	*
+12	,	*
+13	3	*
+14	de	*
+15	abril	*
+16	de	*
+17	1797	*
+18	--	*
+19	Tournai	*
+20	,	*
+21	9	*
+22	de	*
+23	junho	*
+24	de	*
+25	1878	*
+26	)	*
+27	foi	*
+28	um	*
+29	botânico	*
+30	,	*
+31	naturalista	*
+32	e	*
+33	político	*
+34	belga	*
+35	.	*
+
+# source_sent_id = . . sample-s5
+# text = O executivo comemorou ainda a participação da marca no mercado brasileiro chegou a 3,2 % . 
+1	O	*
+2	executivo	*
+3	comemorou	*
+4	ainda	*
+5	a	*
+6	participação	*
+7	da	*
+8	marca	*
+9	no	*
+10	mercado	*
+11	brasileiro	*
+12	chegou	*
+13	a	*
+14	3,2	*
+15	%	*
+16	.	*
+
+# source_sent_id = . . sample-s6
+# text = Além de ser uma oportunidade ótima para adquirir peças Alix Shop , Left , PopUp Store , Fabulous Agilita , Lulu , Joulik , Mizeiko , Luiza Barcelos , Schutz e Studio TMLS , vale a pena garantir os presentes de natal para a família e amigas . 
+1	Além	*
+2	de	*
+3	ser	*
+4	uma	*
+5	oportunidade	*
+6	ótima	*
+7	para	*
+8	adquirir	*
+9	peças	*
+10	Alix	*
+11	Shop	*
+12	,	*
+13	Left	*
+14	,	*
+15	PopUp	*
+16	Store	*
+17	,	*
+18	Fabulous	*
+19	Agilita	*
+20	,	*
+21	Lulu	*
+22	,	*
+23	Joulik	*
+24	,	*
+25	Mizeiko	*
+26	,	*
+27	Luiza	*
+28	Barcelos	*
+29	,	*
+30	Schutz	*
+31	e	*
+32	Studio	*
+33	TMLS	*
+34	,	*
+35	vale	1:VID
+36	a	1
+37	pena	1
+38	garantir	*
+39	os	*
+40	presentes	*
+41	de	*
+42	natal	*
+43	para	*
+44	a	*
+45	família	*
+46	e	*
+47	amigas	*
+48	.	*
+
+# source_sent_id = . . sample-s7
+# text = Não separa o SUS , manter uma maternidade ( com toda essa equipe ) onde nasçam menos de 60 crianças por mês . 
+1	Não	*
+2	separa	*
+3	o	*
+4	SUS	*
+5	,	*
+6	manter	*
+7	uma	*
+8	maternidade	*
+9	(	*
+10	com	*
+11	toda	*
+12	essa	*
+13	equipe	*
+14	)	*
+15	onde	*
+16	nasçam	*
+17	menos	*
+18	de	*
+19	60	*
+20	crianças	*
+21	por	*
+22	mês	*
+23	.	*
+
+# source_sent_id = . . sample-s8
+# text = " Ela viu muita coisa louca . 
+1	"	*
+2	Ela	*
+3	viu	*
+4	muita	*
+5	coisa	*
+6	louca	*
+7	.	*
+
+# source_sent_id = . . sample-s9
+# text = A noiva chega à cerimônia de carruagem e os cavalos desembestam e não querem parar . 
+1	A	*
+2	noiva	*
+3	chega	*
+4	à	*
+5	cerimônia	*
+6	de	*
+7	carruagem	*
+8	e	*
+9	os	*
+10	cavalos	*
+11	desembestam	*
+12	e	*
+13	não	*
+14	querem	*
+15	parar	*
+16	.	*
+
+# source_sent_id = . . sample-s10
+# text = Orloff começou na indústria cinematográfica como assistente de direção do filme Life Sold Separately de 1997 . 
+1	Orloff	*
+2	começou	*
+3	na	*
+4	indústria	*
+5	cinematográfica	*
+6	como	*
+7	assistente	*
+8	de	*
+9	direção	*
+10	do	*
+11	filme	*
+12	Life	*
+13	Sold	*
+14	Separately	*
+15	de	*
+16	1997	*
+17	.	*
+
+# source_sent_id = . . sample-s11
+# text = Em 22 de abril de 1995 , no 30 º Congresso do ÖVP , Schüssel foi eleito líder nacional . 
+1	Em	*
+2	22	*
+3	de	*
+4	abril	*
+5	de	*
+6	1995	*
+7	,	*
+8	no	*
+9	30	*
+10	º	*
+11	Congresso	*
+12	do	*
+13	ÖVP	*
+14	,	*
+15	Schüssel	*
+16	foi	*
+17	eleito	*
+18	líder	*
+19	nacional	*
+20	.	*
+
+# source_sent_id = . . sample-s12
+# text = A liminar deverá ser referendada pelo Plenário do STF . 
+1	A	*
+2	liminar	*
+3	deverá	*
+4	ser	*
+5	referendada	*
+6	pelo	*
+7	Plenário	*
+8	do	*
+9	STF	*
+10	.	*
+
+# source_sent_id = . . sample-s13
+# text = Promovido pela Sociedade Brasileira de Computação ( SBC ) e pela Associação Brasileira de Desenvolvedores de Jogos Digitais ( ABRAGAMES ) , a feira tem entrada gratuita e disponibilizará para teste mais de 200 jogos desenvolvidos por empresas brasileiras . 
+1	Promovido	*
+2	pela	*
+3	Sociedade	*
+4	Brasileira	*
+5	de	*
+6	Computação	*
+7	(	*
+8	SBC	*
+9	)	*
+10	e	*
+11	pela	*
+12	Associação	*
+13	Brasileira	*
+14	de	*
+15	Desenvolvedores	*
+16	de	*
+17	Jogos	*
+18	Digitais	*
+19	(	*
+20	ABRAGAMES	*
+21	)	*
+22	,	*
+23	a	*
+24	feira	*
+25	tem	1:LVC.full
+26	entrada	1
+27	gratuita	*
+28	e	*
+29	disponibilizará	*
+30	para	*
+31	teste	*
+32	mais	*
+33	de	*
+34	200	*
+35	jogos	*
+36	desenvolvidos	*
+37	por	*
+38	empresas	*
+39	brasileiras	*
+40	.	*
+
+# source_sent_id = . . sample-s14
+# text = O violonista e compositor Laurindo Almeida nasceu na pequena cidade litorânea " Prainha " , hoje Miracatu , no Vale do Ribeira , no Estado de São Paulo . 
+1	O	*
+2	violonista	*
+3	e	*
+4	compositor	*
+5	Laurindo	*
+6	Almeida	*
+7	nasceu	*
+8	na	*
+9	pequena	*
+10	cidade	*
+11	litorânea	*
+12	"	*
+13	Prainha	*
+14	"	*
+15	,	*
+16	hoje	*
+17	Miracatu	*
+18	,	*
+19	no	*
+20	Vale	*
+21	do	*
+22	Ribeira	*
+23	,	*
+24	no	*
+25	Estado	*
+26	de	*
+27	São	*
+28	Paulo	*
+29	.	*
+
+# source_sent_id = . . sample-s15
+# text = A intervenção integra as obras do Macrossistema de Esgoto de Fortaleza , onde estão sendo assentados 22km de tubulação de esgoto de grande porte . 
+1	A	*
+2	intervenção	*
+3	integra	*
+4	as	*
+5	obras	*
+6	do	*
+7	Macrossistema	*
+8	de	*
+9	Esgoto	*
+10	de	*
+11	Fortaleza	*
+12	,	*
+13	onde	*
+14	estão	*
+15	sendo	*
+16	assentados	*
+17	22km	*
+18	de	*
+19	tubulação	*
+20	de	*
+21	esgoto	*
+22	de	*
+23	grande	*
+24	porte	*
+25	.	*
+
+# source_sent_id = . . sample-s16
+# text = Pelo cronograma , votarão nos próximos dias os ministros Rosa Maria Weber , Luiz Fux , José Antônio Dias Toffoli , Cármen Lúcia , Cezar Peluso , Gilmar Mendes , Marco Aurélio Mello , Celso de Mello e Carlos Ayres Britto , o presidente da Corte Suprema . 
+1	Pelo	*
+2	cronograma	*
+3	,	*
+4	votarão	*
+5	nos	*
+6	próximos	*
+7	dias	*
+8	os	*
+9	ministros	*
+10	Rosa	*
+11	Maria	*
+12	Weber	*
+13	,	*
+14	Luiz	*
+15	Fux	*
+16	,	*
+17	José	*
+18	Antônio	*
+19	Dias	*
+20	Toffoli	*
+21	,	*
+22	Cármen	*
+23	Lúcia	*
+24	,	*
+25	Cezar	*
+26	Peluso	*
+27	,	*
+28	Gilmar	*
+29	Mendes	*
+30	,	*
+31	Marco	*
+32	Aurélio	*
+33	Mello	*
+34	,	*
+35	Celso	*
+36	de	*
+37	Mello	*
+38	e	*
+39	Carlos	*
+40	Ayres	*
+41	Britto	*
+42	,	*
+43	o	*
+44	presidente	*
+45	da	*
+46	Corte	*
+47	Suprema	*
+48	.	*
+
+# source_sent_id = . . sample-s17
+# text = O processo deve durar toda a semana . 
+1	O	*
+2	processo	*
+3	deve	*
+4	durar	*
+5	toda	*
+6	a	*
+7	semana	*
+8	.	*
+
+# source_sent_id = . . sample-s18
+# text = º Senhor e Administrador do Morgado do Espírito - Santo na Lombada dos Esmeraldos , de Ponta Delgada , e doutros Morgados na Ilha da Madeira , em sucessão a seu pai . 
+1	º	*
+2	Senhor	*
+3	e	*
+4	Administrador	*
+5	do	*
+6	Morgado	*
+7	do	*
+8	Espírito	*
+9	-	*
+10	Santo	*
+11	na	*
+12	Lombada	*
+13	dos	*
+14	Esmeraldos	*
+15	,	*
+16	de	*
+17	Ponta	*
+18	Delgada	*
+19	,	*
+20	e	*
+21	doutros	*
+22	Morgados	*
+23	na	*
+24	Ilha	*
+25	da	*
+26	Madeira	*
+27	,	*
+28	em	*
+29	sucessão	*
+30	a	*
+31	seu	*
+32	pai	*
+33	.	*
+
+# source_sent_id = . . sample-s19
+# text = O IPA passou de 0,01 % para -0,35 % . 
+1	O	*
+2	IPA	*
+3	passou	*
+4	de	*
+5	0,01	*
+6	%	*
+7	para	*
+8	-0,35	*
+9	%	*
+10	.	*
+
+# source_sent_id = . . sample-s20
+# text = A estreia está marcada para o dia 3 de setembro ea partir desta data será possível acompanhar todas as segundas - feiras um episódio diferente . 
+1	A	*
+2	estreia	*
+3	está	*
+4	marcada	*
+5	para	*
+6	o	*
+7	dia	*
+8	3	*
+9	de	*
+10	setembro	*
+11	ea	*
+12	partir	*
+13	desta	*
+14	data	*
+15	será	*
+16	possível	*
+17	acompanhar	*
+18	todas	*
+19	as	*
+20	segundas	*
+21	-	*
+22	feiras	*
+23	um	*
+24	episódio	*
+25	diferente	*
+26	.	*
+
+# source_sent_id = . . sample-s21
+# text = Como não havia saído gol em Varsóvia , estavam com a vaga nas quartas de final . 
+1	Como	*
+2	não	*
+3	havia	*
+4	saído	1:NotMWE
+5	gol	1
+6	em	*
+7	Varsóvia	*
+8	,	*
+9	estavam	2:LVC.full
+10	com	2
+11	a	*
+12	vaga	2
+13	nas	*
+14	quartas	*
+15	de	*
+16	final	*
+17	.	*
+
+# source_sent_id = . . sample-s22
+# text = De acordo com o censo realizado pelo IBGE em 2010 , sua população é de 18.490 habitantes . 
+1	De	*
+2	acordo	*
+3	com	*
+4	o	*
+5	censo	1:LVC.full
+6	realizado	1
+7	pelo	*
+8	IBGE	*
+9	em	*
+10	2010	*
+11	,	*
+12	sua	*
+13	população	*
+14	é	*
+15	de	*
+16	18.490	*
+17	habitantes	*
+18	.	*
+
+# source_sent_id = . . sample-s23
+# text = Uma das filhas de Harlan Wade , Alma sofre com freqüêntes pesadelos e alucinações . 
+1	Uma	*
+2	das	*
+3	filhas	*
+4	de	*
+5	Harlan	*
+6	Wade	*
+7	,	*
+8	Alma	*
+9	sofre	1:NotMWE
+10	com	1
+11	freqüêntes	*
+12	pesadelos	*
+13	e	*
+14	alucinações	*
+15	.	*
+
+# source_sent_id = . . sample-s24
+# text = " Como aqui é caminho para a Bola da Suframa , é constante o fluxo de caminhões . 
+1	"	*
+2	Como	*
+3	aqui	*
+4	é	*
+5	caminho	*
+6	para	*
+7	a	*
+8	Bola	*
+9	da	*
+10	Suframa	*
+11	,	*
+12	é	*
+13	constante	*
+14	o	*
+15	fluxo	*
+16	de	*
+17	caminhões	*
+18	.	*
+
+# source_sent_id = . . sample-s25
+# text = Nós São Paulinos ficamos achando que vencer a Libertadores era obrigação em 2006 , 2007 , 2008 e 2009 e pedimos as cabeças de dois bons treinadores por não termos vencido campeonato tão difícil e que poucos a venceram e muito poucos repetiram o feito . 
+1	Nós	*
+2	São	*
+3	Paulinos	*
+4	ficamos	*
+5	achando	*
+6	que	*
+7	vencer	*
+8	a	*
+9	Libertadores	*
+10	era	*
+11	obrigação	*
+12	em	*
+13	2006	*
+14	,	*
+15	2007	*
+16	,	*
+17	2008	*
+18	e	*
+19	2009	*
+20	e	*
+21	pedimos	1:VID
+22	as	1
+23	cabeças	1
+24	de	*
+25	dois	*
+26	bons	*
+27	treinadores	*
+28	por	*
+29	não	*
+30	termos	*
+31	vencido	*
+32	campeonato	*
+33	tão	*
+34	difícil	*
+35	e	*
+36	que	*
+37	poucos	*
+38	a	*
+39	venceram	*
+40	e	*
+41	muito	*
+42	poucos	*
+43	repetiram	*
+44	o	*
+45	feito	*
+46	.	*
+
+# source_sent_id = . . sample-s26
+# text = Se eleito , Fernando Siqueira pretende criar a carreira de reciclador de lixo e ampliar o programa de reciclagem da cidade . 
+1	Se	*
+2	eleito	*
+3	,	*
+4	Fernando	*
+5	Siqueira	*
+6	pretende	*
+7	criar	*
+8	a	*
+9	carreira	*
+10	de	*
+11	reciclador	*
+12	de	*
+13	lixo	*
+14	e	*
+15	ampliar	*
+16	o	*
+17	programa	*
+18	de	*
+19	reciclagem	*
+20	da	*
+21	cidade	*
+22	.	*
+
+# source_sent_id = . . sample-s27
+# text = O fruto possui uma forma que vai da ovaloide à oblonga , entre uma faixa de 2,5 a 6 cm de comprimento e 1,5 a 3 cm de largura . 
+1	O	*
+2	fruto	*
+3	possui	1:NotMWE
+4	uma	*
+5	forma	1
+6	que	*
+7	vai	*
+8	da	*
+9	ovaloide	*
+10	à	*
+11	oblonga	*
+12	,	*
+13	entre	*
+14	uma	*
+15	faixa	*
+16	de	*
+17	2,5	*
+18	a	*
+19	6	*
+20	cm	*
+21	de	*
+22	comprimento	*
+23	e	*
+24	1,5	*
+25	a	*
+26	3	*
+27	cm	*
+28	de	*
+29	largura	*
+30	.	*
+
+# source_sent_id = . . sample-s28
+# text = Na festa , a pira olímpica será apagada e os organizadores do evento anunciam a cidade - sede dos Jogos Olímpicos de 2016 , que serão realizados no Rio de Janeiro . 
+1	Na	*
+2	festa	*
+3	,	*
+4	a	*
+5	pira	*
+6	olímpica	*
+7	será	*
+8	apagada	*
+9	e	*
+10	os	*
+11	organizadores	*
+12	do	*
+13	evento	*
+14	anunciam	*
+15	a	*
+16	cidade	*
+17	-	*
+18	sede	*
+19	dos	*
+20	Jogos	*
+21	Olímpicos	*
+22	de	*
+23	2016	*
+24	,	*
+25	que	*
+26	serão	*
+27	realizados	*
+28	no	*
+29	Rio	*
+30	de	*
+31	Janeiro	*
+32	.	*
+
+# source_sent_id = . . sample-s29
+# text = " O Conca sabe que a casa dele é o Fluminense , mas ele tem contrato de um ano lá . 
+1	"	*
+2	O	*
+3	Conca	*
+4	sabe	*
+5	que	*
+6	a	*
+7	casa	*
+8	dele	*
+9	é	*
+10	o	*
+11	Fluminense	*
+12	,	*
+13	mas	*
+14	ele	*
+15	tem	1:LVC.full
+16	contrato	1
+17	de	*
+18	um	*
+19	ano	*
+20	lá	*
+21	.	*
+
+# source_sent_id = . . sample-s30
+# text = Foram impressos 744.632 carnês . 
+1	Foram	*
+2	impressos	*
+3	744.632	*
+4	carnês	*
+5	.	*
+
+# source_sent_id = . . sample-s31
+# text = Oportunista , marcou dois gols nas duas chances que teve e foi o grande responsável pela vitória por 2 a 1 , que fechou o primeiro turno do Campeonato Brasileiro ( veja no vídeo ao lado ) . 
+1	Oportunista	*
+2	,	*
+3	marcou	1:LVC.full
+4	dois	*
+5	gols	1
+6	nas	*
+7	duas	*
+8	chances	2:LVC.full
+9	que	*
+10	teve	2
+11	e	*
+12	foi	*
+13	o	*
+14	grande	*
+15	responsável	*
+16	pela	*
+17	vitória	*
+18	por	*
+19	2	*
+20	a	*
+21	1	*
+22	,	*
+23	que	*
+24	fechou	*
+25	o	*
+26	primeiro	*
+27	turno	*
+28	do	*
+29	Campeonato	*
+30	Brasileiro	*
+31	(	*
+32	veja	*
+33	no	*
+34	vídeo	*
+35	ao	*
+36	lado	*
+37	)	*
+38	.	*
+
+# source_sent_id = . . sample-s32
+# text = Fontes disseram à Reuters que ele machucou as costas nadando , mas oficialmente não há nenhuma explicação para sua ausência . 
+1	Fontes	*
+2	disseram	*
+3	à	*
+4	Reuters	*
+5	que	*
+6	ele	*
+7	machucou	*
+8	as	*
+9	costas	*
+10	nadando	*
+11	,	*
+12	mas	*
+13	oficialmente	*
+14	não	*
+15	há	*
+16	nenhuma	*
+17	explicação	*
+18	para	*
+19	sua	*
+20	ausência	*
+21	.	*
+
+# source_sent_id = . . sample-s33
+# text = A informação de que Gurgel teria pedido investigação sobre as denúncias e remetido a documentação à primeira instância , uma vez que Lula não tem mais foro privilegiado , foi publicada na edição de hoje do jornal O Estado de S. Paulo . 
+1	A	*
+2	informação	*
+3	de	*
+4	que	*
+5	Gurgel	*
+6	teria	*
+7	pedido	*
+8	investigação	*
+9	sobre	*
+10	as	*
+11	denúncias	*
+12	e	*
+13	remetido	*
+14	a	*
+15	documentação	*
+16	à	*
+17	primeira	*
+18	instância	*
+19	,	*
+20	uma	*
+21	vez	*
+22	que	*
+23	Lula	*
+24	não	*
+25	tem	1:LVC.full
+26	mais	*
+27	foro	1
+28	privilegiado	1
+29	,	*
+30	foi	*
+31	publicada	*
+32	na	*
+33	edição	*
+34	de	*
+35	hoje	*
+36	do	*
+37	jornal	*
+38	O	*
+39	Estado	*
+40	de	*
+41	S.	*
+42	Paulo	*
+43	.	*
+
+# source_sent_id = . . sample-s34
+# text = A perda desse financiamento contribuiu para a redução da cultura , mas ainda há famílias que a mantém . " 
+1	A	*
+2	perda	*
+3	desse	*
+4	financiamento	*
+5	contribuiu	*
+6	para	*
+7	a	*
+8	redução	*
+9	da	*
+10	cultura	*
+11	,	*
+12	mas	*
+13	ainda	*
+14	há	*
+15	famílias	*
+16	que	*
+17	a	*
+18	mantém	*
+19	.	*
+20	"	*
+
+# source_sent_id = . . sample-s35
+# text = Sinopse : O detetive Philip Marlowe é chamado por um veterano general milionário para investigar uma chantagem que esta sofrendo . 
+1	Sinopse	*
+2	:	*
+3	O	*
+4	detetive	*
+5	Philip	*
+6	Marlowe	*
+7	é	*
+8	chamado	*
+9	por	*
+10	um	*
+11	veterano	*
+12	general	*
+13	milionário	*
+14	para	*
+15	investigar	*
+16	uma	*
+17	chantagem	1:LVC.full
+18	que	*
+19	esta	*
+20	sofrendo	1
+21	.	*
+
+# source_sent_id = . . sample-s36
+# text = Outra possibilidade é abrir novos mercados para cooperativas gaúchas de suínos , frango e leite . 
+1	Outra	*
+2	possibilidade	*
+3	é	*
+4	abrir	*
+5	novos	*
+6	mercados	*
+7	para	*
+8	cooperativas	*
+9	gaúchas	*
+10	de	*
+11	suínos	*
+12	,	*
+13	frango	*
+14	e	*
+15	leite	*
+16	.	*
+
+# source_sent_id = . . sample-s37
+# text = Isto explica porque durante um largo período de tempo só se encontram dulzainas no sul , citadas nos textos com variantes arábicas do vocábulo zolami , muito comum nos escritos sobre música do Al - Andalus . 
+1	Isto	*
+2	explica	*
+3	porque	*
+4	durante	*
+5	um	*
+6	largo	*
+7	período	*
+8	de	*
+9	tempo	*
+10	só	*
+11	se	1:NotMWE
+12	encontram	1
+13	dulzainas	*
+14	no	*
+15	sul	*
+16	,	*
+17	citadas	*
+18	nos	*
+19	textos	*
+20	com	*
+21	variantes	*
+22	arábicas	*
+23	do	*
+24	vocábulo	*
+25	zolami	*
+26	,	*
+27	muito	*
+28	comum	*
+29	nos	*
+30	escritos	*
+31	sobre	*
+32	música	*
+33	do	*
+34	Al	*
+35	-	*
+36	Andalus	*
+37	.	*
+
+# source_sent_id = . . sample-s38
+# text = De acordo com a chefe do Núcleo de Aquisições da SEE , Janaína Albuquerque , 5.521 carteiras foram distribuídas em mais de 20 escolas localizadas nas 1 ª , 12 ª , 13 ª e 14 ª CRE 's . 
+1	De	*
+2	acordo	*
+3	com	*
+4	a	*
+5	chefe	*
+6	do	*
+7	Núcleo	*
+8	de	*
+9	Aquisições	*
+10	da	*
+11	SEE	*
+12	,	*
+13	Janaína	*
+14	Albuquerque	*
+15	,	*
+16	5.521	*
+17	carteiras	*
+18	foram	*
+19	distribuídas	*
+20	em	*
+21	mais	*
+22	de	*
+23	20	*
+24	escolas	*
+25	localizadas	*
+26	nas	*
+27	1	*
+28	ª	*
+29	,	*
+30	12	*
+31	ª	*
+32	,	*
+33	13	*
+34	ª	*
+35	e	*
+36	14	*
+37	ª	*
+38	CRE	*
+39	's	*
+40	.	*
+
+# source_sent_id = . . sample-s39
+# text = Essa foi a quarta etapa da Volta da França vencida por Millar , sendo a primeira delas desde 2003 . 
+1	Essa	*
+2	foi	*
+3	a	*
+4	quarta	*
+5	etapa	*
+6	da	*
+7	Volta	*
+8	da	*
+9	França	*
+10	vencida	*
+11	por	*
+12	Millar	*
+13	,	*
+14	sendo	*
+15	a	*
+16	primeira	*
+17	delas	*
+18	desde	*
+19	2003	*
+20	.	*
+
+# source_sent_id = . . sample-s40
+# text = Assim , aquando do planeamento da capa , foi pedido à equipa gráfica que fosse ao encontro do tema geral do disco : a mudança . 
+1	Assim	*
+2	,	*
+3	aquando	*
+4	do	*
+5	planeamento	*
+6	da	*
+7	capa	*
+8	,	*
+9	foi	*
+10	pedido	*
+11	à	*
+12	equipa	*
+13	gráfica	*
+14	que	*
+15	fosse	1:VID
+16	ao	1
+17	encontro	1
+18	do	*
+19	tema	*
+20	geral	*
+21	do	*
+22	disco	*
+23	:	*
+24	a	*
+25	mudança	*
+26	.	*
+
+# source_sent_id = . . sample-s41
+# text = O Instituto de Arte Contemporânea também publicou vários catálogos registrando suas exposições , entre eles : Campo Ampliado , Absorção e Intimismo em Volpi , O Olhar do Colecionador -- Coleção Tuiuiu , Sergio Camargo -- Claro Enigma . 
+1	O	*
+2	Instituto	*
+3	de	*
+4	Arte	*
+5	Contemporânea	*
+6	também	*
+7	publicou	*
+8	vários	*
+9	catálogos	*
+10	registrando	*
+11	suas	*
+12	exposições	*
+13	,	*
+14	entre	*
+15	eles	*
+16	:	*
+17	Campo	*
+18	Ampliado	*
+19	,	*
+20	Absorção	*
+21	e	*
+22	Intimismo	*
+23	em	*
+24	Volpi	*
+25	,	*
+26	O	*
+27	Olhar	*
+28	do	*
+29	Colecionador	*
+30	--	*
+31	Coleção	*
+32	Tuiuiu	*
+33	,	*
+34	Sergio	*
+35	Camargo	*
+36	--	*
+37	Claro	*
+38	Enigma	*
+39	.	*
+
+# source_sent_id = . . sample-s42
+# text = Anaciaeschna é um género de libelinha da família Aeshnidae . 
+1	Anaciaeschna	*
+2	é	*
+3	um	*
+4	género	*
+5	de	*
+6	libelinha	*
+7	da	*
+8	família	*
+9	Aeshnidae	*
+10	.	*
+
+# source_sent_id = . . sample-s43
+# text = Diversas opções artísticas e de assistência pública estão disponíveis esta semana em Manaus . 
+1	Diversas	*
+2	opções	*
+3	artísticas	*
+4	e	*
+5	de	*
+6	assistência	*
+7	pública	*
+8	estão	*
+9	disponíveis	*
+10	esta	*
+11	semana	*
+12	em	*
+13	Manaus	*
+14	.	*
+
+# source_sent_id = . . sample-s44
+# text = " Estou realmente impressionado com a quantidade de serviços sob demanda disponíveis pela AWS " , diz Aaron Kenny , antes engenheiro da McAfee e agora CTO da startup eMeals.com , um site completamente hospedado na nuvem da AWS e que ajuda os usuários com planos de alimentação saudáveis . 
+1	"	*
+2	Estou	*
+3	realmente	*
+4	impressionado	*
+5	com	*
+6	a	*
+7	quantidade	*
+8	de	*
+9	serviços	*
+10	sob	*
+11	demanda	*
+12	disponíveis	*
+13	pela	*
+14	AWS	*
+15	"	*
+16	,	*
+17	diz	*
+18	Aaron	*
+19	Kenny	*
+20	,	*
+21	antes	*
+22	engenheiro	*
+23	da	*
+24	McAfee	*
+25	e	*
+26	agora	*
+27	CTO	*
+28	da	*
+29	startup	*
+30	eMeals.com	*
+31	,	*
+32	um	*
+33	site	*
+34	completamente	*
+35	hospedado	*
+36	na	*
+37	nuvem	*
+38	da	*
+39	AWS	*
+40	e	*
+41	que	*
+42	ajuda	*
+43	os	*
+44	usuários	*
+45	com	*
+46	planos	*
+47	de	*
+48	alimentação	*
+49	saudáveis	*
+50	.	*
+
+# source_sent_id = . . sample-s45
+# text = A magistrada é titular da 3 ª Vara de Fazenda Pública e Registros Públicos da Comarca de Campo Grande e assume a vaga deixada pela Desa . 
+1	A	*
+2	magistrada	*
+3	é	*
+4	titular	*
+5	da	*
+6	3	*
+7	ª	*
+8	Vara	*
+9	de	*
+10	Fazenda	*
+11	Pública	*
+12	e	*
+13	Registros	*
+14	Públicos	*
+15	da	*
+16	Comarca	*
+17	de	*
+18	Campo	*
+19	Grande	*
+20	e	*
+21	assume	*
+22	a	*
+23	vaga	*
+24	deixada	*
+25	pela	*
+26	Desa	*
+27	.	*
+
+# source_sent_id = . . sample-s46
+# text = O acordo contempla ainda o incremento da participação de agricultores familiares na cadeia do biodiesel , com geração de até 2.430 postos de trabalhos rurais . 
+1	O	*
+2	acordo	*
+3	contempla	*
+4	ainda	*
+5	o	*
+6	incremento	*
+7	da	*
+8	participação	*
+9	de	*
+10	agricultores	*
+11	familiares	*
+12	na	*
+13	cadeia	*
+14	do	*
+15	biodiesel	*
+16	,	*
+17	com	*
+18	geração	*
+19	de	*
+20	até	*
+21	2.430	*
+22	postos	*
+23	de	*
+24	trabalhos	*
+25	rurais	*
+26	.	*
+
+# source_sent_id = . . sample-s47
+# text = " Sabemos que o problema não se resume a apenas a escola , mas a única forma de garantir a vida ea integridade física de alunos , professores e diretores foi essa . 
+1	"	*
+2	Sabemos	*
+3	que	*
+4	o	*
+5	problema	*
+6	não	*
+7	se	1:IRV
+8	resume	1
+9	a	*
+10	apenas	*
+11	a	*
+12	escola	*
+13	,	*
+14	mas	*
+15	a	*
+16	única	*
+17	forma	*
+18	de	*
+19	garantir	*
+20	a	*
+21	vida	*
+22	ea	*
+23	integridade	*
+24	física	*
+25	de	*
+26	alunos	*
+27	,	*
+28	professores	*
+29	e	*
+30	diretores	*
+31	foi	*
+32	essa	*
+33	.	*
+
+# source_sent_id = . . sample-s48
+# text = Essa dívida , que permanceu depois da negociação entre Galo e Vasco , era de 900 mil euros , algo em torno de R $ 2,221,816,77 milhões , se convertido atualmente . 
+1	Essa	*
+2	dívida	*
+3	,	*
+4	que	*
+5	permanceu	*
+6	depois	*
+7	da	*
+8	negociação	*
+9	entre	*
+10	Galo	*
+11	e	*
+12	Vasco	*
+13	,	*
+14	era	*
+15	de	*
+16	900	*
+17	mil	*
+18	euros	*
+19	,	*
+20	algo	*
+21	em	*
+22	torno	*
+23	de	*
+24	R	*
+25	$	*
+26	2,221,816,77	*
+27	milhões	*
+28	,	*
+29	se	*
+30	convertido	*
+31	atualmente	*
+32	.	*
+
+# source_sent_id = . . sample-s49
+# text = O Brasil tem problemas imensos e grandes dificuldades para enfrentá - los . 
+1	O	*
+2	Brasil	*
+3	tem	1:LVC.full;2:LVC.full
+4	problemas	1
+5	imensos	*
+6	e	*
+7	grandes	*
+8	dificuldades	2
+9	para	*
+10	enfrentá	*
+11	-	*
+12	los	*
+13	.	*
+
+# source_sent_id = . . sample-s50
+# text = Com a negativa dessas companhias em aderir ao novo modelo , a economia média nas contas dos consumidores ficará em 16,7 % em 2013 . 
+1	Com	*
+2	a	*
+3	negativa	*
+4	dessas	*
+5	companhias	*
+6	em	*
+7	aderir	*
+8	ao	*
+9	novo	*
+10	modelo	*
+11	,	*
+12	a	*
+13	economia	*
+14	média	*
+15	nas	*
+16	contas	*
+17	dos	*
+18	consumidores	*
+19	ficará	*
+20	em	*
+21	16,7	*
+22	%	*
+23	em	*
+24	2013	*
+25	.	*
+
+# source_sent_id = . . sample-s51
+# text = A construção das estações de embarque e desembarque de ônibus do Corredor Leste - Oeste já está deixando o trânsito mais lento na Avenida Caxangá , na Zona Oeste do Recife . 
+1	A	*
+2	construção	*
+3	das	*
+4	estações	*
+5	de	*
+6	embarque	*
+7	e	*
+8	desembarque	*
+9	de	*
+10	ônibus	*
+11	do	*
+12	Corredor	*
+13	Leste	*
+14	-	*
+15	Oeste	*
+16	já	*
+17	está	*
+18	deixando	*
+19	o	*
+20	trânsito	*
+21	mais	*
+22	lento	*
+23	na	*
+24	Avenida	*
+25	Caxangá	*
+26	,	*
+27	na	*
+28	Zona	*
+29	Oeste	*
+30	do	*
+31	Recife	*
+32	.	*
+
+# source_sent_id = . . sample-s52
+# text = Não vou colocar nossas prioridades em leilão ou virar aposta para " se " fulano se eleger " . 
+1	Não	*
+2	vou	*
+3	colocar	2:VID
+4	nossas	*
+5	prioridades	*
+6	em	2
+7	leilão	2
+8	ou	*
+9	virar	3:NotMWE
+10	aposta	3
+11	para	*
+12	"	*
+13	se	*
+14	"	*
+15	fulano	*
+16	se	1:NotMWE
+17	eleger	1
+18	"	*
+19	.	*
+
+# source_sent_id = . . sample-s53
+# text = Atualmente , o PSD tem a quarta maior bancada na Câmara dos Deputados , com 52 deputados eleitos e 48 em exercício . 
+1	Atualmente	*
+2	,	*
+3	o	*
+4	PSD	*
+5	tem	*
+6	a	*
+7	quarta	*
+8	maior	*
+9	bancada	*
+10	na	*
+11	Câmara	*
+12	dos	*
+13	Deputados	*
+14	,	*
+15	com	*
+16	52	*
+17	deputados	*
+18	eleitos	*
+19	e	*
+20	48	*
+21	em	*
+22	exercício	*
+23	.	*
+
+# source_sent_id = . . sample-s54
+# text = Pagu era conhecida como a " musca " da Semana de Arte Moderna e escolheu Santos como a última cidade em que viveu . 
+1	Pagu	*
+2	era	*
+3	conhecida	*
+4	como	*
+5	a	*
+6	"	*
+7	musca	*
+8	"	*
+9	da	*
+10	Semana	*
+11	de	*
+12	Arte	*
+13	Moderna	*
+14	e	*
+15	escolheu	*
+16	Santos	*
+17	como	*
+18	a	*
+19	última	*
+20	cidade	*
+21	em	*
+22	que	*
+23	viveu	*
+24	.	*
+
+# source_sent_id = . . sample-s55
+# text = " É um elenco forte , com jogadores que já atuaram pelas séries A e B do Campeonato Brasileiro e até no exterior , além de jogador que já passou pela seleção sub - 20 ( se referindo a Tiago Marabá ) " , disse . 
+1	"	*
+2	É	*
+3	um	*
+4	elenco	*
+5	forte	*
+6	,	*
+7	com	*
+8	jogadores	*
+9	que	*
+10	já	*
+11	atuaram	*
+12	pelas	*
+13	séries	*
+14	A	*
+15	e	*
+16	B	*
+17	do	*
+18	Campeonato	*
+19	Brasileiro	*
+20	e	*
+21	até	*
+22	no	*
+23	exterior	*
+24	,	*
+25	além	*
+26	de	*
+27	jogador	*
+28	que	*
+29	já	*
+30	passou	*
+31	pela	*
+32	seleção	*
+33	sub	*
+34	-	*
+35	20	*
+36	(	*
+37	se	*
+38	referindo	*
+39	a	*
+40	Tiago	*
+41	Marabá	*
+42	)	*
+43	"	*
+44	,	*
+45	disse	*
+46	.	*
+
+# source_sent_id = . . sample-s56
+# text = Segundo a assessoria de comunicação da Câmara de São Paulo , existe apenas um contrato de locação de veículos no valor fixo de R $ 2.331 para cada parlamentar . 
+1	Segundo	*
+2	a	*
+3	assessoria	*
+4	de	*
+5	comunicação	*
+6	da	*
+7	Câmara	*
+8	de	*
+9	São	*
+10	Paulo	*
+11	,	*
+12	existe	*
+13	apenas	*
+14	um	*
+15	contrato	*
+16	de	*
+17	locação	*
+18	de	*
+19	veículos	*
+20	no	*
+21	valor	*
+22	fixo	*
+23	de	*
+24	R	*
+25	$	*
+26	2.331	*
+27	para	*
+28	cada	*
+29	parlamentar	*
+30	.	*
+
+# source_sent_id = . . sample-s57
+# text = Ele disse que o homem que organizava a sessão era um egípcio radicado nos Estados Unidos e que havia contratado dois seguranças egípcios para a ocasião . 
+1	Ele	*
+2	disse	*
+3	que	*
+4	o	*
+5	homem	*
+6	que	*
+7	organizava	*
+8	a	*
+9	sessão	*
+10	era	*
+11	um	*
+12	egípcio	*
+13	radicado	*
+14	nos	*
+15	Estados	*
+16	Unidos	*
+17	e	*
+18	que	*
+19	havia	*
+20	contratado	*
+21	dois	*
+22	seguranças	*
+23	egípcios	*
+24	para	*
+25	a	*
+26	ocasião	*
+27	.	*
+
+# source_sent_id = . . sample-s58
+# text = A zona era já conhecida pelos russos , com a companhia Lebedev Lastochkin a já lá ter estabelecido um posto de tratamento de peles na foz do rio Kenai . 
+1	A	*
+2	zona	*
+3	era	*
+4	já	*
+5	conhecida	*
+6	pelos	*
+7	russos	*
+8	,	*
+9	com	*
+10	a	*
+11	companhia	*
+12	Lebedev	*
+13	Lastochkin	*
+14	a	*
+15	já	*
+16	lá	*
+17	ter	*
+18	estabelecido	*
+19	um	*
+20	posto	*
+21	de	*
+22	tratamento	*
+23	de	*
+24	peles	*
+25	na	*
+26	foz	*
+27	do	*
+28	rio	*
+29	Kenai	*
+30	.	*
+
+# source_sent_id = . . sample-s59
+# text = Esse investimento diminuiria consideravelmente também o consumo de derivados de hidrocarbonetos . 
+1	Esse	*
+2	investimento	*
+3	diminuiria	*
+4	consideravelmente	*
+5	também	*
+6	o	*
+7	consumo	*
+8	de	*
+9	derivados	*
+10	de	*
+11	hidrocarbonetos	*
+12	.	*
+
+# source_sent_id = . . sample-s60
+# text = A peoa Keyla Polizello venceu a final da prova dos Três Tambores em Barretos ( SP ) na noite deste domingo ( 19 ) e garantiu um prêmio de R $ 80 mil , além de uma vaga para uma competição internacional em Las Vegas , nos EUA . 
+1	A	*
+2	peoa	*
+3	Keyla	*
+4	Polizello	*
+5	venceu	*
+6	a	*
+7	final	*
+8	da	*
+9	prova	*
+10	dos	*
+11	Três	*
+12	Tambores	*
+13	em	*
+14	Barretos	*
+15	(	*
+16	SP	*
+17	)	*
+18	na	*
+19	noite	*
+20	deste	*
+21	domingo	*
+22	(	*
+23	19	*
+24	)	*
+25	e	*
+26	garantiu	*
+27	um	*
+28	prêmio	*
+29	de	*
+30	R	*
+31	$	*
+32	80	*
+33	mil	*
+34	,	*
+35	além	*
+36	de	*
+37	uma	*
+38	vaga	*
+39	para	*
+40	uma	*
+41	competição	*
+42	internacional	*
+43	em	*
+44	Las	*
+45	Vegas	*
+46	,	*
+47	nos	*
+48	EUA	*
+49	.	*
+
+# source_sent_id = . . sample-s61
+# text = Nilton cruzou na área e Tenório , sozinho , cabeceou para o gol . 
+1	Nilton	*
+2	cruzou	*
+3	na	*
+4	área	*
+5	e	*
+6	Tenório	*
+7	,	*
+8	sozinho	*
+9	,	*
+10	cabeceou	*
+11	para	*
+12	o	*
+13	gol	*
+14	.	*
+
+# source_sent_id = . . sample-s62
+# text = No entanto , a iniciativa deverá ainda ser tipificada como lei por uma comissão parlamentar , um trâmite que demorará várias semanas até sua promulgação , segundo fontes do Parlamento . 
+1	No	*
+2	entanto	*
+3	,	*
+4	a	*
+5	iniciativa	*
+6	deverá	*
+7	ainda	*
+8	ser	*
+9	tipificada	*
+10	como	*
+11	lei	*
+12	por	*
+13	uma	*
+14	comissão	*
+15	parlamentar	*
+16	,	*
+17	um	*
+18	trâmite	*
+19	que	*
+20	demorará	*
+21	várias	*
+22	semanas	*
+23	até	*
+24	sua	*
+25	promulgação	*
+26	,	*
+27	segundo	*
+28	fontes	*
+29	do	*
+30	Parlamento	*
+31	.	*
+
+# source_sent_id = . . sample-s63
+# text = Destaque também para as apreensões de cigarro com 248.282 pacotes . 
+1	Destaque	*
+2	também	*
+3	para	*
+4	as	*
+5	apreensões	*
+6	de	*
+7	cigarro	*
+8	com	*
+9	248.282	*
+10	pacotes	*
+11	.	*
+
+# source_sent_id = . . sample-s64
+# text = Mas os Estados Unidos ea União Europeia se recusaram a dar números precisos relativos ao financiamento entre 2013 e 2020 , alegando sérios problemas financeiros . 
+1	Mas	*
+2	os	*
+3	Estados	*
+4	Unidos	*
+5	ea	*
+6	União	*
+7	Europeia	*
+8	se	1:IRV
+9	recusaram	1
+10	a	*
+11	dar	*
+12	números	*
+13	precisos	*
+14	relativos	*
+15	ao	*
+16	financiamento	*
+17	entre	*
+18	2013	*
+19	e	*
+20	2020	*
+21	,	*
+22	alegando	*
+23	sérios	*
+24	problemas	*
+25	financeiros	*
+26	.	*
+
+# source_sent_id = . . sample-s65
+# text = Aos sábados , domingos e feriados , devido ao esquema de plantão desta redação , os comentários podem não ser publicados . 
+1	Aos	*
+2	sábados	*
+3	,	*
+4	domingos	*
+5	e	*
+6	feriados	*
+7	,	*
+8	devido	*
+9	ao	*
+10	esquema	*
+11	de	*
+12	plantão	*
+13	desta	*
+14	redação	*
+15	,	*
+16	os	*
+17	comentários	*
+18	podem	*
+19	não	*
+20	ser	*
+21	publicados	*
+22	.	*
+
+# source_sent_id = . . sample-s66
+# text = Garcia disse que é indissociável imaginar a possibilidade de união e parceria , sem respeitar os preceitos democráticos . 
+1	Garcia	*
+2	disse	*
+3	que	*
+4	é	*
+5	indissociável	*
+6	imaginar	*
+7	a	*
+8	possibilidade	*
+9	de	*
+10	união	*
+11	e	*
+12	parceria	*
+13	,	*
+14	sem	*
+15	respeitar	*
+16	os	*
+17	preceitos	*
+18	democráticos	*
+19	.	*
+
+# source_sent_id = . . sample-s67
+# text = Os dados , referentes a setembro , são do Conselho Nacional de Desenvolvimento Científico e Tecnológico ( CNPq ) e da Coordenação de Aperfeiçoamento de Pessoal de Nível Superior ( Capes ) . 
+1	Os	*
+2	dados	*
+3	,	*
+4	referentes	*
+5	a	*
+6	setembro	*
+7	,	*
+8	são	*
+9	do	*
+10	Conselho	*
+11	Nacional	*
+12	de	*
+13	Desenvolvimento	*
+14	Científico	*
+15	e	*
+16	Tecnológico	*
+17	(	*
+18	CNPq	*
+19	)	*
+20	e	*
+21	da	*
+22	Coordenação	*
+23	de	*
+24	Aperfeiçoamento	*
+25	de	*
+26	Pessoal	*
+27	de	*
+28	Nível	*
+29	Superior	*
+30	(	*
+31	Capes	*
+32	)	*
+33	.	*
+
+# source_sent_id = . . sample-s68
+# text = O efeito máximo da queda nos preços da energia cobrada pela Eletropaulo , calculou , deverá ser sentido no fechamento de julho , e pode ser de 0,01 ponto porcentual . 
+1	O	*
+2	efeito	*
+3	máximo	*
+4	da	*
+5	queda	*
+6	nos	*
+7	preços	*
+8	da	*
+9	energia	*
+10	cobrada	*
+11	pela	*
+12	Eletropaulo	*
+13	,	*
+14	calculou	*
+15	,	*
+16	deverá	*
+17	ser	*
+18	sentido	*
+19	no	*
+20	fechamento	*
+21	de	*
+22	julho	*
+23	,	*
+24	e	*
+25	pode	*
+26	ser	*
+27	de	*
+28	0,01	*
+29	ponto	*
+30	porcentual	*
+31	.	*
+
+# source_sent_id = . . sample-s69
+# text = " Inseguro em relação ao futuro profissional , o consumidor automaticamente pisa no freio e reduz as compras " , conclui Edison . 
+1	"	*
+2	Inseguro	*
+3	em	*
+4	relação	*
+5	ao	*
+6	futuro	*
+7	profissional	*
+8	,	*
+9	o	*
+10	consumidor	*
+11	automaticamente	*
+12	pisa	1:NotMWE
+13	no	1
+14	freio	1
+15	e	*
+16	reduz	*
+17	as	*
+18	compras	*
+19	"	*
+20	,	*
+21	conclui	*
+22	Edison	*
+23	.	*
+
+# source_sent_id = . . sample-s70
+# text = ' Bella ' foi levada a um hospital veterinário na cidade de Norman , onde os espinhos foram retirados . 
+1	'	*
+2	Bella	*
+3	'	*
+4	foi	*
+5	levada	*
+6	a	*
+7	um	*
+8	hospital	*
+9	veterinário	*
+10	na	*
+11	cidade	*
+12	de	*
+13	Norman	*
+14	,	*
+15	onde	*
+16	os	*
+17	espinhos	*
+18	foram	*
+19	retirados	*
+20	.	*
+
+# source_sent_id = . . sample-s71
+# text = Tem 60 anos e revela que seu interesse partidário nasceu há dois anos . 
+1	Tem	*
+2	60	*
+3	anos	*
+4	e	*
+5	revela	*
+6	que	*
+7	seu	*
+8	interesse	*
+9	partidário	*
+10	nasceu	*
+11	há	*
+12	dois	*
+13	anos	*
+14	.	*
+
+# source_sent_id = . . sample-s72
+# text = A Fiorentina está interessada na contratação do atacante do Schalke 04 e da seleção holandesa Huntelaar . 
+1	A	*
+2	Fiorentina	*
+3	está	*
+4	interessada	*
+5	na	*
+6	contratação	*
+7	do	*
+8	atacante	*
+9	do	*
+10	Schalke	*
+11	04	*
+12	e	*
+13	da	*
+14	seleção	*
+15	holandesa	*
+16	Huntelaar	*
+17	.	*
+
+# source_sent_id = . . sample-s73
+# text = Como uma regra geral , explosivos primários são considerados aqueles compostos que são mais sensíveis que o PETN . 
+1	Como	*
+2	uma	*
+3	regra	*
+4	geral	*
+5	,	*
+6	explosivos	*
+7	primários	*
+8	são	*
+9	considerados	*
+10	aqueles	*
+11	compostos	*
+12	que	*
+13	são	*
+14	mais	*
+15	sensíveis	*
+16	que	*
+17	o	*
+18	PETN	*
+19	.	*
+
+# source_sent_id = . . sample-s74
+# text = " Eles tentam impedir , de forma hipócrita , que outros países usem esta tecnologia para fins pacíficos , como na medicina ou na produção de energia elétrica . 
+1	"	*
+2	Eles	*
+3	tentam	*
+4	impedir	*
+5	,	*
+6	de	*
+7	forma	*
+8	hipócrita	*
+9	,	*
+10	que	*
+11	outros	*
+12	países	*
+13	usem	*
+14	esta	*
+15	tecnologia	*
+16	para	*
+17	fins	*
+18	pacíficos	*
+19	,	*
+20	como	*
+21	na	*
+22	medicina	*
+23	ou	*
+24	na	*
+25	produção	*
+26	de	*
+27	energia	*
+28	elétrica	*
+29	.	*
+
+# source_sent_id = . . sample-s75
+# text = Para enfrentar o avanço dos acidentes de trânsito , o Governo Federal expandiu o Projeto Vida no Trânsito a todas as capitais brasileiras . 
+1	Para	*
+2	enfrentar	*
+3	o	*
+4	avanço	*
+5	dos	*
+6	acidentes	*
+7	de	*
+8	trânsito	*
+9	,	*
+10	o	*
+11	Governo	*
+12	Federal	*
+13	expandiu	*
+14	o	*
+15	Projeto	*
+16	Vida	*
+17	no	*
+18	Trânsito	*
+19	a	*
+20	todas	*
+21	as	*
+22	capitais	*
+23	brasileiras	*
+24	.	*
+
+# source_sent_id = . . sample-s76
+# text = Decepcionada , ela procurou seu amigo Milt Gabler ( tio do comediante Billy Crystal ) , cuja selo , a Commodore Records , gravava músicas de jazz alternativo . 
+1	Decepcionada	*
+2	,	*
+3	ela	*
+4	procurou	*
+5	seu	*
+6	amigo	*
+7	Milt	*
+8	Gabler	*
+9	(	*
+10	tio	*
+11	do	*
+12	comediante	*
+13	Billy	*
+14	Crystal	*
+15	)	*
+16	,	*
+17	cuja	*
+18	selo	*
+19	,	*
+20	a	*
+21	Commodore	*
+22	Records	*
+23	,	*
+24	gravava	*
+25	músicas	*
+26	de	*
+27	jazz	*
+28	alternativo	*
+29	.	*
+
+# source_sent_id = . . sample-s77
+# text = Para algumas vítimas é nossa câmara de gás . 
+1	Para	*
+2	algumas	*
+3	vítimas	*
+4	é	*
+5	nossa	*
+6	câmara	*
+7	de	*
+8	gás	*
+9	.	*
+
+# source_sent_id = . . sample-s78
+# text = O próximo adversário brasileiro é a Coreia do Sul . 
+1	O	*
+2	próximo	*
+3	adversário	*
+4	brasileiro	*
+5	é	*
+6	a	*
+7	Coreia	*
+8	do	*
+9	Sul	*
+10	.	*
+
+# source_sent_id = . . sample-s79
+# text = Perim destaca que escolher as comunidades pacificadas para sediar o festival é uma forma de unir o entretenimento ea inclusão social . 
+1	Perim	*
+2	destaca	*
+3	que	*
+4	escolher	*
+5	as	*
+6	comunidades	*
+7	pacificadas	*
+8	para	*
+9	sediar	*
+10	o	*
+11	festival	*
+12	é	*
+13	uma	*
+14	forma	*
+15	de	*
+16	unir	*
+17	o	*
+18	entretenimento	*
+19	ea	*
+20	inclusão	*
+21	social	*
+22	.	*
+
+# source_sent_id = . . sample-s80
+# text = Indico , como ministra , a psicanalista e colunista deste jornal , Ana Verônica Mautner , que além de mulher é húngara , povo que pode ser acusado de muitas coisas ( não sei quais , essa é só uma frase de efeito ) , menos de refugar na hora do salto . 
+1	Indico	*
+2	,	*
+3	como	*
+4	ministra	*
+5	,	*
+6	a	*
+7	psicanalista	*
+8	e	*
+9	colunista	*
+10	deste	*
+11	jornal	*
+12	,	*
+13	Ana	*
+14	Verônica	*
+15	Mautner	*
+16	,	*
+17	que	*
+18	além	*
+19	de	*
+20	mulher	*
+21	é	*
+22	húngara	*
+23	,	*
+24	povo	*
+25	que	*
+26	pode	*
+27	ser	*
+28	acusado	*
+29	de	*
+30	muitas	*
+31	coisas	*
+32	(	*
+33	não	*
+34	sei	*
+35	quais	*
+36	,	*
+37	essa	*
+38	é	*
+39	só	*
+40	uma	*
+41	frase	*
+42	de	*
+43	efeito	*
+44	)	*
+45	,	*
+46	menos	*
+47	de	*
+48	refugar	*
+49	na	*
+50	hora	*
+51	do	*
+52	salto	*
+53	.	*
+
+# source_sent_id = . . sample-s81
+# text = Olívia faz uma notificação para os pais dos meninos . 
+1	Olívia	*
+2	faz	1:LVC.full
+3	uma	*
+4	notificação	1
+5	para	*
+6	os	*
+7	pais	*
+8	dos	*
+9	meninos	*
+10	.	*
+
+# source_sent_id = . . sample-s82
+# text = Este asteroide foi descoberto no dia 8 de fevereiro de 1994 por Eric Walter Elst em La Silla . 
+1	Este	*
+2	asteroide	*
+3	foi	*
+4	descoberto	*
+5	no	*
+6	dia	*
+7	8	*
+8	de	*
+9	fevereiro	*
+10	de	*
+11	1994	*
+12	por	*
+13	Eric	*
+14	Walter	*
+15	Elst	*
+16	em	*
+17	La	*
+18	Silla	*
+19	.	*
+
+# source_sent_id = . . sample-s83
+# text = Em pouco mais de 10 anos de estudo , conseguiu 31 aprovações em concursos de diferentes regiões do país . 
+1	Em	*
+2	pouco	*
+3	mais	*
+4	de	*
+5	10	*
+6	anos	*
+7	de	*
+8	estudo	*
+9	,	*
+10	conseguiu	*
+11	31	*
+12	aprovações	*
+13	em	*
+14	concursos	*
+15	de	*
+16	diferentes	*
+17	regiões	*
+18	do	*
+19	país	*
+20	.	*
+
+# source_sent_id = . . sample-s84
+# text = O jogo aéreo é o sexto pior da temporada em jardas , mas o quarterback Alex Smith continua protegendo a bola e já anotou oito touchdowns , sendo interceptado apenas uma vez . 
+1	O	*
+2	jogo	*
+3	aéreo	*
+4	é	*
+5	o	*
+6	sexto	*
+7	pior	*
+8	da	*
+9	temporada	*
+10	em	*
+11	jardas	*
+12	,	*
+13	mas	*
+14	o	*
+15	quarterback	*
+16	Alex	*
+17	Smith	*
+18	continua	*
+19	protegendo	*
+20	a	*
+21	bola	*
+22	e	*
+23	já	*
+24	anotou	1:LVC.full
+25	oito	*
+26	touchdowns	1
+27	,	*
+28	sendo	*
+29	interceptado	*
+30	apenas	*
+31	uma	*
+32	vez	*
+33	.	*
+
+# source_sent_id = . . sample-s85
+# text = São estas as tarefas , estes são os desafios . 
+1	São	*
+2	estas	*
+3	as	*
+4	tarefas	*
+5	,	*
+6	estes	*
+7	são	*
+8	os	*
+9	desafios	*
+10	.	*
+
+# source_sent_id = . . sample-s86
+# text = A indisponibilidade da verba direcionada aos hospitais Júlio Muller , Santa Casa , Santa Helena , Hospital Geral Universitário , Hospital do Câncer , Pronto - Socorro de Cuiabá ea outros setores de atendimento à saúde da população gerou uma ameaça de corte no atendimento pelo SUS nestas instituições . 
+1	A	*
+2	indisponibilidade	*
+3	da	*
+4	verba	*
+5	direcionada	*
+6	aos	*
+7	hospitais	*
+8	Júlio	*
+9	Muller	*
+10	,	*
+11	Santa	*
+12	Casa	*
+13	,	*
+14	Santa	*
+15	Helena	*
+16	,	*
+17	Hospital	*
+18	Geral	*
+19	Universitário	*
+20	,	*
+21	Hospital	*
+22	do	*
+23	Câncer	*
+24	,	*
+25	Pronto	*
+26	-	*
+27	Socorro	*
+28	de	*
+29	Cuiabá	*
+30	ea	*
+31	outros	*
+32	setores	*
+33	de	*
+34	atendimento	*
+35	à	*
+36	saúde	*
+37	da	*
+38	população	*
+39	gerou	1:LVC.cause
+40	uma	*
+41	ameaça	1
+42	de	*
+43	corte	*
+44	no	*
+45	atendimento	*
+46	pelo	*
+47	SUS	*
+48	nestas	*
+49	instituições	*
+50	.	*
+
+# source_sent_id = . . sample-s87
+# text = A cidade teve , desde a última eleição em 2008 , três prefeitos diferentes . 
+1	A	*
+2	cidade	*
+3	teve	1:LVC.full
+4	,	*
+5	desde	*
+6	a	*
+7	última	*
+8	eleição	*
+9	em	*
+10	2008	*
+11	,	*
+12	três	*
+13	prefeitos	1
+14	diferentes	*
+15	.	*
+
+# source_sent_id = . . sample-s88
+# text = O evento acontecerá no Sindicato dos Trabalhadores da Indústria de Alimentação , Açúcar , Álcool e afins , que fica localizada na Rua Terêncio Ricciard , 1048 , no município de Sertãozinho . 
+1	O	*
+2	evento	*
+3	acontecerá	*
+4	no	*
+5	Sindicato	*
+6	dos	*
+7	Trabalhadores	*
+8	da	*
+9	Indústria	*
+10	de	*
+11	Alimentação	*
+12	,	*
+13	Açúcar	*
+14	,	*
+15	Álcool	*
+16	e	*
+17	afins	*
+18	,	*
+19	que	*
+20	fica	*
+21	localizada	*
+22	na	*
+23	Rua	*
+24	Terêncio	*
+25	Ricciard	*
+26	,	*
+27	1048	*
+28	,	*
+29	no	*
+30	município	*
+31	de	*
+32	Sertãozinho	*
+33	.	*
+
+# source_sent_id = . . sample-s89
+# text = No ano passado , aquele episódio do meu afastamento chegou a causar um mal - estar , mas agora fica claro que está tudo superado ( Tite o tirou do time titular e até do banco de reservas depois de Chicão se recusar a ficar na reserva na véspera de uma partida contra o São Paulo , pelo Brasileiro ) . 
+1	No	*
+2	ano	*
+3	passado	*
+4	,	*
+5	aquele	*
+6	episódio	*
+7	do	*
+8	meu	*
+9	afastamento	*
+10	chegou	*
+11	a	*
+12	causar	1:LVC.cause
+13	um	*
+14	mal	1
+15	-	1
+16	estar	1
+17	,	*
+18	mas	*
+19	agora	*
+20	fica	*
+21	claro	*
+22	que	*
+23	está	*
+24	tudo	*
+25	superado	*
+26	(	*
+27	Tite	*
+28	o	*
+29	tirou	*
+30	do	*
+31	time	*
+32	titular	*
+33	e	*
+34	até	*
+35	do	*
+36	banco	*
+37	de	*
+38	reservas	*
+39	depois	*
+40	de	*
+41	Chicão	*
+42	se	2:IRV
+43	recusar	2
+44	a	*
+45	ficar	3:NotMWE
+46	na	3
+47	reserva	3
+48	na	*
+49	véspera	*
+50	de	*
+51	uma	*
+52	partida	*
+53	contra	*
+54	o	*
+55	São	*
+56	Paulo	*
+57	,	*
+58	pelo	*
+59	Brasileiro	*
+60	)	*
+61	.	*
+
+# source_sent_id = . . sample-s90
+# text = O conhecimento de transporte é um impresso fiscal em papel , como a nota fiscal de produtos ou serviços . 
+1	O	*
+2	conhecimento	*
+3	de	*
+4	transporte	*
+5	é	*
+6	um	*
+7	impresso	*
+8	fiscal	*
+9	em	*
+10	papel	*
+11	,	*
+12	como	*
+13	a	*
+14	nota	*
+15	fiscal	*
+16	de	*
+17	produtos	*
+18	ou	*
+19	serviços	*
+20	.	*
+
+# source_sent_id = . . sample-s91
+# text = O referendo foi organizado pelo governo de Ponta . 
+1	O	*
+2	referendo	*
+3	foi	*
+4	organizado	*
+5	pelo	*
+6	governo	*
+7	de	*
+8	Ponta	*
+9	.	*
+
+# source_sent_id = . . sample-s92
+# text = Os oficiais que nãoo estão na primeira linha ( p.e. engenheiros , médicos ) podem ser nomeados por méritos em tempo de guerra . 
+1	Os	*
+2	oficiais	*
+3	que	*
+4	nãoo	*
+5	estão	*
+6	na	*
+7	primeira	*
+8	linha	*
+9	(	*
+10	p.e.	*
+11	engenheiros	*
+12	,	*
+13	médicos	*
+14	)	*
+15	podem	*
+16	ser	*
+17	nomeados	*
+18	por	*
+19	méritos	*
+20	em	*
+21	tempo	*
+22	de	*
+23	guerra	*
+24	.	*
+
+# source_sent_id = . . sample-s93
+# text = As duas vêm fazendo boa campanha nesta competição e protagonizam mais um confronto direto pelo G - 4 , que garante vaga na Série A. 
+1	As	*
+2	duas	*
+3	vêm	*
+4	fazendo	1:LVC.full
+5	boa	*
+6	campanha	1
+7	nesta	*
+8	competição	*
+9	e	*
+10	protagonizam	*
+11	mais	*
+12	um	*
+13	confronto	*
+14	direto	*
+15	pelo	*
+16	G	*
+17	-	*
+18	4	*
+19	,	*
+20	que	*
+21	garante	*
+22	vaga	*
+23	na	*
+24	Série	*
+25	A.	*
+
+# source_sent_id = . . sample-s94
+# text = Dois candidatos a vereador e dois eleitores foram autuados por boca de urna ou tentando comprar votos . 
+1	Dois	*
+2	candidatos	*
+3	a	*
+4	vereador	*
+5	e	*
+6	dois	*
+7	eleitores	*
+8	foram	*
+9	autuados	*
+10	por	*
+11	boca	*
+12	de	*
+13	urna	*
+14	ou	*
+15	tentando	*
+16	comprar	*
+17	votos	*
+18	.	*
+
+# source_sent_id = . . sample-s95
+# text = O vídeo do grupo londrino foi gravado em Edimburgo , na Escócia , sob direção de Lewis Gourlay . 
+1	O	*
+2	vídeo	*
+3	do	*
+4	grupo	*
+5	londrino	*
+6	foi	*
+7	gravado	*
+8	em	*
+9	Edimburgo	*
+10	,	*
+11	na	*
+12	Escócia	*
+13	,	*
+14	sob	*
+15	direção	*
+16	de	*
+17	Lewis	*
+18	Gourlay	*
+19	.	*
+
+# source_sent_id = . . sample-s96
+# text = Os Vinci dominam a tecnologia . 
+1	Os	*
+2	Vinci	*
+3	dominam	*
+4	a	*
+5	tecnologia	*
+6	.	*
+
+# source_sent_id = . . sample-s97
+# text = Ele não conta com Valdivia , Márcio Araújo , Daniel Carvalho e Luan , machucados e Leandro Amaro , suspenso , só para lembrar os mais importantes no esquema do treinador palmeirense . 
+1	Ele	*
+2	não	*
+3	conta	*
+4	com	*
+5	Valdivia	*
+6	,	*
+7	Márcio	*
+8	Araújo	*
+9	,	*
+10	Daniel	*
+11	Carvalho	*
+12	e	*
+13	Luan	*
+14	,	*
+15	machucados	*
+16	e	*
+17	Leandro	*
+18	Amaro	*
+19	,	*
+20	suspenso	*
+21	,	*
+22	só	*
+23	para	*
+24	lembrar	*
+25	os	*
+26	mais	*
+27	importantes	*
+28	no	*
+29	esquema	*
+30	do	*
+31	treinador	*
+32	palmeirense	*
+33	.	*
+
+# source_sent_id = . . sample-s98
+# text = As matrículas devem ser feitas até o dia 31 nas próprias escolas , das 9h às 16h , de acordo com o zoneamento escolar . 
+1	As	*
+2	matrículas	1:LVC.full
+3	devem	*
+4	ser	*
+5	feitas	1
+6	até	*
+7	o	*
+8	dia	*
+9	31	*
+10	nas	*
+11	próprias	*
+12	escolas	*
+13	,	*
+14	das	*
+15	9h	*
+16	às	*
+17	16h	*
+18	,	*
+19	de	*
+20	acordo	*
+21	com	*
+22	o	*
+23	zoneamento	*
+24	escolar	*
+25	.	*
+
+# source_sent_id = . . sample-s99
+# text = Criou as missionárias da caridade , onde todas as freiras iriam ajudar não a ela , mas sim a todos os necessitados . 
+1	Criou	*
+2	as	*
+3	missionárias	*
+4	da	*
+5	caridade	*
+6	,	*
+7	onde	*
+8	todas	*
+9	as	*
+10	freiras	*
+11	iriam	*
+12	ajudar	*
+13	não	*
+14	a	*
+15	ela	*
+16	,	*
+17	mas	*
+18	sim	*
+19	a	*
+20	todos	*
+21	os	*
+22	necessitados	*
+23	.	*
+
+# source_sent_id = . . sample-s100
+# text = O órgão meteorológico informou que a tempestade perdeu as características de um ciclone , mas ainda poderá causar temporais na região dos Grandes Lagos , enchentes e ventos fortes em toda a costa leste . 
+1	O	*
+2	órgão	*
+3	meteorológico	*
+4	informou	*
+5	que	*
+6	a	*
+7	tempestade	*
+8	perdeu	*
+9	as	*
+10	características	*
+11	de	*
+12	um	*
+13	ciclone	*
+14	,	*
+15	mas	*
+16	ainda	*
+17	poderá	*
+18	causar	1:NotMWE
+19	temporais	1
+20	na	*
+21	região	*
+22	dos	*
+23	Grandes	*
+24	Lagos	*
+25	,	*
+26	enchentes	*
+27	e	*
+28	ventos	*
+29	fortes	*
+30	em	*
+31	toda	*
+32	a	*
+33	costa	*
+34	leste	*
+35	.	*
+
+# source_sent_id = . . sample-s101
+# text = Ela pilota a nave chamada " Hanvester " . 
+1	Ela	*
+2	pilota	*
+3	a	*
+4	nave	*
+5	chamada	*
+6	"	*
+7	Hanvester	*
+8	"	*
+9	.	*
+
+# source_sent_id = . . sample-s102
+# text = Agora , Sunny deve equilibrar de algum modo estas novas amizades enquanto se adapta a maneira de viver em Hollywood que , decididamente , é muito diferente da que vivia com sua família em . 
+1	Agora	*
+2	,	*
+3	Sunny	*
+4	deve	*
+5	equilibrar	*
+6	de	*
+7	algum	*
+8	modo	*
+9	estas	*
+10	novas	*
+11	amizades	*
+12	enquanto	*
+13	se	1:NotMWE
+14	adapta	1
+15	a	*
+16	maneira	*
+17	de	*
+18	viver	*
+19	em	*
+20	Hollywood	*
+21	que	*
+22	,	*
+23	decididamente	*
+24	,	*
+25	é	*
+26	muito	*
+27	diferente	*
+28	da	*
+29	que	*
+30	vivia	*
+31	com	*
+32	sua	*
+33	família	*
+34	em	*
+35	.	*
+
+# source_sent_id = . . sample-s103
+# text = Dependendo do resultado , que será divulgado nesta quarta , Felipe deve continuar por mais algum tempo na posição e , indiretamente , precisará cada vez mais da ajuda de seus companheiros . 
+1	Dependendo	*
+2	do	*
+3	resultado	*
+4	,	*
+5	que	*
+6	será	*
+7	divulgado	*
+8	nesta	*
+9	quarta	*
+10	,	*
+11	Felipe	*
+12	deve	*
+13	continuar	*
+14	por	*
+15	mais	*
+16	algum	*
+17	tempo	*
+18	na	*
+19	posição	*
+20	e	*
+21	,	*
+22	indiretamente	*
+23	,	*
+24	precisará	*
+25	cada	*
+26	vez	*
+27	mais	*
+28	da	*
+29	ajuda	*
+30	de	*
+31	seus	*
+32	companheiros	*
+33	.	*
+
+# source_sent_id = . . sample-s104
+# text = Ele explica que a Lei 12.350 , de 2010 , que possibilitou o ressarcimento para essas empresas , ainda não foi regulamentada . 
+1	Ele	*
+2	explica	*
+3	que	*
+4	a	*
+5	Lei	*
+6	12.350	*
+7	,	*
+8	de	*
+9	2010	*
+10	,	*
+11	que	*
+12	possibilitou	*
+13	o	*
+14	ressarcimento	*
+15	para	*
+16	essas	*
+17	empresas	*
+18	,	*
+19	ainda	*
+20	não	*
+21	foi	*
+22	regulamentada	*
+23	.	*
+
+# source_sent_id = . . sample-s105
+# text = Munida das fotos que provam que Carminha trai Tufão ( Murilo Benício ) com Max ( Marcello Novaes ) , Nina provoca tanto a outra que ela acaba surtando no casamento de Roni ( Daniel Rocha ) e Suelen ( Isis Valverde ) . 
+1	Munida	*
+2	das	*
+3	fotos	*
+4	que	*
+5	provam	*
+6	que	*
+7	Carminha	*
+8	trai	*
+9	Tufão	*
+10	(	*
+11	Murilo	*
+12	Benício	*
+13	)	*
+14	com	*
+15	Max	*
+16	(	*
+17	Marcello	*
+18	Novaes	*
+19	)	*
+20	,	*
+21	Nina	*
+22	provoca	*
+23	tanto	*
+24	a	*
+25	outra	*
+26	que	*
+27	ela	*
+28	acaba	*
+29	surtando	*
+30	no	*
+31	casamento	*
+32	de	*
+33	Roni	*
+34	(	*
+35	Daniel	*
+36	Rocha	*
+37	)	*
+38	e	*
+39	Suelen	*
+40	(	*
+41	Isis	*
+42	Valverde	*
+43	)	*
+44	.	*
+
+# source_sent_id = . . sample-s106
+# text = Siga também o Globo Natureza no Twitter . 
+1	Siga	*
+2	também	*
+3	o	*
+4	Globo	*
+5	Natureza	*
+6	no	*
+7	Twitter	*
+8	.	*
+
+# source_sent_id = . . sample-s107
+# text = Um dos temas será a análise sobre a atuação na guerrilha da etnia Suruí , que atualmente vive na Terra Indígena Sororó . 
+1	Um	*
+2	dos	*
+3	temas	*
+4	será	*
+5	a	*
+6	análise	*
+7	sobre	*
+8	a	*
+9	atuação	*
+10	na	*
+11	guerrilha	*
+12	da	*
+13	etnia	*
+14	Suruí	*
+15	,	*
+16	que	*
+17	atualmente	*
+18	vive	*
+19	na	*
+20	Terra	*
+21	Indígena	*
+22	Sororó	*
+23	.	*
+
+# source_sent_id = . . sample-s108
+# text = Sempre utiliza sua lábia para ludibriar os malfeitores , sempre acaba fugindo da briga . 
+1	Sempre	*
+2	utiliza	*
+3	sua	*
+4	lábia	*
+5	para	*
+6	ludibriar	*
+7	os	*
+8	malfeitores	*
+9	,	*
+10	sempre	*
+11	acaba	*
+12	fugindo	*
+13	da	*
+14	briga	*
+15	.	*
+
+# source_sent_id = . . sample-s109
+# text = Dirceu Barbano , diretor - presidente da Anvisa , diz que essa falta de controle , considerada por ele danosa para a sociedade , é uma falha em um sistema que tem um início de ciclo bem atendido . 
+1	Dirceu	*
+2	Barbano	*
+3	,	*
+4	diretor	*
+5	-	*
+6	presidente	*
+7	da	*
+8	Anvisa	*
+9	,	*
+10	diz	*
+11	que	*
+12	essa	*
+13	falta	*
+14	de	*
+15	controle	*
+16	,	*
+17	considerada	*
+18	por	*
+19	ele	*
+20	danosa	*
+21	para	*
+22	a	*
+23	sociedade	*
+24	,	*
+25	é	*
+26	uma	*
+27	falha	*
+28	em	*
+29	um	*
+30	sistema	*
+31	que	*
+32	tem	1:NotMWE
+33	um	*
+34	início	1
+35	de	*
+36	ciclo	*
+37	bem	*
+38	atendido	*
+39	.	*
+
+# source_sent_id = . . sample-s110
+# text = É uma proeza de bom tamanho . 
+1	É	*
+2	uma	*
+3	proeza	*
+4	de	*
+5	bom	*
+6	tamanho	*
+7	.	*
+
+# source_sent_id = . . sample-s111
+# text = A ideia é que as propostas sejam " racionais , curtas , realistas , para que realmente sirvam de insumo nas mesas para que possamos chegar a estes acordos de paz " , pediu nesta sexta - feira o presidente Juan Manuel Santos através de seu programa de rádio semanal . 
+1	A	*
+2	ideia	*
+3	é	*
+4	que	*
+5	as	*
+6	propostas	*
+7	sejam	*
+8	"	*
+9	racionais	*
+10	,	*
+11	curtas	*
+12	,	*
+13	realistas	*
+14	,	*
+15	para	*
+16	que	*
+17	realmente	*
+18	sirvam	*
+19	de	*
+20	insumo	*
+21	nas	*
+22	mesas	*
+23	para	*
+24	que	*
+25	possamos	*
+26	chegar	1:LVC.full
+27	a	1
+28	estes	*
+29	acordos	1
+30	de	*
+31	paz	*
+32	"	*
+33	,	*
+34	pediu	*
+35	nesta	*
+36	sexta	*
+37	-	*
+38	feira	*
+39	o	*
+40	presidente	*
+41	Juan	*
+42	Manuel	*
+43	Santos	*
+44	através	*
+45	de	*
+46	seu	*
+47	programa	*
+48	de	*
+49	rádio	*
+50	semanal	*
+51	.	*
+
+# source_sent_id = . . sample-s112
+# text = Missionária norte - americana foi morta com seis tiros em 2005 . 
+1	Missionária	*
+2	norte	*
+3	-	*
+4	americana	*
+5	foi	*
+6	morta	*
+7	com	*
+8	seis	*
+9	tiros	*
+10	em	*
+11	2005	*
+12	.	*
+
+# source_sent_id = . . sample-s113
+# text = Nos minutos finais , o jogo ficou concentrado no meio , mas o Naútico ainda teve tempo de desperdiçar uma oportunidade . 
+1	Nos	*
+2	minutos	*
+3	finais	*
+4	,	*
+5	o	*
+6	jogo	*
+7	ficou	*
+8	concentrado	*
+9	no	*
+10	meio	*
+11	,	*
+12	mas	*
+13	o	*
+14	Naútico	*
+15	ainda	*
+16	teve	1:NotMWE
+17	tempo	1
+18	de	*
+19	desperdiçar	*
+20	uma	*
+21	oportunidade	*
+22	.	*
+
+# source_sent_id = . . sample-s114
+# text = " A solução Oracle WebCenter Sites é reconhecida mundialmente por permitir que as empresas criem e gerenciem facilmente seus conteúdos interativos on - line por meio de múltiplos canais , impulsionando as oportunidades ea fidelização . 
+1	"	*
+2	A	*
+3	solução	*
+4	Oracle	*
+5	WebCenter	*
+6	Sites	*
+7	é	*
+8	reconhecida	*
+9	mundialmente	*
+10	por	*
+11	permitir	*
+12	que	*
+13	as	*
+14	empresas	*
+15	criem	*
+16	e	*
+17	gerenciem	*
+18	facilmente	*
+19	seus	*
+20	conteúdos	*
+21	interativos	*
+22	on	*
+23	-	*
+24	line	*
+25	por	*
+26	meio	*
+27	de	*
+28	múltiplos	*
+29	canais	*
+30	,	*
+31	impulsionando	*
+32	as	*
+33	oportunidades	*
+34	ea	*
+35	fidelização	*
+36	.	*
+
+# source_sent_id = . . sample-s115
+# text = Os encartes e anúncios estarão adaptados ao tema da campanha . 
+1	Os	*
+2	encartes	*
+3	e	*
+4	anúncios	*
+5	estarão	*
+6	adaptados	*
+7	ao	*
+8	tema	*
+9	da	*
+10	campanha	*
+11	.	*
+
+# source_sent_id = . . sample-s116
+# text = Depois de Luan Santana , é a vez de Luciano Huck . 
+1	Depois	*
+2	de	*
+3	Luan	*
+4	Santana	*
+5	,	*
+6	é	*
+7	a	*
+8	vez	*
+9	de	*
+10	Luciano	*
+11	Huck	*
+12	.	*
+
+# source_sent_id = . . sample-s117
+# text = Com a camisa tricolor , o atacante teve o gostinho de marcar pela primeira vez contra o Rubro - Negro na vitória por 1 a 0 no primeiro turno , centenário do Fla - Flu . 
+1	Com	*
+2	a	*
+3	camisa	*
+4	tricolor	*
+5	,	*
+6	o	*
+7	atacante	*
+8	teve	1:LVC.full
+9	o	*
+10	gostinho	1
+11	de	*
+12	marcar	*
+13	pela	*
+14	primeira	*
+15	vez	*
+16	contra	*
+17	o	*
+18	Rubro	*
+19	-	*
+20	Negro	*
+21	na	*
+22	vitória	*
+23	por	*
+24	1	*
+25	a	*
+26	0	*
+27	no	*
+28	primeiro	*
+29	turno	*
+30	,	*
+31	centenário	*
+32	do	*
+33	Fla	*
+34	-	*
+35	Flu	*
+36	.	*
+
+# source_sent_id = . . sample-s118
+# text = Registre - se que não se tem notícia de ação judicial que tenha por objeto essa temática . 
+1	Registre	*
+2	-	*
+3	se	*
+4	que	*
+5	não	*
+6	se	*
+7	tem	*
+8	notícia	*
+9	de	*
+10	ação	*
+11	judicial	*
+12	que	*
+13	tenha	*
+14	por	*
+15	objeto	*
+16	essa	*
+17	temática	*
+18	.	*
+
+# source_sent_id = . . sample-s119
+# text = Ajudou - o a conseguir um visto para os Estados Unidos e casaram - se em março de 1934 , e tiveram três filhos . 
+1	Ajudou	*
+2	-	*
+3	o	*
+4	a	*
+5	conseguir	*
+6	um	*
+7	visto	*
+8	para	*
+9	os	*
+10	Estados	*
+11	Unidos	*
+12	e	*
+13	casaram	1:NotMWE
+14	-	1
+15	se	1
+16	em	*
+17	março	*
+18	de	*
+19	1934	*
+20	,	*
+21	e	*
+22	tiveram	*
+23	três	*
+24	filhos	*
+25	.	*
+
+# source_sent_id = . . sample-s120
+# text = Além disso , a internet tem sido usada por meio das mídias sociais . 
+1	Além	*
+2	disso	*
+3	,	*
+4	a	*
+5	internet	*
+6	tem	*
+7	sido	*
+8	usada	*
+9	por	*
+10	meio	*
+11	das	*
+12	mídias	*
+13	sociais	*
+14	.	*
+
+# source_sent_id = . . sample-s121
+# text = Este , com o decorrer do tempo , parece ter decrescido de importância , pelo que passaram a chamar - lhe Coutinho , na acepção de pequeno couto . 
+1	Este	*
+2	,	*
+3	com	*
+4	o	*
+5	decorrer	*
+6	do	*
+7	tempo	*
+8	,	*
+9	parece	*
+10	ter	*
+11	decrescido	*
+12	de	*
+13	importância	*
+14	,	*
+15	pelo	*
+16	que	*
+17	passaram	*
+18	a	*
+19	chamar	*
+20	-	*
+21	lhe	*
+22	Coutinho	*
+23	,	*
+24	na	*
+25	acepção	*
+26	de	*
+27	pequeno	*
+28	couto	*
+29	.	*
+
+# source_sent_id = . . sample-s122
+# text = " Nós vamos ver na justiça quem tem razão " , concluiu o presidente . 
+1	"	*
+2	Nós	*
+3	vamos	*
+4	ver	*
+5	na	*
+6	justiça	*
+7	quem	*
+8	tem	1:LVC.full
+9	razão	1
+10	"	*
+11	,	*
+12	concluiu	*
+13	o	*
+14	presidente	*
+15	.	*
+
+# source_sent_id = . . sample-s123
+# text = Interveio junto ao presidente Monge em numerosas ocasiões e colaborou no desenvolvimento de uma base de apoio logístico da oposição unida na Nicarágua às forças enviadas para o norte da Costa Rica . 
+1	Interveio	*
+2	junto	*
+3	ao	*
+4	presidente	*
+5	Monge	*
+6	em	*
+7	numerosas	*
+8	ocasiões	*
+9	e	*
+10	colaborou	*
+11	no	*
+12	desenvolvimento	*
+13	de	*
+14	uma	*
+15	base	*
+16	de	*
+17	apoio	*
+18	logístico	*
+19	da	*
+20	oposição	*
+21	unida	*
+22	na	*
+23	Nicarágua	*
+24	às	*
+25	forças	*
+26	enviadas	*
+27	para	*
+28	o	*
+29	norte	*
+30	da	*
+31	Costa	*
+32	Rica	*
+33	.	*
+
+# source_sent_id = . . sample-s124
+# text = O Governador Siqueira Campos lembrou que o BIRD tem sido parceiro de primeira hora do Tocantins e tem uma participação muito grande no desenvolvimento do Estado . 
+1	O	*
+2	Governador	*
+3	Siqueira	*
+4	Campos	*
+5	lembrou	*
+6	que	*
+7	o	*
+8	BIRD	*
+9	tem	*
+10	sido	*
+11	parceiro	*
+12	de	*
+13	primeira	*
+14	hora	*
+15	do	*
+16	Tocantins	*
+17	e	*
+18	tem	1:LVC.full
+19	uma	*
+20	participação	1
+21	muito	*
+22	grande	*
+23	no	*
+24	desenvolvimento	*
+25	do	*
+26	Estado	*
+27	.	*
+
+# source_sent_id = . . sample-s125
+# text = « Todos compreenderam que partindo para a Espanha iriam acelerar o processo de absorção política que o conde - duque de Olivares pretendia » , segundo Veríssimo Serrão , e « na recusa de muitos em cumprir o mandado régio terá de ver - se o detonador do movimento que veio a estalar em 1 º de Dezembro seguinte . 
+1	«	*
+2	Todos	*
+3	compreenderam	*
+4	que	*
+5	partindo	*
+6	para	*
+7	a	*
+8	Espanha	*
+9	iriam	*
+10	acelerar	*
+11	o	*
+12	processo	*
+13	de	*
+14	absorção	*
+15	política	*
+16	que	*
+17	o	*
+18	conde	*
+19	-	*
+20	duque	*
+21	de	*
+22	Olivares	*
+23	pretendia	*
+24	»	*
+25	,	*
+26	segundo	*
+27	Veríssimo	*
+28	Serrão	*
+29	,	*
+30	e	*
+31	«	*
+32	na	*
+33	recusa	*
+34	de	*
+35	muitos	*
+36	em	*
+37	cumprir	*
+38	o	*
+39	mandado	*
+40	régio	*
+41	terá	*
+42	de	*
+43	ver	*
+44	-	*
+45	se	*
+46	o	*
+47	detonador	*
+48	do	*
+49	movimento	*
+50	que	*
+51	veio	*
+52	a	*
+53	estalar	*
+54	em	*
+55	1	*
+56	º	*
+57	de	*
+58	Dezembro	*
+59	seguinte	*
+60	.	*
+
+# source_sent_id = . . sample-s126
+# text = A Spiders ea Cyanide divulgaram novas imagens do game Of Orcs and Men . 
+1	A	*
+2	Spiders	*
+3	ea	*
+4	Cyanide	*
+5	divulgaram	*
+6	novas	*
+7	imagens	*
+8	do	*
+9	game	*
+10	Of	*
+11	Orcs	*
+12	and	*
+13	Men	*
+14	.	*
+
+# source_sent_id = . . sample-s127
+# text = Foi al - Ala quem liderou o exército abássida que desembarcou no al - Andalus , provavelmente perto de Beja ( no atual Portugal ) . 
+1	Foi	*
+2	al	*
+3	-	*
+4	Ala	*
+5	quem	*
+6	liderou	*
+7	o	*
+8	exército	*
+9	abássida	*
+10	que	*
+11	desembarcou	*
+12	no	*
+13	al	*
+14	-	*
+15	Andalus	*
+16	,	*
+17	provavelmente	*
+18	perto	*
+19	de	*
+20	Beja	*
+21	(	*
+22	no	*
+23	atual	*
+24	Portugal	*
+25	)	*
+26	.	*
+
+# source_sent_id = . . sample-s128
+# text = Haddad prometeu fortes investimentos no sistema viário e de transporte urbano , para reduzir o tempo de viagem entre os moradores da zona sul eo centro da cidade , e construir um hospital em Parelheiros . 
+1	Haddad	*
+2	prometeu	*
+3	fortes	*
+4	investimentos	*
+5	no	*
+6	sistema	*
+7	viário	*
+8	e	*
+9	de	*
+10	transporte	*
+11	urbano	*
+12	,	*
+13	para	*
+14	reduzir	*
+15	o	*
+16	tempo	*
+17	de	*
+18	viagem	*
+19	entre	*
+20	os	*
+21	moradores	*
+22	da	*
+23	zona	*
+24	sul	*
+25	eo	*
+26	centro	*
+27	da	*
+28	cidade	*
+29	,	*
+30	e	*
+31	construir	*
+32	um	*
+33	hospital	*
+34	em	*
+35	Parelheiros	*
+36	.	*
+
+# source_sent_id = . . sample-s129
+# text = Tufão e Leleco contam para Jorginho que Max morreu . 
+1	Tufão	*
+2	e	*
+3	Leleco	*
+4	contam	*
+5	para	*
+6	Jorginho	*
+7	que	*
+8	Max	*
+9	morreu	*
+10	.	*
+
+# source_sent_id = . . sample-s130
+# text = Pessoalmente , penso que , se isso vai ser útil para retomar a democracia eo processo de mudança no Paraguai , sou um soldado " . 
+1	Pessoalmente	*
+2	,	*
+3	penso	*
+4	que	*
+5	,	*
+6	se	*
+7	isso	*
+8	vai	*
+9	ser	*
+10	útil	*
+11	para	*
+12	retomar	*
+13	a	*
+14	democracia	*
+15	eo	*
+16	processo	*
+17	de	*
+18	mudança	*
+19	no	*
+20	Paraguai	*
+21	,	*
+22	sou	*
+23	um	*
+24	soldado	*
+25	"	*
+26	.	*
+
+# source_sent_id = . . sample-s131
+# text = Mas o Cuca falou para gente deixar isso de lado " , afirmou o atacante alvinegro , que deixa claro que mesmo com o pedido do treinador , que a vontade de devolver o revés sofrido para os flamenguistas no turno é grande . 
+1	Mas	*
+2	o	*
+3	Cuca	*
+4	falou	*
+5	para	*
+6	gente	*
+7	deixar	*
+8	isso	*
+9	de	*
+10	lado	*
+11	"	*
+12	,	*
+13	afirmou	*
+14	o	*
+15	atacante	*
+16	alvinegro	*
+17	,	*
+18	que	*
+19	deixa	1:VID
+20	claro	1
+21	que	*
+22	mesmo	*
+23	com	*
+24	o	*
+25	pedido	*
+26	do	*
+27	treinador	*
+28	,	*
+29	que	*
+30	a	*
+31	vontade	*
+32	de	*
+33	devolver	*
+34	o	*
+35	revés	2:LVC.full
+36	sofrido	2
+37	para	*
+38	os	*
+39	flamenguistas	*
+40	no	*
+41	turno	*
+42	é	*
+43	grande	*
+44	.	*
+
+# source_sent_id = . . sample-s132
+# text = Entre as queixas da população estão a aplicação de multas , cobrança injusta de tarifas , maus - tratos entre outras . 
+1	Entre	*
+2	as	*
+3	queixas	*
+4	da	*
+5	população	*
+6	estão	*
+7	a	*
+8	aplicação	*
+9	de	*
+10	multas	*
+11	,	*
+12	cobrança	*
+13	injusta	*
+14	de	*
+15	tarifas	*
+16	,	*
+17	maus	*
+18	-	*
+19	tratos	*
+20	entre	*
+21	outras	*
+22	.	*
+
+# source_sent_id = . . sample-s133
+# text = Tal reforma deve prever o financiamento público de campanhas -- uma vez que as mulheres enfrentam grandes dificuldades na captação de recursos dentro dos partidos -- e também abraçar a lista partidária , da qual sou defensora , de forma paritária . 
+1	Tal	*
+2	reforma	*
+3	deve	*
+4	prever	*
+5	o	*
+6	financiamento	*
+7	público	*
+8	de	*
+9	campanhas	*
+10	--	*
+11	uma	*
+12	vez	*
+13	que	*
+14	as	*
+15	mulheres	*
+16	enfrentam	1:LVC.full
+17	grandes	*
+18	dificuldades	1
+19	na	*
+20	captação	*
+21	de	*
+22	recursos	*
+23	dentro	*
+24	dos	*
+25	partidos	*
+26	--	*
+27	e	*
+28	também	*
+29	abraçar	*
+30	a	*
+31	lista	*
+32	partidária	*
+33	,	*
+34	da	*
+35	qual	*
+36	sou	*
+37	defensora	*
+38	,	*
+39	de	*
+40	forma	*
+41	paritária	*
+42	.	*
+
+# source_sent_id = . . sample-s134
+# text = Fideliza clientes por meio de campanhas específicas ou em datas sazonais , promove incremento no ticket e agrega valor à marca . 
+1	Fideliza	*
+2	clientes	*
+3	por	*
+4	meio	*
+5	de	*
+6	campanhas	*
+7	específicas	*
+8	ou	*
+9	em	*
+10	datas	*
+11	sazonais	*
+12	,	*
+13	promove	*
+14	incremento	*
+15	no	*
+16	ticket	*
+17	e	*
+18	agrega	1:VID
+19	valor	1
+20	à	*
+21	marca	*
+22	.	*
+
+# source_sent_id = . . sample-s135
+# text = Os cortes e reformas também estão sendo combatidos com greves , como a que protagonizam hoje trabalhadores de veículos da imprensa , de hospitais públicos , farmácias e cartórios . 
+1	Os	*
+2	cortes	*
+3	e	*
+4	reformas	*
+5	também	*
+6	estão	*
+7	sendo	*
+8	combatidos	*
+9	com	*
+10	greves	*
+11	,	*
+12	como	*
+13	a	*
+14	que	*
+15	protagonizam	*
+16	hoje	*
+17	trabalhadores	*
+18	de	*
+19	veículos	*
+20	da	*
+21	imprensa	*
+22	,	*
+23	de	*
+24	hospitais	*
+25	públicos	*
+26	,	*
+27	farmácias	*
+28	e	*
+29	cartórios	*
+30	.	*
+
+# source_sent_id = . . sample-s136
+# text = Lia e Gil tocam guitarra juntos . 
+1	Lia	*
+2	e	*
+3	Gil	*
+4	tocam	*
+5	guitarra	*
+6	juntos	*
+7	.	*
+
+# source_sent_id = . . sample-s137
+# text = O XYplorer é um gerenciador de arquivos portátil ( stand - alone ) . 
+1	O	*
+2	XYplorer	*
+3	é	*
+4	um	*
+5	gerenciador	*
+6	de	*
+7	arquivos	*
+8	portátil	*
+9	(	*
+10	stand	*
+11	-	*
+12	alone	*
+13	)	*
+14	.	*
+
+# source_sent_id = . . sample-s138
+# text = São versos retirados de Prelúdio , canção de Raul Seixas , que dimensionam com exatidão o que cada gremista está prestes a viver neste 8 de dezembro de 2012 . 
+1	São	*
+2	versos	*
+3	retirados	*
+4	de	*
+5	Prelúdio	*
+6	,	*
+7	canção	*
+8	de	*
+9	Raul	*
+10	Seixas	*
+11	,	*
+12	que	*
+13	dimensionam	*
+14	com	*
+15	exatidão	*
+16	o	*
+17	que	*
+18	cada	*
+19	gremista	*
+20	está	*
+21	prestes	*
+22	a	*
+23	viver	*
+24	neste	*
+25	8	*
+26	de	*
+27	dezembro	*
+28	de	*
+29	2012	*
+30	.	*
+
+# source_sent_id = . . sample-s139
+# text = Já nesta quinta - feira , haverá atividades em dois períodos -- manhã ( 8h ) , no Centro Comunitário do Paranapungá , e tarde ( 14h ) , na Vila Vicentina . 
+1	Já	*
+2	nesta	*
+3	quinta	*
+4	-	*
+5	feira	*
+6	,	*
+7	haverá	*
+8	atividades	*
+9	em	*
+10	dois	*
+11	períodos	*
+12	--	*
+13	manhã	*
+14	(	*
+15	8h	*
+16	)	*
+17	,	*
+18	no	*
+19	Centro	*
+20	Comunitário	*
+21	do	*
+22	Paranapungá	*
+23	,	*
+24	e	*
+25	tarde	*
+26	(	*
+27	14h	*
+28	)	*
+29	,	*
+30	na	*
+31	Vila	*
+32	Vicentina	*
+33	.	*
+
+# source_sent_id = . . sample-s140
+# text = Com talento e carisma de sobra , ele cativou os jurados e conquistou uma legião de fãs pelo Brasil . 
+1	Com	*
+2	talento	*
+3	e	*
+4	carisma	*
+5	de	*
+6	sobra	*
+7	,	*
+8	ele	*
+9	cativou	*
+10	os	*
+11	jurados	*
+12	e	*
+13	conquistou	*
+14	uma	*
+15	legião	*
+16	de	*
+17	fãs	*
+18	pelo	*
+19	Brasil	*
+20	.	*
+
+# source_sent_id = . . sample-s141
+# text = -- O euro abriu nesta quarta - feira em baixa no mercado de divisas de Frankfurt e era cotado a US $ 1,2759 , frente aos US $ 1,2801 da sessão anterior . 
+1	--	*
+2	O	*
+3	euro	*
+4	abriu	*
+5	nesta	*
+6	quarta	*
+7	-	*
+8	feira	*
+9	em	*
+10	baixa	*
+11	no	*
+12	mercado	*
+13	de	*
+14	divisas	*
+15	de	*
+16	Frankfurt	*
+17	e	*
+18	era	*
+19	cotado	*
+20	a	*
+21	US	*
+22	$	*
+23	1,2759	*
+24	,	*
+25	frente	*
+26	aos	*
+27	US	*
+28	$	*
+29	1,2801	*
+30	da	*
+31	sessão	*
+32	anterior	*
+33	.	*
+
+# source_sent_id = . . sample-s142
+# text = O delegado Rafael Schimidt reforçou que o ex - policial foi expulso da corporação devido o envolvimento dele com o tráfico de drogas . 
+1	O	*
+2	delegado	*
+3	Rafael	*
+4	Schimidt	*
+5	reforçou	*
+6	que	*
+7	o	*
+8	ex	*
+9	-	*
+10	policial	*
+11	foi	*
+12	expulso	*
+13	da	*
+14	corporação	*
+15	devido	*
+16	o	*
+17	envolvimento	*
+18	dele	*
+19	com	*
+20	o	*
+21	tráfico	*
+22	de	*
+23	drogas	*
+24	.	*
+
+# source_sent_id = . . sample-s143
+# text = Será que as lojas vão mesmo lotar em Porto Velho e em todo o interior , neste penúltimo sábado antes do Natal ? 
+1	Será	*
+2	que	*
+3	as	*
+4	lojas	*
+5	vão	*
+6	mesmo	*
+7	lotar	*
+8	em	*
+9	Porto	*
+10	Velho	*
+11	e	*
+12	em	*
+13	todo	*
+14	o	*
+15	interior	*
+16	,	*
+17	neste	*
+18	penúltimo	*
+19	sábado	*
+20	antes	*
+21	do	*
+22	Natal	*
+23	?	*
+
+# source_sent_id = . . sample-s144
+# text = Já o Flamengo entrou em campo no ritmo da torcida . 
+1	Já	*
+2	o	*
+3	Flamengo	*
+4	entrou	1:NotMWE
+5	em	1
+6	campo	1
+7	no	*
+8	ritmo	*
+9	da	*
+10	torcida	*
+11	.	*
+
+# source_sent_id = . . sample-s145
+# text = O coágulo , que teria origem , segundo os médicos , em uma má - formação de vasos sanguíneos , interrompeu o fluxo de sangue para um parte do seu cérebro , fazendo com que o local ficasse temporariamente sem oxigênio e sem nutrientes . 
+1	O	*
+2	coágulo	*
+3	,	*
+4	que	*
+5	teria	*
+6	origem	*
+7	,	*
+8	segundo	*
+9	os	*
+10	médicos	*
+11	,	*
+12	em	*
+13	uma	*
+14	má	*
+15	-	*
+16	formação	*
+17	de	*
+18	vasos	*
+19	sanguíneos	*
+20	,	*
+21	interrompeu	*
+22	o	*
+23	fluxo	*
+24	de	*
+25	sangue	*
+26	para	*
+27	um	*
+28	parte	*
+29	do	*
+30	seu	*
+31	cérebro	*
+32	,	*
+33	fazendo	*
+34	com	*
+35	que	*
+36	o	*
+37	local	*
+38	ficasse	*
+39	temporariamente	*
+40	sem	*
+41	oxigênio	*
+42	e	*
+43	sem	*
+44	nutrientes	*
+45	.	*
+
+# source_sent_id = . . sample-s146
+# text = Sem saída , Rosário decide criar a menina , a quem acaba se apegando . 
+1	Sem	*
+2	saída	*
+3	,	*
+4	Rosário	*
+5	decide	*
+6	criar	*
+7	a	*
+8	menina	*
+9	,	*
+10	a	*
+11	quem	*
+12	acaba	*
+13	se	1:IRV
+14	apegando	1
+15	.	*
+
+# source_sent_id = . . sample-s147
+# text = O sonho ainda é possível , Raposa . 
+1	O	*
+2	sonho	*
+3	ainda	*
+4	é	*
+5	possível	*
+6	,	*
+7	Raposa	*
+8	.	*
+
+# source_sent_id = . . sample-s148
+# text = Skoczów é uma cidade da Polónia , na voivodia de Silésia e no condado de Cieszyński . 
+1	Skoczów	*
+2	é	*
+3	uma	*
+4	cidade	*
+5	da	*
+6	Polónia	*
+7	,	*
+8	na	*
+9	voivodia	*
+10	de	*
+11	Silésia	*
+12	e	*
+13	no	*
+14	condado	*
+15	de	*
+16	Cieszyński	*
+17	.	*
+
+# source_sent_id = . . sample-s149
+# text = Eram transportados na carroceria de um caminhão por motorista sem habilitação e cumpriam regime de dez a onze horas , com intervalo de apenas 15 minutos para almoço . 
+1	Eram	*
+2	transportados	*
+3	na	*
+4	carroceria	*
+5	de	*
+6	um	*
+7	caminhão	*
+8	por	*
+9	motorista	*
+10	sem	*
+11	habilitação	*
+12	e	*
+13	cumpriam	1:LVC.full
+14	regime	1
+15	de	*
+16	dez	*
+17	a	*
+18	onze	*
+19	horas	*
+20	,	*
+21	com	*
+22	intervalo	*
+23	de	*
+24	apenas	*
+25	15	*
+26	minutos	*
+27	para	*
+28	almoço	*
+29	.	*
+
+# source_sent_id = . . sample-s150
+# text = Mesmo criticados e ridicularizados como pioneiros do " movimento emo " no Brasil -- responsabilidade que eles garantem nunca ter assumido -- Di Ferrero ( vocal ) , Gee Rocha ( guitarra ) , Daniel Weksler ( bateria ) , Caco Grandino ( baixo ) e Fi Duarte ( guitarra ) não tiveram vergonha de assumir as influências de pop punk e hardcore melódico , e há mais de dez anos buscam construir a identidade própria do pop rock que os popularizou . 
+1	Mesmo	*
+2	criticados	*
+3	e	*
+4	ridicularizados	*
+5	como	*
+6	pioneiros	*
+7	do	*
+8	"	*
+9	movimento	*
+10	emo	*
+11	"	*
+12	no	*
+13	Brasil	*
+14	--	*
+15	responsabilidade	*
+16	que	*
+17	eles	*
+18	garantem	*
+19	nunca	*
+20	ter	*
+21	assumido	*
+22	--	*
+23	Di	*
+24	Ferrero	*
+25	(	*
+26	vocal	*
+27	)	*
+28	,	*
+29	Gee	*
+30	Rocha	*
+31	(	*
+32	guitarra	*
+33	)	*
+34	,	*
+35	Daniel	*
+36	Weksler	*
+37	(	*
+38	bateria	*
+39	)	*
+40	,	*
+41	Caco	*
+42	Grandino	*
+43	(	*
+44	baixo	*
+45	)	*
+46	e	*
+47	Fi	*
+48	Duarte	*
+49	(	*
+50	guitarra	*
+51	)	*
+52	não	*
+53	tiveram	1:LVC.full
+54	vergonha	1
+55	de	*
+56	assumir	*
+57	as	*
+58	influências	*
+59	de	*
+60	pop	*
+61	punk	*
+62	e	*
+63	hardcore	*
+64	melódico	*
+65	,	*
+66	e	*
+67	há	*
+68	mais	*
+69	de	*
+70	dez	*
+71	anos	*
+72	buscam	*
+73	construir	*
+74	a	*
+75	identidade	*
+76	própria	*
+77	do	*
+78	pop	*
+79	rock	*
+80	que	*
+81	os	*
+82	popularizou	*
+83	.	*
+
+# source_sent_id = . . sample-s151
+# text = De fã , virou amigo . 
+1	De	*
+2	fã	*
+3	,	*
+4	virou	*
+5	amigo	*
+6	.	*
+
+# source_sent_id = . . sample-s152
+# text = Os álcoois secundários , diferente dos primários , são oxidados de apenas uma forma gerando sempre como produto uma cetona . 
+1	Os	*
+2	álcoois	*
+3	secundários	*
+4	,	*
+5	diferente	*
+6	dos	*
+7	primários	*
+8	,	*
+9	são	*
+10	oxidados	*
+11	de	*
+12	apenas	*
+13	uma	*
+14	forma	*
+15	gerando	*
+16	sempre	*
+17	como	*
+18	produto	*
+19	uma	*
+20	cetona	*
+21	.	*
+
+# source_sent_id = . . sample-s153
+# text = Com a intenção de presentear sobrinhos e afilhados , a manicure Paloma Costa , pesquisava o preço de carrinhos e bonecas . 
+1	Com	*
+2	a	*
+3	intenção	*
+4	de	*
+5	presentear	*
+6	sobrinhos	*
+7	e	*
+8	afilhados	*
+9	,	*
+10	a	*
+11	manicure	*
+12	Paloma	*
+13	Costa	*
+14	,	*
+15	pesquisava	*
+16	o	*
+17	preço	*
+18	de	*
+19	carrinhos	*
+20	e	*
+21	bonecas	*
+22	.	*
+
+# source_sent_id = . . sample-s154
+# text = Aprovadonas comissões deAssuntos Sociais ( CAS ) ; 
+1	Aprovadonas	*
+2	comissões	*
+3	deAssuntos	*
+4	Sociais	*
+5	(	*
+6	CAS	*
+7	)	*
+8	;	*
+
+# source_sent_id = . . sample-s155
+# text = A Estação pode ser acedida pela Avenida 25 de Abril , junto à localidade de Ramalhal . 
+1	A	*
+2	Estação	*
+3	pode	*
+4	ser	*
+5	acedida	*
+6	pela	*
+7	Avenida	*
+8	25	*
+9	de	*
+10	Abril	*
+11	,	*
+12	junto	*
+13	à	*
+14	localidade	*
+15	de	*
+16	Ramalhal	*
+17	.	*
+
+# source_sent_id = . . sample-s156
+# text = Pelo rubro - negro carioca , Kléberson fez cinco gols em 11 jogos no ano . 
+1	Pelo	*
+2	rubro	*
+3	-	*
+4	negro	*
+5	carioca	*
+6	,	*
+7	Kléberson	*
+8	fez	1:LVC.full
+9	cinco	*
+10	gols	1
+11	em	*
+12	11	*
+13	jogos	*
+14	no	*
+15	ano	*
+16	.	*
+
+# source_sent_id = . . sample-s157
+# text = Na decisão liminar , o juiz proíbe o Estado de privilegiar pagamentos , em detrimento dos demais entes municipais , às organizações sociais . 
+1	Na	*
+2	decisão	*
+3	liminar	*
+4	,	*
+5	o	*
+6	juiz	*
+7	proíbe	*
+8	o	*
+9	Estado	*
+10	de	*
+11	privilegiar	*
+12	pagamentos	*
+13	,	*
+14	em	*
+15	detrimento	*
+16	dos	*
+17	demais	*
+18	entes	*
+19	municipais	*
+20	,	*
+21	às	*
+22	organizações	*
+23	sociais	*
+24	.	*
+
+# source_sent_id = . . sample-s158
+# text = Já em Terra Caída , no município de Indiaroba , a parte de terraplanagem está quase concluída para , em seguida , ser feita uma limpeza e receber asfalto . 
+1	Já	*
+2	em	*
+3	Terra	*
+4	Caída	*
+5	,	*
+6	no	*
+7	município	*
+8	de	*
+9	Indiaroba	*
+10	,	*
+11	a	*
+12	parte	*
+13	de	*
+14	terraplanagem	*
+15	está	*
+16	quase	*
+17	concluída	*
+18	para	*
+19	,	*
+20	em	*
+21	seguida	*
+22	,	*
+23	ser	*
+24	feita	1:LVC.full
+25	uma	*
+26	limpeza	1
+27	e	*
+28	receber	*
+29	asfalto	*
+30	.	*
+
+# source_sent_id = . . sample-s159
+# text = O presidente venezuelano , Hugo Chávez , foi reeleito pela segunda vez no último dia 7 com mais de 55 % de votos . 
+1	O	*
+2	presidente	*
+3	venezuelano	*
+4	,	*
+5	Hugo	*
+6	Chávez	*
+7	,	*
+8	foi	*
+9	reeleito	*
+10	pela	*
+11	segunda	*
+12	vez	*
+13	no	*
+14	último	*
+15	dia	*
+16	7	*
+17	com	*
+18	mais	*
+19	de	*
+20	55	*
+21	%	*
+22	de	*
+23	votos	*
+24	.	*
+
+# source_sent_id = . . sample-s160
+# text = Destaque para as atuações do armador Deron Williams e do ala - armador Carmelo Anthony . 
+1	Destaque	*
+2	para	*
+3	as	*
+4	atuações	*
+5	do	*
+6	armador	*
+7	Deron	*
+8	Williams	*
+9	e	*
+10	do	*
+11	ala	*
+12	-	*
+13	armador	*
+14	Carmelo	*
+15	Anthony	*
+16	.	*
+
+# source_sent_id = . . sample-s161
+# text = A Rio - Bahia se estendia até Feira de Santana e , desta cidade até Fortaleza , foi construída , por Getúlio , a Rodovia Transnordestina , atual BR - 116 . 
+1	A	*
+2	Rio	*
+3	-	*
+4	Bahia	*
+5	se	1:IRV
+6	estendia	1
+7	até	*
+8	Feira	*
+9	de	*
+10	Santana	*
+11	e	*
+12	,	*
+13	desta	*
+14	cidade	*
+15	até	*
+16	Fortaleza	*
+17	,	*
+18	foi	*
+19	construída	*
+20	,	*
+21	por	*
+22	Getúlio	*
+23	,	*
+24	a	*
+25	Rodovia	*
+26	Transnordestina	*
+27	,	*
+28	atual	*
+29	BR	*
+30	-	*
+31	116	*
+32	.	*
+
+# source_sent_id = . . sample-s162
+# text = O treino desta terça - feira foi o último da semana no Arruda . 
+1	O	*
+2	treino	*
+3	desta	*
+4	terça	*
+5	-	*
+6	feira	*
+7	foi	*
+8	o	*
+9	último	*
+10	da	*
+11	semana	*
+12	no	*
+13	Arruda	*
+14	.	*
+
+# source_sent_id = . . sample-s163
+# text = portanto , há produção e perda constante de gases atmosféricos . 
+1	portanto	*
+2	,	*
+3	há	*
+4	produção	*
+5	e	*
+6	perda	*
+7	constante	*
+8	de	*
+9	gases	*
+10	atmosféricos	*
+11	.	*
+
+# source_sent_id = . . sample-s164
+# text = Em nota a corporação informou que os Bombeiros ea secretaria estadual de Saúde estão analisando a possibilidade de rever os procedimentos e requisitos para aprovar reformas e construções de novos prédios em hospitais do Rio de Janeiro . 
+# blablabla = Em nota a corporação informou que os Bombeiros ea secretaria estadual de Saúde estão analisando a possibilidade de rever os procedimentos e requisitos para aprovar reformas e construções de novos prédios em hospitais do Rio de Janeiro . 
+# blablablahhhhhhhhhhh Em nota a corporação informou que os Bombeiros ea secretaria estadual de Saúde estão analisando a possibilidade de rever os procedimentos e requisitos para aprovar reformas e construções de novos prédios em hospitais do Rio de Janeiro . 
+# metadata = {"kind": "comment", "text": "Em nota a corporação informou que os Bombeiros ea secretaria estadual de Saúde estão analisando a possibilidade de rever os procedimentos e requisitos para aprovar reformas e construções de novos prédios em hospitais do Rio de Janeiro ."}
+1	Em	*
+2	nota	*
+3	a	*
+4	corporação	*
+5	informou	*
+6	que	*
+7	os	*
+8	Bombeiros	*
+9	ea	*
+10	secretaria	*
+11	estadual	*
+12	de	*
+13	Saúde	*
+14	estão	*
+15	analisando	*
+16	a	*
+17	possibilidade	*
+18	de	*
+19	rever	*
+20	os	*
+21	procedimentos	*
+22	e	*
+23	requisitos	*
+24	para	*
+25	aprovar	*
+26	reformas	*
+27	e	*
+28	construções	*
+29	de	*
+30	novos	*
+31	prédios	*
+32	em	*
+33	hospitais	*
+34	do	*
+35	Rio	*
+36	de	*
+37	Janeiro	*
+38	.	*
+
