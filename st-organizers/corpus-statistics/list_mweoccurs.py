@@ -51,7 +51,7 @@ class Main:
 
     def color(self, token: dataalign.Token, in_mwe: bool):
         text = token['FORM']
-        return "\x1b[7m{}\x1b[m".format(text) if in_mwe else text
+        return "\x1b[31;4m{}\x1b[m".format(text) if in_mwe else text
 
 
 
