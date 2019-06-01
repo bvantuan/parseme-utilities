@@ -18,6 +18,8 @@ parser.add_argument("--lang", choices=sorted(dataalign.LANGS), metavar="LANG", r
         help="""Name of the target language (e.g. EN, FR, PL, DE...)""")
 parser.add_argument("--discard-non-mwes", action="store_true",
         help="""Discard NonMWE entries in the output""")
+parser.add_argument("--keepranges", action="store_true",
+        help="""Keep MWE annotations on multiword tokens (ranges), e.g. contractions""")        
 parser.add_argument("--colnames", nargs="+",
         help="""Column names in the order they should appear in the output CoNLL-UP""")
 parser.add_argument("--input", type=str, nargs="+", required=True,
@@ -38,7 +40,7 @@ class Main:
             keep_nvmwes=(not self.args.discard_non_mwes), debug=self.args.debug)
 
         colnames = self.args.colnames or iaf.aligned_iterator.main_iterators[0].corpusinfo.colnames
-        dataalign.ConllupWriter(colnames=colnames).write_sentences(iaf)
+        dataalign.ConllupWriter(colnames=colnames,keepranges=self.args.keepranges).write_sentences(iaf)
 
 
 #####################################################

@@ -1477,9 +1477,10 @@ class AbstractWriter:
 
 
 class ConllupWriter(AbstractWriter):
-    def __init__(self, *, output=sys.stdout, colnames=None):
+    def __init__(self, *, output=sys.stdout, colnames=None, keepranges=False):
         super().__init__(output=output)
         self.colnames = colnames
+        self.keepranges = keepranges
 
     def _do_write_sentence(self, sent):
         if self.sentno == 1:
@@ -1497,7 +1498,7 @@ class ConllupWriter(AbstractWriter):
     def token_values(self, token: Token, colnames: list, mwecodes: 'list[str]'):
         for colname in colnames:
             if colname == 'PARSEME:MWE':
-                if "-" in token["ID"]:
+                if "-" in token["ID"] and not self.keepranges:
                     yield "*" # The PARSEME:MWE column is not defined for multiword tokens <= CHANGE THIS IN THE FUTURE PUT _
                 else:
                     yield ";".join(mwecodes) or "*"
