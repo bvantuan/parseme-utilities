@@ -3,6 +3,6 @@ test:
   script:
   - apt-get update -qy
   - apt-get install -y python3-pip
-  - pip3 install folia
+  - pip3 install -U folia
   - export TERM=xterm
   - ./test/test.sh

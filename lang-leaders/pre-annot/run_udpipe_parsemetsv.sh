@@ -59,7 +59,7 @@ for inputtsv in "$@"; do
     tmpfile="${TMPDIR:-/tmp}/run-udpipe.tmpfile"
 
     bold_echo "===> Pre-processing: ${inputtsv}"
-    "$HERE/../../st-organizers/parsemetsv2cupt.py" --artificial --input "$inputtsv"  | conllup2conllu >"$tmpfile"
+    "$HERE/../../st-organizers/to_cupt.py" --artificial --input "$inputtsv"  | conllup2conllu >"$tmpfile"
 
     bold_echo "===> Generating: ${inputtsv}.GENERATED.conllu"
     "$UDPIPE_PATH"/src/udpipe --tag --parse "$udpipe_model" --input=conllu "$tmpfile" >|${inputtsv}.GENERATED.conllu

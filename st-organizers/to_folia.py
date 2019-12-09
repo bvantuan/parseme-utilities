@@ -37,7 +37,7 @@ class Main:
         doc = folia.Document(id=doc_id if doc_id.isalpha() else "_")
         main_text = doc.add(folia.Text)
 
-        if self.args.lang in ["FA", "HE", "YI"]:
+        if self.args.lang in dataalign.LANGS_WRITTEN_RTL:
             doc.metadata['direction'] = 'rtl'
         doc.metadata['status'] = 'untouched'
         doc.declare(folia.Entity, set=CATEG_SET_URL)

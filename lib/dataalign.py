@@ -36,7 +36,8 @@ from categories import Categories
 
 
 try:
-    from folia import main as folia
+    #from folia import main as folia # Python3.5 and later only
+    from pynlpl.formats import folia
 except ImportError:
     exit("ERROR: FoliaPY not found, please run this code: pip3 install folia")
 
@@ -65,7 +66,7 @@ LANGS_WITH_CANONICAL_VERB_ON_RIGHT = set("DE EU HI TR".split())
 LANGS_WITH_VERB_OCCURRENCES_ON_RIGHT = LANGS_WITH_CANONICAL_VERB_ON_RIGHT - set(["DE"])
 
 # Languages that are written right-to-left (FLAT needs to know this for proper displaying)
-LANGS_WRITTEN_RTL = set(["FA HE YI"])
+LANGS_WRITTEN_RTL = set(["AR FA HE YI"])
 
 
 ############################################################
@@ -997,10 +998,17 @@ def _iter_parseme_file(lang, file_path, default_mwe_category):
 
     header_lines = [x for x in header.split(b"\n") if x.strip() and not x.startswith(b"#")]
     n_cols = collections.Counter(len(x.split(b"\t")) for x in header_lines).most_common(1)[0][0]
-    if n_cols == 4:
+    if n_cols == 4 : # classical parseme-tsv
+        corpusinfo.colnames = "ID FORM MISC PARSEME:MWE".split()
+        return ParsemeTSVIterator(corpusinfo, fileobj, default_mwe_category)
+    if n_cols == 5 : # parseme-tsv with POS
+        corpusinfo.colnames = "ID FORM MISC PARSEME:MWE XPOS".split()
         return ParsemeTSVIterator(corpusinfo, fileobj, default_mwe_category)
     if n_cols == 10:
         return ConlluIterator(corpusinfo, fileobj, default_mwe_category)
+    if n_cols == 11: # missing header tolerated
+        corpusinfo.colnames = ConlluIterator.UD_KEYS + ["PARSEME:MWE"]
+        return ConllupIterator(corpusinfo, fileobj, default_mwe_category)
     raise Exception("Unknown file format (TSV with {} columns): {!r}".format(n_cols, file_path))
 
 
@@ -1435,22 +1443,27 @@ class ConllupIterator(AbstractFileIterator):
 
 class ParsemeTSVIterator(AbstractFileIterator):
     def __init__(self, corpusinfo, fileobj, default_mwe_category):
-        corpusinfo.colnames = ["ID", "FORM", "MISC", "PARSEME:MWE"]
+        #corpusinfo.colnames = ["ID", "FORM", "MISC", "PARSEME:MWE"]
         super().__init__(corpusinfo, fileobj, default_mwe_category)
 
     def get_token_and_mwecodes(self, data):
         if len(data) == 5:
+            xpos = data[4]
+        else:
+            xpos = EMPTY
             warn_once(
                 "{}:{}".format(self.corpusinfo.file_path, self.lineno),
-                "Silently ignoring 5th parsemetsv column")
-            data.pop()  # remove data[-1]
-        elif len(data) != 4:
+                "Considering 5th parsemetsv column as POS")
+            #data.pop()  # remove data[-1]
+        if len(data) != 4:
             self.warn("PARSEMETSV line has {n} columns, not 4", n=len(data))
         # ID FORM LEMMA UPOS XPOS FEATS HEAD DEPREL DEPS MISC
         conllu = {
             'ID': data[0],
             'FORM': data[1] or '_',
             'MISC': ('SpaceAfter=No' if data[2]=='nsp' else ''),
+            'XPOS': xpos,
+
         }
         mwe_codes = data[3]
         m = mwe_codes.split(";") if mwe_codes not in "_*" else []
