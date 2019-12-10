@@ -36,8 +36,8 @@ from categories import Categories
 
 
 try:
-    #from folia import main as folia # Python3.5 and later only
-    from pynlpl.formats import folia
+    from folia import main as folia # Python3.5 and later only
+    #from pynlpl.formats import folia
 except ImportError:
     exit("ERROR: FoliaPY not found, please run this code: pip3 install folia")
 
