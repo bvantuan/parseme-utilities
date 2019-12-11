@@ -60,7 +60,7 @@ class Main:
         for regex in self.args.regexes:
             if re.match(regex+'$', sent_id):
                 return regex
-        return re.sub(r'\d+$', r'(\d+)', sent_id)
+        return re.sub(r"\d+$", r"(\\d+)", sent_id)
 
 
 def group(sent_id):
