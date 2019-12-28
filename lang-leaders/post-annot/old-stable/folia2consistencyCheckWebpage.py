@@ -29,9 +29,9 @@ parser.add_argument("--skipped-finding-method", type=str, metavar='METH', requir
         help="""Method of finding missing MWEs (when using --find-skipped).
                 One of {} (default: {}).""".format(dataalign.SKIPPED_FINDER_PATTERNS, DEFAULT_METH))
 parser.add_argument("--input", type=str, nargs="+", required=True,
-        help="""Path to input files (in FoLiA, CUPT, PARSEME-TSV)""")
+        help="""Path to input files (preferably in FoLiA XML format, but PARSEME TSV works too)""")
 parser.add_argument("--conllu", type=str, nargs="+",
-        help="""Path to parallel input CoNLL files, if input does not contain CoNLL-U columns""")
+        help="""Path to parallel input CoNLL files""")
 
 
 class Main:
@@ -127,7 +127,7 @@ class Main:
         """
         # Yield a label; e.g. [LVC]  -- the label contains a tooltip
         if occur.category == "Skipped":
-            file_info = 'Possible MWE seen in file &quot;{}&quot;, sentence #{}'.format(
+            file_info = 'Possible VMWE seen in file &quot;{}&quot;, sentence #{}'.format(
                 ESC(occur.sentence.file_path), ESC(str(occur.sentence.nth_sent)))
         else:  # occur.category != "Skipped":
             file_info = 'Annotated in file &quot;{}&quot;, sentence #{}, by &quot;{}&quot; on {}'.format(
@@ -451,7 +451,7 @@ function noteCustom() {
         current_sent = sent.text().trim();
         if (areTokensInside(current_sent, reply_mwe)) {
             var source_categ_noPercent = g.siblings(".mwe-label").text().split(/ /)[0];
-            var reply_categ = prompt("Indicate the MWE label to use", source_categ_noPercent);
+            var reply_categ = prompt("Indicate the VMWE label to use", source_categ_noPercent);
             if (reply_categ != null && reply_categ.trim() != "") {
                 addNote(null, {type: "RE-ANNOT", target_categ: reply_categ, target_mwe: reply_mwe.split(/ +/)});
             }
@@ -551,7 +551,7 @@ $(document).ready(function() {
         if (!window.havePendingParsemeNotes) {
             return undefined;
         } else {
-            var msg = 'You must download your MWEs before quitting!';
+            var msg = 'You must download your VMWEs before quitting!';
             (e || window.event).returnValue = msg; //Gecko + IE
             return msg; //Gecko + Webkit, Safari, Chrome etc.
         }

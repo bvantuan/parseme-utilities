@@ -20,9 +20,9 @@ parser = argparse.ArgumentParser(description="""
 parser.add_argument("--lang", choices=sorted(dataalign.LANGS), metavar="LANG", required=True,
         help="""ID of the target language (e.g. EN, FR, PL, DE...)""")
 parser.add_argument("--annotation-1", type=str, required=True,
-        help="""Path to input file for annotator A1 (in FoLiA, CUPT, PARSEME-TSV)""")
+        help="""Path to input file for annotator A1 (preferably in FoLiA XML format, but PARSEME TSV works too)""")
 parser.add_argument("--annotation-2", type=str, required=True,
-        help="""Path to input file for annotator A2 (in FoLiA, CUPT, PARSEME-TSV)""")
+        help="""Path to input file for annotator A2 (preferably in FoLiA XML format, but PARSEME TSV works too)""")
 
 
 class Main:

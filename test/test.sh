@@ -64,9 +64,9 @@ rm -f "$tmp_fname."*
 
 for annot_file in "${annot_files[@]}"; do
     #===> post-annot scripts
-    run_devnull ../lang-leaders/post-annot/folia2consistencyCheckWebpage.py --lang PT --input "$annot_file"
-    run_devnull ../lang-leaders/post-annot/folia2consistencyCheckWebpage.py --lang PT --input "$annot_file" --find-skipped
-    run_devnull ../lang-leaders/post-annot/folia2annotatorAdjudicationWebsite.py --lang PT --annotation-1 "$annot_file" --annotation-2 "$annot_file2"
+    run_devnull ../lang-leaders/post-annot/consistencyCheckWebpage.py --lang PT --input "$annot_file"
+    run_devnull ../lang-leaders/post-annot/consistencyCheckWebpage.py --lang PT --input "$annot_file" --find-skipped
+    run_devnull ../lang-leaders/post-annot/annotatorAdjudicationWebsite.py --lang PT --annotation-1 "$annot_file" --annotation-2 "$annot_file2"
 
     #===> st-organization scripts
     run_devnull ../st-organizers/to_old_parsemetsv.py --lang PT --input "$annot_file"
@@ -86,9 +86,9 @@ echo '%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%'
 #===> (scripts that do not accept parsemetsv input...)
 for json_file in data/ParsemeNotesCC.json data/ParsemeNotesAdj.json; do
     run_devnull ../lang-leaders/post-annot/jsonNotes2ReannotationWebpage.py --json-input "$json_file"
-    run_devnull ../lang-leaders/post-annot/jsonNotes2ReannotationWebpage.py --json-input "$json_file" --xml-input data/pt.folia.xml
+    run_devnull ../lang-leaders/post-annot/jsonNotes2ReannotationWebpage.py --json-input "$json_file" --corpus-input data/pt.folia.xml
     run_devnull ../lang-leaders/post-annot/jsonNotes2ReannotationWebpage.py --json-input "$json_file" --only-special
-    run_devnull ../lang-leaders/post-annot/jsonNotes2ReannotationWebpage.py --json-input "$json_file" --xml-input data/pt.folia.xml --generate-xml
+    run_devnull ../lang-leaders/post-annot/jsonNotes2ReannotationWebpage.py --json-input "$json_file" --corpus-input data/pt.folia.xml --generate-corpus
     run_devnull rm -r ./AfterAutoUpdate
 done
 
@@ -101,5 +101,5 @@ run_devnull rm -rf SPLIT
 
 #===> check all skipped-finding methods
 for skipped_method in Dependency UnlabeledDep BagOfDeps WindowGap5; do
-    run_devnull ../lang-leaders/post-annot/folia2consistencyCheckWebpage.py --lang PT --input data/pt.folia.xml --find-skipped --skipped-finding-method "$skipped_method"
+    run_devnull ../lang-leaders/post-annot/consistencyCheckWebpage.py --lang PT --input data/pt.folia.xml --find-skipped --skipped-finding-method "$skipped_method"
 done
