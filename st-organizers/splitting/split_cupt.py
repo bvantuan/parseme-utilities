@@ -21,7 +21,31 @@ import parseme.cupt as cupt
 parser = argparse.ArgumentParser(description='split_cupt')
 subparsers = parser.add_subparsers(dest='command', help='available commands')
 
-parser_split = subparsers.add_parser('split', help='perform data splitting')
+parser_estimate = subparsers.add_parser('estimate', help='estimate test size')
+parser_estimate.add_argument(
+    "-i",
+    dest="input_paths",
+    required=True,
+    nargs='+',
+    help="input .cupt file(s)",
+    metavar="FILE"
+)
+parser_estimate.add_argument(
+    "--unknown-mwes",
+    dest="unk_mwes",
+    type=int,
+    required=True,
+    help="Target number of unknown MWEs"
+)
+parser_estimate.add_argument(
+    "-n", "--random-num",
+    dest="random_num",
+    type=int,
+    default=10,
+    help="Perform each (random) split the given number of times"
+)
+
+parser_split = subparsers.add_parser('split', help='split dataset')
 parser_split.add_argument(
     "-i",
     dest="input_paths",
@@ -31,25 +55,39 @@ parser_split.add_argument(
     metavar="FILE"
 )
 parser_split.add_argument(
+    "--test-size",
+    dest="test_size",
+    type=int,
+    required=True,
+    help="Test size (# of sentences)"
+)
+parser_split.add_argument(
     "--unknown-mwes",
     dest="unk_mwes",
     type=int,
     required=True,
-    help="Minimum number of unknown MWEs"
+    help="Target number of unknown MWEs"
 )
-# parser_split.add_argument(
-#     "--test-size-min",
-#     dest="test_size_min",
-#     type=int,
-#     default=1,
-#     help="Minimum number sentences to include in test"
-# )
 parser_split.add_argument(
     "-n", "--random-num",
     dest="random_num",
     type=int,
     default=10,
-    help="Perform each (random) split the given number of times"
+    help="Perform random splits the given number of times"
+)
+parser_split.add_argument(
+    "--train-path",
+    dest="train_path",
+    required=True,
+    help="output train .cupt path",
+    metavar="FILE"
+)
+parser_split.add_argument(
+    "--test-path",
+    dest="test_path",
+    required=True,
+    help="output test .cupt path",
+    metavar="FILE"
 )
 
 
@@ -127,11 +165,11 @@ def type_of(sent: TokenList, mwe: cupt.MWE) -> MweTyp:
 
 
 #################################################
-# SPLITTING
+# ESTIMATE
 #################################################
 
 
-def do_split(args):
+def do_estimate(args):
 
     # Collect the dataset
     data_set = []  # type: List[TokenList]
@@ -166,10 +204,59 @@ def do_split(args):
 
 
 #################################################
+# SPLIT
+#################################################
+
+
+def do_split(args):
+
+    # Determine the header line
+    with open(args.input_paths[0], "r", encoding="utf-8") as data_file:
+        header = data_file.readline().strip()
+
+    # Collect the dataset
+    data_set = []  # type: List[TokenList]
+    for input_path in args.input_paths:
+        with open(input_path, "r", encoding="utf-8") as data_file:
+            for sent in conllu.parse_incr(data_file):
+                data_set.append(sent)
+
+    # Determine the best split
+    train_fin = None
+    test_fin = None
+    unk_num_fin = None
+    for _ in range(args.random_num):
+        test, train = random_split(data_set, args.test_size)
+        unk_num = unknown_mwes(test, train)
+        if unk_num_fin is None or \
+                abs(args.unk_mwes - unk_num) < \
+                abs(args.unk_mwes - unk_num_fin):
+            print(f"# unseen MWEs: {unk_num}")
+            train_fin, test_fin = train, test
+            unk_num_fin = unk_num
+        if unk_num_fin == args.unk_mwes:
+            break
+
+    def write_to(data_set, file_path):
+        print(f"Writing to {file_path}...")
+        with open(file_path, "w", encoding="utf-8") as data_file:
+            data_file.write(header + "\n")
+            for sent in data_set:
+                data_file.write(sent.serialize())
+
+    print(f"Numer of unseen MWEs in test: {unk_num_fin}")
+
+    write_to(train_fin, args.train_path)
+    write_to(test_fin, args.test_path)
+
+
+#################################################
 # MAIN
 #################################################
 
 if __name__ == '__main__':
     args = parser.parse_args()
-    if args.command == 'split':
+    if args.command == 'estimate':
+        do_estimate(args)
+    elif args.command == 'split':
         do_split(args)
