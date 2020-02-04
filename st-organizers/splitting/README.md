@@ -1,12 +1,12 @@
 # Prerequisities
 
-## CUPT Parser
+### CUPT Parser
 
 Before using the tool, install the Python [CUPT parsing library][cupt-parser].
 
 # Usage
 
-## Estimation
+### Estimation
 
 To estimate the number of sentences which should be put in the test set so as
 to obtain the target number (e.g., `300`) of unseen MWEs:
@@ -20,7 +20,7 @@ a given test set size, the input dataset is randomly split into train set and
 test set a given number of times (`10` by default, use `-n` to change it) and
 the average number of unseen MWEs in the test set is determined.
 
-## Splitting
+### Splitting
 
 Once the target size of the test set is estimated (e.g., `1000` sentences), you
 can use the following command to split the dataset into `train.cupt` and
@@ -33,7 +33,7 @@ Again, the `-n` option determines the number of random splits performed on the
 input datset.  The split with the number of unseen MWEs closest to the target
 number (here: `300`) is kept in the end.
 
-## Validation
+### Validation
 
 Use the [evaluation script][parseme-eval-1.1] from the PARSEME Shared Task 1.1
 to check if the number of unseen MWEs in the test set is correct.
