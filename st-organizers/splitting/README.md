@@ -14,9 +14,10 @@ to obtain the target number (e.g., `300`) of unseen MWEs:
 ```
 where `file1.cupt`, `file2.cupt`, ... are the input CUPT files.
 
-The tool performs binary search for the appropriate size of the test set.  For
-a given test set size, the input dataset is randomly split into train set and
-test set a given number of times (`10` by default, use `-n` to change it) and
+Let the size of a set be it's number of sentences. 
+The tool performs a binary search (within the sequence of sizes from 0 to M) for the appropriate size of the test set.  In each step, for
+the given test set size, the input dataset (all files following `-i`) is randomly split into a train set and
+a test set a given number of times (`10` by default, use `-n` to change it) and
 the average number of unseen MWEs in the test set is determined.
 
 ### Splitting
@@ -30,7 +31,7 @@ part:
 ```
 Again, the `-n` option determines the number of random splits performed on the
 input datset.  The split with the number of unseen MWEs closest to the target
-number (here: `300`) is kept in the end.
+number (here: `300`) is saved in the files following `--train-path` and `--test-path`.
 
 ### Validation
 
