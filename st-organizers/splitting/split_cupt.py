@@ -180,7 +180,7 @@ def do_estimate(args):
 
     # Perform binary search for an appropriate size of the test set
     p, q = 1, len(data_set)-1   # inclusive [p, q] range
-    while p + 2 <= q:    # TODO: p < q would be enough?
+    while p < q:
         test_size = (p + q) // 2
         # Estimate the number of unknown MWEs
         unk_num = round(avg([
@@ -191,9 +191,9 @@ def do_estimate(args):
         print(f"# [{test_size}] => {unk_num}")
         # Consider smaller/larger test sizes
         if unk_num > args.unk_mwes:
-            q = test_size
+            q = test_size - 1
         elif unk_num < args.unk_mwes:
-            p = test_size
+            p = test_size + 1
         else:
             break
 
