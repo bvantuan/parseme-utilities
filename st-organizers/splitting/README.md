@@ -1,8 +1,7 @@
 # Prerequisities
 
-### CUPT Parser
-
-Before using the tool, install the Python [CUPT parsing library][cupt-parser].
+* Python in version 3.6 or higher
+* The Python [CUPT parsing library][cupt-parser] (follow the link for installation instructions)
 
 # Usage
 
