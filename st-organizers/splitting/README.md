@@ -39,5 +39,5 @@ Use the [evaluation script][parseme-eval-1.1] from the PARSEME Shared Task 1.1
 to check if the number of unseen MWEs in the test set is correct.
 
 
-[cupt-parser]: https://github.com/kawu/parseme-cupt#python-cupt-parser "Python CUPT parser"
+[cupt-parser]: https://gitlab.com/parseme/cupt-parser#python-cupt-parser "Python CUPT parser"
 [parseme-eval-1.1]: https://gitlab.com/parseme/sharedtask-data/blob/master/1.1/bin/evaluate.py "PARSEME ST-1.1 evaluation script"

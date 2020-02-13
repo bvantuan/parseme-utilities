@@ -6,11 +6,20 @@ import argparse
 # import sys
 import random
 
-from collections import Counter
+from collections import Counter, OrderedDict
 
 import conllu
 from conllu import TokenList
 import parseme.cupt as cupt
+
+
+#################################################
+# CONSTANTS
+#################################################
+
+
+# Preserve metadata with the following keys
+RELEVANT_META = ['source_sent_id', 'text']
 
 
 #################################################
@@ -208,6 +217,15 @@ def do_estimate(args):
 #################################################
 
 
+def filter_relevant_meta(sent: TokenList, keys: List[str]):
+    """Keep only the metadata entries with the relevant `keys`."""
+    meta = OrderedDict()
+    for key in keys:
+        if key in sent.metadata:
+            meta[key] = sent.metadata[key]
+    sent.metadata = meta
+
+
 def do_split(args):
 
     # Determine the header line
@@ -242,6 +260,7 @@ def do_split(args):
         with open(file_path, "w", encoding="utf-8") as data_file:
             data_file.write(header + "\n")
             for sent in data_set:
+                filter_relevant_meta(sent, RELEVANT_META)
                 data_file.write(sent.serialize())
 
     print(f"Numer of unseen MWEs in test: {unk_num_fin}")
@@ -253,6 +272,7 @@ def do_split(args):
 #################################################
 # MAIN
 #################################################
+
 
 if __name__ == '__main__':
     args = parser.parse_args()
