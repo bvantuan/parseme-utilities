@@ -15,9 +15,9 @@ to obtain the target number (e.g., `300`) of unseen MWEs:
 where `file1.cupt`, `file2.cupt`, ... are the input CUPT files.
 
 Let the size of a set be it's number of sentences. 
-The tool performs a binary search (within the sequence of sizes from 0 to M) for the appropriate size of the test set.  In each step, for
+The tool performs a binary search (within the sequence `1`..`M-1`, where `M` is the size of the entire dataset) for the appropriate size of the test set.  In each step, for
 the given test set size, the input dataset (all files following `-i`) is randomly split into a train set and
-a test set a given number of times (`10` by default, use `-n` to change it) and
+a test set a given number of times (`10` by default, you can increase it using `-n` to get more reliable results) and
 the average number of unseen MWEs in the test set is determined.
 
 ### Splitting

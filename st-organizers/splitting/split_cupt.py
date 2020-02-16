@@ -131,7 +131,7 @@ def random_split(data_set: list, k: int) -> Tuple[list, list]:
     return (copy[:k], copy[k:])
 
 
-def unknown_mwes(test_set: TokenList, train_set: TokenList) -> int:
+def unseen_mwes(test_set: TokenList, train_set: TokenList) -> int:
     """Calculate the numer of unknown MWEs in the `test_set`
     w.r.t. the `train_set`.
     """
@@ -187,15 +187,20 @@ def do_estimate(args):
             for sent in conllu.parse_incr(data_file):
                 data_set.append(sent)
 
-    # Perform binary search for an appropriate size of the test set
-    p, q = 1, len(data_set)-1   # inclusive [p, q] range
-    while p < q:
-        test_size = (p + q) // 2
-        # Estimate the number of unknown MWEs
-        unk_num = round(avg([
-            unknown_mwes(*random_split(data_set, test_size))
+    def avg_unseen_mwes(data_set, test_size):
+        """Average number of unseen MWEs in test part."""
+        return round(avg([
+            unseen_mwes(*random_split(data_set, test_size))
             for _ in range(args.random_num)
         ]))
+
+    # Perform binary search for an appropriate size of the test set
+    p, q = 1, len(data_set)-1   # inclusive [p, q] range
+    test_size, unk_num = None, None
+    while p < q:
+        test_size = (p + q) // 2
+        # Estimate the number of unseen MWEs
+        unk_num = avg_unseen_mwes(data_set, test_size)
         # Reporting
         print(f"# [{test_size}] => {unk_num}")
         # Consider smaller/larger test sizes
@@ -207,9 +212,9 @@ def do_estimate(args):
             break
 
     # Report the final test size
-    test_size = (p + q) // 2
     print(f"Entire data size: {len(data_set)}")
     print(f"Optimal test size: {test_size}")
+    print(f"Average no. of unseen MWEs: {unk_num}")
 
 
 #################################################
@@ -245,7 +250,7 @@ def do_split(args):
     unk_num_fin = None
     for _ in range(args.random_num):
         test, train = random_split(data_set, args.test_size)
-        unk_num = unknown_mwes(test, train)
+        unk_num = unseen_mwes(test, train)
         if unk_num_fin is None or \
                 abs(args.unk_mwes - unk_num) < \
                 abs(args.unk_mwes - unk_num_fin):
