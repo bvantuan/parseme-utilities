@@ -40,11 +40,11 @@ parser_estimate.add_argument(
     metavar="FILE"
 )
 parser_estimate.add_argument(
-    "--unknown-mwes",
-    dest="unk_mwes",
+    "--unseen-mwes",
+    dest="uns_mwes",
     type=int,
     required=True,
-    help="Target number of unknown MWEs"
+    help="Target number of unseen MWEs"
 )
 parser_estimate.add_argument(
     "-n", "--random-num",
@@ -71,11 +71,17 @@ parser_split.add_argument(
     help="Test size (# of sentences)"
 )
 parser_split.add_argument(
-    "--unknown-mwes",
-    dest="unk_mwes",
+    "--unseen-mwes",
+    dest="uns_mwes",
     type=int,
     required=True,
-    help="Target number of unknown MWEs"
+    help="Target number of unseen MWEs"
+)
+parser_split.add_argument(
+    "--over",
+    dest="over",
+    action="store_true",
+    help="Only take splits with the number of unseen MWEs over --unseen-mwes"
 )
 parser_split.add_argument(
     "-n", "--random-num",
@@ -132,7 +138,7 @@ def random_split(data_set: list, k: int) -> Tuple[list, list]:
 
 
 def unseen_mwes(test_set: TokenList, train_set: TokenList) -> int:
-    """Calculate the numer of unknown MWEs in the `test_set`
+    """Calculate the number of unseen MWEs in the `test_set`
     w.r.t. the `train_set`.
     """
 
@@ -173,53 +179,14 @@ def type_of(sent: TokenList, mwe: cupt.MWE) -> MweTyp:
     return frozenset(mwe_typ)
 
 
-#################################################
-# ESTIMATE
-#################################################
-
-
-def do_estimate(args):
-
-    # Collect the dataset
+def collect_data(input_paths: List[str]) -> List[TokenList]:
+    """Retrieve all the sentences in the given input .cupt/.conllu files."""
     data_set = []  # type: List[TokenList]
-    for input_path in args.input_paths:
+    for input_path in input_paths:
         with open(input_path, "r", encoding="utf-8") as data_file:
             for sent in conllu.parse_incr(data_file):
                 data_set.append(sent)
-
-    def avg_unseen_mwes(data_set, test_size):
-        """Average number of unseen MWEs in test part."""
-        return round(avg([
-            unseen_mwes(*random_split(data_set, test_size))
-            for _ in range(args.random_num)
-        ]))
-
-    # Perform binary search for an appropriate size of the test set
-    p, q = 1, len(data_set)-1   # inclusive [p, q] range
-    test_size, unk_num = None, None
-    while p < q:
-        test_size = (p + q) // 2
-        # Estimate the number of unseen MWEs
-        unk_num = avg_unseen_mwes(data_set, test_size)
-        # Reporting
-        print(f"# [{test_size}] => {unk_num}")
-        # Consider smaller/larger test sizes
-        if unk_num > args.unk_mwes:
-            q = test_size - 1
-        elif unk_num < args.unk_mwes:
-            p = test_size + 1
-        else:
-            break
-
-    # Report the final test size
-    print(f"Entire data size: {len(data_set)}")
-    print(f"Optimal test size: {test_size}")
-    print(f"Average no. of unseen MWEs: {unk_num}")
-
-
-#################################################
-# SPLIT
-#################################################
+    return data_set
 
 
 def filter_relevant_meta(sent: TokenList, keys: List[str]):
@@ -231,6 +198,51 @@ def filter_relevant_meta(sent: TokenList, keys: List[str]):
     sent.metadata = meta
 
 
+#################################################
+# ESTIMATE
+#################################################
+
+
+def do_estimate(args):
+
+    # Collect the dataset
+    data_set = collect_data(args.input_paths)
+
+    def avg_unseen_mwes(data_set, test_size):
+        """Average number of unseen MWEs in test part."""
+        return round(avg([
+            unseen_mwes(*random_split(data_set, test_size))
+            for _ in range(args.random_num)
+        ]))
+
+    # Perform binary search for an appropriate size of the test set
+    p, q = 1, len(data_set)-1   # inclusive [p, q] range
+    test_size, uns_num = None, None
+    while p < q:
+        test_size = (p + q) // 2
+        # Estimate the number of unseen MWEs
+        uns_num = avg_unseen_mwes(data_set, test_size)
+        # Reporting
+        print(f"# [{test_size}] => {uns_num}")
+        # Consider smaller/larger test sizes
+        if uns_num > args.uns_mwes:
+            q = test_size - 1
+        elif uns_num < args.uns_mwes:
+            p = test_size + 1
+        else:
+            break
+
+    # Report the final test size
+    print(f"Entire data size: {len(data_set)}")
+    print(f"Optimal test size: {test_size}")
+    print(f"Average no. of unseen MWEs: {uns_num}")
+
+
+#################################################
+# SPLIT
+#################################################
+
+
 def do_split(args):
 
     # Determine the header line
@@ -238,26 +250,37 @@ def do_split(args):
         header = data_file.readline().strip()
 
     # Collect the dataset
-    data_set = []  # type: List[TokenList]
-    for input_path in args.input_paths:
-        with open(input_path, "r", encoding="utf-8") as data_file:
-            for sent in conllu.parse_incr(data_file):
-                data_set.append(sent)
+    data_set = collect_data(args.input_paths)
+
+    # Re-estimate the no. of unseen MWEs if --over is used, in which case
+    # only the splits with the unseen no. or MWEs over the provided no.
+    # are considered.
+    if args.over:
+        nums = [
+            unseen_mwes(*random_split(data_set, args.test_size))
+            for _ in range(args.random_num)
+        ]
+        uns_mwes = round(avg(list(
+            filter(lambda x: x >= args.uns_mwes, nums)
+        )))
+        print(f"# Target no. of unseen MWEs set to {uns_mwes} due to --over")
+    else:
+        uns_mwes = args.uns_mwes
 
     # Determine the best split
     train_fin = None
     test_fin = None
-    unk_num_fin = None
+    uns_num_fin = None
     for _ in range(args.random_num):
         test, train = random_split(data_set, args.test_size)
-        unk_num = unseen_mwes(test, train)
-        if unk_num_fin is None or \
-                abs(args.unk_mwes - unk_num) < \
-                abs(args.unk_mwes - unk_num_fin):
-            print(f"# unseen MWEs: {unk_num}")
+        uns_num = unseen_mwes(test, train)
+        if uns_num_fin is None or \
+                abs(uns_mwes - uns_num) < \
+                abs(uns_mwes - uns_num_fin):
+            print(f"# unseen MWEs: {uns_num}")
             train_fin, test_fin = train, test
-            unk_num_fin = unk_num
-        if unk_num_fin == args.unk_mwes:
+            uns_num_fin = uns_num
+        if uns_num_fin == uns_mwes:
             break
 
     def write_to(data_set, file_path):
@@ -268,7 +291,7 @@ def do_split(args):
                 filter_relevant_meta(sent, RELEVANT_META)
                 data_file.write(sent.serialize())
 
-    print(f"Numer of unseen MWEs in test: {unk_num_fin}")
+    print(f"Numer of unseen MWEs in test: {uns_num_fin}")
 
     write_to(train_fin, args.train_path)
     write_to(test_fin, args.test_path)

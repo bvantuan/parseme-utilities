@@ -35,11 +35,11 @@ if [ ! -d $splitDir ]; then
 fi
 
 #Get the optimal number of sentences in test for the given number of unseen MWEs
-testSize=`python ./split_cupt.py estimate --unknown-mwes $nbUnseen -i $dataDir/$lang/train.cupt $dataDir/$lang/dev.cupt $dataDir/$lang/test.cupt -n 10 | grep -E '^Optimal' | cut -d':' -f2 | cut -d' ' -f2`
+testSize=`python ./split_cupt.py estimate --unseen-mwes $nbUnseen -i $dataDir/$lang/train.cupt $dataDir/$lang/dev.cupt $dataDir/$lang/test.cupt -n 10 | grep -E '^Optimal' | cut -d':' -f2 | cut -d' ' -f2`
 
 #Split the corpus to train and test so that the number of sentences in test and of unseen MWEs are given
 #Get the precise number of unseen
-finalUnseen=`python ./split_cupt.py split --unknown-mwes $nbUnseen --test-size $testSize -i $dataDir/$lang/train.cupt $3/$1/dev.cupt $dataDir/$lang/test.cupt --train-path $splitDir/$lang-train.cupt --test-path $splitDir/$lang-test.cupt -n 10| grep -E 'unseen MWEs in test:' | cut -d':' -f2 | cut -d' ' -f2`
+finalUnseen=`python ./split_cupt.py split --unseen-mwes $nbUnseen --test-size $testSize -i $dataDir/$lang/train.cupt $3/$1/dev.cupt $dataDir/$lang/test.cupt --train-path $splitDir/$lang-train.cupt --test-path $splitDir/$lang-test.cupt -n 10| grep -E 'unseen MWEs in test:' | cut -d':' -f2 | cut -d' ' -f2`
 
 #Get the ratio of unseen in this split
 finalRatio=`python ../../../sharedtask-data/1.1/bin/evaluate.py --train $splitDir/$lang-train.cupt --gold $splitDir/$lang-test.cupt --pred $splitDir/$lang-test.cupt 2> /dev/null | grep -E '^* Unseen-in-train: MWE-proportion' | cut -d'=' -f3 | cut -d'%' -f1`

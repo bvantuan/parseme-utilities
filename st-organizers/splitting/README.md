@@ -10,7 +10,7 @@
 To estimate the number of sentences which should be put in the test set so as
 to obtain the target number (e.g., `300`) of unseen MWEs:
 ```
-./split_cupt.py estimate --unknown-mwes 300 -i file1.cupt file2.cupt ...
+./split_cupt.py estimate --unseen-mwes 300 -i file1.cupt file2.cupt ...
 ```
 where `file1.cupt`, `file2.cupt`, ... are the input CUPT files.
 
@@ -27,11 +27,19 @@ can use the following command to split the dataset into `train.cupt` and
 `test.cupt` with the target number of unseen MWEs (e.g., `300`) in the test
 part:
 ```
-./split_cupt.py split --unknown-mwes 300 --test-size 1000 -i file1.cupt file2.cupt ... --train-path train.cupt --test-path test.cupt -n 100
+./split_cupt.py split --unseen-mwes 300 --test-size 1000 -i file1.cupt file2.cupt ... --train-path train.cupt --test-path test.cupt -n 100
 ```
 Again, the `-n` option determines the number of random splits performed on the
 input datset.  The split with the number of unseen MWEs closest to the target
 number (here: `300`) is saved in the files following `--train-path` and `--test-path`.
+
+##### Over
+
+Use the `--over` option to re-estimate the target no. of unseen MWEs.  This is done by:
+* Repeatedly splitting the dataset to train/test parts
+* Keeping only the splits with the number of unseen MWEs exceeding the one provided on input with `unseen-mwes`
+* Taking the average no. of unseen MWEs from thus obtained collection of train/test splits
+After that, the newly estimated target number of unseen MWEs is adopted and the script proceeds as without the `--over` option.
 
 ### Validation
 
