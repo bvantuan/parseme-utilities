@@ -33,12 +33,11 @@ Again, the `-n` option determines the number of random splits performed on the
 input datset.  The split with the number of unseen MWEs closest to the target
 number (here: `300`) is saved in the files following `--train-path` and `--test-path`.
 
-##### Over
-
-Use the `--over` option to re-estimate the target no. of unseen MWEs.  This is done by:
+**Number of unseen MWEs re-estimation**.  Use the `--over` option to re-estimate the target no. of unseen MWEs.  This is done by:
 * Repeatedly splitting the dataset to train/test parts
 * Keeping only the splits with the number of unseen MWEs exceeding the one provided on input with `unseen-mwes`
 * Taking the average no. of unseen MWEs from thus obtained collection of train/test splits
+
 After that, the newly estimated target number of unseen MWEs is adopted and the script proceeds as without the `--over` option.
 
 ### Validation
