@@ -50,7 +50,7 @@ class Main:
         self.print_html()
 
     def iter_sentences(self, verbose):
-        conllu_paths = self.args.conllu or dataalign.calculate_conllu_paths(self.args.input, warn=verbose)
+        conllu_paths = self.args.conllu or dataalign.calculate_conllu_paths(self.args.input, warn=False) #warn=verbose) #Carlos Feb 24, 2020 - remove warning about conllu files - not necessary anymore when working on cupt directly
         return dataalign.IterAlignedFiles(self.args.lang, self.args.input, conllu_paths, keep_nvmwes=True, debug=verbose)
 
 
@@ -125,13 +125,16 @@ class Main:
         | [LVC] I *had* a *bath* yesterday
         | | Some comment typed by an annotator.
         """
+        # Modified by Carlos on Feb 24, 2020: add sentence ID in addition to sentence number
+        sent_id_kvpair = occur.sentence.get_kvpair("sent_id",occur.sentence.get_kvpair("source_sent_id",None))
+        sent_pos_id = "sentence #{}{}".format(ESC(str(occur.sentence.nth_sent))," (ID: {})".format(ESC(sent_id_kvpair.value.split()[-1])) if sent_id_kvpair else "")
         # Yield a label; e.g. [LVC]  -- the label contains a tooltip
         if occur.category == "Skipped":
-            file_info = 'Possible MWE seen in file &quot;{}&quot;, sentence #{}'.format(
-                ESC(occur.sentence.file_path), ESC(str(occur.sentence.nth_sent)))
+            file_info = 'Possible MWE seen in file &quot;{}&quot;, {}'.format(
+                ESC(occur.sentence.file_path), sent_pos_id)
         else:  # occur.category != "Skipped":
-            file_info = 'Annotated in file &quot;{}&quot;, sentence #{}, by &quot;{}&quot; on {}'.format(
-                    ESC(occur.sentence.file_path), ESC(str(occur.sentence.nth_sent)),
+            file_info = 'Annotated in file &quot;{}&quot;, {}, by &quot;{}&quot; on {}'.format(
+                    ESC(occur.sentence.file_path), sent_pos_id,
                     ESC(occur.metadata.annotator or "<unknown>"), ESC(str(occur.metadata.datetime or "<unknown-date>")))
         confidence_info = '' if occur.metadata.confidence is None else ' {}%'.format(int(occur.metadata.confidence*100))
         css_mwe_label = dataalign.Categories.css_name(occur.category)

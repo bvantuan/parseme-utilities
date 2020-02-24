@@ -534,6 +534,15 @@ class Sentence:
         r"""Calculate required `sent_id` attribute for CoNLL-UP."""
         return KVPair(sent_id_key, 'autogen--{}--{}'.format(
             os.path.basename(self.corpusinfo.file_path), self.nth_sent))
+            
+    def get_kvpair(self, key: str, backoff: object) -> KVPair:
+        r"""Return a KVPair for given `key`.
+        If the key is not unique or absent, returns `backoff`.
+        """
+        ret = [kv for kv in self.kv_pairs if kv.key == key]
+        if len(ret) != 1:
+            return backoff
+        return ret[0]
 
 
 class MWEOccur:
