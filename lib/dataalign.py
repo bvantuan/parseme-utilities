@@ -41,7 +41,6 @@ try:
 except ImportError:
     exit("ERROR: FoliaPY not found, please run this code: pip3 install folia")
 
-
 # The `empty` field in CoNLL-U and PARSEME-TSV
 EMPTY = "_"
 
@@ -54,7 +53,7 @@ LANGS_WITH_ALL_CANONICAL_TOKENS_LEMATIZED = set("HI HU".split())
 ############################################################
 
 # Set of all valid languages in the latest PARSEME Shared-Task
-LANGS = set("AR BG CS DE EL EN ES EU FA FR HE HR HU HI IT LT MT PL PT RO SL SV TR".split())
+LANGS = set("AR BG CS DE EL EN ES EU FA FR GA HE HR HU HI IT LT MT PL PT RO SL SV TR ZH".split())
 
 # Languages where the pronoun in IRV is canonically on the left
 LANGS_WITH_CANONICAL_REFL_PRON_ON_LEFT = set("DE EU FR RO".split())
@@ -66,7 +65,7 @@ LANGS_WITH_CANONICAL_VERB_ON_RIGHT = set("DE EU HI TR".split())
 LANGS_WITH_VERB_OCCURRENCES_ON_RIGHT = LANGS_WITH_CANONICAL_VERB_ON_RIGHT - set(["DE"])
 
 # Languages that are written right-to-left (FLAT needs to know this for proper displaying)
-LANGS_WRITTEN_RTL = set(["AR FA HE YI"])
+LANGS_WRITTEN_RTL = set("AR FA HE YI".split())
 
 
 ############################################################
@@ -962,7 +961,7 @@ def calculate_conllu_paths(file_paths, warn=True):
 
 
 RE_BASENAME_NOEXT = re.compile(
-    r'^(?:.*/)*(.*?)(\.(folia|xml|conllu|conllup|parsemetsv|tsv|tar|gz|bz2|zip))*$')
+    r'^(?:.*/)*(.*?)(\.(folia|xml|conllu|conllup|cupt|parsemetsv|tsv|tar|gz|bz2|zip))*$')
 
 def basename_without_ext(filepath):
     r"""Return the basename of `filepath` without any known extensions."""
@@ -996,7 +995,7 @@ class IterAlignedFiles:
 
 
 def _iter_parseme_file(lang, file_path, default_mwe_category):
-    fileobj = open(file_path, 'r') if file_path != "-" else sys.stdin
+    fileobj = open(file_path, 'r', encoding="utf-8") if file_path != "-" else sys.stdin
     corpusinfo = CorpusInfo(lang, file_path, None)
     header = fileobj.buffer.peek(4096)
 
@@ -1073,7 +1072,7 @@ class AlignedIterator:
         chain_iter = itertools.chain.from_iterable
         main_iterators = [_iter_parseme_file(lang, p, default_mwe_category) for p in main_paths]
         conllu_iterators = None if not conllu_paths else \
-            [ConlluIterator(CorpusInfo(lang, p, None), open(p, 'r'), default_mwe_category) for p in conllu_paths]
+            [ConlluIterator(CorpusInfo(lang, p, None), open(p, 'r', encoding="utf-8"), default_mwe_category) for p in conllu_paths]
         return AlignedIterator(main_iterators, conllu_iterators, debug)
 
 
@@ -1472,7 +1471,6 @@ class ParsemeTSVIterator(AbstractFileIterator):
             'FORM': data[1] or '_',
             'MISC': ('SpaceAfter=No' if data[2]=='nsp' else ''),
             'XPOS': xpos,
-
         }
         mwe_codes = data[3]
         m = mwe_codes.split(";") if mwe_codes not in "_*" else []
