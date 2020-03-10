@@ -3,7 +3,6 @@
 from typing import Tuple, List, Iterable, FrozenSet
 
 import argparse
-# import sys
 import random
 
 from collections import Counter, OrderedDict
@@ -77,11 +76,18 @@ parser_split.add_argument(
     required=True,
     help="Target number of unseen MWEs"
 )
+# parser_split.add_argument(
+#     "--over",
+#     dest="over",
+#     action="store_true",
+#     help="Only take splits with the number of unseen MWEs over --unseen-mwes"
+# )
 parser_split.add_argument(
-    "--over",
-    dest="over",
-    action="store_true",
-    help="Only take splits with the number of unseen MWEs over --unseen-mwes"
+    "--unseen-ratio",
+    dest="uns_ratio",
+    type=float,
+    required=False,
+    help="Target unseen/seen ratio"
 )
 parser_split.add_argument(
     "-n", "--random-num",
@@ -137,9 +143,10 @@ def random_split(data_set: list, k: int) -> Tuple[list, list]:
     return (copy[:k], copy[k:])
 
 
-def unseen_mwes(test_set: TokenList, train_set: TokenList) -> int:
+def unseen_mwes(test_set: TokenList, train_set: TokenList) \
+        -> Tuple[int, float]:
     """Calculate the number of unseen MWEs in the `test_set`
-    w.r.t. the `train_set`.
+    w.r.t. the `train_set`, as well as the unseen/seen ratio.
     """
 
     def types_in(data_set: TokenList) -> Iterable[cupt.MWE]:
@@ -156,13 +163,28 @@ def unseen_mwes(test_set: TokenList, train_set: TokenList) -> int:
         for typ in test_types
         if typ in train_types
     )
+    unseen_num = all_num - seen_num
+    unseen_ratio = float(unseen_num) / all_num
 
-    return all_num - seen_num
+    # print("UNSEEN:", [
+    #     (typ, test_types[typ])
+    #     for typ in test_types
+    #     if typ not in train_types
+    # ])
+
+    return unseen_num, unseen_ratio
 
 
-# Helper type annotations
+# Lemma, or base form.
 Lemma = str
-MweTyp = FrozenSet[Lemma]
+
+# We represent MWE type as a mapping from Lemma's to their counts.  The mapping
+# is represented as a set of (lemma, count) pairs (since there's no FrozenDict
+# in the standard library).
+#
+# TODO: Consider using lexemes (with POS) instead of lemmas.
+#
+MweTyp = FrozenSet[Tuple[Lemma, int]]
 
 
 def type_of(sent: TokenList, mwe: cupt.MWE) -> MweTyp:
@@ -176,7 +198,7 @@ def type_of(sent: TokenList, mwe: cupt.MWE) -> MweTyp:
         tok_map[tok_id]['lemma']
         for tok_id in mwe.span
     ]
-    return frozenset(mwe_typ)
+    return frozenset(Counter(mwe_typ))
 
 
 def collect_data(input_paths: List[str]) -> List[TokenList]:
@@ -208,22 +230,26 @@ def do_estimate(args):
     # Collect the dataset
     data_set = collect_data(args.input_paths)
 
-    def avg_unseen_mwes(data_set, test_size):
-        """Average number of unseen MWEs in test part."""
-        return round(avg([
-            unseen_mwes(*random_split(data_set, test_size))
-            for _ in range(args.random_num)
-        ]))
+    def avg_unseen_and_ratio(data_set, test_size):
+        """Average no. of unseen MWEs and unseen/seen ratio."""
+        uns_num_ratio = []
+        for _ in range(args.random_num):
+            test, train = random_split(data_set, test_size)
+            uns_num_ratio.append(unseen_mwes(test, train))
+        uns_num, uns_ratio = zip(*uns_num_ratio)
+        return round(avg(uns_num)), avg(uns_ratio)
 
     # Perform binary search for an appropriate size of the test set
     p, q = 1, len(data_set)-1   # inclusive [p, q] range
     test_size, uns_num = None, None
+    uns_rat = None
     while p < q:
         test_size = (p + q) // 2
         # Estimate the number of unseen MWEs
-        uns_num = avg_unseen_mwes(data_set, test_size)
+        uns_num, uns_rat = avg_unseen_and_ratio(data_set, test_size)
         # Reporting
-        print(f"# [{test_size}] => {uns_num}")
+        print(f"# test size {test_size} => {uns_num} unseen "
+              f"& {uns_rat:f} unseen/seen ratio")
         # Consider smaller/larger test sizes
         if uns_num > args.uns_mwes:
             q = test_size - 1
@@ -236,6 +262,7 @@ def do_estimate(args):
     print(f"Entire data size: {len(data_set)}")
     print(f"Optimal test size: {test_size}")
     print(f"Average no. of unseen MWEs: {uns_num}")
+    print(f"Average unseen/seen ratio: {uns_rat}")
 
 
 #################################################
@@ -252,35 +279,51 @@ def do_split(args):
     # Collect the dataset
     data_set = collect_data(args.input_paths)
 
-    # Re-estimate the no. of unseen MWEs if --over is used, in which case
-    # only the splits with the unseen no. or MWEs over the provided no.
-    # are considered.
-    if args.over:
-        nums = [
-            unseen_mwes(*random_split(data_set, args.test_size))
-            for _ in range(args.random_num)
-        ]
-        uns_mwes = round(avg(list(
-            filter(lambda x: x >= args.uns_mwes, nums)
-        )))
-        print(f"# Target no. of unseen MWEs set to {uns_mwes} due to --over")
-    else:
-        uns_mwes = args.uns_mwes
+    # # Re-estimate the no. of unseen MWEs if --over is used, in which case
+    # # only the splits with the unseen no. or MWEs over the provided no.
+    # # are considered.
+    # if args.over:
+    #     nums = [
+    #         unseen_mwes(*random_split(data_set, args.test_size))
+    #         for _ in range(args.random_num)
+    #     ]
+    #     uns_mwes = round(avg(list(
+    #         filter(lambda x: x >= args.uns_mwes, nums)
+    #     )))
+    #     print(f"# Target no. of unseen MWEs set to {uns_mwes} due to --over")
+    # else:
+    uns_mwes = args.uns_mwes
+    target_ratio = args.uns_ratio
+
+    def dist(uns_num, uns_rat):
+        uns_dist = abs(uns_mwes - uns_num) / uns_mwes
+        if target_ratio:
+            rat_dist = abs(target_ratio - uns_rat) / target_ratio
+            # print("uns_dist:", uns_dist)
+            # print("rat_dist:", rat_dist)
+            return uns_dist + rat_dist
+        else:
+            return uns_dist
 
     # Determine the best split
     train_fin = None
     test_fin = None
     uns_num_fin = None
+    uns_rat_fin = None
     for _ in range(args.random_num):
         test, train = random_split(data_set, args.test_size)
-        uns_num = unseen_mwes(test, train)
-        if uns_num_fin is None or \
-                abs(uns_mwes - uns_num) < \
-                abs(uns_mwes - uns_num_fin):
-            print(f"# unseen MWEs: {uns_num}")
+        uns_num, uns_rat = unseen_mwes(test, train)
+        replace = False
+        if uns_num_fin is None:
+            replace = True
+        elif dist(uns_num, uns_rat) < dist(uns_num_fin, uns_rat_fin):
+            replace = True
+        if replace:
+            print(f"# {uns_num} unseen & {uns_rat} unseen/seen ratio")
             train_fin, test_fin = train, test
             uns_num_fin = uns_num
-        if uns_num_fin == uns_mwes:
+            uns_rat_fin = uns_rat
+        if not target_ratio and uns_num_fin == uns_mwes:
             break
 
     def write_to(data_set, file_path):
@@ -291,7 +334,8 @@ def do_split(args):
                 filter_relevant_meta(sent, RELEVANT_META)
                 data_file.write(sent.serialize())
 
-    print(f"Numer of unseen MWEs in test: {uns_num_fin}")
+    print(f"Number of unseen MWEs in test: {uns_num_fin}")
+    print(f"Unseen/seen MWE ratio in test: {uns_rat_fin}")
 
     write_to(train_fin, args.train_path)
     write_to(test_fin, args.test_path)
