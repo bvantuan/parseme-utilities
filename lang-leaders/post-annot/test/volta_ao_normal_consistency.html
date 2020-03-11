@@ -1,0 +1,572 @@
+
+        <html>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.5/lodash.min.js"></script>
+    <style>
+a:hover { cursor:pointer; }
+
+.panel-pre-load { }  /* display at the beginning */
+.panel-post-load { display: none; }
+
+.mwe-list { }
+.verb-block { margin-bottom: -1px; }  /* fix tiny Bootstrap weirdness */
+.noun-subblock { margin-bottom: -1px; }  /* fix tiny Bootstrap weirdness */
+.mwe-entry { }
+.mwe-canonic { }
+.mwe-occurs { display: none; margin-left: 10px; margin-top: 2px; margin-bottom: 10px; }
+.mwe-occur { margin-top: 6px; }
+.mwe-occur-id { display: none; }  /* unique ID used by javascript */
+.mwe-occur-sentence { }
+.mwe-occur-comment { border-left: 1px solid #AAA; color: #AAA; font-style:italic; margin-left: 4px; padding-left: 7px; margin-top: 6px; margin-bottom: 6px; }
+.mwe-elem { font-weight: bold; }
+
+p { margin-bottom: 5px; }  /* used inside mwe-occur-comment */
+
+/* Make tooltip easier to read */
+.tooltip-inner {
+    font-weight: bold;
+    max-width: 800px;
+}
+.tooltip-on-text {
+    color: #555;
+}
+.tooltip-on-text:hover {
+    color: black;
+}
+
+
+.mwe-label {
+  background-color: #000000;  /* Default black, to catch bugs */
+  cursor: default;
+}
+
+                .mwe-label-NotMWE { background-color: #DCC8C8; }
+                .mwe-label-Skipped { background-color: #DDDDDD; }
+                .mwe-label-TODO { background-color: #AA0000; }                
+                
+                .mwe-label-VID { background-color: #FF6AFF; }
+                .mwe-label-LVC-full { background-color: #9AA6FF; }
+                .mwe-label-LVC-cause { background-color: #9AA6FF; }
+                .mwe-label-VPC-full { background-color: #CC8833; }
+                .mwe-label-VPC-semi { background-color: #CC8833; }
+                .mwe-label-IRV { background-color: #FFB138; }
+                .mwe-label-MVC { background-color: #C13AC1; }
+                .mwe-label-IAV { background-color: #AAAAAA; }
+            
+
+.show-only-if-deletable { display: none; }
+
+.mweoccur-decide-button { margin-left: 5px; color: #AAA; cursor: pointer; }
+.mweoccur-decide-button:hover { color: #88f; }
+.mweoccur-decide-button-marked { color: #6BE24D; }
+.mwe-glyphtext { margin-left: 3px; font-style: italic; }
+.glyphicon { color: inherit; }
+.example-glyphbox { color: #AAA; }
+
+.global-box {
+    padding: 7px;
+    border-radius: 10px;
+    z-index: 999;
+    font-weight: bold;
+    background-color: #000;
+    color: #fff;
+    position: fixed;
+    right: 30px;
+    top: 50px;
+    text-align: center;
+}
+.global-link, .global-link:visited, .global-link:link {
+    color: inherit;
+    text-decoration: underline;
+    cursor: pointer;
+}
+.global-link:hover {
+    color: #ff0;
+}
+.global-file-upload { }
+</style>
+
+
+<body>
+
+
+        <div class="global-box">
+            Notes added: <span id="global-counter">0</span>
+
+            <div><a class="global-link" href="javascript:writeJsonFile()">Generate JSON</a></div>
+
+            <label for="file-upload" class="global-link global-file-input">Load JSON file</label>
+            <input style="display:none" id="file-upload" type="file" onchange="javascript: readJsonFile(this, this.files[0])"/>
+        </div>
+
+        <style>
+        #mapping-warning-modal-title, #badentries-warning-modal-title {
+            font-weight: bold;
+            color: red;
+        }
+        #mapping-warning-modal-body, #badentries-warning-modal-body {
+            font-weight: bold;
+        }
+        #mapping-warning-html, #mapping-warning-json, #badentries-warning-entries {
+            font-size: 12px;
+            margin-bottom: 20px;
+            font-weight: normal;
+        }
+        </style>
+
+
+        <!-- Warning modal: bad ParsemeNotes entries -->
+        <div id="badentries-warning-modal" class="modal fade" role="dialog">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <!-- <button type="button" class="close" data-dismiss="modal">&times;</button> -->
+                <h4 id="badentries-warning-modal-title" class="modal-title">Warning</h4>
+              </div>
+              <div id="badentries-warning-modal-body" class="modal-body">
+                  <p>The following entries were specified in the JSON file, but cannot be matched in the webpage below:</p>
+                  <ul id="badentries-warning-entries">
+                  </ul>
+                  <p>You should check if you are using the correct JSON file before continuing.</p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Warning modal: bad ParsemeNotes mapping -->
+        <div id="mapping-warning-modal" class="modal fade" role="dialog">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <!-- <button type="button" class="close" data-dismiss="modal">&times;</button> -->
+                <h4 id="mapping-warning-modal-title" class="modal-title">Warning</h4>
+              </div>
+              <div id="mapping-warning-modal-body" class="modal-body">
+                  <p>The HTML file was created with this mapping:</p>
+                  <p id="mapping-warning-html"></p>
+                  <p>But the ParsemeNotes JSON file contains this mapping:</p>
+                  <p id="mapping-warning-json"></p>
+                  <p>Do not proceed if these mappings do not match!</p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+    
+
+<div class="panel panel-default">
+  <div class="panel-heading">1. Overview</div>
+  <div class="panel-body">
+      This is a graphical interface with all the annotated MWEs and their contexts. For example:
+      <ol>
+      <li>Click on an MWE to expand its box (or <a href="javascript:toggleExpandAll();">expand all</a>) and see all the sentences where it was annotated.</li>
+      <li>Mouse over a tag (to the left of a sentence), to see where this sentence comes from.</li>
+      <li>Click on the <span class="example-glyphbox"><span style="margin-left:2px; margin-right:2px;" class="glyphicon glyphicon-edit"></span></span> icon to the right of a sentence.</li>
+      <li>Mark this MWE occurrence for re-annotation (e.g. by clicking on "Annotate as LVC.full").</li>
+      <ul>
+          <li>If you want to add/remove tokens from the MWE, use "custom annotation".</li>
+          <li>You can also mark something for non-annotation, or as a "special case".</li>
+      </ul>
+      <li>Generate a list of MWEs marked for re-annotation by clicking on "Generate JSON" on the right.</li>
+      <ul>
+          <li>The MWEs are stored <strong>locally</strong> on your browser (not on a server). To avoid problems, generate the JSON file often.</li>
+          <li>This JSON file can then be <a data-toggle="tooltip" class="tooltip-on-text" title="See the script lang-leaders/post-annot/jsonNotes2ReannotationWebpage.py, which can also be used to automatically re-annotate some of the MWEs.">converted to a webpage <span class="info-hint glyphicon glyphicon-info-sign"></span></a> that describes what needs to be annotated in each file.</li>
+      </ul>
+      </ol>
+  </div>
+</div>
+
+<script>
+/* Enable tooltips in Overview (above) */
+$('[data-toggle="tooltip"]').tooltip();
+</script>
+
+
+<div class="panel panel-warning panel-pre-load">
+  <div class="panel-heading"><strong>Loading MWEs. Please wait.</strong></div>
+</div> <!-- div panel -->
+
+
+<div class="panel panel-default panel-post-load">
+  <div class="panel-heading">2. MWEs</div>
+  <div class="panel-body">
+
+<script>window.parsemeFilenameMapping = {"1": "test/volta_ao_normal.cupt"}</script>
+<div class="mwe-list list-group">
+<div class="verb-block">
+ <div class="mwe-entry list-group-item">
+  <a class="mwe-canonic" data-toggle="tooltip" title="Sorted by verb &quot;voltar&quot">voltar a o normal</a>
+<span class="mwe-label-header">
+  <span class="label mwe-label mwe-label-VID">VID (2)</span> <span class="label mwe-label mwe-label-Skipped">Skipped (1)</span>
+</span>
+  <div class="mwe-occurs">
+   <div class="mwe-occur">
+   <span class="mwe-occur-id">[1, 1, [11, 13, 14, 15]]</span>
+<span class="label mwe-label mwe-label-Skipped"data-toggle="tooltip" title="Possible MWE seen in file &quot;test/volta_ao_normal.cupt&quot;, sentence #1 (ID: train-s84)">Skipped</span><span> </span><span class="mwe-occur-sentence">Com essa decisão, o IPI dos de os carros importados <span class="mwe-elem" data-toggle="tooltip" title="voltar/VERB">voltam</span> ao <span class="mwe-elem" data-toggle="tooltip" title="a/ADP">a</span> <span class="mwe-elem" data-toggle="tooltip" title="o/DET">o</span> <span class="mwe-elem" data-toggle="tooltip" title="normal/NOUN">normal</span>: de 7 % nos em os automóveis com motores de até 1,0 litro, de 11 % nos em os equipados com motores entre 1,0 e 2,0 litros movidos a etanol (flex), e de 13 % nos em os veículos entre 1,0 e 2,0 litros movidos a gasolina. </span> <span class="mweoccur-decide-button"><span class="glyphicon glyphicon-edit"></span><span class="mwe-glyphtext"></span></span>
+   </div>
+   <div class="mwe-occur">
+   <span class="mwe-occur-id">[1, 2, [3, 5, 6, 7]]</span>
+<span class="label mwe-label mwe-label-VID"data-toggle="tooltip" title="Annotated in file &quot;test/volta_ao_normal.cupt&quot;, sentence #2 (ID: diario_gaucho_227), by &quot;&lt;unknown&gt;&quot; on &lt;unknown-date&gt;">VID</span><span> </span><span class="mwe-occur-sentence">O sistema deve <span class="mwe-elem" data-toggle="tooltip" title="voltar/VERB">voltar</span> ao<span class="mwe-elem" data-toggle="tooltip" title="a/ADP">a</span> <span class="mwe-elem" data-toggle="tooltip" title="o/DET">o</span> <span class="mwe-elem" data-toggle="tooltip" title="normal/ADJ">normal</span> àa a noite. </span> <span class="mweoccur-decide-button"><span class="glyphicon glyphicon-edit"></span><span class="mwe-glyphtext"></span></span>
+   </div>
+   <div class="mwe-occur">
+   <span class="mwe-occur-id">[1, 3, [18, 20, 21, 22]]</span>
+<span class="label mwe-label mwe-label-VID"data-toggle="tooltip" title="Annotated in file &quot;test/volta_ao_normal.cupt&quot;, sentence #3 (ID: diario_gaucho_11116), by &quot;&lt;unknown&gt;&quot; on &lt;unknown-date&gt;">VID</span><span> </span><span class="mwe-occur-sentence">A previsão do de o DepartamentoMunicipal de Água eEsgotos(Dmae) era de que o abastecimento<span class="mwe-elem" data-toggle="tooltip" title="voltar/VERB">voltasse</span> ao <span class="mwe-elem" data-toggle="tooltip" title="a/ADP">a</span> <span class="mwe-elem" data-toggle="tooltip" title="o/DET">o</span> <span class="mwe-elem" data-toggle="tooltip" title="normal/ADJ">normal</span> até o fim dade a noite de ontem. </span> <span class="mweoccur-decide-button"><span class="glyphicon glyphicon-edit"></span><span class="mwe-glyphtext"></span></span>
+   </div>
+  </div>
+ </div>
+</div>
+</div>
+
+  </div> <!-- div panel-body -->
+</div> <!-- div panel -->
+
+<div class="panel panel-default panel-post-load">
+  <div class="panel-heading">3. NotMWEs</div>
+  <div class="panel-body">
+
+<div class="mwe-list list-group">
+</div>
+
+  </div> <!-- div panel-body -->
+</div> <!-- div panel -->
+
+
+<div style="display:none" id="mwe-dropdown-template">
+  <span class="dropdown">
+    <span class="dropdown-toggle" id="menu1" type="button" data-toggle="dropdown"></span>
+    <ul class="dropdown-menu" role="menu" aria-labelledby="menu1">
+      <li role="presentation"><a role="menuitem" tabindex="-1"href="javascript:noteQ('VID')">Annotate as VID (idiom)</a></li>
+<li role="presentation"><a role="menuitem" tabindex="-1"href="javascript:noteQ('LVC.full')">Annotate as LVC.full (light-verb)</a></li>
+<li role="presentation"><a role="menuitem" tabindex="-1"href="javascript:noteQ('LVC.cause')">Annotate as LVC.cause (light-verb)</a></li>
+<li role="presentation"><a role="menuitem" tabindex="-1"href="javascript:noteQ('IRV')">Annotate as IRV (reflexive)</a></li>
+<li role="presentation"><a role="menuitem" tabindex="-1"href="javascript:noteQ('VPC.full')">Annotate as VPC.full (verb-particle)</a></li>
+<li role="presentation"><a role="menuitem" tabindex="-1"href="javascript:noteQ('VPC.semi')">Annotate as VPC.semi (verb-particle)</a></li>
+<li role="presentation"><a role="menuitem" tabindex="-1"href="javascript:noteQ('MVC')">Annotate as MVC (multi-verb)</a></li>
+<li role="presentation"><a role="menuitem" tabindex="-1"href="javascript:noteQ('IAV')">Annotate as IAV (adpositional)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="javascript:noteCustom()">Custom annotation</a></li>
+      <li role="presentation" class="divider"></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1"href="javascript:noteQ('NotMWE')">Mark as not-an-MWE</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="javascript:noteSpecialCase()">Mark as special case</a></li>
+      <li role="presentation" class="divider show-only-if-deletable"></li>
+      <li role="presentation" class="show-only-if-deletable"><a style="color:#FB2222" role="menuitem" tabindex="-1" href="javascript:resetDecision($('#glyphbox-with-dropdown'))">Reset current decision</a></li>
+    </ul>
+  </span>
+</div>
+
+
+<script>
+
+        <!--- ============ --->
+        <!--- BEGIN SHARED --->
+        window.parsemeData = {};
+        window.havePendingParsemeNotes = false;
+
+
+        function escapeRegExp(str) {
+            return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\$&");
+        }
+        /** Return whether the space-separated tokens in innerText appears inside fullText */
+        function areTokensInside(fullText, innerText) {
+            var regex = escapeRegExp(innerText).replace(/ +/g, ".*");
+            return new RegExp(regex, "g").test(fullText);
+        }
+
+        /** Remove note from window.parsemeData and update GUI */
+        function resetDecision(decisionButton) {
+            window.havePendingParsemeNotes = true;
+            var entryID = calculateEntryID(decisionButton);
+            delete window.parsemeData[entryID];
+            unmarkDecisionButton(decisionButton);
+            updateCounter();
+            killDropdown();
+        }
+
+
+        /*
+         * File format:
+         * {
+         *   "META": {"parseme_version": "x.y", ...},
+         *   "DECISIONS": {...}
+         * }
+         */
+        function writeJsonFile() {
+            var parsemeData = {
+                "META": {
+                    "parseme_version": "1.1",
+                    "parseme_json_version": "2.0",
+                    "filename_mapping": window.parsemeFilenameMapping,
+                },
+                "DECISIONS": window.parsemeData
+            }
+            var json = JSON.stringify(parsemeData, null, 2);
+            var blob = new Blob([json], {type: "application/json"});
+            var url  = URL.createObjectURL(blob);
+            saveAs(url, "ParsemeNotes.json");
+            window.havePendingParsemeNotes = false;  // assume they have downloaded it...
+        }
+        function saveAs(uri, filename) {
+            var link = document.createElement('a');
+            if (typeof link.download === 'string') {
+                document.body.appendChild(link); // Firefox requires the link to be in the body
+                link.download = filename;
+                link.href = uri;
+                link.click();
+                document.body.removeChild(link); // remove the link when done
+            } else {
+                location.replace(uri);
+            }
+        }
+
+        function readJsonFile(inputForm, filePath) {
+            inputForm.value = null;  /* allow same file file reload to trigger onchange */
+            var reader = new FileReader();
+            reader.onload = function() {
+              var havePending = window.havePendingParsemeNotes;
+              var data = JSON.parse(reader.result);
+              var decisions = data.DECISIONS;
+              if (!_.isEqual(data.META.filename_mapping, window.parsemeFilenameMapping)) {
+                  $('#mapping-warning-html').text(JSON.stringify(data.META.filename_mapping, null, 1));
+                  $('#mapping-warning-json').text(JSON.stringify(window.parsemeFilenameMapping, null, 1));
+                  $('#mapping-warning-modal').modal();
+              }
+
+              var unseen = new Set(Object.keys(decisions));
+              $(".mweoccur-decide-button").each(function() {
+                  var entryID = calculateEntryID(this);
+                  if (decisions[entryID]) {
+                      var annotEntry = decisions[entryID];
+                      addNote($(this), annotEntry);
+                      unseen.delete(entryID);
+                  }
+              });
+              window.havePendingParsemeNotes = havePending;
+              if (unseen.size != 0) {
+                  entries = $('#badentries-warning-entries').html("");
+                  unseen.forEach(x => entries.append($("<li>").text(x)));
+                  $('#badentries-warning-modal').modal();
+              }
+            };
+            reader.readAsText(filePath);
+        }
+
+
+        function updateCounter() {
+            $("#global-counter").text(Object.keys(window.parsemeData).length);
+        }
+
+        <!--- END SHARED --->
+        <!--- ============ --->
+
+    
+
+/** Mark glyphicon object as mweoccur-decide-button-marked */
+function markGlyphbox(glyphbox, glyphtext) {
+    eachTwinGlyphbox(glyphbox, function(twinGlyphbox) {
+        g = twinGlyphbox.siblings(".mweoccur-decide-button");  // a sibling glyphbox
+        g.addClass("mweoccur-decide-button-marked");
+        glyph = g.find(".glyphicon");
+        glyph.addClass("glyphicon-check");
+        glyph.removeClass("glyphicon-edit");
+        g.find(".mwe-glyphtext").text(glyphtext);
+    });
+}
+/** Mark glyphicon object as NOT mweoccur-decide-button-marked */
+function unmarkDecisionButton(glyphbox) {
+    eachTwinGlyphbox(glyphbox, function(twinGlyphbox) {
+        g = twinGlyphbox.siblings(".mweoccur-decide-button");  // a sibling glyphbox
+        g.removeClass("mweoccur-decide-button-marked");
+        glyph = g.find(".glyphicon");
+        glyph.addClass("glyphicon-edit");
+        glyph.removeClass("glyphicon-check");
+        g.find(".mwe-glyphtext").text("");
+    });
+}
+/** Run code for all siblings with same ID (e.g. for adjudication) */
+function eachTwinGlyphbox(glyphbox, func) {
+    var mwe_occur_id = glyphbox.siblings(".mwe-occur-id").text();
+    glyphbox.parents(".mwe-occurs").find(".mwe-occur-id").each(function() {
+        if ($(this).text() == mwe_occur_id) {
+            func($(this));
+        }
+    });
+}
+
+function killDropdown() {
+    g = $("#glyphbox-with-dropdown");
+    g.removeAttr("id");
+    g.siblings(".dropdown").remove();
+}
+
+
+function noteQ(categ) {
+    addNote(null, {type: "RE-ANNOT", target_categ: categ});
+}
+
+function noteCustom() {
+    g = $("#glyphbox-with-dropdown");
+    sent = g.siblings(".mwe-occur-sentence");
+    source_mwe = sent.find(".mwe-elem").map(function() { return $(this).text(); }).get().join(" ");
+    var reply_mwe = prompt("Type below the MWE tokens, separated by whitespace\n(You can add/remove tokens to correct the MWE):", source_mwe);
+
+    if (reply_mwe != null && reply_mwe.trim() != "") {
+        current_sent = sent.text().trim();
+        if (areTokensInside(current_sent, reply_mwe)) {
+            var source_categ_noPercent = g.siblings(".mwe-label").text().split(/ /)[0];
+            var reply_categ = prompt("Indicate the MWE label to use", source_categ_noPercent);
+            if (reply_categ != null && reply_categ.trim() != "") {
+                addNote(null, {type: "RE-ANNOT", target_categ: reply_categ, target_mwe: reply_mwe.split(/ +/)});
+            }
+        } else {
+            alert("ERROR: MWE sub-text " + JSON.stringify(reply_mwe) + " not found in sentence\n(You can mark this as a \"special case\" if you want).");
+        }
+    }
+    killDropdown();
+}
+
+function noteSpecialCase() {
+    var reply = prompt("Describe the special case below", "???");
+    if (reply != null && reply.trim() != "") {
+        addNote(null, {type: "SPECIAL-CASE", human_note: reply});
+    }
+    killDropdown();
+}
+
+/** Add note to window.parsemeData and update GUI */
+function addNote(glyphboxOrNull, annotEntry) {
+    var gbox = glyphboxOrNull || $("#glyphbox-with-dropdown");
+    annotEntry.source_categ = gbox.siblings(".mwe-label").text();
+    annotEntry.source_mwe = gbox.siblings(".mwe-occur-sentence")
+            .find(".mwe-elem").map(function() { return $(this).text(); }).get();
+    if (JSON.stringify(annotEntry.target_mwe) == JSON.stringify(annotEntry.source_mwe))
+        delete annotEntry.target_mwe;  // remove target_mwe if it's useless
+    var glyphtext = annotEntryToGlyphtext(annotEntry);
+    window.havePendingParsemeNotes = true;
+    var mweoccur_id = calculateEntryID(gbox);
+    window.parsemeData[mweoccur_id] = annotEntry;
+    markGlyphbox(gbox, glyphtext);
+    updateCounter();
+    killDropdown();
+}
+
+function annotEntryToGlyphtext(annotEntry) {
+    switch(annotEntry.type) {
+        case "RE-ANNOT":
+            var as_info = annotEntry.target_mwe ? JSON.stringify(annotEntry.target_mwe.join(" ")) + " as " : "";
+            return as_info + annotEntry.target_categ;
+        case "SPECIAL-CASE":
+            return "SPECIAL-CASE: " + annotEntry.human_note;
+    }
+}
+
+
+function calculateEntryID(decisionButton) {
+    var mweoccur_id = $(decisionButton).siblings('.mwe-occur-id').text();
+    return "MWE_KEY=[" + mweoccur_id + "]";
+}
+
+
+
+function toggleExpandAll() {
+    window.allExpanded = !window.allExpanded;
+    honorExpansionVariable();
+}
+function honorExpansionVariable() {
+    if (window.allExpanded) {
+        $(".mwe-occurs").show();
+        $(".mwe-label-header").hide();
+    } else {
+        $(".mwe-occurs").hide();
+        $(".mwe-label-header").show();
+    }
+}
+
+
+function updateCounter() {
+    $("#global-counter").text(Object.keys(window.parsemeData).length);
+}
+
+
+
+/********** Handle localStorage **************/
+function saveStateInLocalStorage() {
+    window.localStorage.allExpanded = window.allExpanded;
+}
+
+function loadStateFromLocalStorage() {
+    try {
+        allExpanded = window.localStorage.allExpanded;
+    } catch(e) {
+        return;  // we can't really load it
+    }
+    window.allExpanded = (allExpanded == "true");
+    honorExpansionVariable();
+}
+
+
+
+/********* Post-load actions *******/
+
+$(document).ready(function() {
+    window.addEventListener("beforeunload", function (e) {
+        try { saveStateInLocalStorage(); } catch(e) { }
+        if (!window.havePendingParsemeNotes) {
+            return undefined;
+        } else {
+            var msg = 'You must download your MWEs before quitting!';
+            (e || window.event).returnValue = msg; //Gecko + IE
+            return msg; //Gecko + Webkit, Safari, Chrome etc.
+        }
+    });
+
+    $('[data-toggle="tooltip"]').tooltip();
+
+    $(document).click(function() {
+        killDropdown();
+    });
+
+    $(".mweoccur-decide-button").click(function(e) {
+        killDropdown();
+        e.stopPropagation();
+
+        $(this).prop("id", "glyphbox-with-dropdown");
+        $(this).after($("#mwe-dropdown-template").html());
+        let d = $(this).siblings(".dropdown");
+        d.find(".dropdown-toggle").dropdown("toggle");
+        if ($(this).hasClass("mweoccur-decide-button-marked")) {
+            d.find(".show-only-if-deletable").show();
+        }
+
+        $(this).siblings(".dropdown").click(function(e) {
+            e.stopPropagation();  /* keep it alive */
+        });
+    });
+
+
+    $(".mwe-canonic").click(function() {
+        $(this).siblings(".mwe-occurs").toggle();
+        $(this).siblings(".mwe-label-header").toggle();
+    });
+
+    loadStateFromLocalStorage();
+    updateCounter();
+
+    $(".panel-pre-load").hide();
+    $(".panel-post-load").show();
+
+});  // finish $(document).ready
+
+
+</script>
+</body>
+</html>
+

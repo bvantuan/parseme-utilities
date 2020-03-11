@@ -50,7 +50,8 @@ class Main:
         self.print_html()
 
     def iter_sentences(self, verbose):
-        conllu_paths = self.args.conllu or dataalign.calculate_conllu_paths(self.args.input, warn=False) #warn=verbose) #Carlos Feb 24, 2020 - remove warning about conllu files - not necessary anymore when working on cupt directly
+        conllu_paths = self.args.conllu or dataalign.calculate_conllu_paths(self.args.input, warn=False) 
+        #warn=verbose) #Carlos Feb 24, 2020 - remove warning about conllu files - not necessary anymore when working on cupt directly
         return dataalign.IterAlignedFiles(self.args.lang, self.args.input, conllu_paths, keep_nvmwes=True, debug=verbose)
 
 
@@ -224,7 +225,11 @@ class VerbInfoCalculator:
 
         sentences = list(sentences)  # allow multiple iterations
         for finder in finders:
-            for mwe, mweoccur in finder.find_skipped_in(sentences):
+            # 20200311 Carlos: Order from shortest to longest so that skipped candidates with closer tokens are favoured
+            # Example: ./consistencyCheckWebpage.py --input test/volta_ao_normal.cupt --lang PT --find-skipped
+            # With this modification, "de os carros importados [voltam] [a] [o] [normal]" is favoured over
+            # "de [os] carros importados [voltam] [a] o [normal]"
+            for mwe, mweoccur in sorted(finder.find_skipped_in(sentences), key=lambda x:max(x[1].indexes)-min(x[1].indexes)):               
                 # Add 'Skipped', but only if this MWE was not seen at this position
                 mwe.add_skipped_mweoccur(mweoccur)
 
