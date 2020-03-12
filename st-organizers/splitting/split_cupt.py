@@ -4,6 +4,7 @@ from typing import Tuple, List, Iterable, FrozenSet
 
 import argparse
 import random
+import sys
 
 from collections import Counter, OrderedDict
 
@@ -19,6 +20,34 @@ import parseme.cupt as cupt
 
 # Preserve metadata with the following keys
 RELEVANT_META = ['source_sent_id', 'text']
+
+
+#################################################
+# MWE TYPE
+#################################################
+
+
+# Lemma, or base form.
+Lemma = str
+
+# We represent MWE type as a mapping from Lemma's to their counts.  The mapping
+# is represented as a set of (lemma, count) pairs (since there's no FrozenDict
+# in the standard library).
+MweTyp = FrozenSet[Tuple[Lemma, int]]
+
+
+def type_of(sent: TokenList, mwe: cupt.MWE) -> MweTyp:
+    """Convert the given MWE instance to the corresponding MWE type."""
+    # Create a dictionary from token IDs to actual tokens
+    tok_map = {}
+    for tok in sent:
+        tok_map[tok['id']] = tok
+    # Retrieve the set of lemmas
+    mwe_typ = [
+        tok_map[tok_id]['lemma']
+        for tok_id in mwe.span
+    ]
+    return frozenset(Counter(mwe_typ))
 
 
 #################################################
@@ -87,7 +116,7 @@ parser_split.add_argument(
     dest="uns_ratio",
     type=float,
     required=False,
-    help="Target unseen/seen ratio"
+    help="Target unseen/all ratio"
 )
 parser_split.add_argument(
     "-n", "--random-num",
@@ -146,13 +175,22 @@ def random_split(data_set: list, k: int) -> Tuple[list, list]:
 def unseen_mwes(test_set: TokenList, train_set: TokenList) \
         -> Tuple[int, float]:
     """Calculate the number of unseen MWEs in the `test_set`
-    w.r.t. the `train_set`, as well as the unseen/seen ratio.
+    w.r.t. the `train_set`, as well as the unseen/all ratio.
     """
 
     def types_in(data_set: TokenList) -> Iterable[cupt.MWE]:
         for sent in data_set:
-            for mwe in cupt.retrieve_mwes(sent).values():
-                yield type_of(sent, mwe)
+            try:
+                mwes = cupt.retrieve_mwes(sent).values()
+                for mwe in mwes:
+                    yield type_of(sent, mwe)
+            except Exception as inst:
+                msg = f"ERROR: {inst}"
+                sent_id = sent.metadata.get('source_sent_id') or \
+                    sent.metadata.get('sent_id')
+                print(
+                    f"WARNING: ignoring sentence with id={sent_id} ({msg})",
+                    file=sys.stderr)
 
     train_types = Counter(types_in(train_set))
     test_types = Counter(types_in(test_set))
@@ -173,32 +211,6 @@ def unseen_mwes(test_set: TokenList, train_set: TokenList) \
     # ])
 
     return unseen_num, unseen_ratio
-
-
-# Lemma, or base form.
-Lemma = str
-
-# We represent MWE type as a mapping from Lemma's to their counts.  The mapping
-# is represented as a set of (lemma, count) pairs (since there's no FrozenDict
-# in the standard library).
-#
-# TODO: Consider using lexemes (with POS) instead of lemmas.
-#
-MweTyp = FrozenSet[Tuple[Lemma, int]]
-
-
-def type_of(sent: TokenList, mwe: cupt.MWE) -> MweTyp:
-    """Convert the given MWE instance to the corresponding MWE type."""
-    # Create a dictionary from token IDs to actual tokens
-    tok_map = {}
-    for tok in sent:
-        tok_map[tok['id']] = tok
-    # Retrieve the set of lemmas
-    mwe_typ = [
-        tok_map[tok_id]['lemma']
-        for tok_id in mwe.span
-    ]
-    return frozenset(Counter(mwe_typ))
 
 
 def collect_data(input_paths: List[str]) -> List[TokenList]:
@@ -231,7 +243,7 @@ def do_estimate(args):
     data_set = collect_data(args.input_paths)
 
     def avg_unseen_and_ratio(data_set, test_size):
-        """Average no. of unseen MWEs and unseen/seen ratio."""
+        """Average no. of unseen MWEs and unseen/all ratio."""
         uns_num_ratio = []
         for _ in range(args.random_num):
             test, train = random_split(data_set, test_size)
@@ -249,7 +261,7 @@ def do_estimate(args):
         uns_num, uns_rat = avg_unseen_and_ratio(data_set, test_size)
         # Reporting
         print(f"# test size {test_size} => {uns_num} unseen "
-              f"& {uns_rat:f} unseen/seen ratio")
+              f"& {uns_rat:f} unseen/all ratio")
         # Consider smaller/larger test sizes
         if uns_num > args.uns_mwes:
             q = test_size - 1
@@ -262,7 +274,7 @@ def do_estimate(args):
     print(f"Entire data size: {len(data_set)}")
     print(f"Optimal test size: {test_size}")
     print(f"Average no. of unseen MWEs: {uns_num}")
-    print(f"Average unseen/seen ratio: {uns_rat}")
+    print(f"Average unseen/all ratio: {uns_rat}")
 
 
 #################################################
@@ -319,7 +331,7 @@ def do_split(args):
         elif dist(uns_num, uns_rat) < dist(uns_num_fin, uns_rat_fin):
             replace = True
         if replace:
-            print(f"# {uns_num} unseen & {uns_rat} unseen/seen ratio")
+            print(f"# {uns_num} unseen & {uns_rat} unseen/all ratio")
             train_fin, test_fin = train, test
             uns_num_fin = uns_num
             uns_rat_fin = uns_rat
@@ -335,7 +347,7 @@ def do_split(args):
                 data_file.write(sent.serialize())
 
     print(f"Number of unseen MWEs in test: {uns_num_fin}")
-    print(f"Unseen/seen MWE ratio in test: {uns_rat_fin}")
+    print(f"Unseen/all MWE ratio in test: {uns_rat_fin}")
 
     write_to(train_fin, args.train_path)
     write_to(test_fin, args.test_path)
