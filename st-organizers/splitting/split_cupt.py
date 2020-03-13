@@ -144,6 +144,11 @@ def types_in(sent: TokenList) -> List[MweTyp]:
     #         file=sys.stderr)
 
 
+def has_mwe(sent: TokenList) -> bool:
+    """Does the given sentence has any MWE?"""
+    return len(types_in(sent)) > 0
+
+
 def stats_by_sent(test_set: TokenList, train_set: TokenList) \
         -> Iterable[Stats]:
     """Calculate the seen/unseen stats for each sentence in the given
@@ -178,7 +183,7 @@ def unseen_num_and_ratio(test: TokenList, train: TokenList) \
     return stats.unseen, stats.unseen / stats.total()
 
 
-def split_wrt(
+def split_wrt_core(
     data_set: TokenList,
     train_set: TokenList,
     unseen_num: int
@@ -186,7 +191,7 @@ def split_wrt(
     """Split the dataset into two parts (p1, p2) so that the number of
     unseen MWEs in p1 w.r.t `train_set` is closest to the target number.
     """
-    p1, p2 = data_set, []
+    p1, p2 = data_set[:], []    # note the shallow copy
     stats_list = list(stats_by_sent(p1, train_set))
     n = sum(stats_list).unseen
     assert n >= unseen_num
@@ -194,6 +199,35 @@ def split_wrt(
         sent, stats = p1.pop(), stats_list.pop()
         n -= stats.unseen
         p2.append(sent)
+    return p1, p2
+
+
+def split_wrt(
+    data_set: TokenList,
+    train_set: TokenList,
+    unseen_num: int
+) -> Tuple[TokenList, TokenList]:
+    """A wrapper over split_wrt_core which considers sentences without MWEs
+    separately from those with MWEs.
+    """
+    with_mwes = [x for x in data_set if has_mwe(x)]
+    wout_mwes = [x for x in data_set if not has_mwe(x)]
+    with_p1, with_p2 = split_wrt_core(with_mwes, train_set, unseen_num)
+    # print("with, wout:", len(with_mwes), len(wout_mwes))
+    # print("with_p1, with_p2:", len(with_p1), len(with_p2))
+    # Split the part without MWEs to have similar proportions
+    prop = len(with_p1) / len(with_mwes)
+    k = round(prop * len(wout_mwes))
+    # print("prop, k, wout_mwes:", prop, k, len(wout_mwes))
+    wout_p1, wout_p2 = wout_mwes[:k], wout_mwes[k:]
+    # Combine the parts with and without MWEs
+    p1 = with_p1 + wout_p1
+    p2 = with_p2 + wout_p2
+    # print("p1:", len(p1))
+    # print("p2:", len(p2))
+    # Shuffle them in-place and return
+    random.shuffle(p1)
+    random.shuffle(p2)
     return p1, p2
 
 

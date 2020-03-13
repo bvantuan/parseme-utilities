@@ -4,7 +4,7 @@
 
 UNS_TEST=300
 UNS_DEV=100
-RND=10
+RND=50
 
 #Check the number of parameters
 if [ ! $# -eq 2 ]; then
