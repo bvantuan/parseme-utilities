@@ -29,7 +29,7 @@ do
   echo $LANG
   INP_DIR=$INP/parseme_corpus_$LANG
   mkdir $OUT/$LANG
-  ./split_cupt.py split -i $INP_DIR/*.cupt -n $RND --unseen-test $UNS_TEST --unseen-dev $UNS_DEV --train-path $OUT/$LANG/train.cupt --dev-path $OUT/$LANG/dev.cupt --test-path $OUT/$LANG/test.cupt &> $OUT/$LANG/log.cupt
+  ./split_cupt.py split -i $INP_DIR/*.cupt -n $RND --unseen-test $UNS_TEST --unseen-dev $UNS_DEV --train-path $OUT/$LANG/train.cupt --dev-path $OUT/$LANG/dev.cupt --test-path $OUT/$LANG/test.cupt &> $OUT/$LANG/split.log
   $VALIDATE --input $OUT/$LANG/train.cupt &> $OUT/$LANG/train-validate.log
   $VALIDATE --input $OUT/$LANG/dev.cupt &> $OUT/$LANG/dev-validate.log
   $VALIDATE --input $OUT/$LANG/test.cupt &> $OUT/$LANG/test-validate.log
