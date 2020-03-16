@@ -22,32 +22,26 @@ the average number of unseen MWEs (as well as average unseen/seen ratio) in the 
 
 ### Splitting
 
-Once the target size of the test set is estimated (e.g., `1000` sentences), you
-can use the following command to split the dataset into `train.cupt` and
-`test.cupt` with the target number of unseen MWEs (e.g., `300`) in the test
-part:
+Use the following command to split the dataset into `train.cupt`, `dev.cupt`,
+and `test.cupt`, with the target number of unseen MWEs in the development part
+(e.g. `100`) and the test part (e.g.  `300`):
 ```
-./split_cupt.py split --unseen-mwes 300 --test-size 1000 -i file1.cupt file2.cupt ... --train-path train.cupt --test-path test.cupt -n 100
+./split_cupt.py split --unseen-dev 100 --unseen-test 300 -i file1.cupt file2.cupt ... --train-path train.cupt --dev-path dev.cupt --test-path test.cupt -n 50
 ```
-Again, the `-n` option determines the number of random splits performed on the
-input datset.  The split with the number of unseen MWEs closest to the target
-number (here: `300`) is saved in the files following `--train-path` and `--test-path`.
+The `-n` option determines the number of random splits performed on the input
+dataset.  The split with the numbers of unseen MWEs closest to the target
+values (here: `100` and `300` in `dev` and `test`, respectively) is saved in
+the files following `--train-path`, `--dev-path`, and `--test-path`.
 
+
+<!---
 ##### Unseen/seen ratio
 
 You can additionally use the `unseen-ratio` option to specify the target unseen/seen MWE ratio in the test part.  In this case, the tool will search for a split which is close to having the specified number of unseen MWEs and the specified unseen/seen ratio at the same time.
 ```
-./split_cupt.py split --unseen-mwes 300 --unseen-ratio 0.5 --test-size 1000 -i file1.cupt file2.cupt ... --train-path train.cupt --test-path test.cupt -n 100
+./split_cupt.py split -unseen-mwes 300 -unseen-ratio 0.5 -test-size 1000 -i file1.cupt file2.cupt ... -train-path train.cupt -test-path test.cupt -n 100
 ```
-Note however that specifying the values of `--unseen-ratio` and `--test-size` significantly different from those reported by the [esimation mode](#esimation) will likely not work very well, since both the no. of unseen MWEs and the unseen/seen ratio are largely determined by the size of the test set (at least in our case, where we do all the splits randomly).
-
-<!---
-**Number of unseen MWEs re-estimation**.  Use the `--over` option to re-estimate the target no. of unseen MWEs.  This is done by:
-* Repeatedly splitting the dataset to train/test parts
-* Keeping only the splits with the number of unseen MWEs exceeding the one provided on input with `unseen-mwes`
-* Taking the average no. of unseen MWEs from thus obtained collection of train/test splits
-
-After that, the newly estimated target number of unseen MWEs is adopted and the script proceeds as without the `--over` option.
+Note however that specifying the values of `-unseen-ratio` and `-test-size` significantly different from those reported by the [esimation mode](#esimation) will likely not work very well, since both the no. of unseen MWEs and the unseen/seen ratio are largely determined by the size of the test set (at least in our case, where we do all the splits randomly).
 -->
 
 ### Validation
