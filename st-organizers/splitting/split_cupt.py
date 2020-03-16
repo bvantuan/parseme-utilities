@@ -4,7 +4,7 @@ from typing import Tuple, List, Iterable, FrozenSet, NamedTuple
 
 import argparse
 import random
-import sys
+# import sys
 
 from collections import Counter, OrderedDict
 
@@ -19,7 +19,22 @@ import parseme.cupt as cupt
 
 
 # Preserve metadata with the following keys
-RELEVANT_META = ['source_sent_id', 'text']
+# RELEVANT_META = ['source_sent_id', 'text']
+
+# Discard metadata with the following keys
+DISCARD_META = ['metadata']
+
+
+# Vaid MWEs categories
+VALID_CATS = [
+    'VID',
+    'LVC.full', 'LVC.cause',
+    'IRV',
+    'VPC.full', 'VPC.semi',
+    'IAV',
+    'MVC'
+]
+NOT_MWE = 'NotMWE'
 
 
 #################################################
@@ -87,17 +102,54 @@ def collect_data(input_paths: List[str]) -> List[TokenList]:
     for input_path in input_paths:
         with open(input_path, "r", encoding="utf-8") as data_file:
             for sent in conllu.parse_incr(data_file):
+                preprocess(sent)
                 data_set.append(sent)
     return data_set
 
 
-def filter_relevant_meta(sent: TokenList, keys: List[str]):
-    """Keep only the metadata entries with the relevant `keys`."""
-    meta = OrderedDict()
+# def filter_relevant_meta(sent: TokenList, keys: List[str]):
+#     """Keep only the metadata entries with the relevant `keys`."""
+#     meta = OrderedDict()
+#     for key in keys:
+#         if key in sent.metadata:
+#             meta[key] = sent.metadata[key]
+#     sent.metadata = meta
+
+
+def valid_mwe_cat(cat) -> bool:
+    """Is the given MWE category valid?"""
+    return cat in VALID_CATS or cat == NOT_MWE
+
+
+def preprocess(sent: TokenList):
+    """Perform preliminary sentence pre-processing (in-place)."""
+    # filter_relevant_meta(sent, RELEVANT_META)
+    discard_meta(sent, DISCARD_META)
+    check_mwe_cats(sent)
+    return sent
+
+
+def check_mwe_cats(sent: TokenList):
+    """Discard MWEs with invalid cats and NotMWEs."""
+    # Retrieve MWEs, discard MWE IDs
+    mwes = cupt.retrieve_mwes(sent).values()
+    # Construct the new set of MWEs
+    new_mwes = []
+    for mwe in mwes:
+        if valid_mwe_cat(mwe.cat):
+            if mwe.cat != NOT_MWE:
+                new_mwes.append(mwe)
+        else:
+            print(f"# WARNING: invalid {mwe} in {sent}")
+    # Replace MWEs in place
+    cupt.replace_mwes(sent, new_mwes)
+
+
+def discard_meta(sent: TokenList, keys: List[str]):
+    """Discard (in-place) metadata entries with the given `keys`."""
     for key in keys:
         if key in sent.metadata:
-            meta[key] = sent.metadata[key]
-    sent.metadata = meta
+            del sent.metadata[key]
 
 
 #################################################
@@ -298,13 +350,13 @@ class Split(NamedTuple):
     test: List[TokenList]
 
 
-def make_split(data_set, dev_test_size, uns_mwes) -> Split:
-    """Split the given dataset so the resulting test set has the given size
-    and also the given number of unseen expressions.  If there are any
-    remaining unseen MWEs, put them in the dev set."""
-    test, train = random_split(data_set, dev_test_size)
-    test, dev = split_wrt(test, train, uns_mwes)
-    return Split(train, dev, test)
+# def make_split(data_set, dev_test_size, uns_mwes) -> Split:
+#     """Split the given dataset so the resulting test set has the given size
+#     and also the given number of unseen expressions.  If there are any
+#     remaining unseen MWEs, put them in the dev set."""
+#     test, train = random_split(data_set, dev_test_size)
+#     test, dev = split_wrt(test, train, uns_mwes)
+#     return Split(train, dev, test)
 
 
 def grace(split: Split, target_test_uns, target_dev_uns) -> float:
@@ -338,7 +390,8 @@ def grace(split: Split, target_test_uns, target_dev_uns) -> float:
 
 
 def find_split(
-        data_set, dev_test_size, test_uns, dev_uns, random_num=10) -> Split:
+        data_set, dev_test_size, test_uns, dev_uns,
+        random_num=10, random_subnum=10) -> Split:
     """Find the best split for the given specification.
 
     Arguments:
@@ -346,17 +399,23 @@ def find_split(
         test_uns: target no. of unseen MWEs in test
         dev_uns: target no. of unseen MWEs in dev
         random_num: how many random splits to try
+        random_subnum: how many random (dev/test) subsplits to try
     """
     best_grace = float('inf')
     best_split = None
     for _ in range(random_num):
-        split = make_split(data_set, dev_test_size, test_uns)
-        new_grace = grace(split, test_uns, dev_uns)
-        if new_grace < best_grace:
-            best_grace = new_grace
-            best_split = split
-        if best_grace == 0:
-            break
+        # split = make_split(data_set, dev_test_size, test_uns)
+        dev_test, train = random_split(data_set, dev_test_size)
+        for _ in range(random_subnum):
+            random.shuffle(dev_test)
+            test, dev = split_wrt(dev_test, train, test_uns)
+            split = Split(train=train, dev=dev, test=test)
+            new_grace = grace(split, test_uns, dev_uns)
+            if new_grace < best_grace:
+                best_grace = new_grace
+                best_split = split
+            if best_grace == 0:
+                break
     return best_split
 
 
@@ -443,6 +502,14 @@ parser_split.add_argument(
     help="Number of random split; increase to get more reliable results"
 )
 parser_split.add_argument(
+    "-m", "--random-subnum",
+    dest="random_subnum",
+    type=int,
+    default=10,
+    help=("Perform each (random) subsplit into DEV/TEST "
+          "the given number of times")
+)
+parser_split.add_argument(
     "--train-path",
     dest="train_path",
     help="output TRAIN .cupt path",
@@ -505,20 +572,29 @@ def do_split(args):
     print("# Find the right split...")
     split = find_split(
         data_set, test_dev_size, args.test_uns,
-        args.dev_uns, args.random_num,
+        args.dev_uns, args.random_num, args.random_subnum
     )
 
     print(f"Train size: {len(split.train)}")
     print(f"Dev size: {len(split.dev)}")
     print(f"Test size: {len(split.test)}")
 
-    num, rat = unseen_num_and_ratio(split.test, split.train)
-    print(f"Number of unseen MWEs in test: {num}")
-    print(f"Unseen/all MWE ratio in test: {rat}")
+    train_stats = total_stats(split.train, [])
+    print(f"Number of MWEs in train: {train_stats.total()}")
 
-    num, rat = unseen_num_and_ratio(split.dev, split.train)
-    print(f"Number of unseen MWEs in dev: {num}")
-    print(f"Unseen/all MWE ratio in dev: {rat}")
+    def uns_ratio(stats):
+        """Unseen/all MWE ratio"""
+        return stats.unseen / stats.total()
+
+    test_stats = total_stats(split.test, split.train)
+    # num, rat = unseen_num_and_ratio(split.test, split.train)
+    print(f"Number of unseen MWEs in test: {test_stats.unseen}")
+    print(f"Unseen/all MWE ratio in test: {uns_ratio(test_stats)}")
+
+    dev_stats = total_stats(split.dev, split.train)
+    # num, rat = unseen_num_and_ratio(split.dev, split.train)
+    print(f"Number of unseen MWEs in dev: {dev_stats.unseen}")
+    print(f"Unseen/all MWE ratio in dev: {uns_ratio(dev_stats)}")
 
     def write_to(data_set, file_path):
         if file_path:
@@ -526,7 +602,6 @@ def do_split(args):
             with open(file_path, "w", encoding="utf-8") as data_file:
                 data_file.write(header + "\n")
                 for sent in data_set:
-                    filter_relevant_meta(sent, RELEVANT_META)
                     data_file.write(sent.serialize())
 
     write_to(split.train, args.train_path)
