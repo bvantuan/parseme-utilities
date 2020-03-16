@@ -167,11 +167,11 @@ class Stats(NamedTuple):
             unseen=self.unseen + other.unseen,
         )
 
-    def __radd__(self, other):
-        if other == 0:
-            return self
-        else:
-            return self.__add__(other)
+    # def __radd__(self, other):
+    #     if other == 0:
+    #         return self
+    #     else:
+    #         return self.__add__(other)
 
     def total(self):
         """Total number of MWEs"""
@@ -180,6 +180,11 @@ class Stats(NamedTuple):
     def unseen_ratio(self):
         """Unseen/all MWE ratio"""
         return self.unseen / self.total()
+
+
+def zero_stats() -> Stats:
+    """0 stats"""
+    return Stats(0, 0)
 
 
 #################################################
@@ -230,7 +235,7 @@ def stats_by_sent(test_set: TokenList, train_set: TokenList) \
 
 def total_stats(test_set: TokenList, train_set: TokenList) -> Stats:
     """Calculate total `Stats` for the given test_set w.r.t. train_set."""
-    return sum(stats_by_sent(test_set, train_set))
+    return sum(stats_by_sent(test_set, train_set), zero_stats())
 
 
 def unseen_num_and_ratio(test: TokenList, train: TokenList) \
@@ -250,7 +255,7 @@ def split_wrt_core(
     """
     p1, p2 = data_set[:], []    # note the shallow copy
     stats_list = list(stats_by_sent(p1, train_set))
-    n = sum(stats_list).unseen
+    n = sum(stats_list, zero_stats()).unseen
     assert n >= unseen_num
     while n > unseen_num:
         sent, stats = p1.pop(), stats_list.pop()
