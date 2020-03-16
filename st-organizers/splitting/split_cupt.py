@@ -6,7 +6,7 @@ import argparse
 import random
 # import sys
 
-from collections import Counter, OrderedDict
+from collections import Counter
 
 import conllu
 from conllu import TokenList
