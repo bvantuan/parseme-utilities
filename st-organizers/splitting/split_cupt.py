@@ -122,7 +122,12 @@ class Stats(NamedTuple):
             return self.__add__(other)
 
     def total(self):
+        """Total number of MWEs"""
         return self.seen + self.unseen
+
+    def unseen_ratio(self):
+        """Unseen/all MWE ratio"""
+        return self.unseen / self.total()
 
 
 #################################################
@@ -305,6 +310,7 @@ def make_split(data_set, dev_test_size, uns_mwes) -> Split:
 def grace(split: Split, target_test_uns, target_dev_uns) -> float:
     """How well the given split satisfy the given specification
     (no. of unseen MWEs in test and no. of unseen MWEs in dev).
+    The unseen ratio should be also roughtly the same in dev and test.
 
     The result is a non-negative number, with 0 representing
     the best fit.
@@ -315,9 +321,10 @@ def grace(split: Split, target_test_uns, target_dev_uns) -> float:
     def dev_dist(dev_uns):
         return abs(target_dev_uns - dev_uns) / target_dev_uns
 
-    test_uns = total_stats(split.test, split.train).unseen
-    dev_uns = total_stats(split.dev, split.train).unseen
-    return test_dist(test_uns) + dev_dist(dev_uns)
+    test = total_stats(split.test, split.train)
+    dev = total_stats(split.dev, split.train)
+    return test_dist(test.unseen) + dev_dist(dev.unseen) + \
+        abs(test.unseen_ratio() - dev.unseen_ratio())
 
     # def dist(uns_num, uns_rat):
     #     uns_dist = abs(uns_mwes - uns_num) / uns_mwes
@@ -485,15 +492,6 @@ def do_split(args):
     # Collect the dataset
     print("# Read the input dataset...")
     data_set = collect_data(args.input_paths)
-
-    # # Estimate the test size
-    # print("# Estimate the test size...")
-    # test_size, _, _ = estimate(
-    #     data_set,
-    #     args.test_uns,
-    #     random_num=args.random_num,
-    #     verbose=True,
-    # )
 
     # Estimate the dev+test size
     print("# Estimate the dev+test size:")
