@@ -4,7 +4,7 @@
 
 UNS_TEST=300
 UNS_DEV=100
-RND=10
+RND=100
 
 VALIDATE=/home/kuba/work/parseme/gitlab/sharedtask-data-dev/1.2/bin/validate_cupt.py
 
