@@ -1,7 +1,7 @@
-# Prerequisities
+# Prerequisites
 
 * Python in version 3.6 or higher
-* The Python [CUPT parsing library][cupt-parser] (follow the link for installation instructions)
+* The Python [CUPT parsing library][cupt-parser], version `0.1.1` or higher (follow the link for installation instructions)
 
 # Usage
 
