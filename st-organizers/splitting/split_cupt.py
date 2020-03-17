@@ -4,7 +4,7 @@ from typing import Tuple, List, Iterable, FrozenSet, NamedTuple
 
 import argparse
 import random
-# import sys
+import sys
 
 from collections import Counter
 
@@ -35,6 +35,7 @@ VALID_CATS = [
     'MVC'
 ]
 NOT_MWE = 'NotMWE'
+LANG_SPEC_PREF = "LS."
 
 
 #################################################
@@ -102,8 +103,16 @@ def collect_data(input_paths: List[str]) -> List[TokenList]:
     for input_path in input_paths:
         with open(input_path, "r", encoding="utf-8") as data_file:
             for sent in conllu.parse_incr(data_file):
-                preprocess(sent)
-                data_set.append(sent)
+                try:
+                    preprocess(sent)
+                    data_set.append(sent)
+                except Exception as inst:
+                    msg = f"ERROR: {inst}"
+                    sent_id = sent.metadata.get('source_sent_id') or \
+                        sent.metadata.get('sent_id')
+                    print(
+                        f"WARNING: ignoring sentence with id={sent_id} ({msg})",
+                        file=sys.stderr)
     return data_set
 
 
@@ -118,7 +127,9 @@ def collect_data(input_paths: List[str]) -> List[TokenList]:
 
 def valid_mwe_cat(cat) -> bool:
     """Is the given MWE category valid?"""
-    return cat in VALID_CATS or cat == NOT_MWE
+    return cat in VALID_CATS or \
+        cat.startswith(LANG_SPEC_PREF) or \
+        cat == NOT_MWE
 
 
 def preprocess(sent: TokenList):
