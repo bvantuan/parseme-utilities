@@ -375,7 +375,15 @@ class Split(NamedTuple):
 #     return Split(train, dev, test)
 
 
-def grace(split: Split, target_test_uns, target_dev_uns) -> float:
+class SplitSpec(NamedTuple):
+    """Target specification"""
+    target_test_uns: int        # Target no. of unseen MWEs in test
+    target_dev_uns: int         # Target no. of unseen MWEs in dev
+    target_uns_ratio: float     # Target unseen/all MWE ratio in both dev/test
+
+
+def grace(split: Split, spec: SplitSpec) \
+        -> float:
     """How well the given split satisfy the given specification
     (no. of unseen MWEs in test and no. of unseen MWEs in dev).
     The unseen ratio should be also roughtly the same in dev and test.
@@ -384,29 +392,21 @@ def grace(split: Split, target_test_uns, target_dev_uns) -> float:
     the best fit.
     """
     def test_dist(test_uns):
-        return abs(target_test_uns - test_uns) / target_test_uns
+        return abs(spec.target_test_uns - test_uns) / spec.target_test_uns
 
     def dev_dist(dev_uns):
-        return abs(target_dev_uns - dev_uns) / target_dev_uns
+        return abs(spec.target_dev_uns - dev_uns) / spec.target_dev_uns
 
     test = total_stats(split.test, split.train)
     dev = total_stats(split.dev, split.train)
     return test_dist(test.unseen) + dev_dist(dev.unseen) + \
-        abs(test.unseen_ratio() - dev.unseen_ratio())
-
-    # def dist(uns_num, uns_rat):
-    #     uns_dist = abs(uns_mwes - uns_num) / uns_mwes
-    #     if target_ratio:
-    #         rat_dist = abs(target_ratio - uns_rat) / target_ratio
-    #         # print("uns_dist:", uns_dist)
-    #         # print("rat_dist:", rat_dist)
-    #         return uns_dist + rat_dist
-    #     else:
-    #         return uns_dist
+        abs(test.unseen_ratio() - dev.unseen_ratio()) + \
+        abs(test.unseen_ratio() - spec.target_uns_ratio)
 
 
 def find_split(
-        data_set, dev_test_size, test_uns, dev_uns,
+        data_set, dev_test_size,
+        spec: SplitSpec,
         random_num=10, random_subnum=10) -> Split:
     """Find the best split for the given specification.
 
@@ -414,6 +414,7 @@ def find_split(
         test_size: target test size
         test_uns: target no. of unseen MWEs in test
         dev_uns: target no. of unseen MWEs in dev
+        uns_ratio: target unseen/all MWE ratio
         random_num: how many random splits to try
         random_subnum: how many random (dev/test) subsplits to try
     """
@@ -424,9 +425,9 @@ def find_split(
         dev_test, train = random_split(data_set, dev_test_size)
         for _ in range(random_subnum):
             random.shuffle(dev_test)
-            test, dev = split_wrt(dev_test, train, test_uns)
+            test, dev = split_wrt(dev_test, train, spec.target_test_uns)
             split = Split(train=train, dev=dev, test=test)
-            new_grace = grace(split, test_uns, dev_uns)
+            new_grace = grace(split, spec)
             if new_grace < best_grace:
                 best_grace = new_grace
                 best_split = split
@@ -578,17 +579,26 @@ def do_split(args):
 
     # Estimate the dev+test size
     print("# Estimate the dev+test size:")
-    test_dev_size, _, _ = estimate(
+    test_dev_size, _, uns_ratio = estimate(
         data_set,
         args.test_uns + args.dev_uns,
         random_num=args.random_num,
         verbose=True,
     )
 
+    # Split specification
+    spec = SplitSpec(
+        target_test_uns=args.test_uns,
+        target_dev_uns=args.dev_uns,
+        target_uns_ratio=uns_ratio
+    )
+
     print("# Find the right split...")
     split = find_split(
-        data_set, test_dev_size, args.test_uns,
-        args.dev_uns, args.random_num, args.random_subnum
+        data_set, test_dev_size, spec,
+        # args.test_uns, args.dev_uns,
+        # uns_ratio,
+        args.random_num, args.random_subnum
     )
 
     print(f"Train size: {len(split.train)}")
