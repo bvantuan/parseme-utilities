@@ -356,7 +356,7 @@ def estimate(data_set, uns_mwes, random_num=10, verbose=False) \
 
 
 #################################################
-# SPLIT
+# 3-WAY SPLIT
 #################################################
 
 
@@ -437,6 +437,64 @@ def find_split(
 
 
 #################################################
+# 2-WAY SPLIT
+#################################################
+
+
+class TwoSplitSpec(NamedTuple):
+    """Target specification"""
+    target_uns: int             # Target no. of unseen MWEs
+    target_uns_ratio: float     # Target unseen/all MWE ratio
+
+
+def grace_two(
+    target: List[TokenList],
+    rest: List[TokenList],
+    spec: TwoSplitSpec,
+) -> float:
+    """How well the given 2-way split satisfies the given specification.
+
+    The result is a non-negative number, with 0 representing
+    the best fit.
+    """
+    stats = total_stats(target, rest)
+    uns = stats.unseen
+    uns_ratio = stats.unseen_ratio()
+    dists = [
+        abs(spec.target_uns - uns) / spec.target_uns,
+        abs(uns_ratio - spec.target_uns_ratio),
+    ]
+    return sum(dists)
+
+
+def find_two_split(
+        data_set, target_size,
+        spec: TwoSplitSpec,
+        random_num=10) -> Tuple[List[TokenList], List[TokenList]]:
+    """Find the best split for the given specification.
+
+    Arguments:
+        test_size: target test size
+        test_uns: target no. of unseen MWEs in test
+        dev_uns: target no. of unseen MWEs in dev
+        uns_ratio: target unseen/all MWE ratio
+        random_num: how many random splits to try
+        random_subnum: how many random (dev/test) subsplits to try
+    """
+    best_grace = float('inf')
+    best_split = None
+    for _ in range(random_num):
+        target, rest = random_split(data_set, target_size)
+        new_grace = grace_two(target, rest, spec)
+        if new_grace < best_grace:
+            best_grace = new_grace
+            best_split = rest, target
+        if best_grace == 0:
+            break
+    return best_split
+
+
+#################################################
 # ARGUMENTS
 #################################################
 
@@ -469,6 +527,12 @@ parser_estimate.add_argument(
 )
 
 parser_split = subparsers.add_parser('split', help='split dataset')
+parser_split.add_argument(
+    "--alt",
+    dest="alt",
+    action="store_true",
+    help="Alternative split: unseen in test are calculated w.r.t. train+dev"
+)
 parser_split.add_argument(
     "-i",
     dest="input_paths",
@@ -601,6 +665,14 @@ def do_split(args):
         args.random_num, args.random_subnum
     )
 
+    # Reports stats, and write on output
+    report_stats(split)
+    write_split(split, args, header)
+
+
+def report_stats(split: Split):
+    """Report some statistics of the split."""
+
     print(f"Train size: {len(split.train)}")
     print(f"Dev size: {len(split.dev)}")
     print(f"Test size: {len(split.test)}")
@@ -612,15 +684,30 @@ def do_split(args):
         """Unseen/all MWE ratio"""
         return stats.unseen / stats.total()
 
-    test_stats = total_stats(split.test, split.train)
-    # num, rat = unseen_num_and_ratio(split.test, split.train)
-    print(f"Number of unseen MWEs in test: {test_stats.unseen}")
-    print(f"Unseen/all MWE ratio in test: {uns_ratio(test_stats)}")
-
     dev_stats = total_stats(split.dev, split.train)
-    # num, rat = unseen_num_and_ratio(split.dev, split.train)
     print(f"Number of unseen MWEs in dev: {dev_stats.unseen}")
     print(f"Unseen/all MWE ratio in dev: {uns_ratio(dev_stats)}")
+
+    test_stats = total_stats(split.test, split.train)
+    print(f"Number of unseen MWEs in test w.r.t train: {test_stats.unseen}")
+    print(f"Unseen/all MWE ratio in test w.r.t train: {uns_ratio(test_stats)}")
+
+    test_stats2 = total_stats(split.test, split.train+split.dev)
+    print(
+        f"Number of unseen MWEs in test "
+        f"w.r.t train+dev: {test_stats2.unseen}"
+    )
+    print(
+        f"Unseen/all MWE ratio in test "
+        f"w.r.t train+dev: {uns_ratio(test_stats2)}"
+    )
+
+
+def write_split(split: Split, args, header):
+    """Write the split to output files with the given header.
+
+    TODO: refactor.
+    """
 
     def write_to(data_set, file_path):
         if file_path:
@@ -636,6 +723,64 @@ def do_split(args):
 
 
 #################################################
+# DO ALTERNATIVE SPLIT
+#################################################
+
+
+def do_alt_split(args):
+
+    # Determine the header line
+    with open(args.input_paths[0], "r", encoding="utf-8") as data_file:
+        header = data_file.readline().strip()
+
+    # Collect the dataset
+    print("# Read the input dataset...")
+    data_set = collect_data(args.input_paths)
+
+    # Estimate the dev+test size
+    print("# Estimate the test size:")
+    test_size, _, test_uns_ratio = estimate(
+        data_set,
+        args.test_uns,
+        random_num=args.random_num,
+        verbose=True,
+    )
+
+    print("# Find the right train+dev/test split...")
+    spec = TwoSplitSpec(
+        target_uns=args.test_uns,
+        target_uns_ratio=test_uns_ratio
+    )
+    train_dev, test = find_two_split(
+        data_set, test_size, spec,
+        args.random_num
+    )
+
+    print("# Estimate the dev size:")
+    dev_size, _, dev_uns_ratio = estimate(
+        train_dev,
+        args.dev_uns,
+        random_num=args.random_num,
+        verbose=True,
+    )
+
+    print("# Find the right train/dev split...")
+    spec = TwoSplitSpec(
+        target_uns=args.dev_uns,
+        target_uns_ratio=dev_uns_ratio
+    )
+    train, dev = find_two_split(
+        train_dev, dev_size, spec,
+        args.random_num
+    )
+
+    # Create the resulting split, reports stats, and write on output
+    split = Split(train=train, dev=dev, test=test)
+    report_stats(split)
+    write_split(split, args, header)
+
+
+#################################################
 # MAIN
 #################################################
 
@@ -645,4 +790,7 @@ if __name__ == '__main__':
     if args.command == 'estimate':
         do_estimate(args)
     elif args.command == 'split':
-        do_split(args)
+        if args.alt:
+            do_alt_split(args)
+        else:
+            do_split(args)

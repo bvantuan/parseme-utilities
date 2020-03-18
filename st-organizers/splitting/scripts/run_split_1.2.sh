@@ -5,6 +5,7 @@
 UNS_TEST=300
 UNS_DEV=100
 RND=100
+OPTS="--alt"
 
 VALIDATE=/home/kuba/work/parseme/gitlab/sharedtask-data-dev/1.2/bin/validate_cupt.py
 
@@ -29,7 +30,7 @@ do
   echo $LANG
   INP_DIR=$INP/parseme_corpus_$LANG
   mkdir $OUT/$LANG
-  ./split_cupt.py split -i $INP_DIR/*.cupt -n $RND --unseen-test $UNS_TEST --unseen-dev $UNS_DEV --train-path $OUT/$LANG/train.cupt --dev-path $OUT/$LANG/dev.cupt --test-path $OUT/$LANG/test.cupt &> $OUT/$LANG/split.log
+  ./split_cupt.py split $OPTS -i $INP_DIR/*.cupt -n $RND --unseen-test $UNS_TEST --unseen-dev $UNS_DEV --train-path $OUT/$LANG/train.cupt --dev-path $OUT/$LANG/dev.cupt --test-path $OUT/$LANG/test.cupt &> $OUT/$LANG/split.log
   $VALIDATE --input $OUT/$LANG/train.cupt &> $OUT/$LANG/train-validate.log
   $VALIDATE --input $OUT/$LANG/dev.cupt &> $OUT/$LANG/dev-validate.log
   $VALIDATE --input $OUT/$LANG/test.cupt &> $OUT/$LANG/test-validate.log
