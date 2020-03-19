@@ -609,6 +609,24 @@ parser_split.add_argument(
     metavar="FILE"
 )
 
+parser_check = subparsers.add_parser('check', help='check the split')
+parser_check.add_argument(
+    "-o",
+    dest="orig_paths",
+    required=True,
+    nargs='+',
+    help="original .cupt file(s)",
+    metavar="FILE"
+)
+parser_check.add_argument(
+    "-s",
+    dest="split_paths",
+    required=True,
+    nargs='+',
+    help="split .cupt file(s)",
+    metavar="FILE"
+)
+
 
 #################################################
 # DO ESTIMATE
@@ -781,6 +799,48 @@ def do_alt_split(args):
 
 
 #################################################
+# DO CHECK
+#################################################
+
+
+def do_check(args):
+    print("# Read the original dataset...")
+    orig = collect_data(args.orig_paths)
+    print("# Read the split dataset...")
+    split = collect_data(args.split_paths)
+
+    def prepare(x: TokenList) -> str:
+        """Prepare the sentence for comparison"""
+        if 'global.columns' in x.metadata:
+            del x.metadata['global.columns']
+        return x.serialize()
+
+    # Serialize the datasets, otherwise we cannot compare
+    split = list(map(prepare, split))
+    orig = list(map(prepare, orig))
+
+    # Sort the two lists
+    split.sort()
+    orig.sort()
+
+    # Check the length
+    if len(split) != len(orig):
+        print("# WARNING: the lengths of the two datasets differ")
+
+    problem = False
+    for x, y in zip(orig, split):
+        if x != y:
+            problem = True
+            print("# WARNING: the following sentences differ:")
+            print("# ORIG:")
+            print(x)
+            print("# SPLIT:")
+            print(y)
+    if not problem:
+        print("Datasets identical")
+
+
+#################################################
 # MAIN
 #################################################
 
@@ -794,3 +854,5 @@ if __name__ == '__main__':
             do_alt_split(args)
         else:
             do_split(args)
+    elif args.command == 'check':
+        do_check(args)
