@@ -33,6 +33,10 @@ dataset.  The split with the numbers of unseen MWEs closest to the target
 values (here: `100` and `300` in `dev` and `test`, respectively) is saved in
 the files following `--train-path`, `--dev-path`, and `--test-path`.
 
+**NOTE**: the `--alt` option determines how the number of unseen MWEs in `test` is calculated:
+* Without `--alt`, it is calculated w.r.t. `train` only.
+* With `--alt`, it is calculated w.r.t. both `train` and `dev`.
+
 
 <!---
 ##### Unseen/seen ratio
