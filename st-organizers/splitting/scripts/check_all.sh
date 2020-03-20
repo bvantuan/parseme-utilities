@@ -21,6 +21,6 @@ OUT=$3
 for LANG in `cat $LANGS`
 do
   INP_DIR=$INP/parseme_corpus_$LANG
-  OUT_DIR=$OUT/$LANG
+  OUT_DIR=$OUT/${LANG^^}
   echo ${LANG^^}: `./split_cupt.py check -o $INP_DIR/*.cupt -s $OUT_DIR/*.cupt | tail -n 1`
 done
