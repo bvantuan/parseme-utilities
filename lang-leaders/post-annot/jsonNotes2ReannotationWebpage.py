@@ -82,7 +82,7 @@ class Main(object):
         self.fname2foliadoc = {}
         self.basefname2fname = {}
         if self.args.corpus_input:      
-            self.fname2foliadoc = {fname: dataalign.IterAlignedFiles(lang="EN",file_paths=[fname]) for fname in self.args.corpus_input}
+            self.fname2foliadoc = {fname: dataalign.IterAlignedFiles(lang="EN",file_paths=[fname],keep_nvmwes=True) for fname in self.args.corpus_input}
             self.basefname2fname = {os.path.basename(fname): fname for fname in self.fname2foliadoc}
 
     def run(self):
@@ -301,13 +301,17 @@ class Main(object):
             sourceinfo = RE_SOURCEINFO.match(annot.json_data["source_categ"]).groupdict()
             expected_categ, categ = sourceinfo["categ"], entity.category
             expected_confid, confid = int(sourceinfo["confid"] or 100), int((entity.metadata.confidence or 1)*100)
-            if expected_categ != categ:
-                if expected_categ == "Skipped":
+            if expected_categ != categ:                
+                # reannotation tries to annotate towards correct categ, 
+                # already present in the corpus. Just ignore
+                if annot.json_data['target_categ'] == categ : 
+                    return annot.good("Target category already correct in the corpus")
+                elif expected_categ == "Skipped":
                     for previous_annot in reversed(recently_auto_annotated):
                         if previous_annot.can_merge(annot):
                             if previous_annot.target_x("categ") == categ:
                                 return annot.good("Merged with another annotation")
-                            raise annot.err("New category conflicts with {}", previous_annot.target_x("categ"))
+                            raise annot.err("New category conflicts with {}", previous_annot.target_x("categ"))                
                 raise annot.err("Corpus has unexpected category {} (not {})", categ, expected_categ)
             if expected_confid != confid:
                 raise annot.err("Corpus has unexpected confidence {}% (not {}%)", confid, expected_confid)
