@@ -13,10 +13,10 @@ export LC_ALL=en_US.UTF-8
 apply-all-corpora.sh "git pull"
 
 # Check if the datasets are identical
-./scripts/check_all.sh scripts/langs/all.txt data/ST1.2 data/preliminary-sharedtask-data-alt
+./scripts/check_all.sh scripts/langs/all.txt data/ST1.2 data/preliminary-sharedtask-data
 
 # Move to directory with splits
-cd data/preliminary-sharedtask-data-alt
+cd data/preliminary-sharedtask-data
 
 # Inspect all validation logs
 cat */*valid*
