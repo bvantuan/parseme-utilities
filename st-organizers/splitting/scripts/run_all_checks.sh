@@ -1,3 +1,8 @@
+#!/bin/bash
+
+# TODO: reoranize this script, so that it takes arguments with
+# all relevant paths
+
 # Echo on
 set -x
 
