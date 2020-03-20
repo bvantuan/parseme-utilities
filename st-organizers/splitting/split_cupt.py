@@ -831,13 +831,15 @@ def do_check(args):
     for x, y in zip(orig, split):
         if x != y:
             problem = True
-            print("# WARNING: the following sentences differ:")
-            print("# ORIG:")
-            print(x)
-            print("# SPLIT:")
-            print(y)
+            print("# WARNING: the following sentences differ:\n")
+            print("@ ORIGINAL")
+            print(x, end='')
+            print("@ SPLIT")
+            print(y, end='')
     if not problem:
         print("Datasets identical")
+    else:
+        print("Datasets differ")
 
 
 #################################################
