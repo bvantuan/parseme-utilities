@@ -6,6 +6,9 @@
 # Echo on
 set -x
 
+# Otherwise, I get encoding errors
+export LC_ALL=en_US.UTF-8
+
 # Pull latest versions of all corpora
 apply-all-corpora.sh "git pull"
 
