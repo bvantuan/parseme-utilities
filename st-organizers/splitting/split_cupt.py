@@ -163,6 +163,24 @@ def discard_meta(sent: TokenList, keys: List[str]):
             del sent.metadata[key]
 
 
+def duplicate_mwes(sent: TokenList) -> List[cupt.MWE]:
+    # List of duplicates
+    dups = []
+
+    # Freeze MWE's span (so we can compare them)
+    def freeze(span):
+        return frozenset(span)
+        # return tuple(sorted(span))
+
+    # Retrieve MWEs, discard MWE IDs
+    mwes = cupt.retrieve_mwes(sent).values()
+    spans = Counter(freeze(mwe.span) for mwe in mwes)
+    for mwe in mwes:
+        if spans[freeze(mwe.span)] > 1:
+            dups.append(mwe)
+    return dups
+
+
 #################################################
 # STATS
 #################################################
@@ -627,6 +645,17 @@ parser_check.add_argument(
     metavar="FILE"
 )
 
+parser_check = subparsers.add_parser(
+    'dupl', help='check for duplicate annotations')
+parser_check.add_argument(
+    "-i",
+    dest="input_paths",
+    required=True,
+    nargs='+',
+    help="original .cupt file(s)",
+    metavar="FILE"
+)
+
 
 #################################################
 # DO ESTIMATE
@@ -843,6 +872,25 @@ def do_check(args):
 
 
 #################################################
+# DO CHECK FOR DUPLICATES
+#################################################
+
+
+def do_check_duplicates(args):
+    # print("# Read the input dataset...")
+    data_set = collect_data(args.input_paths)
+    for sent in data_set:
+        mwes = duplicate_mwes(sent)
+        if mwes:
+            sid = sent.metadata.get('source_sent_id') or \
+                '"' + sent.metadata.get('text') + '"'
+            print(
+                f"Duplicate annotations in sentence {sid}:",
+                mwes
+                )
+
+
+#################################################
 # MAIN
 #################################################
 
@@ -858,3 +906,5 @@ if __name__ == '__main__':
             do_split(args)
     elif args.command == 'check':
         do_check(args)
+    elif args.command == 'dupl':
+        do_check_duplicates(args)
