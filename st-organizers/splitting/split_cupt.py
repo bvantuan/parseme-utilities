@@ -108,10 +108,10 @@ def collect_data(input_paths: List[str]) -> List[TokenList]:
                     data_set.append(sent)
                 except Exception as inst:
                     msg = f"ERROR: {inst}"
-                    sent_id = sent.metadata.get('source_sent_id') or \
+                    sid = sent.metadata.get('source_sent_id') or \
                         sent.metadata.get('sent_id')
                     print(
-                        f"WARNING: ignoring sentence with id={sent_id} ({msg})",
+                        f"WARNING: ignoring sentence with id={sid} ({msg})",
                         file=sys.stderr)
     return data_set
 
@@ -275,42 +275,6 @@ def unseen_num_and_ratio(test: TokenList, train: TokenList) \
 
 
 #################################################
-# UNIFORM SPLITTING WITH TARGET NUMBER
-# OF UNSEEN MWES
-#################################################
-
-
-def random_split_with(
-    data_set: TokenList,
-    unseen_num: int
-) -> Tuple[TokenList, TokenList]:
-    """Split the dataset into two parts (test, train) so that the number of
-    unseen MWEs in test w.r.t train is as close as possible to
-    the target number.
-    """
-    # Shallow copy the dataset and shuffle
-    data_set = data_set[:]
-    random.shuffle(data_set)
-    # Perform binary search for an appropriate test set
-    p, q = 1, len(data_set)-1   # inclusive [p, q] range
-    test, train = None, None
-    uns_num, uns_rat = None, None
-    while p < q:
-        test_size = (p + q) // 2
-        test, train = data_set[:test_size], data_set[test_size:]
-        # Estimate the number of unseen MWEs
-        uns_num, uns_rat = unseen_num_and_ratio(test, train)
-        # Consider smaller/larger test sizes
-        if uns_num > unseen_num:
-            q = test_size - 1
-        elif uns_num < unseen_num:
-            p = test_size + 1
-        else:
-            break
-    return test, train
-
-
-#################################################
 # OBSOLETE SPLITTING METHODS
 #################################################
 
@@ -406,34 +370,6 @@ def estimate(data_set, uns_mwes, random_num=10, verbose=False) \
             break
 
     return test_size, uns_num, uns_rat
-
-    # # Report the final test size
-    # print(f"Entire data size: {len(data_set)}")
-    # print(f"Optimal test size: {test_size}")
-    # print(f"Average no. of unseen MWEs: {uns_num}")
-    # print(f"Average unseen/all ratio: {uns_rat}")
-
-
-def estimate_size_ratio(data_set, uns_mwes, random_num=10) \
-        -> Tuple[int, float]:
-    """Estimate the size of the test set so that test contains the given
-    number of unseen expressions w.r.t the entire dataset - test set.
-
-    Returns a tuple (test_size, avg_unseen_ratio).
-    """
-    # uns_nums = []
-    test_sizes, uns_rats = [], []
-    for _ in range(random_num):
-        test, train = random_split_with(data_set, unseen_num=uns_mwes)
-        uns_num, uns_rat = unseen_num_and_ratio(test, train)
-        test_sizes.append(len(test))
-        # uns_nums.append(uns_num)
-        uns_rats.append(uns_rat)
-    return (
-        round(avg(test_sizes)),
-        # round(avg(uns_nums)),
-        avg(uns_rats),
-    )
 
 
 #################################################
@@ -575,31 +511,6 @@ def find_two_split(
     return best_split
 
 
-def find_two_split_simpl(
-    data_set,
-    spec: TwoSplitSpec,
-    random_num=10
-) -> Tuple[List[TokenList], List[TokenList]]:
-    """Find the best split for the given specification.
-
-    Arguments:
-        data_set: original dataset
-        spec: split specification
-        random_num: how many random splits to try
-    """
-    best_grace = float('inf')
-    best_split = None
-    for _ in range(random_num):
-        target, rest = random_split_with(data_set, unseen_num=spec.target_uns)
-        new_grace = grace_two(target, rest, spec)
-        if new_grace < best_grace:
-            best_grace = new_grace
-            best_split = rest, target
-        if best_grace == 0:
-            break
-    return best_split
-
-
 #################################################
 # ARGUMENTS
 #################################################
@@ -638,12 +549,6 @@ parser_split.add_argument(
     dest="alt",
     action="store_true",
     help="Alternative split: unseen in test are calculated w.r.t. train+dev"
-)
-parser_split.add_argument(
-    "--simpl",
-    dest="simpl",
-    action="store_true",
-    help="Simplified splitting method, where no test size control is performed"
 )
 parser_split.add_argument(
     "-i",
@@ -922,60 +827,6 @@ def do_alt_split(args):
 
 
 #################################################
-# DO SIMPLIFIED SPLIT
-#################################################
-
-
-def do_simpl_split(args):
-
-    # Determine the header line
-    with open(args.input_paths[0], "r", encoding="utf-8") as data_file:
-        header = data_file.readline().strip()
-
-    print("# Read the input dataset...")
-    data_set = collect_data(args.input_paths)
-
-    _test_size, test_uns_ratio = estimate_size_ratio(
-        data_set,
-        args.test_uns,
-        random_num=args.random_num
-    )
-    print("# Estimated unseen ratio in test:", test_uns_ratio)
-
-    print("# Find the right train+dev/test split...")
-    spec = TwoSplitSpec(
-        target_uns=args.test_uns,
-        target_uns_ratio=test_uns_ratio
-    )
-    train_dev, test = find_two_split_simpl(
-        data_set, spec,
-        args.random_num
-    )
-
-    _dev_size, dev_uns_ratio = estimate_size_ratio(
-        train_dev,
-        args.dev_uns,
-        random_num=args.random_num
-    )
-    print("# Estimated unseen ratio in dev:", dev_uns_ratio)
-
-    print("# Find the right train/dev split...")
-    spec = TwoSplitSpec(
-        target_uns=args.dev_uns,
-        target_uns_ratio=dev_uns_ratio
-    )
-    train, dev = find_two_split_simpl(
-        train_dev, spec,
-        args.random_num
-    )
-
-    # Create the resulting split, reports stats, and write on output
-    split = Split(train=train, dev=dev, test=test)
-    report_stats(split)
-    write_split(split, args, header)
-
-
-#################################################
 # DO CHECK
 #################################################
 
@@ -1050,8 +901,6 @@ if __name__ == '__main__':
     elif args.command == 'split':
         if args.alt:
             do_alt_split(args)
-        elif args.simpl:
-            do_simpl_split(args)
         else:
             do_split(args)
     elif args.command == 'check':
