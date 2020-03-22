@@ -644,14 +644,41 @@ parser_check.add_argument(
     metavar="FILE"
 )
 
-parser_check = subparsers.add_parser(
+parser_dupl = subparsers.add_parser(
     'dupl', help='check for duplicate annotations')
-parser_check.add_argument(
+parser_dupl.add_argument(
     "-i",
     dest="input_paths",
     required=True,
     nargs='+',
     help="original .cupt file(s)",
+    metavar="FILE"
+)
+
+parser_stats = subparsers.add_parser(
+    'stats', help='split statistics')
+parser_stats.add_argument(
+    "--train-path",
+    dest="train_paths",
+    required=True,
+    nargs='+',
+    help="train .cupt file(s)",
+    metavar="FILE"
+)
+parser_stats.add_argument(
+    "--test-path",
+    dest="test_paths",
+    required=True,
+    nargs='+',
+    help="test .cupt file(s)",
+    metavar="FILE"
+)
+parser_stats.add_argument(
+    "--dev-path",
+    dest="dev_paths",
+    required=True,
+    nargs='+',
+    help="dev .cupt file(s)",
     metavar="FILE"
 )
 
@@ -716,13 +743,20 @@ def do_split(args):
     write_split(split, args, header)
 
 
+#################################################
+# DO SPLIT UTILS
+#################################################
+
+
 def report_stats(split: Split):
     """Report some statistics of the split."""
 
+    print(f"# Number of sentences")
     print(f"Train size: {len(split.train)}")
     print(f"Dev size: {len(split.dev)}")
     print(f"Test size: {len(split.test)}")
 
+    print(f"# Train")
     train_stats = total_stats(split.train, [])
     print(f"Number of MWEs in train: {train_stats.total()}")
 
@@ -730,11 +764,15 @@ def report_stats(split: Split):
         """Unseen/all MWE ratio"""
         return stats.unseen / stats.total()
 
+    print(f"# Dev")
     dev_stats = total_stats(split.dev, split.train)
+    print(f"Number of MWEs in dev: {dev_stats.total()}")
     print(f"Number of unseen MWEs in dev: {dev_stats.unseen}")
     print(f"Unseen/all MWE ratio in dev: {uns_ratio(dev_stats)}")
 
+    print(f"# Test")
     test_stats = total_stats(split.test, split.train)
+    print(f"Number of MWEs in test: {test_stats.total()}")
     print(f"Number of unseen MWEs in test w.r.t train: {test_stats.unseen}")
     print(f"Unseen/all MWE ratio in test w.r.t train: {uns_ratio(test_stats)}")
 
@@ -890,6 +928,19 @@ def do_check_duplicates(args):
 
 
 #################################################
+# DO STATS
+#################################################
+
+
+def do_stats(args):
+    train = collect_data(args.train_paths)
+    dev = collect_data(args.dev_paths)
+    test = collect_data(args.test_paths)
+    split = Split(train=train, dev=dev, test=test)
+    report_stats(split)
+
+
+#################################################
 # MAIN
 #################################################
 
@@ -907,3 +958,5 @@ if __name__ == '__main__':
         do_check(args)
     elif args.command == 'dupl':
         do_check_duplicates(args)
+    elif args.command == 'stats':
+        do_stats(args)
