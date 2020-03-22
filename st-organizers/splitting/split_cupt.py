@@ -63,7 +63,7 @@ def type_of(sent: TokenList, mwe: cupt.MWE) -> MweTyp:
         tok_map[tok_id]['lemma']
         for tok_id in mwe.span
     ]
-    return frozenset(Counter(mwe_typ))
+    return frozenset(Counter(mwe_typ).most_common())
 
 
 #################################################
