@@ -23,7 +23,7 @@ for LANG in `cat $LANGS`
 do
   OUT_DIR=$OUT/${LANG^^}
   echo ${LANG^^}
-  $EVAL --train $OUT_DIR/train.cupt --gold $OUT_DIR/test.cupt --pred $OUT_DIR/test.cupt &> $OUT_DIR/test-eval.log
-  $EVAL --train $OUT_DIR/train.cupt --gold $OUT_DIR/dev.cupt --pred $OUT_DIR/dev.cupt &> $OUT_DIR/dev-eval.log
-  $EVAL --gold $OUT_DIR/train.cupt --pred $OUT_DIR/train.cupt &> $OUT_DIR/train-eval.log
+  $EVAL --train $OUT_DIR/train.cupt --gold $OUT_DIR/test.cupt --pred $OUT_DIR/test.cupt &> $OUT_DIR/logs/test-eval.log
+  $EVAL --train $OUT_DIR/train.cupt --gold $OUT_DIR/dev.cupt --pred $OUT_DIR/dev.cupt &> $OUT_DIR/logs/dev-eval.log
+  $EVAL --gold $OUT_DIR/train.cupt --pred $OUT_DIR/train.cupt &> $OUT_DIR/logs/train-eval.log
 done

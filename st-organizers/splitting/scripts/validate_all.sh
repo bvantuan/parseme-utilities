@@ -22,7 +22,7 @@ for LANG in `cat $LANGS`
 do
   echo $LANG
   LANG=${LANG^^}
-  $VALIDATE --input $OUT/$LANG/train.cupt &> $OUT/$LANG/train-validate.log
-  $VALIDATE --input $OUT/$LANG/dev.cupt &> $OUT/$LANG/dev-validate.log
-  $VALIDATE --input $OUT/$LANG/test.cupt &> $OUT/$LANG/test-validate.log
+  $VALIDATE --input $OUT/$LANG/train.cupt &> $OUT/$LANG/logs/train-validate.log
+  $VALIDATE --input $OUT/$LANG/dev.cupt &> $OUT/$LANG/logs/dev-validate.log
+  $VALIDATE --input $OUT/$LANG/test.cupt &> $OUT/$LANG/logs/test-validate.log
 done

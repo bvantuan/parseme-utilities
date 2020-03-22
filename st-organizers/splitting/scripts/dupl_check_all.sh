@@ -21,7 +21,7 @@ for LANG in `cat $LANGS`
 do
   OUT_DIR=$OUT/${LANG^^}
   echo ${LANG^^}
-  ./split_cupt.py dupl -i $OUT_DIR/train.cupt &> $OUT_DIR/train-dupl.log
-  ./split_cupt.py dupl -i $OUT_DIR/dev.cupt &> $OUT_DIR/dev-dupl.log
-  ./split_cupt.py dupl -i $OUT_DIR/test.cupt &> $OUT_DIR/test-dupl.log
+  ./split_cupt.py dupl -i $OUT_DIR/train.cupt &> $OUT_DIR/logs/train-dupl.log
+  ./split_cupt.py dupl -i $OUT_DIR/dev.cupt &> $OUT_DIR/logs/dev-dupl.log
+  ./split_cupt.py dupl -i $OUT_DIR/test.cupt &> $OUT_DIR/logs/test-dupl.log
 done

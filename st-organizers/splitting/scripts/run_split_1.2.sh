@@ -28,5 +28,5 @@ do
   INP_DIR=$INP/parseme_corpus_$LANG
   LANG=${LANG^^}
   mkdir $OUT/$LANG
-  ./split_cupt.py split $OPTS -i $INP_DIR/*.cupt -n $RND --unseen-test $UNS_TEST --unseen-dev $UNS_DEV --train-path $OUT/$LANG/train.cupt --dev-path $OUT/$LANG/dev.cupt --test-path $OUT/$LANG/test.cupt &> $OUT/$LANG/split.log
+  ./split_cupt.py split $OPTS -i $INP_DIR/*.cupt -n $RND --unseen-test $UNS_TEST --unseen-dev $UNS_DEV --train-path $OUT/$LANG/train.cupt --dev-path $OUT/$LANG/dev.cupt --test-path $OUT/$LANG/test.cupt &> $OUT/$LANG/logs/split.log
 done
