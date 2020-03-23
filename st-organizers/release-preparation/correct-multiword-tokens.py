@@ -15,6 +15,9 @@ parser = argparse.ArgumentParser(description="""
     
 parser.add_argument("--cupt", type=str, nargs="+", required=True,
     help="""Path to input CUPT files with annotated VMWEs""")
+parser.add_argument("--lang", type=str, required=True,
+    help="""Language of the input corpus""")
+
 
 #####################################################
 
@@ -34,7 +37,7 @@ class Main:
 #####################################################
 
   def iter_sentences(self, verbose=True):
-    r"""Yield all sentences in `self.args.cupt`"""
+    r"""Yield all sentences in `self.args.cupt`"""    
     for elem in dataalign.IterAlignedFiles(self.args.lang, self.args.cupt, None, keep_nvmwes=True, debug=verbose):
       if isinstance(elem, dataalign.Sentence):
         yield elem

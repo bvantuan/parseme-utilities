@@ -22,6 +22,7 @@ class Categories:
         'VPC.full',
         'VPC.semi',
         'MVC',
+        'LS.ICV',
         'IAV',
         'NotMWE',
         'TODO',

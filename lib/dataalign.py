@@ -490,7 +490,7 @@ class Sentence:
 
     def print_conllup_comments(
             self, *, output=sys.stdout,
-            gen_missing_req_keys=True, sent_id_key="sent_id"):
+            gen_missing_req_keys=True, sent_id_key="source_sent_id"):
         r"""Print comments in CoNLL-UP format."""
         kv_pairs = list(self.kv_pairs)
 
@@ -529,9 +529,9 @@ class Sentence:
         r"""Calculate required `text` attribute for CoNLL-UP."""
         return KVPair('text', ''.join(token.surface + ('' if token.nsp else ' ') for token in self.tokens))
 
-    def calc_artificial_sent_id(self, sent_id_key="sent_id") -> KVPair:
+    def calc_artificial_sent_id(self, sent_id_key="source_sent_id") -> KVPair:
         r"""Calculate required `sent_id` attribute for CoNLL-UP."""
-        return KVPair(sent_id_key, 'autogen--{}--{}'.format(
+        return KVPair(sent_id_key, '. . autogen--{}--{}'.format(
             os.path.basename(self.corpusinfo.file_path), self.nth_sent))
             
     def get_kvpair(self, key: str, backoff: object) -> KVPair:
@@ -610,7 +610,7 @@ class MWEOccur:
             wid = self.sentence.tokens[i]['ID']
             if "-" in wid:
                 first, last = wid.split('-', 1)
-                indexmap[i] = range(r2i(first), r2i(last)+1)
+                indexmap[i] = range(r2i[first], r2i[last]+1)
         return self.remapped_indexes(indexmap)
 
 
@@ -1384,8 +1384,8 @@ class AbstractFileIterator:
         elif keyval.key == "global.columns":
             self.corpusinfo.colnames = keyval.value.strip().split()
         else:
-            if keyval.key == "source_sent_id":
-                keyval = KVPair("sent_id", keyval.value)
+            #if keyval.key == "source_sent_id":
+            #    keyval = KVPair("sent_id", keyval.value)
             self.curr_sent.kv_pairs.append(keyval)
 
     def append_token(self, line):
