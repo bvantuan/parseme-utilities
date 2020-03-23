@@ -1,25 +1,122 @@
 #!/bin/bash
 
-# TODO: reoranize this script, so that it takes arguments with
-# all relevant paths
 
-# Echo on
-set -x
+###############################################################
+# This script runs all the validation checks on the results
+# of the splitting process.
+#
+# Before you run the script, have a look at the PARAMETERS
+# section, in which you may need to specify some paths.
+#
+# NOTE: before doing all the checks, you may also want to run:
+#
+#   $ git pull
+#
+# in each source repository, to make sure they are up-to-date.
+###############################################################
 
-# Otherwise, I get encoding errors
+
+###############################################################
+# PARAMETERS
+###############################################################
+
+
+# To avoid encoding errors (if you don't need that, just
+# comment it out).
 export LC_ALL=en_US.UTF-8
 
-# Pull latest versions of all corpora
-apply-all-corpora.sh "git pull"
+# Path to the validation script
+VALIDATE=/home/kuba/work/parseme/gitlab/sharedtask-data-dev/1.2/bin/validate_cupt.py
 
-# Check if the datasets are identical
-./scripts/check_all.sh scripts/langs/all.txt data/ST1.2 data/preliminary-sharedtask-data
+
+###############################################################
+# ARGUMENTS
+###############################################################
+
+
+#Check the number of parameters
+if [ ! $# -eq 3 ]; then
+  echo Usage: `basename $0` 'LANG-LIST-FILE' 'ORIG-DIR' 'SPLIT-DIR'
+  echo
+  echo Perform the validation checks w.r.t.:
+  echo "* ORIG-DIR: directory with the source corpora (parseme_corpus_fr, parseme_corpus_zh, ...)"
+  echo "* SPLIT-DIR: directory with the corpora after splitting (FR, ZH, ...)"
+  echo "* LANG-LIST-FILE: a file with the language codes, one per line (fr\n, zh\n, ...)"
+  echo
+  exit
+fi
+
+LANGS=$1
+INP=$2
+OUT=$3
+
+
+###############################################################
+# VALIDATION
+###############################################################
+
+
+# # Echo on
+# set -x
+
+# # Pull latest versions of all corpora
+# apply-all-corpora.sh "git pull"
+
+echo "# Calculate splitting stats"
+./scripts/stats_all.sh $LANGS $OUT
+
+echo "# Check if datasets identical before and after splitting"
+./scripts/check_id.sh $LANGS $INP $OUT
+
+echo "# Check for double annotations"
+./scripts/dupl_check_all.sh $LANGS $OUT
+
+echo "# Report double annotations"
+# echo "# Double annotations:"
+for lang in `cat $LANGS`
+do
+  echo ${lang^^}
+  cat $OUT/${lang^^}/logs/*dupl.log
+done
+
+# Run the evaluation script
+echo "# Run the evaluation scripts"
+./scripts/eval_check_all.sh $LANGS $OUT
+
+# Report warnings in evaluation files
+echo "# Report warning in evaluation files"
+for lang in `cat $LANGS`
+do
+  echo ${lang^^}
+  cat $OUT/${lang^^}/logs/*eval.log | grep WARNING
+done
+
+# Run the validation script
+echo "# Run the validation script"
+./scripts/validate_all.sh $VALIDATE $LANGS $OUT
 
 # Move to directory with splits
-cd data/preliminary-sharedtask-data
+# cd data/preliminary-sharedtask-data
 
 # Inspect all validation logs
-cat */*valid*
+echo "# Inspect validator's logs"
+cat $OUT/*/logs/*valid* | grep -v "no errors"
 
 # Check for "sent_id"
-grep -l "# sent_id =" -R .
+echo "# Looking for sent_id's"
+grep -l "# sent_id =" -R $OUT
+
+
+###############################################################
+# POSTSCRIPT
+###############################################################
+
+
+echo
+echo You may also want to manually compare:
+echo 
+echo "  * evaluation log files in $OUT/*/logs/*-eval.log"
+echo "  * splitting stats in $OUT/*/logs/split-stats.log"
+echo
+echo to identify eventual inconsistencies concerning the reported numbers of
+echo unseen MWEs and unseen ratios for the individual echo languages.

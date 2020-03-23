@@ -6,7 +6,8 @@
 if [ ! $# -eq 3 ]; then
   echo Usage: `basename $0` 'LANG-LIST-FILE' 'ORIG-DIR' 'SPLIT-DIR'
   echo
-  echo Run checking if datasets are identical for each language in the given list.
+  echo Check if datasets before and after splitting are identical
+  echo for each language in the given list.
   echo
   exit
 fi
