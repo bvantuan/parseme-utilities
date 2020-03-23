@@ -25,9 +25,6 @@
 # comment it out).
 export LC_ALL=en_GB.UTF-8
 
-# Path to the validation script
-VALIDATE=/home/ceramisch/Work/develop/parseme/sharedtask-data-dev/1.2/bin/validate_cupt.py
-
 
 ###############################################################
 # ARGUMENTS
@@ -49,7 +46,8 @@ fi
 LANGS=$1
 INP=$2
 OUT=$3
-
+# Path to the validation script
+VALIDATE=$OUT/../bin/validate_cupt.py
 
 ###############################################################
 # VALIDATION
