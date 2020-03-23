@@ -530,9 +530,10 @@ class Sentence:
         return KVPair('text', ''.join(token.surface + ('' if token.nsp else ' ') for token in self.tokens))
 
     def calc_artificial_sent_id(self, sent_id_key="source_sent_id") -> KVPair:
-        r"""Calculate required `sent_id` attribute for CoNLL-UP."""
-        return KVPair(sent_id_key, '. . autogen--{}--{}'.format(
-            os.path.basename(self.corpusinfo.file_path), self.nth_sent))
+        r"""Calculate required `source_sent_id` attribute for CoNLL-UP."""
+        sentid = self.get_kvpair("sent_id","autogen--{}".format(self.nth_sent)).value
+        return KVPair(sent_id_key, '. {} {}'.format(
+            os.path.basename(self.corpusinfo.file_path), sentid))
             
     def get_kvpair(self, key: str, backoff: object) -> KVPair:
         r"""Return a KVPair for given `key`.

@@ -134,7 +134,9 @@ class Main:
         source = '{}:{}'.format(os.path.basename(mweoccur.sentence.file_path), mweoccur.sentence.lineno)
         source_sent_number = 's.{}'.format(mweoccur.sentence.nth_sent)
         source_token_ranks = ','.join(mweoccur.sentence.tokens[i].rank for i in mweoccur.indexes)
-        source_sent_id = mweoccur.sentence.unique_kv_pair('sent_id').value
+        source_sent_id = mweoccur.sentence.get_kvpair('source_sent_id',dataalign.KVPair("",None)).value
+        if not source_sent_id :
+          source_sent_id = mweoccur.sentence.unique_kv_pair('sent_id').value
         find_methods = ','.join(sorted(self.mweoccur_id2finders[mweoccur.mweo_id()]))
         print(" ".join(mwe.canonicform), self._postag(mweoccur), categ, idlit, find_methods,
               self._example(mweoccur), source, source_sent_number, source_token_ranks,

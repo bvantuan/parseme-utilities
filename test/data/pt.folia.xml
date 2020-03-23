@@ -106,7 +106,7 @@
         <kv-pair key="RAWLINE" value=""/>
       </foreign-data>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s1"/>
+        <kv-pair key="sent_id" value="sample-s1"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Por causa disso , foram eliminados e retirados das salas de prova 37 candidatos ."/>
@@ -186,7 +186,7 @@
         </entity>
       </entities>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s2"/>
+        <kv-pair key="sent_id" value="sample-s2"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Também foi conduzido à sede da PF para prestar depoimento ."/>
@@ -260,7 +260,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s3"/>
+        <kv-pair key="sent_id" value="sample-s3"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Ele ficou em sétimo no campeonato , com 111 pontos ."/>
@@ -478,7 +478,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s4"/>
+        <kv-pair key="sent_id" value="sample-s4"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Barthélemy Charles Joseph Du Mortier ( ou Dumortier ) ( Tournai , 3 de abril de 1797 -- Tournai , 9 de junho de 1878 ) foi um botânico , naturalista e político belga ."/>
@@ -582,7 +582,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s5"/>
+        <kv-pair key="sent_id" value="sample-s5"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="O executivo comemorou ainda a participação da marca no mercado brasileiro chegou a 3,2 % ."/>
@@ -885,7 +885,7 @@
         </entity>
       </entities>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s6"/>
+        <kv-pair key="sent_id" value="sample-s6"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Além de ser uma oportunidade ótima para adquirir peças Alix Shop , Left , PopUp Store , Fabulous Agilita , Lulu , Joulik , Mizeiko , Luiza Barcelos , Schutz e Studio TMLS , vale a pena garantir os presentes de natal para a família e amigas ."/>
@@ -1031,7 +1031,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s7"/>
+        <kv-pair key="sent_id" value="sample-s7"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Não separa o SUS , manter uma maternidade ( com toda essa equipe ) onde nasçam menos de 60 crianças por mês ."/>
@@ -1081,7 +1081,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s8"/>
+        <kv-pair key="sent_id" value="sample-s8"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="&quot; Ela viu muita coisa louca ."/>
@@ -1185,7 +1185,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s9"/>
+        <kv-pair key="sent_id" value="sample-s9"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="A noiva chega à cerimônia de carruagem e os cavalos desembestam e não querem parar ."/>
@@ -1295,7 +1295,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s10"/>
+        <kv-pair key="sent_id" value="sample-s10"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Orloff começou na indústria cinematográfica como assistente de direção do filme Life Sold Separately de 1997 ."/>
@@ -1423,7 +1423,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s11"/>
+        <kv-pair key="sent_id" value="sample-s11"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Em 22 de abril de 1995 , no 30 º Congresso do ÖVP , Schüssel foi eleito líder nacional ."/>
@@ -1491,7 +1491,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s12"/>
+        <kv-pair key="sent_id" value="sample-s12"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="A liminar deverá ser referendada pelo Plenário do STF ."/>
@@ -1745,7 +1745,7 @@
         </entity>
       </entities>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s13"/>
+        <kv-pair key="sent_id" value="sample-s13"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Promovido pela Sociedade Brasileira de Computação ( SBC ) e pela Associação Brasileira de Desenvolvedores de Jogos Digitais ( ABRAGAMES ) , a feira tem entrada gratuita e disponibilizará para teste mais de 200 jogos desenvolvidos por empresas brasileiras ."/>
@@ -1927,7 +1927,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s14"/>
+        <kv-pair key="sent_id" value="sample-s14"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="O violonista e compositor Laurindo Almeida nasceu na pequena cidade litorânea &quot; Prainha &quot; , hoje Miracatu , no Vale do Ribeira , no Estado de São Paulo ."/>
@@ -2085,7 +2085,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s15"/>
+        <kv-pair key="sent_id" value="sample-s15"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="A intervenção integra as obras do Macrossistema de Esgoto de Fortaleza , onde estão sendo assentados 22km de tubulação de esgoto de grande porte ."/>
@@ -2381,7 +2381,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s16"/>
+        <kv-pair key="sent_id" value="sample-s16"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Pelo cronograma , votarão nos próximos dias os ministros Rosa Maria Weber , Luiz Fux , José Antônio Dias Toffoli , Cármen Lúcia , Cezar Peluso , Gilmar Mendes , Marco Aurélio Mello , Celso de Mello e Carlos Ayres Britto , o presidente da Corte Suprema ."/>
@@ -2437,7 +2437,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s17"/>
+        <kv-pair key="sent_id" value="sample-s17"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="O processo deve durar toda a semana ."/>
@@ -2643,7 +2643,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s18"/>
+        <kv-pair key="sent_id" value="sample-s18"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="º Senhor e Administrador do Morgado do Espírito - Santo na Lombada dos Esmeraldos , de Ponta Delgada , e doutros Morgados na Ilha da Madeira , em sucessão a seu pai ."/>
@@ -2711,7 +2711,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s19"/>
+        <kv-pair key="sent_id" value="sample-s19"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="O IPA passou de 0,01 % para -0,35 % ."/>
@@ -2875,7 +2875,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s20"/>
+        <kv-pair key="sent_id" value="sample-s20"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="A estreia está marcada para o dia 3 de setembro ea partir desta data será possível acompanhar todas as segundas - feiras um episódio diferente ."/>
@@ -2996,7 +2996,7 @@
         </entity>
       </entities>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s21"/>
+        <kv-pair key="sent_id" value="sample-s21"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Como não havia saído gol em Varsóvia , estavam com a vaga nas quartas de final ."/>
@@ -3118,7 +3118,7 @@
         </entity>
       </entities>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s22"/>
+        <kv-pair key="sent_id" value="sample-s22"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="De acordo com o censo realizado pelo IBGE em 2010 , sua população é de 18.490 habitantes ."/>
@@ -3222,7 +3222,7 @@
         </entity>
       </entities>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s23"/>
+        <kv-pair key="sent_id" value="sample-s23"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Uma das filhas de Harlan Wade , Alma sofre com freqüêntes pesadelos e alucinações ."/>
@@ -3338,7 +3338,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s24"/>
+        <kv-pair key="sent_id" value="sample-s24"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="&quot; Como aqui é caminho para a Bola da Suframa , é constante o fluxo de caminhões ."/>
@@ -3629,7 +3629,7 @@
         </entity>
       </entities>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s25"/>
+        <kv-pair key="sent_id" value="sample-s25"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Nós São Paulinos ficamos achando que vencer a Libertadores era obrigação em 2006 , 2007 , 2008 e 2009 e pedimos as cabeças de dois bons treinadores por não termos vencido campeonato tão difícil e que poucos a venceram e muito poucos repetiram o feito ."/>
@@ -3769,7 +3769,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s26"/>
+        <kv-pair key="sent_id" value="sample-s26"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Se eleito , Fernando Siqueira pretende criar a carreira de reciclador de lixo e ampliar o programa de reciclagem da cidade ."/>
@@ -3963,7 +3963,7 @@
         </entity>
       </entities>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s27"/>
+        <kv-pair key="sent_id" value="sample-s27"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="O fruto possui uma forma que vai da ovaloide à oblonga , entre uma faixa de 2,5 a 6 cm de comprimento e 1,5 a 3 cm de largura ."/>
@@ -4163,7 +4163,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s28"/>
+        <kv-pair key="sent_id" value="sample-s28"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Na festa , a pira olímpica será apagada e os organizadores do evento anunciam a cidade - sede dos Jogos Olímpicos de 2016 , que serão realizados no Rio de Janeiro ."/>
@@ -4303,7 +4303,7 @@
         </entity>
       </entities>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s29"/>
+        <kv-pair key="sent_id" value="sample-s29"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="&quot; O Conca sabe que a casa dele é o Fluminense , mas ele tem contrato de um ano lá ."/>
@@ -4341,7 +4341,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s30"/>
+        <kv-pair key="sent_id" value="sample-s30"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Foram impressos 744.632 carnês ."/>
@@ -4587,7 +4587,7 @@
         </entity>
       </entities>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s31"/>
+        <kv-pair key="sent_id" value="sample-s31"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Oportunista , marcou dois gols nas duas chances que teve e foi o grande responsável pela vitória por 2 a 1 , que fechou o primeiro turno do Campeonato Brasileiro ( veja no vídeo ao lado ) ."/>
@@ -4721,7 +4721,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s32"/>
+        <kv-pair key="sent_id" value="sample-s32"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Fontes disseram à Reuters que ele machucou as costas nadando , mas oficialmente não há nenhuma explicação para sua ausência ."/>
@@ -4994,7 +4994,7 @@
         </entity>
       </entities>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s33"/>
+        <kv-pair key="sent_id" value="sample-s33"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="A informação de que Gurgel teria pedido investigação sobre as denúncias e remetido a documentação à primeira instância , uma vez que Lula não tem mais foro privilegiado , foi publicada na edição de hoje do jornal O Estado de S. Paulo ."/>
@@ -5122,7 +5122,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s34"/>
+        <kv-pair key="sent_id" value="sample-s34"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="A perda desse financiamento contribuiu para a redução da cultura , mas ainda há famílias que a mantém . &quot;"/>
@@ -5262,7 +5262,7 @@
         </entity>
       </entities>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s35"/>
+        <kv-pair key="sent_id" value="sample-s35"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Sinopse : O detetive Philip Marlowe é chamado por um veterano general milionário para investigar uma chantagem que esta sofrendo ."/>
@@ -5366,7 +5366,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s36"/>
+        <kv-pair key="sent_id" value="sample-s36"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Outra possibilidade é abrir novos mercados para cooperativas gaúchas de suínos , frango e leite ."/>
@@ -5602,7 +5602,7 @@
         </entity>
       </entities>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s37"/>
+        <kv-pair key="sent_id" value="sample-s37"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Isto explica porque durante um largo período de tempo só se encontram dulzainas no sul , citadas nos textos com variantes arábicas do vocábulo zolami , muito comum nos escritos sobre música do Al - Andalus ."/>
@@ -5850,7 +5850,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s38"/>
+        <kv-pair key="sent_id" value="sample-s38"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="De acordo com a chefe do Núcleo de Aquisições da SEE , Janaína Albuquerque , 5.521 carteiras foram distribuídas em mais de 20 escolas localizadas nas 1 ª , 12 ª , 13 ª e 14 ª CRE 's ."/>
@@ -5978,7 +5978,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s39"/>
+        <kv-pair key="sent_id" value="sample-s39"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Essa foi a quarta etapa da Volta da França vencida por Millar , sendo a primeira delas desde 2003 ."/>
@@ -6149,7 +6149,7 @@
         </entity>
       </entities>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s40"/>
+        <kv-pair key="sent_id" value="sample-s40"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Assim , aquando do planeamento da capa , foi pedido à equipa gráfica que fosse ao encontro do tema geral do disco : a mudança ."/>
@@ -6391,7 +6391,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s41"/>
+        <kv-pair key="sent_id" value="sample-s41"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="O Instituto de Arte Contemporânea também publicou vários catálogos registrando suas exposições , entre eles : Campo Ampliado , Absorção e Intimismo em Volpi , O Olhar do Colecionador -- Coleção Tuiuiu , Sergio Camargo -- Claro Enigma ."/>
@@ -6459,7 +6459,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s42"/>
+        <kv-pair key="sent_id" value="sample-s42"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Anaciaeschna é um género de libelinha da família Aeshnidae ."/>
@@ -6551,7 +6551,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s43"/>
+        <kv-pair key="sent_id" value="sample-s43"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Diversas opções artísticas e de assistência pública estão disponíveis esta semana em Manaus ."/>
@@ -6859,7 +6859,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s44"/>
+        <kv-pair key="sent_id" value="sample-s44"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="&quot; Estou realmente impressionado com a quantidade de serviços sob demanda disponíveis pela AWS &quot; , diz Aaron Kenny , antes engenheiro da McAfee e agora CTO da startup eMeals.com , um site completamente hospedado na nuvem da AWS e que ajuda os usuários com planos de alimentação saudáveis ."/>
@@ -7029,7 +7029,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s45"/>
+        <kv-pair key="sent_id" value="sample-s45"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="A magistrada é titular da 3 ª Vara de Fazenda Pública e Registros Públicos da Comarca de Campo Grande e assume a vaga deixada pela Desa ."/>
@@ -7193,7 +7193,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s46"/>
+        <kv-pair key="sent_id" value="sample-s46"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="O acordo contempla ainda o incremento da participação de agricultores familiares na cadeia do biodiesel , com geração de até 2.430 postos de trabalhos rurais ."/>
@@ -7405,7 +7405,7 @@
         </entity>
       </entities>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s47"/>
+        <kv-pair key="sent_id" value="sample-s47"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="&quot; Sabemos que o problema não se resume a apenas a escola , mas a única forma de garantir a vida ea integridade física de alunos , professores e diretores foi essa ."/>
@@ -7605,7 +7605,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s48"/>
+        <kv-pair key="sent_id" value="sample-s48"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Essa dívida , que permanceu depois da negociação entre Galo e Vasco , era de 900 mil euros , algo em torno de R $ 2,221,816,77 milhões , se convertido atualmente ."/>
@@ -7701,7 +7701,7 @@
         </entity>
       </entities>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s49"/>
+        <kv-pair key="sent_id" value="sample-s49"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="O Brasil tem problemas imensos e grandes dificuldades para enfrentá - los ."/>
@@ -7859,7 +7859,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s50"/>
+        <kv-pair key="sent_id" value="sample-s50"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Com a negativa dessas companhias em aderir ao novo modelo , a economia média nas contas dos consumidores ficará em 16,7 % em 2013 ."/>
@@ -8059,7 +8059,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s51"/>
+        <kv-pair key="sent_id" value="sample-s51"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="A construção das estações de embarque e desembarque de ônibus do Corredor Leste - Oeste já está deixando o trânsito mais lento na Avenida Caxangá , na Zona Oeste do Recife ."/>
@@ -8196,7 +8196,7 @@
         </entity>
       </entities>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s52"/>
+        <kv-pair key="sent_id" value="sample-s52"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Não vou colocar nossas prioridades em leilão ou virar aposta para &quot; se &quot; fulano se eleger &quot; ."/>
@@ -8342,7 +8342,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s53"/>
+        <kv-pair key="sent_id" value="sample-s53"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Atualmente , o PSD tem a quarta maior bancada na Câmara dos Deputados , com 52 deputados eleitos e 48 em exercício ."/>
@@ -8494,7 +8494,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s54"/>
+        <kv-pair key="sent_id" value="sample-s54"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Pagu era conhecida como a &quot; musca &quot; da Semana de Arte Moderna e escolheu Santos como a última cidade em que viveu ."/>
@@ -8778,7 +8778,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s55"/>
+        <kv-pair key="sent_id" value="sample-s55"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="&quot; É um elenco forte , com jogadores que já atuaram pelas séries A e B do Campeonato Brasileiro e até no exterior , além de jogador que já passou pela seleção sub - 20 ( se referindo a Tiago Marabá ) &quot; , disse ."/>
@@ -8966,7 +8966,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s56"/>
+        <kv-pair key="sent_id" value="sample-s56"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Segundo a assessoria de comunicação da Câmara de São Paulo , existe apenas um contrato de locação de veículos no valor fixo de R $ 2.331 para cada parlamentar ."/>
@@ -9136,7 +9136,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s57"/>
+        <kv-pair key="sent_id" value="sample-s57"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Ele disse que o homem que organizava a sessão era um egípcio radicado nos Estados Unidos e que havia contratado dois seguranças egípcios para a ocasião ."/>
@@ -9324,7 +9324,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s58"/>
+        <kv-pair key="sent_id" value="sample-s58"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="A zona era já conhecida pelos russos , com a companhia Lebedev Lastochkin a já lá ter estabelecido um posto de tratamento de peles na foz do rio Kenai ."/>
@@ -9404,7 +9404,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s59"/>
+        <kv-pair key="sent_id" value="sample-s59"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Esse investimento diminuiria consideravelmente também o consumo de derivados de hidrocarbonetos ."/>
@@ -9706,7 +9706,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s60"/>
+        <kv-pair key="sent_id" value="sample-s60"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="A peoa Keyla Polizello venceu a final da prova dos Três Tambores em Barretos ( SP ) na noite deste domingo ( 19 ) e garantiu um prêmio de R $ 80 mil , além de uma vaga para uma competição internacional em Las Vegas , nos EUA ."/>
@@ -9798,7 +9798,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s61"/>
+        <kv-pair key="sent_id" value="sample-s61"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Nilton cruzou na área e Tenório , sozinho , cabeceou para o gol ."/>
@@ -9992,7 +9992,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s62"/>
+        <kv-pair key="sent_id" value="sample-s62"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="No entanto , a iniciativa deverá ainda ser tipificada como lei por uma comissão parlamentar , um trâmite que demorará várias semanas até sua promulgação , segundo fontes do Parlamento ."/>
@@ -10066,7 +10066,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s63"/>
+        <kv-pair key="sent_id" value="sample-s63"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Destaque também para as apreensões de cigarro com 248.282 pacotes ."/>
@@ -10236,7 +10236,7 @@
         </entity>
       </entities>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s64"/>
+        <kv-pair key="sent_id" value="sample-s64"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Mas os Estados Unidos ea União Europeia se recusaram a dar números precisos relativos ao financiamento entre 2013 e 2020 , alegando sérios problemas financeiros ."/>
@@ -10376,7 +10376,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s65"/>
+        <kv-pair key="sent_id" value="sample-s65"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Aos sábados , domingos e feriados , devido ao esquema de plantão desta redação , os comentários podem não ser publicados ."/>
@@ -10498,7 +10498,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s66"/>
+        <kv-pair key="sent_id" value="sample-s66"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Garcia disse que é indissociável imaginar a possibilidade de união e parceria , sem respeitar os preceitos democráticos ."/>
@@ -10704,7 +10704,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s67"/>
+        <kv-pair key="sent_id" value="sample-s67"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Os dados , referentes a setembro , são do Conselho Nacional de Desenvolvimento Científico e Tecnológico ( CNPq ) e da Coordenação de Aperfeiçoamento de Pessoal de Nível Superior ( Capes ) ."/>
@@ -10898,7 +10898,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s68"/>
+        <kv-pair key="sent_id" value="sample-s68"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="O efeito máximo da queda nos preços da energia cobrada pela Eletropaulo , calculou , deverá ser sentido no fechamento de julho , e pode ser de 0,01 ponto porcentual ."/>
@@ -11051,7 +11051,7 @@
         </entity>
       </entities>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s69"/>
+        <kv-pair key="sent_id" value="sample-s69"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="&quot; Inseguro em relação ao futuro profissional , o consumidor automaticamente pisa no freio e reduz as compras &quot; , conclui Edison ."/>
@@ -11179,7 +11179,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s70"/>
+        <kv-pair key="sent_id" value="sample-s70"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="' Bella ' foi levada a um hospital veterinário na cidade de Norman , onde os espinhos foram retirados ."/>
@@ -11271,7 +11271,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s71"/>
+        <kv-pair key="sent_id" value="sample-s71"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Tem 60 anos e revela que seu interesse partidário nasceu há dois anos ."/>
@@ -11381,7 +11381,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s72"/>
+        <kv-pair key="sent_id" value="sample-s72"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="A Fiorentina está interessada na contratação do atacante do Schalke 04 e da seleção holandesa Huntelaar ."/>
@@ -11503,7 +11503,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s73"/>
+        <kv-pair key="sent_id" value="sample-s73"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Como uma regra geral , explosivos primários são considerados aqueles compostos que são mais sensíveis que o PETN ."/>
@@ -11685,7 +11685,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s74"/>
+        <kv-pair key="sent_id" value="sample-s74"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="&quot; Eles tentam impedir , de forma hipócrita , que outros países usem esta tecnologia para fins pacíficos , como na medicina ou na produção de energia elétrica ."/>
@@ -11837,7 +11837,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s75"/>
+        <kv-pair key="sent_id" value="sample-s75"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Para enfrentar o avanço dos acidentes de trânsito , o Governo Federal expandiu o Projeto Vida no Trânsito a todas as capitais brasileiras ."/>
@@ -12019,7 +12019,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s76"/>
+        <kv-pair key="sent_id" value="sample-s76"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Decepcionada , ela procurou seu amigo Milt Gabler ( tio do comediante Billy Crystal ) , cuja selo , a Commodore Records , gravava músicas de jazz alternativo ."/>
@@ -12081,7 +12081,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s77"/>
+        <kv-pair key="sent_id" value="sample-s77"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Para algumas vítimas é nossa câmara de gás ."/>
@@ -12149,7 +12149,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s78"/>
+        <kv-pair key="sent_id" value="sample-s78"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="O próximo adversário brasileiro é a Coreia do Sul ."/>
@@ -12289,7 +12289,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s79"/>
+        <kv-pair key="sent_id" value="sample-s79"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Perim destaca que escolher as comunidades pacificadas para sediar o festival é uma forma de unir o entretenimento ea inclusão social ."/>
@@ -12615,7 +12615,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s80"/>
+        <kv-pair key="sent_id" value="sample-s80"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Indico , como ministra , a psicanalista e colunista deste jornal , Ana Verônica Mautner , que além de mulher é húngara , povo que pode ser acusado de muitas coisas ( não sei quais , essa é só uma frase de efeito ) , menos de refugar na hora do salto ."/>
@@ -12689,7 +12689,7 @@
         </entity>
       </entities>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s81"/>
+        <kv-pair key="sent_id" value="sample-s81"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Olívia faz uma notificação para os pais dos meninos ."/>
@@ -12811,7 +12811,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s82"/>
+        <kv-pair key="sent_id" value="sample-s82"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Este asteroide foi descoberto no dia 8 de fevereiro de 1994 por Eric Walter Elst em La Silla ."/>
@@ -12939,7 +12939,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s83"/>
+        <kv-pair key="sent_id" value="sample-s83"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Em pouco mais de 10 anos de estudo , conseguiu 31 aprovações em concursos de diferentes regiões do país ."/>
@@ -13151,7 +13151,7 @@
         </entity>
       </entities>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s84"/>
+        <kv-pair key="sent_id" value="sample-s84"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="O jogo aéreo é o sexto pior da temporada em jardas , mas o quarterback Alex Smith continua protegendo a bola e já anotou oito touchdowns , sendo interceptado apenas uma vez ."/>
@@ -13219,7 +13219,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s85"/>
+        <kv-pair key="sent_id" value="sample-s85"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="São estas as tarefas , estes são os desafios ."/>
@@ -13533,7 +13533,7 @@
         </entity>
       </entities>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s86"/>
+        <kv-pair key="sent_id" value="sample-s86"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="A indisponibilidade da verba direcionada aos hospitais Júlio Muller , Santa Casa , Santa Helena , Hospital Geral Universitário , Hospital do Câncer , Pronto - Socorro de Cuiabá ea outros setores de atendimento à saúde da população gerou uma ameaça de corte no atendimento pelo SUS nestas instituições ."/>
@@ -13637,7 +13637,7 @@
         </entity>
       </entities>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s87"/>
+        <kv-pair key="sent_id" value="sample-s87"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="A cidade teve , desde a última eleição em 2008 , três prefeitos diferentes ."/>
@@ -13843,7 +13843,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s88"/>
+        <kv-pair key="sent_id" value="sample-s88"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="O evento acontecerá no Sindicato dos Trabalhadores da Indústria de Alimentação , Açúcar , Álcool e afins , que fica localizada na Rua Terêncio Ricciard , 1048 , no município de Sertãozinho ."/>
@@ -14234,7 +14234,7 @@
         </entity>
       </entities>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s89"/>
+        <kv-pair key="sent_id" value="sample-s89"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="No ano passado , aquele episódio do meu afastamento chegou a causar um mal - estar , mas agora fica claro que está tudo superado ( Tite o tirou do time titular e até do banco de reservas depois de Chicão se recusar a ficar na reserva na véspera de uma partida contra o São Paulo , pelo Brasileiro ) ."/>
@@ -14362,7 +14362,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s90"/>
+        <kv-pair key="sent_id" value="sample-s90"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="O conhecimento de transporte é um impresso fiscal em papel , como a nota fiscal de produtos ou serviços ."/>
@@ -14424,7 +14424,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s91"/>
+        <kv-pair key="sent_id" value="sample-s91"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="O referendo foi organizado pelo governo de Ponta ."/>
@@ -14576,7 +14576,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s92"/>
+        <kv-pair key="sent_id" value="sample-s92"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Os oficiais que nãoo estão na primeira linha ( p.e. engenheiros , médicos ) podem ser nomeados por méritos em tempo de guerra ."/>
@@ -14740,7 +14740,7 @@
         </entity>
       </entities>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s93"/>
+        <kv-pair key="sent_id" value="sample-s93"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="As duas vêm fazendo boa campanha nesta competição e protagonizam mais um confronto direto pelo G - 4 , que garante vaga na Série A."/>
@@ -14856,7 +14856,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s94"/>
+        <kv-pair key="sent_id" value="sample-s94"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Dois candidatos a vereador e dois eleitores foram autuados por boca de urna ou tentando comprar votos ."/>
@@ -14978,7 +14978,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s95"/>
+        <kv-pair key="sent_id" value="sample-s95"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="O vídeo do grupo londrino foi gravado em Edimburgo , na Escócia , sob direção de Lewis Gourlay ."/>
@@ -15022,7 +15022,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s96"/>
+        <kv-pair key="sent_id" value="sample-s96"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Os Vinci dominam a tecnologia ."/>
@@ -15228,7 +15228,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s97"/>
+        <kv-pair key="sent_id" value="sample-s97"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Ele não conta com Valdivia , Márcio Araújo , Daniel Carvalho e Luan , machucados e Leandro Amaro , suspenso , só para lembrar os mais importantes no esquema do treinador palmeirense ."/>
@@ -15392,7 +15392,7 @@
         </entity>
       </entities>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s98"/>
+        <kv-pair key="sent_id" value="sample-s98"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="As matrículas devem ser feitas até o dia 31 nas próprias escolas , das 9h às 16h , de acordo com o zoneamento escolar ."/>
@@ -15538,7 +15538,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s99"/>
+        <kv-pair key="sent_id" value="sample-s99"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Criou as missionárias da caridade , onde todas as freiras iriam ajudar não a ela , mas sim a todos os necessitados ."/>
@@ -15762,7 +15762,7 @@
         </entity>
       </entities>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s100"/>
+        <kv-pair key="sent_id" value="sample-s100"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="O órgão meteorológico informou que a tempestade perdeu as características de um ciclone , mas ainda poderá causar temporais na região dos Grandes Lagos , enchentes e ventos fortes em toda a costa leste ."/>
@@ -15824,7 +15824,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s101"/>
+        <kv-pair key="sent_id" value="sample-s101"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Ela pilota a nave chamada &quot; Hanvester &quot; ."/>
@@ -16048,7 +16048,7 @@
         </entity>
       </entities>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s102"/>
+        <kv-pair key="sent_id" value="sample-s102"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Agora , Sunny deve equilibrar de algum modo estas novas amizades enquanto se adapta a maneira de viver em Hollywood que , decididamente , é muito diferente da que vivia com sua família em ."/>
@@ -16254,7 +16254,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s103"/>
+        <kv-pair key="sent_id" value="sample-s103"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Dependendo do resultado , que será divulgado nesta quarta , Felipe deve continuar por mais algum tempo na posição e , indiretamente , precisará cada vez mais da ajuda de seus companheiros ."/>
@@ -16400,7 +16400,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s104"/>
+        <kv-pair key="sent_id" value="sample-s104"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Ele explica que a Lei 12.350 , de 2010 , que possibilitou o ressarcimento para essas empresas , ainda não foi regulamentada ."/>
@@ -16672,7 +16672,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s105"/>
+        <kv-pair key="sent_id" value="sample-s105"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Munida das fotos que provam que Carminha trai Tufão ( Murilo Benício ) com Max ( Marcello Novaes ) , Nina provoca tanto a outra que ela acaba surtando no casamento de Roni ( Daniel Rocha ) e Suelen ( Isis Valverde ) ."/>
@@ -16728,7 +16728,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s106"/>
+        <kv-pair key="sent_id" value="sample-s106"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Siga também o Globo Natureza no Twitter ."/>
@@ -16874,7 +16874,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s107"/>
+        <kv-pair key="sent_id" value="sample-s107"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Um dos temas será a análise sobre a atuação na guerrilha da etnia Suruí , que atualmente vive na Terra Indígena Sororó ."/>
@@ -16972,7 +16972,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s108"/>
+        <kv-pair key="sent_id" value="sample-s108"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Sempre utiliza sua lábia para ludibriar os malfeitores , sempre acaba fugindo da briga ."/>
@@ -17220,7 +17220,7 @@
         </entity>
       </entities>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s109"/>
+        <kv-pair key="sent_id" value="sample-s109"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Dirceu Barbano , diretor - presidente da Anvisa , diz que essa falta de controle , considerada por ele danosa para a sociedade , é uma falha em um sistema que tem um início de ciclo bem atendido ."/>
@@ -17270,7 +17270,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s110"/>
+        <kv-pair key="sent_id" value="sample-s110"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="É uma proeza de bom tamanho ."/>
@@ -17591,7 +17591,7 @@
         </entity>
       </entities>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s111"/>
+        <kv-pair key="sent_id" value="sample-s111"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="A ideia é que as propostas sejam &quot; racionais , curtas , realistas , para que realmente sirvam de insumo nas mesas para que possamos chegar a estes acordos de paz &quot; , pediu nesta sexta - feira o presidente Juan Manuel Santos através de seu programa de rádio semanal ."/>
@@ -17671,7 +17671,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s112"/>
+        <kv-pair key="sent_id" value="sample-s112"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Missionária norte - americana foi morta com seis tiros em 2005 ."/>
@@ -17817,7 +17817,7 @@
         </entity>
       </entities>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s113"/>
+        <kv-pair key="sent_id" value="sample-s113"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Nos minutos finais , o jogo ficou concentrado no meio , mas o Naútico ainda teve tempo de desperdiçar uma oportunidade ."/>
@@ -18041,7 +18041,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s114"/>
+        <kv-pair key="sent_id" value="sample-s114"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="&quot; A solução Oracle WebCenter Sites é reconhecida mundialmente por permitir que as empresas criem e gerenciem facilmente seus conteúdos interativos on - line por meio de múltiplos canais , impulsionando as oportunidades ea fidelização ."/>
@@ -18115,7 +18115,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s115"/>
+        <kv-pair key="sent_id" value="sample-s115"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Os encartes e anúncios estarão adaptados ao tema da campanha ."/>
@@ -18195,7 +18195,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s116"/>
+        <kv-pair key="sent_id" value="sample-s116"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Depois de Luan Santana , é a vez de Luciano Huck ."/>
@@ -18425,7 +18425,7 @@
         </entity>
       </entities>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s117"/>
+        <kv-pair key="sent_id" value="sample-s117"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Com a camisa tricolor , o atacante teve o gostinho de marcar pela primeira vez contra o Rubro - Negro na vitória por 1 a 0 no primeiro turno , centenário do Fla - Flu ."/>
@@ -18541,7 +18541,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s118"/>
+        <kv-pair key="sent_id" value="sample-s118"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Registre - se que não se tem notícia de ação judicial que tenha por objeto essa temática ."/>
@@ -18706,7 +18706,7 @@
         </entity>
       </entities>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s119"/>
+        <kv-pair key="sent_id" value="sample-s119"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Ajudou - o a conseguir um visto para os Estados Unidos e casaram - se em março de 1934 , e tiveram três filhos ."/>
@@ -18798,7 +18798,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s120"/>
+        <kv-pair key="sent_id" value="sample-s120"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Além disso , a internet tem sido usada por meio das mídias sociais ."/>
@@ -18980,7 +18980,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s121"/>
+        <kv-pair key="sent_id" value="sample-s121"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Este , com o decorrer do tempo , parece ter decrescido de importância , pelo que passaram a chamar - lhe Coutinho , na acepção de pequeno couto ."/>
@@ -19084,7 +19084,7 @@
         </entity>
       </entities>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s122"/>
+        <kv-pair key="sent_id" value="sample-s122"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="&quot; Nós vamos ver na justiça quem tem razão &quot; , concluiu o presidente ."/>
@@ -19290,7 +19290,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s123"/>
+        <kv-pair key="sent_id" value="sample-s123"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Interveio junto ao presidente Monge em numerosas ocasiões e colaborou no desenvolvimento de uma base de apoio logístico da oposição unida na Nicarágua às forças enviadas para o norte da Costa Rica ."/>
@@ -19466,7 +19466,7 @@
         </entity>
       </entities>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s124"/>
+        <kv-pair key="sent_id" value="sample-s124"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="O Governador Siqueira Campos lembrou que o BIRD tem sido parceiro de primeira hora do Tocantins e tem uma participação muito grande no desenvolvimento do Estado ."/>
@@ -19834,7 +19834,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s125"/>
+        <kv-pair key="sent_id" value="sample-s125"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="« Todos compreenderam que partindo para a Espanha iriam acelerar o processo de absorção política que o conde - duque de Olivares pretendia » , segundo Veríssimo Serrão , e « na recusa de muitos em cumprir o mandado régio terá de ver - se o detonador do movimento que veio a estalar em 1 º de Dezembro seguinte ."/>
@@ -19926,7 +19926,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s126"/>
+        <kv-pair key="sent_id" value="sample-s126"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="A Spiders ea Cyanide divulgaram novas imagens do game Of Orcs and Men ."/>
@@ -20090,7 +20090,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s127"/>
+        <kv-pair key="sent_id" value="sample-s127"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Foi al - Ala quem liderou o exército abássida que desembarcou no al - Andalus , provavelmente perto de Beja ( no atual Portugal ) ."/>
@@ -20314,7 +20314,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s128"/>
+        <kv-pair key="sent_id" value="sample-s128"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Haddad prometeu fortes investimentos no sistema viário e de transporte urbano , para reduzir o tempo de viagem entre os moradores da zona sul eo centro da cidade , e construir um hospital em Parelheiros ."/>
@@ -20382,7 +20382,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s129"/>
+        <kv-pair key="sent_id" value="sample-s129"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Tufão e Leleco contam para Jorginho que Max morreu ."/>
@@ -20546,7 +20546,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s130"/>
+        <kv-pair key="sent_id" value="sample-s130"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Pessoalmente , penso que , se isso vai ser útil para retomar a democracia eo processo de mudança no Paraguai , sou um soldado &quot; ."/>
@@ -20828,7 +20828,7 @@
         </entity>
       </entities>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s131"/>
+        <kv-pair key="sent_id" value="sample-s131"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Mas o Cuca falou para gente deixar isso de lado &quot; , afirmou o atacante alvinegro , que deixa claro que mesmo com o pedido do treinador , que a vontade de devolver o revés sofrido para os flamenguistas no turno é grande ."/>
@@ -20968,7 +20968,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s132"/>
+        <kv-pair key="sent_id" value="sample-s132"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Entre as queixas da população estão a aplicação de multas , cobrança injusta de tarifas , maus - tratos entre outras ."/>
@@ -21234,7 +21234,7 @@
         </entity>
       </entities>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s133"/>
+        <kv-pair key="sent_id" value="sample-s133"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Tal reforma deve prever o financiamento público de campanhas -- uma vez que as mulheres enfrentam grandes dificuldades na captação de recursos dentro dos partidos -- e também abraçar a lista partidária , da qual sou defensora , de forma paritária ."/>
@@ -21380,7 +21380,7 @@
         </entity>
       </entities>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s134"/>
+        <kv-pair key="sent_id" value="sample-s134"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Fideliza clientes por meio de campanhas específicas ou em datas sazonais , promove incremento no ticket e agrega valor à marca ."/>
@@ -21568,7 +21568,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s135"/>
+        <kv-pair key="sent_id" value="sample-s135"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Os cortes e reformas também estão sendo combatidos com greves , como a que protagonizam hoje trabalhadores de veículos da imprensa , de hospitais públicos , farmácias e cartórios ."/>
@@ -21618,7 +21618,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s136"/>
+        <kv-pair key="sent_id" value="sample-s136"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Lia e Gil tocam guitarra juntos ."/>
@@ -21710,7 +21710,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s137"/>
+        <kv-pair key="sent_id" value="sample-s137"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="O XYplorer é um gerenciador de arquivos portátil ( stand - alone ) ."/>
@@ -21898,7 +21898,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s138"/>
+        <kv-pair key="sent_id" value="sample-s138"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="São versos retirados de Prelúdio , canção de Raul Seixas , que dimensionam com exatidão o que cada gremista está prestes a viver neste 8 de dezembro de 2012 ."/>
@@ -22104,7 +22104,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s139"/>
+        <kv-pair key="sent_id" value="sample-s139"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Já nesta quinta - feira , haverá atividades em dois períodos -- manhã ( 8h ) , no Centro Comunitário do Paranapungá , e tarde ( 14h ) , na Vila Vicentina ."/>
@@ -22232,7 +22232,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s140"/>
+        <kv-pair key="sent_id" value="sample-s140"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Com talento e carisma de sobra , ele cativou os jurados e conquistou uma legião de fãs pelo Brasil ."/>
@@ -22438,7 +22438,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s141"/>
+        <kv-pair key="sent_id" value="sample-s141"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="-- O euro abriu nesta quarta - feira em baixa no mercado de divisas de Frankfurt e era cotado a US $ 1,2759 , frente aos US $ 1,2801 da sessão anterior ."/>
@@ -22590,7 +22590,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s142"/>
+        <kv-pair key="sent_id" value="sample-s142"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="O delegado Rafael Schimidt reforçou que o ex - policial foi expulso da corporação devido o envolvimento dele com o tráfico de drogas ."/>
@@ -22736,7 +22736,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s143"/>
+        <kv-pair key="sent_id" value="sample-s143"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Será que as lojas vão mesmo lotar em Porto Velho e em todo o interior , neste penúltimo sábado antes do Natal ?"/>
@@ -22817,7 +22817,7 @@
         </entity>
       </entities>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s144"/>
+        <kv-pair key="sent_id" value="sample-s144"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Já o Flamengo entrou em campo no ritmo da torcida ."/>
@@ -23095,7 +23095,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s145"/>
+        <kv-pair key="sent_id" value="sample-s145"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="O coágulo , que teria origem , segundo os médicos , em uma má - formação de vasos sanguíneos , interrompeu o fluxo de sangue para um parte do seu cérebro , fazendo com que o local ficasse temporariamente sem oxigênio e sem nutrientes ."/>
@@ -23199,7 +23199,7 @@
         </entity>
       </entities>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s146"/>
+        <kv-pair key="sent_id" value="sample-s146"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Sem saída , Rosário decide criar a menina , a quem acaba se apegando ."/>
@@ -23255,7 +23255,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s147"/>
+        <kv-pair key="sent_id" value="sample-s147"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="O sonho ainda é possível , Raposa ."/>
@@ -23365,7 +23365,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s148"/>
+        <kv-pair key="sent_id" value="sample-s148"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Skoczów é uma cidade da Polónia , na voivodia de Silésia e no condado de Cieszyński ."/>
@@ -23553,7 +23553,7 @@
         </entity>
       </entities>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s149"/>
+        <kv-pair key="sent_id" value="sample-s149"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Eram transportados na carroceria de um caminhão por motorista sem habilitação e cumpriam regime de dez a onze horas , com intervalo de apenas 15 minutos para almoço ."/>
@@ -24065,7 +24065,7 @@
         </entity>
       </entities>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s150"/>
+        <kv-pair key="sent_id" value="sample-s150"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Mesmo criticados e ridicularizados como pioneiros do &quot; movimento emo &quot; no Brasil -- responsabilidade que eles garantem nunca ter assumido -- Di Ferrero ( vocal ) , Gee Rocha ( guitarra ) , Daniel Weksler ( bateria ) , Caco Grandino ( baixo ) e Fi Duarte ( guitarra ) não tiveram vergonha de assumir as influências de pop punk e hardcore melódico , e há mais de dez anos buscam construir a identidade própria do pop rock que os popularizou ."/>
@@ -24109,7 +24109,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s151"/>
+        <kv-pair key="sent_id" value="sample-s151"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="De fã , virou amigo ."/>
@@ -24243,7 +24243,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s152"/>
+        <kv-pair key="sent_id" value="sample-s152"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Os álcoois secundários , diferente dos primários , são oxidados de apenas uma forma gerando sempre como produto uma cetona ."/>
@@ -24383,7 +24383,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s153"/>
+        <kv-pair key="sent_id" value="sample-s153"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Com a intenção de presentear sobrinhos e afilhados , a manicure Paloma Costa , pesquisava o preço de carrinhos e bonecas ."/>
@@ -24439,7 +24439,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s154"/>
+        <kv-pair key="sent_id" value="sample-s154"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Aprovadonas comissões deAssuntos Sociais ( CAS ) ;"/>
@@ -24549,7 +24549,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s155"/>
+        <kv-pair key="sent_id" value="sample-s155"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="A Estação pode ser acedida pela Avenida 25 de Abril , junto à localidade de Ramalhal ."/>
@@ -24659,7 +24659,7 @@
         </entity>
       </entities>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s156"/>
+        <kv-pair key="sent_id" value="sample-s156"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Pelo rubro - negro carioca , Kléberson fez cinco gols em 11 jogos no ano ."/>
@@ -24811,7 +24811,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s157"/>
+        <kv-pair key="sent_id" value="sample-s157"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Na decisão liminar , o juiz proíbe o Estado de privilegiar pagamentos , em detrimento dos demais entes municipais , às organizações sociais ."/>
@@ -25005,7 +25005,7 @@
         </entity>
       </entities>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s158"/>
+        <kv-pair key="sent_id" value="sample-s158"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Já em Terra Caída , no município de Indiaroba , a parte de terraplanagem está quase concluída para , em seguida , ser feita uma limpeza e receber asfalto ."/>
@@ -25157,7 +25157,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s159"/>
+        <kv-pair key="sent_id" value="sample-s159"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="O presidente venezuelano , Hugo Chávez , foi reeleito pela segunda vez no último dia 7 com mais de 55 % de votos ."/>
@@ -25261,7 +25261,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s160"/>
+        <kv-pair key="sent_id" value="sample-s160"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Destaque para as atuações do armador Deron Williams e do ala - armador Carmelo Anthony ."/>
@@ -25467,7 +25467,7 @@
         </entity>
       </entities>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s161"/>
+        <kv-pair key="sent_id" value="sample-s161"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="A Rio - Bahia se estendia até Feira de Santana e , desta cidade até Fortaleza , foi construída , por Getúlio , a Rodovia Transnordestina , atual BR - 116 ."/>
@@ -25559,7 +25559,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s162"/>
+        <kv-pair key="sent_id" value="sample-s162"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="O treino desta terça - feira foi o último da semana no Arruda ."/>
@@ -25633,7 +25633,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s163"/>
+        <kv-pair key="sent_id" value="sample-s163"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="portanto , há produção e perda constante de gases atmosféricos ."/>
@@ -25869,7 +25869,7 @@
         </foreign-data>
       </w>
       <foreign-data>
-        <kv-pair key="sent_id" value=". . sample-s164"/>
+        <kv-pair key="sent_id" value="sample-s164"/>
       </foreign-data>
       <foreign-data>
         <kv-pair key="text" value="Em nota a corporação informou que os Bombeiros ea secretaria estadual de Saúde estão analisando a possibilidade de rever os procedimentos e requisitos para aprovar reformas e construções de novos prédios em hospitais do Rio de Janeiro ."/>

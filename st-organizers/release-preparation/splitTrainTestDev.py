@@ -102,7 +102,7 @@ class Main:
         cur_subcorpus = None
         for sent in sentences:
             with dataalign.InputContext(sent):
-                sentid = sent.unique_kv_pair('sent_id').value.split()[-1]
+                sentid = sent.unique_kv_pair('source_sent_id').value.split()[-1]
                 if sentid in self.first2subcorpus:
                     assert cur_subcorpus is None, ("Sentence inside multiple subcorpora", sentid)
                     cur_subcorpus = self.first2subcorpus[sentid]

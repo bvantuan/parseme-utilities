@@ -1,6 +1,6 @@
 # global.columns = ID FORM LEMMA UPOS XPOS FEATS HEAD DEPREL DEPS MISC PARSEME:MWE
 #
-# sent_id = sample-s1
+# source_sent_id = . . sample-s1
 # text = Por causa disso , foram eliminados e retirados das salas de prova 37 candidatos .
 1	Por	por	ADP	ADP	AdpType=Prep	6	nmod	_	_	*
 2	causa	causa	NOUN	NOUN	_	1	mwe	_	_	*
@@ -18,7 +18,7 @@
 14	candidatos	candidato	NOUN	NOUN	Gender=Masc|Number=Plur	6	nsubjpass	_	_	*
 15	.	.	PUNCT	.	_	6	punct	_	_	*
 
-# sent_id = sample-s47
+# source_sent_id = . . sample-s47
 # text = " Sabemos que o problema não se resume a apenas a escola , mas a única forma de garantir a vida ea integridade física de alunos , professores e diretores foi essa .
 # metadata = {"kind": "comment", "text": "Some comment about this sentence.", "annotator": "silvio.cordeiro", "nested": [{"kind": "comment", "text": "Nested ONE"}, {"kind": "comment", "text": "Nested TWO"}]}
 # metadata = {"kind": "mweinfo", "mweid": "1", "annotator": "silvio.cordeiro", "annotatortype": "manual", "datetime": "2017-11-13T07:09:40"}
@@ -56,7 +56,7 @@
 32	essa	imir	PRON	PRON	Gender=Fem|Number=Sing|VerbForm=Part	17	nsubj	_	_	*
 33	.	.	PUNCT	.	_	2	punct	_	_	*
 
-# sent_id = sample-s52
+# source_sent_id = . . sample-s52
 # text = Não vou colocar nossas prioridades em leilão ou virar aposta para " se " fulano se eleger " .
 # metadata = {"kind": "mweinfo", "mweid": "1", "annotator": "silvio.cordeiro", "annotatortype": "manual", "datetime": "2017-11-13T07:15:25", "confidence": 0.32}
 # metadata = {"kind": "mweinfo", "mweid": "2", "annotator": "silvio.cordeiro", "annotatortype": "manual", "datetime": "2017-11-13T07:16:00"}
@@ -81,7 +81,7 @@
 18	"	"	PUNCT	.	_	3	punct	_	_	*
 19	.	.	PUNCT	.	_	3	punct	_	_	*
 
-# sent_id = sample-s53
+# source_sent_id = . . sample-s53
 # text = Atualmente , o PSD tem a quarta maior bancada na Câmara dos Deputados , com 52 deputados eleitos e 48 em exercício .
 1	Atualmente	atualmente	ADV	ADV	_	5	advmod	_	_	*
 2	,	,	PUNCT	.	_	1	punct	_	_	*

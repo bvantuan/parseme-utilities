@@ -2,7 +2,7 @@ __THIS_LIB_PATH="$(dirname "${BASH_SOURCE[0]}")"
 
 
 if ! test "${PARSEME_SHAREDTASK_DATA_DEV+set}"; then
-    __psdd="$__THIS_LIB_PATH/../../../sharedtask-data-dev/1.1"
+    __psdd="$__THIS_LIB_PATH/../../sharedtask-data-dev/1.2"
     echo $__psdd
     if test -d "$__psdd"; then
         export PARSEME_SHAREDTASK_DATA_DEV="$(cd "$__psdd"; pwd)"
