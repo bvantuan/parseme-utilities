@@ -11,10 +11,10 @@ if [ ! $# -eq 2 ]; then
   exit
 fi
 
-EVAL=./eval-1.1.py
 
 LANGS=$1
 OUT=$2
+EVAL=${OUT}/../bin/evaluate.py
 
 # Echo
 # set -x
