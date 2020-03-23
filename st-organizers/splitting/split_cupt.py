@@ -6,7 +6,7 @@ import argparse
 import random
 import sys
 
-from collections import Counter
+from collections import Counter, OrderedDict
 
 import conllu
 from conllu import TokenList
@@ -52,6 +52,17 @@ Lemma = str
 MweTyp = FrozenSet[Tuple[Lemma, int]]
 
 
+def lemma_or_form(tok: OrderedDict) -> str:
+    """Retrieve the lemma of the given token, falling back to the form
+    if the lemma is not specified.
+    """
+    lema = tok['lemma']
+    if lema == '_':
+        return tok['form']
+    else:
+        return lema
+
+
 def type_of(sent: TokenList, mwe: cupt.MWE) -> MweTyp:
     """Convert the given MWE instance to the corresponding MWE type."""
     # Create a dictionary from token IDs to actual tokens
@@ -60,7 +71,7 @@ def type_of(sent: TokenList, mwe: cupt.MWE) -> MweTyp:
         tok_map[tok['id']] = tok
     # Retrieve the set of lemmas
     mwe_typ = [
-        tok_map[tok_id]['lemma']
+        lemma_or_form(tok_map[tok_id])
         for tok_id in mwe.span
     ]
     return frozenset(Counter(mwe_typ).most_common())
