@@ -29,12 +29,12 @@ for lang in `ls $1`; do
 #  echo "ratio_unseen_in_test_wrt_train=$ratio_unseen_in_test_wrt_train"
 #  echo "unseen_in_test_wrt_train_dev=$unseen_in_test_wrt_train_dev"
 #  echo "ratio_unseen_in_test_wrt_train_dev=$ratio_unseen_in_test_wrt_train_dev"
-  echo "Unseen w.r.t. train: $unseen_in_dev" >> $1/$lang/dev-stats.md
-  echo "Ratio of unseen w.r.t. train: $ratio_unseen_in_dev" >> $1/$lang/dev-stats.md
-  echo "Unseen w.r.t. train: $unseen_in_test_wrt_train" >> $1/$lang/test-stats.md
-  echo "Ratio of unseen w.r.t. train: $ratio_unseen_in_test_wrt_train" >> $1/$lang/test-stats.md
-  echo "Unseen w.r.t. train+dev: $unseen_in_test_wrt_train_dev" >> $1/$lang/test-stats.md
-  echo "Ratio of unseen w.r.t. train+dev: $ratio_unseen_in_test_wrt_train_dev" >> $1/$lang/test-stats.md
+  echo "* Unseen w.r.t. train: $unseen_in_dev" >> $1/$lang/dev-stats.md
+  echo "* Ratio of unseen w.r.t. train: $ratio_unseen_in_dev" >> $1/$lang/dev-stats.md
+  echo "* Unseen w.r.t. train: $unseen_in_test_wrt_train" >> $1/$lang/test-stats.md
+  echo "* Ratio of unseen w.r.t. train: $ratio_unseen_in_test_wrt_train" >> $1/$lang/test-stats.md
+  echo "* Unseen w.r.t. train+dev: $unseen_in_test_wrt_train_dev" >> $1/$lang/test-stats.md
+  echo "* Ratio of unseen w.r.t. train+dev: $ratio_unseen_in_test_wrt_train_dev" >> $1/$lang/test-stats.md
 done
 
 
