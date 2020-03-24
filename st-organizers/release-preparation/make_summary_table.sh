@@ -1,4 +1,9 @@
 #!/bin/bash
+
+# Parameters
+# $1 = txt|html|latex
+# $2 = blind|full  ("blind" if printing the statistics for test and global shoudl not be printed, "full" otherwise 
+
 HERE="$(cd "$(dirname "$0")" && pwd)"
 set -o nounset    # Using "$UNDEF" var raises error
 set -o errexit    # Exit on error, do not continue quietly
@@ -6,14 +11,16 @@ set -o errexit    # Exit on error, do not continue quietly
 source ../../lib/parseme_st_data_dev_path.bash
 cd "${PARSEME_SHAREDTASK_DATA_DEV:?}"
 
-if [ $# -ne 1 ]; then
-  echo "This script requires an argument, choose one output format among {txt,html,latex}"
+if [ $# -lt 2 ]; then
+  echo "Usage:  "
+  echo "  $0 FORMAT VERSION"
+  echo "       FORMAT in {txt,html,latex}"
+  echo "       VERSION in {blind|full}"
   exit -1
 fi
 
 # Simply makes a pretty table summarizing stats for all languages train/dev set
-# change line 18 below to (train|dev|test) if you also want test data stats
-
+# change line 18 below to (train|dev|test) if you also want test data stats - unsure if it works
 
 for a in preliminary-sharedtask-data/??/; do
 #for a in preliminary-sharedtask-data-alt/??/; do	
@@ -37,7 +44,10 @@ awk 'BEGIN{   prevlang = "XX";}
     else{
       avglength = NR;
     }
-    print bline prevlang "-Total" , langsent, langtok, avglength,langvmwe, langvid, langirv, langlvcfull, langlvccause, langvpcfull, langvpcsemi, langiav, langmvc, langlsicv eline;    
+    if (version == "blind")
+      print bline prevlang "-Total" , langsent, langtok, avglength, "TBA", "TBA", "TBA", "TBA", "TBA", "TBA", "TBA", "TBA", "TBA", "TBA", "", "", "", "", eline;
+    else 
+      print bline prevlang "-Total" , langsent, langtok, avglength,langvmwe, langvid, langirv, langlvcfull, langlvccause, langvpcfull, langvpcsemi, langiav, langmvc, langlsicv, "", "", "", "", eline;    
     print langsep;    
     langsent=0; langtok=0; langvmwe=0; langvid=0; langlvcfull=0; langlvccause=0; langvpcfull=0; langvpccause=0; langvpcsemi=0; langiav=0; langmvc=0; langlsicv=0; langirv=0;
   }
@@ -82,7 +92,10 @@ awk 'BEGIN{   prevlang = "XX";}
     if (head ~ /dev/)
       print bline lang "-" head, sent, tok, int(10*(tok/sent))/10, vmwe, vid, irv, lvcfull, lvccause, vpcfull, vpcsemi, iav, mvc, lsicv, unseen_wrt_train, ratio_unseen_wrt_train, "", "" eline;
     else
-      print bline lang "-" head, sent, tok, int(10*(tok/sent))/10, vmwe, vid, irv, lvcfull, lvccause, vpcfull, vpcsemi, iav, mvc, lsicv, unseen_wrt_train, ratio_unseen_wrt_train, unseen_wrt_train_dev, ratio_unseen_wrt_train_dev eline;
+      if (version == "blind")
+        print bline lang "-" head, sent, tok, int(10*(tok/sent))/10, "TBA", "TBA", "TBA", "TBA", "TBA", "TBA", "TBA", "TBA", "TBA", "TBA", unseen_wrt_train, ratio_unseen_wrt_train, unseen_wrt_train_dev, ratio_unseen_wrt_train_dev eline;
+      else
+        print bline lang "-" head, sent, tok, int(10*(tok/sent))/10, vmwe, vid, irv, lvcfull, lvccause, vpcfull, vpcsemi, iav, mvc, lsicv, unseen_wrt_train, ratio_unseen_wrt_train, unseen_wrt_train_dev, ratio_unseen_wrt_train_dev eline;
 }
 /Statistics [A-Z][A-Z]$/{
   lang=$2;  
@@ -129,7 +142,7 @@ END{
   else if(outformat == "latex"){
     print("\\hline\n\\end{tabular}");
   }
-}' outformat=$1
+}' outformat=$1 version=$2
 
 
 
