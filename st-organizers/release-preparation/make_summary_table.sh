@@ -16,6 +16,7 @@ fi
 
 
 for a in preliminary-sharedtask-data/??/; do
+#for a in preliminary-sharedtask-data-alt/??/; do
   if [ -f $a/dev-stats.md ]; then
     cat $a/{train,dev,test}-stats.md
   elif [ -f $a/train-stats.md ]; then
