@@ -5,13 +5,14 @@
 # $1 = results directory path
 #	It is supposed to contain one folder per system; with the .closed or .open extension.
 #	Each system folder contains one folder per language, and a results.txt file in it.
-# 
+#
 # As a result, an HTML table is printed to the results.html file in $1
 #
 # Sample call:
 # ./step4-results2html.all.sh ~/shared-task/Gitlab/sharedtask-data-dev/1.1/system-results
 
-PHENOMENA=(Continuous Discontinuous Multi-token Single-token Seen-in-train Unseen-in-train Variant-of-train Identical-to-train)
+LANGUAGES=(DE EL EU FR GA HE HI IT PL PT RO SV TR ZH)
+PHENOMENA=(Unseen-in-train Seen-in-train Variant-of-train Identical-to-train Continuous Discontinuous Multi-token Single-token)
 
 #Check the number of parameters
 if [ $# -ne 1 ]; then
@@ -23,9 +24,10 @@ fi
 RES_DIR=$1
 RES_HTML=$1/macro-ave.html
 
+
 #Rank and format the global evaluation (for all categories in total). If different systems run for a given language in both tracks, the rankings are done separately.
 #As a result, a file named macro-ave-<PH>.<TRACK>.ranked.txt is created for every phenomenon PH and every TRACK
-../../lib/formatMacroAve.sh $RES_DIR
+../../lib/formatMacroAve.sh $RES_DIR ${LANGUAGES[*]}
 
 rm -f $RES_HTML
 
@@ -42,14 +44,13 @@ echo "</style>" >> $RES_HTML
 echo "<h1 id=\"avg\">Cross-lingual macro-averages</h1>" >> $RES_HTML
 
 
-#Displau=y the geleral maro-averages
+#Displau=y the general maro-averages
 gawk -f ../../lib/macroavegen2html.gawk $RES_DIR/macro-ave.ranked.txt >> $RES_HTML
 #rm $RES_DIR/macro-ave.ranked.txt
 
-for PH in ${PHENOMENA[*]}; do 
+for PH in ${PHENOMENA[*]}; do
 	echo "Formatting the global results for $PH..."
 	gawk -f ../../lib/macroave2html.gawk $PH $RES_DIR/macro-ave-${PH}.ranked.txt >> $RES_HTML
 	rm $RES_DIR/macro-ave-${PH}.ranked.txt
 	rm -f $RES_DIR/macro-ave-${PH}.ranked.txt #Delete the formatted fileb
 done
-

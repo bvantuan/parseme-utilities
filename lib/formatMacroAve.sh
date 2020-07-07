@@ -5,34 +5,35 @@
 #  $1 = results directory path
 #	It is supposed to contain one folder per system; with the .closed or .open extension.
 #	Each system folder contains one folder per language, and one test.system.cupt file in it.
-#
+# $2... = language codes
+# A list of language codes covered
 # As a result, files named macro-ave.closed.txt and macro-ave.open.txt are created in $1, containing ranked global average results of all systems for each track.
 #
 # Sample run:
 # ./formatMacroAve.sh ~/shared-task/Gitlab/sharedtask-data-dev/1.1/system-results
 
 source ../../lib/parseme_st_data_dev_path.bash #Define the PARSEME_SHAREDTASK_DATA_DEV variable
-LANGUAGES=(BG DE EL EN ES EU FA FR HE HI HR HU IT LT PL PT RO SL TR)
+LANGUAGES=${@:2}
 #LANGUAGES=(AR BG DE EL EN ES EU FA FR HE HI HR HU IT LT PL PT RO SL TR)
-PHENOMENA=(Continuous Discontinuous Multi-token Single-token Seen-in-train Unseen-in-train Variant-of-train Identical-to-train)
+PHENOMENA=(Unseen-in-train Seen-in-train Variant-of-train Identical-to-train Continuous Discontinuous Multi-token Single-token)
 MACRO_AVE="$PARSEME_SHAREDTASK_DATA_DEV/bin/average_of_evaluations.py" #Script for calculating macro-averages
 
 ##############################################################################
 # Format the global average results for a given system
 # Parameter:
-#  $1 = path to the system directory 
+#  $1 = path to the system directory
 #
 # The formatted results are printed on standard output in one line:
-#   language system track 
+#   language system track
 #   ave-P-mwe ave-R-mwe ave-F-mwe ave-P-token ave-R-token ave-F-token
+#   ave-unseen-P-mwe ave-unseen-R-mwe ave-unseen-F-mwe
+#   ave-seen-P-mwe ave-seen-R-mwe ave-seen-F-mwe
+#   ave-variant-P-mwe ave-variant-R-mwe ave-variant-F-mwe
+#   ave-identical-P-mwe ave-identical-R-mwe ave-identical-F-mwe
 #   ave-cont-P-mwe ave-cont-R-mwe ave-cont-F-mwe
 #   ave-disc-P-mwe ave-disc-R-mwe ave-disc-F-mwe
 #   ave-multitoken-P-mwe ave-multitoken-R-mwe ave-multitoken-F-mwe
 #   ave-onetoken-P-mwe ave-onetoken-R-mwe ave-onetoken-F-mwe
-#   ave-seen-P-mwe ave-seen-R-mwe ave-seen-F-mwe
-#   ave-unseen-P-mwe ave-unseen-R-mwe ave-unseen-F-mwe
-#   ave-variant-P-mwe ave-variant-R-mwe ave-variant-F-mwe
-#   ave-identical-P-mwe ave-identical-R-mwe ave-identical-F-mwe
 # where X-mwe is a MWE-based result. Token-based results are not calculated.
 getResultsSys() {
 
@@ -56,14 +57,14 @@ for lang in ${LANGUAGES[*]}; do
 done
 
 # Ugly workaround to ignore languages that do not have single-token VMWEs
-for a in $SYS_PATH/*/results.txt $DUMMIES; do 
-  sed -i -e '/Single-token.*R=[0-9]*\/0=/d' -e '/Single-token.*gold=0\//d' $a 
+for a in $SYS_PATH/*/results.txt $DUMMIES; do
+  sed -i -e '/Single-token.*R=[0-9]*\/0=/d' -e '/Single-token.*gold=0\//d' $a
 done
 
 #Get the macro-average for the system for all languages
 #echo "Average over" $SYS_PATH/*/results.txt $DUMMIES > /dev/stderr
-$MACRO_AVE --operation avg $SYS_PATH/*/results.txt $DUMMIES > $SYS_PATH/ave-results.txt  
-  
+$MACRO_AVE --operation avg $SYS_PATH/*/results.txt $DUMMIES > $SYS_PATH/ave-results.txt
+
 #General macro-averages
 AVE_P_MWE=`cat $SYS_PATH/ave-results.txt | grep '* MWE-based' | cut -d' ' -f3 | cut -d= -f2 | awk '{print $0*100}'`
 AVE_R_MWE=`cat $SYS_PATH/ave-results.txt | grep '* MWE-based' | cut -d' ' -f4 | cut -d= -f2 | awk '{print $0*100}'`
@@ -72,7 +73,7 @@ AVE_P_TOKEN=`cat $SYS_PATH/ave-results.txt | grep '* Tok-based' | cut -d' ' -f3 
 AVE_R_TOKEN=`cat $SYS_PATH/ave-results.txt | grep '* Tok-based' | cut -d' ' -f4 | cut -d= -f2 | awk '{print $0*100}'`
 AVE_F_TOKEN=`cat $SYS_PATH/ave-results.txt | grep '* Tok-based' | cut -d' ' -f5 | cut -d= -f2 | awk '{print $0*100}'`
 #AVE_LANGS=`cat $SYS_PATH/ave-results.txt | grep '* MWE-based' | cut -d' ' -f7 | sed 's/[)(@]//g'`
-echo "$SNAME $STRACK $AVE_P_MWE $AVE_R_MWE $AVE_F_MWE $AVE_P_TOKEN $AVE_R_TOKEN $AVE_F_TOKEN $total/$submitted" >> $RESULTS_DIR/macro-ave.${STRACK}.txt
+echo "$SNAME $STRACK $AVE_P_MWE $AVE_R_MWE $AVE_F_MWE $AVE_P_TOKEN $AVE_R_TOKEN $AVE_F_TOKEN $submitted/$total" >> $RESULTS_DIR/macro-ave.${STRACK}.txt
 
 #Phenomenon-specific macro-averages
 for PH in ${PHENOMENA[*]}; do
@@ -85,11 +86,11 @@ for PH in ${PHENOMENA[*]}; do
 done
 
 #rm results.txt
-} 
+}
 
 ##############################################################################
 # Make the macro-average ranking of the systems per track
-# Parameters: 
+# Parameters:
 #  $1 = results directory path
 # Sorts the result files according to F-measure (both token-based and MWE-based)
 makeRanking() {
@@ -100,18 +101,18 @@ for PH in ${PHENOMENA[*]}; do
 		echo "system track ave-P-mwe ave-R-mwe ave-F-mwe rank" > $RESULTS_DIR/macro-ave-${PH}.ranked.txt #Initiate the ranking file
 done
 for TRACK in closed open; do
-	cat $RESULTS_DIR/macro-ave.${TRACK}.txt | 
-  sort -nr --key=5 | gawk 'BEGIN{prev=-1}{if(prev != $5){r++} prev=$5; if ($5=="0") print $0, "n/a"; else print $0, r; }' | 
+	cat $RESULTS_DIR/macro-ave.${TRACK}.txt |
+  sort -nr --key=5 | gawk 'BEGIN{prev=-1}{if(prev != $5){r++} prev=$5; if ($5=="0") print $0, "n/a"; else print $0, r; }' |
   sort -nr --key=8 | gawk 'BEGIN{prev=-1}{if(prev != $8){r++} prev=$8; if ($8=="0") print $0, "n/a"; else print $0, r; }' |
   sort -nr --key=5 |
-  cat  >> $RESULTS_DIR/macro-ave.ranked.txt	
+  cat  >> $RESULTS_DIR/macro-ave.ranked.txt
 	rm $RESULTS_DIR/macro-ave.${TRACK}.txt
-	
+
 	#Rank per-phenomenon macro-averages
-	for PH in ${PHENOMENA[*]}; do		
-		cat $RESULTS_DIR/macro-ave-${PH}.${TRACK}.txt | 
+	for PH in ${PHENOMENA[*]}; do
+		cat $RESULTS_DIR/macro-ave-${PH}.${TRACK}.txt |
     sort -nr --key=5 | gawk 'BEGIN{prev=-1}{if(prev != $5){r++} prev=$5; if ($5=="0") print $0, "n/a"; else print $0, r; }' |
-    cat >> $RESULTS_DIR/macro-ave-${PH}.ranked.txt	
+    cat >> $RESULTS_DIR/macro-ave-${PH}.ranked.txt
 		rm $RESULTS_DIR/macro-ave-${PH}.${TRACK}.txt
 	done
 done
@@ -121,9 +122,10 @@ done
 # Main script
 
 #Check the number of parameters
-if [ $# -ne 1 ]; then
-	echo "usage: $0 results-dir"
+if [ $# -lt 2 ]; then
+	echo "usage: $0 results-dir gold-data-dir"
 	echo "   results-dir = directory of system results. It should contain one folder per system, with one folder per language, with a results.txt file in each."
+	echo "   lang1 lang2 ... = language codes of the languages covered."
 	exit 1
 fi
 
@@ -144,7 +146,3 @@ done
 
 #Make rankings
 makeRanking $RESULTS_DIR
-
-
-
-
