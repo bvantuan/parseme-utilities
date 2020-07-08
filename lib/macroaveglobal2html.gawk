@@ -22,12 +22,12 @@ BEGIN {
 #print "<body>"
 
 print "<!----------------------->"
-print "<h2 id=\"avg-" ARGV[1] "\">" "Global " ARGV[1]"-based ranking </h2>"
-delete ARGV[1]
+print "<h2 id=\"avg-" ARGV[1] "\">" "Global " ARGV[1]"-based ranking</h2>"
 
 print "<table>"
 print "<tbody>"
-print "<tr><th rowspan=\"2\">System</th><th rowspan=\"2\">Track</th><th rowspan=\"2\">#Langs</th><th colspan=\"4\">MWE-based</th></tr>"
+print "<tr><th rowspan=\"2\">System</th><th rowspan=\"2\">Track</th><th rowspan=\"2\">#Langs</th><th colspan=\"4\">"ARGV[1]"-based</th></tr>"
+delete ARGV[1]
 
 print "<tr><th>P</th><th>R</th><th>F1</th><th>Rank</th></tr>"
 
@@ -35,19 +35,18 @@ track=""
 }
 
 {
-if (NR!=1) {
-	#Separate tracks by a thick line
-	if ( ((track=="open") && ($2=="closed")) || ((track=="closed") && ($2=="open")) ) {
-		print "<tr style=\"border-top: 4px solid\">"
-    prevfm = -1
-    rank=0
+  if (NR!=1) {
+    #Separate tracks by a thick line
+    if ( ((track=="open") && ($2=="closed")) || ((track=="closed") && ($2=="open")) ) {
+      print "<tr style=\"border-top: 4px solid\">"
+      prevfm = -1
+      rank=0
+    } else {
+      print "<tr>"
+    }
+    print "<td style=\"text-align:left\">" $1 "</td><td style=\"text-align:left\">" $2 "</td><td>" $6 "<td>" $3 "</td><td>" $4 "</td><td><b>" $5 "</b></td><td>" $7 "</td></tr>"
+    track = $2
   }
-	else {
-		print "<tr>"
-  }    
-	print "<td style=\"text-align:left\">" $1 "</td><td style=\"text-align:left\">" $2 "</td><td>" $6 "<td>" $3 "</td><td>" $4 "</td><td><b>" $5 "</b></td><td>" $7 "</td></tr>"
-	track = $2
-}
 }
 
 END {

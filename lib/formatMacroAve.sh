@@ -101,6 +101,11 @@ makeRanking() {
 RESULTS_DIR=$1
 #Rank general macro-averages
 echo "system track ave-P-mwe ave-R-mwe ave-F-mwe ave-P-token ave-R-token ave-F-token rank-token rank-MWE" > $RESULTS_DIR/macro-ave.ranked.txt
+
+# JW 08.07.2020: Separate MWE-based and Token-based macro-averages
+echo "system track ave-P-mwe ave-R-mwe ave-F-mwe rank" > $RESULTS_DIR/macro-ave-MWE.ranked.txt #Initiate the ranking file
+echo "system track ave-P-token ave-R-token ave-F-token rank" > $RESULTS_DIR/macro-ave-Token.ranked.txt #Initiate the ranking file
+
 for PH in ${PHENOMENA[*]}; do
   echo "system track ave-P-mwe ave-R-mwe ave-F-mwe rank" > $RESULTS_DIR/macro-ave-${PH}.ranked.txt #Initiate the ranking file
 done
