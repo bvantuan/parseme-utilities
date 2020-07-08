@@ -45,7 +45,7 @@ echo "<h1 id=\"avg\">Cross-lingual macro-averages</h1>" >> $RES_HTML
 
 
 # Display the general maro-averages
-gawk -f ../../lib/macroavegen2html.gawk $RES_DIR/macro-ave.ranked.txt >> $RES_HTML
+gawk -f ../../lib/macroavegen_unseen2html.gawk $RES_DIR/macro-ave.ranked.txt >> $RES_HTML
 # rm $RES_DIR/macro-ave.ranked.txt
 
 # JW 08.07.2020: Separate MWE-based and Token-based macro-average rankings
