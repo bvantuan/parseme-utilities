@@ -75,14 +75,18 @@ AVE_F_TOKEN=`cat $SYS_PATH/ave-results.txt | grep '* Tok-based' | cut -d' ' -f5 
 #AVE_LANGS=`cat $SYS_PATH/ave-results.txt | grep '* MWE-based' | cut -d' ' -f7 | sed 's/[)(@]//g'`
 echo "$SNAME $STRACK $AVE_P_MWE $AVE_R_MWE $AVE_F_MWE $AVE_P_TOKEN $AVE_R_TOKEN $AVE_F_TOKEN $submitted/$total" >> $RESULTS_DIR/macro-ave.${STRACK}.txt
 
+# JW 08.07.2020: Separate MWE-based and Token-based macro-averages
+echo "$SNAME $STRACK $AVE_P_MWE $AVE_R_MWE $AVE_F_MWE $submitted/$total" >> $RESULTS_DIR/macro-ave-MWE.${STRACK}.txt
+echo "$SNAME $STRACK $AVE_P_TOKEN $AVE_R_TOKEN $AVE_F_TOKEN $submitted/$total" >> $RESULTS_DIR/macro-ave-Token.${STRACK}.txt
+
 #Phenomenon-specific macro-averages
 for PH in ${PHENOMENA[*]}; do
-	AVE_P_MWE=`cat $SYS_PATH/ave-results.txt | grep "* $PH: MWE-based" | cut -d' ' -f4 | cut -d= -f2 | awk '{print $0*100}'`
-	AVE_R_MWE=`cat $SYS_PATH/ave-results.txt | grep "* $PH: MWE-based" | cut -d' ' -f5 | cut -d= -f2 | awk '{print $0*100}'`
-	AVE_F_MWE=`cat $SYS_PATH/ave-results.txt | grep "* $PH: MWE-based" | cut -d' ' -f6 | cut -d= -f2  | awk '{print $0*100}'`
+  AVE_P_MWE=`cat $SYS_PATH/ave-results.txt | grep "* $PH: MWE-based" | cut -d' ' -f4 | cut -d= -f2 | awk '{print $0*100}'`
+  AVE_R_MWE=`cat $SYS_PATH/ave-results.txt | grep "* $PH: MWE-based" | cut -d' ' -f5 | cut -d= -f2 | awk '{print $0*100}'`
+  AVE_F_MWE=`cat $SYS_PATH/ave-results.txt | grep "* $PH: MWE-based" | cut -d' ' -f6 | cut -d= -f2  | awk '{print $0*100}'`
   AVE_LANGS=`cat $SYS_PATH/ave-results.txt | grep "* $PH: MWE-based" | cut -d' ' -f8 | sed 's%@(\([0-9]*\)/.*)%\1%g'`
   SUB_LANGS=`cat $SYS_PATH/*/results.txt | grep "* $PH: MWE-based" | wc -l | awk '{print $1}'`
-	echo "$SNAME $STRACK $AVE_P_MWE $AVE_R_MWE $AVE_F_MWE $SUB_LANGS/$AVE_LANGS" >> $RESULTS_DIR/macro-ave-${PH}.${STRACK}.txt
+  echo "$SNAME $STRACK $AVE_P_MWE $AVE_R_MWE $AVE_F_MWE $SUB_LANGS/$AVE_LANGS" >> $RESULTS_DIR/macro-ave-${PH}.${STRACK}.txt
 done
 
 #rm results.txt
@@ -109,6 +113,14 @@ for TRACK in closed open; do
     sort -nr --key=5 |
     cat >> $RESULTS_DIR/macro-ave.ranked.txt
   rm $RESULTS_DIR/macro-ave.${TRACK}.txt
+
+  # JW 08.07.2020: Rank MWE-based and Token-based macro-averages separately
+  for TP in MWE Token; do
+    cat $RESULTS_DIR/macro-ave-${TP}.${TRACK}.txt |
+      sort -nr --key=5 | gawk 'BEGIN{prev=-1}{if(prev != $5){r++} prev=$5; if ($5=="0") print $0, "n/a"; else print $0, r; }' |
+      cat >> $RESULTS_DIR/macro-ave-${TP}.ranked.txt
+    rm $RESULTS_DIR/macro-ave-${TP}.${TRACK}.txt
+  done
 
   #Rank per-phenomenon macro-averages
   for PH in ${PHENOMENA[*]}; do

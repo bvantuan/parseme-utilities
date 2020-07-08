@@ -44,13 +44,22 @@ echo "</style>" >> $RES_HTML
 echo "<h1 id=\"avg\">Cross-lingual macro-averages</h1>" >> $RES_HTML
 
 
-#Displau=y the general maro-averages
+# Display the general maro-averages
 gawk -f ../../lib/macroavegen2html.gawk $RES_DIR/macro-ave.ranked.txt >> $RES_HTML
-#rm $RES_DIR/macro-ave.ranked.txt
+# rm $RES_DIR/macro-ave.ranked.txt
 
+# JW 08.07.2020: Separate MWE-based and Token-based macro-average rankings
+for TP in MWE Token; do
+  echo "Formatting the global results for $TP..."
+  gawk -f ../../lib/macroaveglobal2html.gawk $TP $RES_DIR/macro-ave-${TP}.ranked.txt >> $RES_HTML
+  rm $RES_DIR/macro-ave-${TP}.ranked.txt
+  rm -f $RES_DIR/macro-ave-${TP}.ranked.txt #Delete the formatted fileb
+done
+
+# Rankings for different phenomena
 for PH in ${PHENOMENA[*]}; do
-	echo "Formatting the global results for $PH..."
-	gawk -f ../../lib/macroave2html.gawk $PH $RES_DIR/macro-ave-${PH}.ranked.txt >> $RES_HTML
-	rm $RES_DIR/macro-ave-${PH}.ranked.txt
-	rm -f $RES_DIR/macro-ave-${PH}.ranked.txt #Delete the formatted fileb
+  echo "Formatting the global results for $PH..."
+  gawk -f ../../lib/macroave2html.gawk $PH $RES_DIR/macro-ave-${PH}.ranked.txt >> $RES_HTML
+  rm $RES_DIR/macro-ave-${PH}.ranked.txt
+  rm -f $RES_DIR/macro-ave-${PH}.ranked.txt #Delete the formatted fileb
 done
