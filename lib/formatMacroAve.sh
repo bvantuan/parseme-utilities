@@ -98,23 +98,26 @@ RESULTS_DIR=$1
 #Rank general macro-averages
 echo "system track ave-P-mwe ave-R-mwe ave-F-mwe ave-P-token ave-R-token ave-F-token rank-token rank-MWE" > $RESULTS_DIR/macro-ave.ranked.txt
 for PH in ${PHENOMENA[*]}; do
-		echo "system track ave-P-mwe ave-R-mwe ave-F-mwe rank" > $RESULTS_DIR/macro-ave-${PH}.ranked.txt #Initiate the ranking file
+  echo "system track ave-P-mwe ave-R-mwe ave-F-mwe rank" > $RESULTS_DIR/macro-ave-${PH}.ranked.txt #Initiate the ranking file
 done
 for TRACK in closed open; do
-	cat $RESULTS_DIR/macro-ave.${TRACK}.txt |
-  sort -nr --key=5 | gawk 'BEGIN{prev=-1}{if(prev != $5){r++} prev=$5; if ($5=="0") print $0, "n/a"; else print $0, r; }' |
-  sort -nr --key=8 | gawk 'BEGIN{prev=-1}{if(prev != $8){r++} prev=$8; if ($8=="0") print $0, "n/a"; else print $0, r; }' |
-  sort -nr --key=5 |
-  cat  >> $RESULTS_DIR/macro-ave.ranked.txt
-	rm $RESULTS_DIR/macro-ave.${TRACK}.txt
 
-	#Rank per-phenomenon macro-averages
-	for PH in ${PHENOMENA[*]}; do
-		cat $RESULTS_DIR/macro-ave-${PH}.${TRACK}.txt |
+  #Rank macro-averages
+  cat $RESULTS_DIR/macro-ave.${TRACK}.txt |
     sort -nr --key=5 | gawk 'BEGIN{prev=-1}{if(prev != $5){r++} prev=$5; if ($5=="0") print $0, "n/a"; else print $0, r; }' |
-    cat >> $RESULTS_DIR/macro-ave-${PH}.ranked.txt
-		rm $RESULTS_DIR/macro-ave-${PH}.${TRACK}.txt
-	done
+    sort -nr --key=8 | gawk 'BEGIN{prev=-1}{if(prev != $8){r++} prev=$8; if ($8=="0") print $0, "n/a"; else print $0, r; }' |
+    sort -nr --key=5 |
+    cat >> $RESULTS_DIR/macro-ave.ranked.txt
+  rm $RESULTS_DIR/macro-ave.${TRACK}.txt
+
+  #Rank per-phenomenon macro-averages
+  for PH in ${PHENOMENA[*]}; do
+    cat $RESULTS_DIR/macro-ave-${PH}.${TRACK}.txt |
+      sort -nr --key=5 | gawk 'BEGIN{prev=-1}{if(prev != $5){r++} prev=$5; if ($5=="0") print $0, "n/a"; else print $0, r; }' |
+      cat >> $RESULTS_DIR/macro-ave-${PH}.ranked.txt
+    rm $RESULTS_DIR/macro-ave-${PH}.${TRACK}.txt
+  done
+
 done
 }
 
