@@ -24,7 +24,7 @@ print "<h2 id=\"avg-general\">General ranking</h2>"
 
 print "<table>"
 print "<tbody>"
-print "<tr><th rowspan=\"2\">System</th><th rowspan=\"2\">Track</th><th rowspan=\"2\">#Langs</th><th colspan=\"4\">Unseen MWE-based</th><th colspan=\"4\">MWE-based</th><th colspan=\"4\">Token-based</th></tr>"
+print "<tr><th rowspan=\"2\">System</th><th rowspan=\"2\">Track</th><th rowspan=\"2\">#Langs</th><th colspan=\"4\">Unseen MWE-based</th><th colspan=\"4\">Global MWE-based</th><th colspan=\"4\">Global Token-based</th></tr>"
 
 print "<tr><th>P</th><th>R</th><th>F1</th><th>Rank</th><th>P</th><th>R</th><th>F1</th><th>Rank</th><th>P</th><th>R</th><th>F1</th><th>Rank</th></tr>"
 

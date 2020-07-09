@@ -12,7 +12,11 @@
 # ./step4-results2html.all.sh ~/shared-task/Gitlab/sharedtask-data-dev/1.1/system-results
 
 LANGUAGES=(DE EL EU FR GA HE HI IT PL PT RO SV TR ZH)
-PHENOMENA=(Unseen-in-train Seen-in-train Variant-of-train Identical-to-train Continuous Discontinuous Multi-token Single-token)
+# PHENOMENA=(Unseen-in-train Seen-in-train Variant-of-train Identical-to-train Continuous Discontinuous Multi-token Single-token)
+
+# JW 09.07.2020: pairs of phenomena to report in the same table
+PHENOMENA_LEFT=(Discontinuous Unseen-in-train Variant-of-train Single-token)
+PHENOMENA_RIGHT=(Continuous Seen-in-train Identical-to-train Multi-token)
 
 #Check the number of parameters
 if [ $# -ne 1 ]; then
@@ -50,16 +54,32 @@ gawk -f ../../lib/macroavegen_unseen2html.gawk $RES_DIR/macro-ave.ranked.txt >> 
 
 # JW 08.07.2020: Separate MWE-based and Token-based macro-average rankings
 for TP in MWE Token; do
-  echo "Formatting the global results for $TP..."
-  gawk -f ../../lib/macroaveglobal2html.gawk $TP $RES_DIR/macro-ave-${TP}.ranked.txt >> $RES_HTML
-  rm $RES_DIR/macro-ave-${TP}.ranked.txt
-  rm -f $RES_DIR/macro-ave-${TP}.ranked.txt #Delete the formatted fileb
+  # echo "Formatting the global results for $TP..."
+  # gawk -f ../../lib/macroaveglobal2html.gawk $TP $RES_DIR/macro-ave-${TP}.ranked.txt >> $RES_HTML
+  # rm $RES_DIR/macro-ave-${TP}.ranked.txt
+  rm -f $RES_DIR/macro-ave-${TP}.ranked.txt
 done
 
-# Rankings for different phenomena
-for PH in ${PHENOMENA[*]}; do
-  echo "Formatting the global results for $PH..."
-  gawk -f ../../lib/macroave2html.gawk $PH $RES_DIR/macro-ave-${PH}.ranked.txt >> $RES_HTML
-  rm $RES_DIR/macro-ave-${PH}.ranked.txt
-  rm -f $RES_DIR/macro-ave-${PH}.ranked.txt #Delete the formatted fileb
+# # Rankings for different phenomena
+# for PH in ${PHENOMENA[*]}; do
+#   echo "Formatting the global results for $PH..."
+#   gawk -f ../../lib/macroave2html.gawk $PH $RES_DIR/macro-ave-${PH}.ranked.txt >> $RES_HTML
+#   # rm $RES_DIR/macro-ave-${PH}.ranked.txt
+#   # rm -f $RES_DIR/macro-ave-${PH}.ranked.txt #Delete the formatted fileb
+# done
+
+# Rankings for different phenomena pairs
+for i in "${!PHENOMENA_LEFT[@]}"; do
+  PHL=${PHENOMENA_LEFT[$i]}
+  PHR=${PHENOMENA_RIGHT[$i]}
+  echo "Formatting the global results for $PHL vs $PHR..."
+
+  # paste $RES_DIR/macro-ave-${PHL}.ranked.txt $RES_DIR/macro-ave-${PHR}.ranked.txt > $RES_DIR/macro-ave-${PHL}_${PHR}.ranked.txt
+
+  gawk -f ../../lib/macroave_pair2html.gawk $PHL $PHR $RES_DIR/macro-ave-${PHL}_${PHR}.ranked.txt >> $RES_HTML
+
+#   # rm $RES_DIR/macro-ave-${PH}.ranked.txt
+#   # rm -f $RES_DIR/macro-ave-${PH}.ranked.txt #Delete the formatted fileb
+
+  rm -f $RES_DIR/macro-ave-${PHL}_${PHR}.ranked.txt
 done

@@ -14,9 +14,13 @@
 
 source ../../lib/parseme_st_data_dev_path.bash #Define the PARSEME_SHAREDTASK_DATA_DEV variable
 LANGUAGES=${@:2}
-#LANGUAGES=(AR BG DE EL EN ES EU FA FR HE HI HR HU IT LT PL PT RO SL TR)
-PHENOMENA=(Unseen-in-train Seen-in-train Variant-of-train Identical-to-train Continuous Discontinuous Multi-token Single-token)
+# LANGUAGES=(AR BG DE EL EN ES EU FA FR HE HI HR HU IT LT PL PT RO SL TR)
+# PHENOMENA=(Unseen-in-train Seen-in-train Variant-of-train Identical-to-train Continuous Discontinuous Multi-token Single-token)
 MACRO_AVE="$PARSEME_SHAREDTASK_DATA_DEV/bin/average_of_evaluations.py" #Script for calculating macro-averages
+
+# JW 09.07.2020: pairs of phenomena to report in the same table
+PHENOMENA_LEFT=(Discontinuous Unseen-in-train Variant-of-train Single-token)
+PHENOMENA_RIGHT=(Continuous Seen-in-train Identical-to-train Multi-token)
 
 ##############################################################################
 # Format the global average results for a given system
@@ -85,13 +89,44 @@ echo "$SNAME $STRACK $AVE_P_MWE $AVE_R_MWE $AVE_F_MWE $submitted/$total" >> $RES
 echo "$SNAME $STRACK $AVE_P_TOKEN $AVE_R_TOKEN $AVE_F_TOKEN $submitted/$total" >> $RESULTS_DIR/macro-ave-Token.${STRACK}.txt
 
 #Phenomenon-specific macro-averages
-for PH in ${PHENOMENA[*]}; do
-  AVE_P_MWE=`cat $SYS_PATH/ave-results.txt | grep "* $PH: MWE-based" | cut -d' ' -f4 | cut -d= -f2 | awk '{print $0*100}'`
-  AVE_R_MWE=`cat $SYS_PATH/ave-results.txt | grep "* $PH: MWE-based" | cut -d' ' -f5 | cut -d= -f2 | awk '{print $0*100}'`
-  AVE_F_MWE=`cat $SYS_PATH/ave-results.txt | grep "* $PH: MWE-based" | cut -d' ' -f6 | cut -d= -f2  | awk '{print $0*100}'`
-  AVE_LANGS=`cat $SYS_PATH/ave-results.txt | grep "* $PH: MWE-based" | cut -d' ' -f8 | sed 's%@(\([0-9]*\)/.*)%\1%g'`
-  SUB_LANGS=`cat $SYS_PATH/*/results.txt | grep "* $PH: MWE-based" | wc -l | awk '{print $1}'`
-  echo "$SNAME $STRACK $AVE_P_MWE $AVE_R_MWE $AVE_F_MWE $SUB_LANGS/$AVE_LANGS" >> $RESULTS_DIR/macro-ave-${PH}.${STRACK}.txt
+# for PH in ${PHENOMENA[*]}; do
+#   AVE_P_MWE=`cat $SYS_PATH/ave-results.txt | grep "* $PH: MWE-based" | cut -d' ' -f4 | cut -d= -f2 | awk '{print $0*100}'`
+#   AVE_R_MWE=`cat $SYS_PATH/ave-results.txt | grep "* $PH: MWE-based" | cut -d' ' -f5 | cut -d= -f2 | awk '{print $0*100}'`
+#   AVE_F_MWE=`cat $SYS_PATH/ave-results.txt | grep "* $PH: MWE-based" | cut -d' ' -f6 | cut -d= -f2  | awk '{print $0*100}'`
+#   AVE_LANGS=`cat $SYS_PATH/ave-results.txt | grep "* $PH: MWE-based" | cut -d' ' -f8 | sed 's%@(\([0-9]*\)/.*)%\1%g'`
+#   SUB_LANGS=`cat $SYS_PATH/*/results.txt | grep "* $PH: MWE-based" | wc -l | awk '{print $1}'`
+#   echo "$SNAME $STRACK $AVE_P_MWE $AVE_R_MWE $AVE_F_MWE $SUB_LANGS/$AVE_LANGS" >> $RESULTS_DIR/macro-ave-${PH}.${STRACK}.txt
+# done
+
+for i in "${!PHENOMENA_LEFT[@]}"; do
+  PHL=${PHENOMENA_LEFT[$i]}
+  PHR=${PHENOMENA_RIGHT[$i]}
+
+  L_AVE_P_MWE=`cat $SYS_PATH/ave-results.txt | grep "* $PHL: MWE-based" | cut -d' ' -f4 | cut -d= -f2 | awk '{print $0*100}'`
+  L_AVE_R_MWE=`cat $SYS_PATH/ave-results.txt | grep "* $PHL: MWE-based" | cut -d' ' -f5 | cut -d= -f2 | awk '{print $0*100}'`
+  L_AVE_F_MWE=`cat $SYS_PATH/ave-results.txt | grep "* $PHL: MWE-based" | cut -d' ' -f6 | cut -d= -f2  | awk '{print $0*100}'`
+  L_AVE_LANGS=`cat $SYS_PATH/ave-results.txt | grep "* $PHL: MWE-based" | cut -d' ' -f8 | sed 's%@(\([0-9]*\)/.*)%\1%g'`
+  L_SUB_LANGS=`cat $SYS_PATH/*/results.txt | grep "* $PHL: MWE-based" | wc -l | awk '{print $1}'`
+
+  R_AVE_P_MWE=`cat $SYS_PATH/ave-results.txt | grep "* $PHR: MWE-based" | cut -d' ' -f4 | cut -d= -f2 | awk '{print $0*100}'`
+  R_AVE_R_MWE=`cat $SYS_PATH/ave-results.txt | grep "* $PHR: MWE-based" | cut -d' ' -f5 | cut -d= -f2 | awk '{print $0*100}'`
+  R_AVE_F_MWE=`cat $SYS_PATH/ave-results.txt | grep "* $PHR: MWE-based" | cut -d' ' -f6 | cut -d= -f2  | awk '{print $0*100}'`
+  R_AVE_LANGS=`cat $SYS_PATH/ave-results.txt | grep "* $PHR: MWE-based" | cut -d' ' -f8 | sed 's%@(\([0-9]*\)/.*)%\1%g'`
+  R_SUB_LANGS=`cat $SYS_PATH/*/results.txt | grep "* $PHR: MWE-based" | wc -l | awk '{print $1}'`
+
+  L_AVE_LANGS=`cat $SYS_PATH/ave-results.txt | grep "* $PHL: MWE-based" | cut -d' ' -f8 | sed 's%@(\([0-9]*\)/.*)%\1%g'`
+  L_SUB_LANGS=`cat $SYS_PATH/*/results.txt | grep "* $PHL: MWE-based" | wc -l | awk '{print $1}'`
+
+  R_AVE_LANGS_TEST=`cat $SYS_PATH/ave-results.txt | grep "* $PHR: MWE-based" | cut -d' ' -f8 | sed 's%@(\([0-9]*\)/.*)%\1%g'`
+  R_SUB_LANGS_TEST=`cat $SYS_PATH/*/results.txt | grep "* $PHR: MWE-based" | wc -l | awk '{print $1}'`
+#   if [ $AVE_LANGS -ne $AVE_LANGS_TEST ]; then
+#     echo "# WARNING: number of AVE_LANGS differ (${AVE_LANGS} vs ${AVE_LANGS_TEST})"
+#   fi
+#   if [ $SUB_LANGS -ne $SUB_LANGS_TEST ]; then
+#     echo "# WARNING: number of SUB_LANGS differ (${SUB_LANGS} vs ${SUB_LANGS_TEST})"
+#   fi
+
+  echo "$SNAME $STRACK $L_AVE_P_MWE $L_AVE_R_MWE $L_AVE_F_MWE $R_AVE_P_MWE $R_AVE_R_MWE $R_AVE_F_MWE $L_SUB_LANGS/$L_AVE_LANGS $R_SUB_LANGS/$R_AVE_LANGS" >> $RESULTS_DIR/macro-ave-${PHL}_${PHR}.${STRACK}.txt
 done
 
 #rm results.txt
@@ -113,34 +148,50 @@ echo "system track ave-P-mwe ave-R-mwe ave-F-mwe ave-P-token ave-R-token ave-F-t
 echo "system track ave-P-mwe ave-R-mwe ave-F-mwe rank" > $RESULTS_DIR/macro-ave-MWE.ranked.txt #Initiate the ranking file
 echo "system track ave-P-token ave-R-token ave-F-token rank" > $RESULTS_DIR/macro-ave-Token.ranked.txt #Initiate the ranking file
 
-for PH in ${PHENOMENA[*]}; do
-  echo "system track ave-P-mwe ave-R-mwe ave-F-mwe rank" > $RESULTS_DIR/macro-ave-${PH}.ranked.txt #Initiate the ranking file
+# for PH in ${PHENOMENA[*]}; do
+#   echo "system track ave-P-mwe ave-R-mwe ave-F-mwe rank" > $RESULTS_DIR/macro-ave-${PH}.ranked.txt #Initiate the ranking file
+# done
+for i in "${!PHENOMENA_LEFT[@]}"; do
+  PHL=${PHENOMENA_LEFT[$i]}
+  PHR=${PHENOMENA_RIGHT[$i]}
+  echo "system track l-ave-P-mwe l-ave-R-mwe l-ave-F-mwe r-ave-P-mwe r-ave-R-mwe r-ave-F-mwe l-langs r-langs l-rank r-rank" > $RESULTS_DIR/macro-ave-${PHL}_${PHR}.ranked.txt #Initiate the ranking file
 done
+
 for TRACK in closed open; do
 
   #Rank macro-averages
   cat $RESULTS_DIR/macro-ave.${TRACK}.txt |
-    sort -nr --key=11 | gawk 'BEGIN{prev=-1}{if(prev != $11){r++} prev=$8; if ($11=="0") print $0, "n/a"; else print $0, r; }' |
-    sort -nr --key=5 | gawk 'BEGIN{prev=-1}{if(prev != $5){r++} prev=$5; if ($5=="0") print $0, "n/a"; else print $0, r; }' |
-    sort -nr --key=8 | gawk 'BEGIN{prev=-1}{if(prev != $8){r++} prev=$8; if ($8=="0") print $0, "n/a"; else print $0, r; }' |
-    sort -nr --key=11 |
+    sort -s -nr --key=11 | gawk 'BEGIN{prev=-1}{if(prev != $11){r++} prev=$8; if ($11=="0") print $0, "n/a"; else print $0, r; }' |
+    sort -s -nr --key=5 | gawk 'BEGIN{prev=-1}{if(prev != $5){r++} prev=$5; if ($5=="0") print $0, "n/a"; else print $0, r; }' |
+    sort -s -nr --key=8 | gawk 'BEGIN{prev=-1}{if(prev != $8){r++} prev=$8; if ($8=="0") print $0, "n/a"; else print $0, r; }' |
+    sort -s -nr --key=11 |
     cat >> $RESULTS_DIR/macro-ave.ranked.txt
   rm $RESULTS_DIR/macro-ave.${TRACK}.txt
 
   # JW 08.07.2020: Rank MWE-based and Token-based macro-averages separately
   for TP in MWE Token; do
     cat $RESULTS_DIR/macro-ave-${TP}.${TRACK}.txt |
-      sort -nr --key=5 | gawk 'BEGIN{prev=-1}{if(prev != $5){r++} prev=$5; if ($5=="0") print $0, "n/a"; else print $0, r; }' |
+      sort -s -nr --key=5 | gawk 'BEGIN{prev=-1}{if(prev != $5){r++} prev=$5; if ($5=="0") print $0, "n/a"; else print $0, r; }' |
       cat >> $RESULTS_DIR/macro-ave-${TP}.ranked.txt
     rm $RESULTS_DIR/macro-ave-${TP}.${TRACK}.txt
   done
 
   #Rank per-phenomenon macro-averages
-  for PH in ${PHENOMENA[*]}; do
-    cat $RESULTS_DIR/macro-ave-${PH}.${TRACK}.txt |
-      sort -nr --key=5 | gawk 'BEGIN{prev=-1}{if(prev != $5){r++} prev=$5; if ($5=="0") print $0, "n/a"; else print $0, r; }' |
-      cat >> $RESULTS_DIR/macro-ave-${PH}.ranked.txt
-    rm $RESULTS_DIR/macro-ave-${PH}.${TRACK}.txt
+#   for PH in ${PHENOMENA[*]}; do
+#     cat $RESULTS_DIR/macro-ave-${PH}.${TRACK}.txt |
+#       sort -s -nr --key=5 | gawk 'BEGIN{prev=-1}{if(prev != $5){r++} prev=$5; if ($5=="0") print $0, "n/a"; else print $0, r; }' |
+#       cat >> $RESULTS_DIR/macro-ave-${PH}.ranked.txt
+#     rm $RESULTS_DIR/macro-ave-${PH}.${TRACK}.txt
+#   done
+  for i in "${!PHENOMENA_LEFT[@]}"; do
+    PHL=${PHENOMENA_LEFT[$i]}
+    PHR=${PHENOMENA_RIGHT[$i]}
+    cat $RESULTS_DIR/macro-ave-${PHL}_${PHR}.${TRACK}.txt |
+      sort -s -nr --key=5 | gawk 'BEGIN{prev=-1}{if(prev != $5){r++} prev=$5; if ($5=="0") print $0, "n/a"; else print $0, r; }' |
+      sort -s -nr --key=8 | gawk 'BEGIN{prev=-1}{if(prev != $8){r++} prev=$8; if ($8=="0") print $0, "n/a"; else print $0, r; }' |
+      sort -s -nr --key=5 |
+      cat >> $RESULTS_DIR/macro-ave-${PHL}_${PHR}.ranked.txt
+    rm $RESULTS_DIR/macro-ave-${PHL}_${PHR}.${TRACK}.txt
   done
 
 done
@@ -160,9 +211,15 @@ fi
 RESULTS_DIR=$1
 echo -n "" > $RESULTS_DIR/macro-ave.open.txt #Initiate the global average results file
 echo -n "" > $RESULTS_DIR/macro-ave.closed.txt #Initiate the global average results file
-for PH in ${PHENOMENA[*]}; do
-	echo -n "" > $RESULTS_DIR/macro-ave-${PH}.open.txt
-	echo -n "" > $RESULTS_DIR/macro-ave-${PH}.closed.txt
+# for PH in ${PHENOMENA[*]}; do
+#   echo -n "" > $RESULTS_DIR/macro-ave-${PH}.open.txt
+#   echo -n "" > $RESULTS_DIR/macro-ave-${PH}.closed.txt
+# done
+for i in "${!PHENOMENA_LEFT[@]}"; do
+  PHL=${PHENOMENA_LEFT[$i]}
+  PHR=${PHENOMENA_RIGHT[$i]}
+  echo -n "" > $RESULTS_DIR/macro-ave-${PHL}_${PHR}.open.txt
+  echo -n "" > $RESULTS_DIR/macro-ave-${PHL}_${PHR}.closed.txt
 done
 
 #For a given language, calculate the macro-avergaes for each system
