@@ -43,8 +43,8 @@ echo "</style>" >> $RES_HTML
 
 echo "<h1 id=\"lang\">Language-specific system rankings</h1>" >> $RES_HTML
 
-
-for f in `ls $RES_DIR/*.ranked.txt`; do
+# ?? instead of * because macro-ave.ranked.txt may be present
+for f in `ls $RES_DIR/??.ranked.txt`; do
 	#Get the language code
 	fname=`echo $f | sed 's/.*\///g'`
 	lang=${fname:0:2}

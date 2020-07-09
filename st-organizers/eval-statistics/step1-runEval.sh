@@ -18,6 +18,7 @@
 source ../../lib/parseme_st_data_dev_path.bash #Define the PARSEME_SHAREDTASK_DATA_DEV variable
 CHECK_CUPT="$PARSEME_SHAREDTASK_DATA_DEV/bin/validate_cupt.py" #Format validation script
 EVALUATE="$PARSEME_SHAREDTASK_DATA_DEV/bin/evaluate.py"
+echo "Using evaluation script: $EVALUATE"
 #LANGUAGES=(AR BG DE EL EN ES EU FA FR HE HI HR HU IT LT PL PT RO SL TR)
 LANGUAGES=(DE EL EU FR GA HE HI IT PL PT RO SV TR ZH)
 
@@ -46,7 +47,9 @@ for SYS_DIR in `ls $RESULTS_DIR | grep -E '(closed)|(open)$'`; do
 			PRED=$RESULTS_DIR/$SYS_DIR/$LANG/test.system.cupt #Get the system's predictions
 
 			#Run the evaluation
-			if [ -f $RESULTS_DIR/$SYS_DIR/$LANG/results.txt ]; then rm -rf $RESULTS_DIR/$SYS_DIR/$LANG/results.txt; fi
+			if [ -f $RESULTS_DIR/$SYS_DIR/$LANG/results.txt ]; then
+				rm -rf $RESULTS_DIR/$SYS_DIR/$LANG/results.txt;
+			fi
 			$EVALUATE --train $TRAIN --gold $GOLD --pred $PRED  > $RESULTS_DIR/$SYS_DIR/$LANG/results.txt
 		fi
 	done
