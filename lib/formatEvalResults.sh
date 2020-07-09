@@ -45,17 +45,17 @@ PRED=$SYS_PATH/$LANG/test.system.cupt #Get the expected results file name
 #Check if the system submitted results
 if [ -f $PRED ]; then
 	cat $SYS_PATH/$LANG/results.txt > results.txt
+	P_UNSEEN=`grep Unseen.*F= results.txt | cut -d ' ' -f4 | cut -d= -f3 | awk '{print $0 * 100}'`
+	R_UNSEEN=`grep Unseen.*F= results.txt | cut -d ' ' -f5 | cut -d= -f3 | awk '{print $0 * 100}'`
+	F_UNSEEN=`grep Unseen.*F= results.txt | cut -d ' ' -f6 | cut -d= -f2 | awk '{print $0 * 100}'`
 	P_MWE=`cat results.txt | head -2 | tail -1 | cut -d' ' -f3 | cut -d= -f3 | awk '{print $0 * 100}'`
 	R_MWE=`cat results.txt | head -2 | tail -1 | cut -d' ' -f4 | cut -d= -f3 | awk '{print $0 * 100}'`
 	F_MWE=`cat results.txt | head -2 | tail -1 | cut -d' ' -f5 | cut -d= -f2 | awk '{print $0 * 100}'`
 	P_TOKEN=`cat results.txt | head -3 | tail -1 | cut -d' ' -f3 | cut -d= -f3 | awk '{print $0 * 100}'`
 	R_TOKEN=`cat results.txt | head -3 | tail -1 | cut -d' ' -f4 | cut -d= -f3 | awk '{print $0 * 100}'`
 	F_TOKEN=`cat results.txt | head -3 | tail -1 | cut -d' ' -f5 | cut -d= -f2 | awk '{print $0 * 100}'`
-	P_UNSEEN=`grep Unseen.*F= results.txt | cut -d ' ' -f4 | cut -d= -f3 | awk '{print $0 * 100}'`
-	R_UNSEEN=`grep Unseen.*F= results.txt | cut -d ' ' -f5 | cut -d= -f3 | awk '{print $0 * 100}'`
-	F_UNSEEN=`grep Unseen.*F= results.txt | cut -d ' ' -f6 | cut -d= -f2 | awk '{print $0 * 100}'`
 	rm results.txt
-	echo "$LANG $SNAME $STRACK $P_MWE $R_MWE $F_MWE $P_TOKEN $R_TOKEN $F_TOKEN $P_UNSEEN $R_UNSEEN $F_UNSEEN"
+	echo "$LANG $SNAME $STRACK $P_UNSEEN $R_UNSEEN $F_UNSEEN $P_MWE $R_MWE $F_MWE $P_TOKEN $R_TOKEN $F_TOKEN"
 fi
 }
 ##############################################################################
