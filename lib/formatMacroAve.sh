@@ -107,7 +107,7 @@ RESULTS_DIR=$1
 
 # JW 08.07.2020: Add unseen results
 #Rank general macro-averages
-echo "system track ave-P-mwe ave-R-mwe ave-F-mwe ave-P-token ave-R-token ave-F-token ave-P-unseen ave-R-unseen ave-F-unseen langs rank-token rank-MWE rank-unseen" > $RESULTS_DIR/macro-ave.ranked.txt
+echo "system track ave-P-mwe ave-R-mwe ave-F-mwe ave-P-token ave-R-token ave-F-token ave-P-unseen ave-R-unseen ave-F-unseen langs rank-unseen rank-MWE rank-token" > $RESULTS_DIR/macro-ave.ranked.txt
 
 # JW 08.07.2020: Separate MWE-based and Token-based macro-averages
 echo "system track ave-P-mwe ave-R-mwe ave-F-mwe rank" > $RESULTS_DIR/macro-ave-MWE.ranked.txt #Initiate the ranking file
@@ -120,10 +120,10 @@ for TRACK in closed open; do
 
   #Rank macro-averages
   cat $RESULTS_DIR/macro-ave.${TRACK}.txt |
+    sort -nr --key=11 | gawk 'BEGIN{prev=-1}{if(prev != $11){r++} prev=$8; if ($11=="0") print $0, "n/a"; else print $0, r; }' |
     sort -nr --key=5 | gawk 'BEGIN{prev=-1}{if(prev != $5){r++} prev=$5; if ($5=="0") print $0, "n/a"; else print $0, r; }' |
     sort -nr --key=8 | gawk 'BEGIN{prev=-1}{if(prev != $8){r++} prev=$8; if ($8=="0") print $0, "n/a"; else print $0, r; }' |
-    sort -nr --key=11 | gawk 'BEGIN{prev=-1}{if(prev != $11){r++} prev=$8; if ($11=="0") print $0, "n/a"; else print $0, r; }' |
-    sort -nr --key=5 |
+    sort -nr --key=11 |
     cat >> $RESULTS_DIR/macro-ave.ranked.txt
   rm $RESULTS_DIR/macro-ave.${TRACK}.txt
 
