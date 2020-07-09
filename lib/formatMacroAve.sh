@@ -49,11 +49,13 @@ STRACK=${SDIR#*.} #Get the track (directory suffix: open or closed)
 #echo "System track: $STRACK"
 
 DUMMIES=""
+DUMMIESNOSINGLE=""
 submitted=0
 total=0
 for lang in ${LANGUAGES[*]}; do
   if [ ! -f ${SYS_PATH}/${lang}/results.txt ]; then
     DUMMIES="$DUMMIES $SYS_PATH/../dummy/$lang/results.txt"
+    DUMMIESNOSINGLE="$DUMMIESNOSINGLE $SYS_PATH/../dummy/$lang/results.txt.nosingle"
   else
     (( submitted++ ))
   fi
@@ -62,12 +64,15 @@ done
 
 # Ugly workaround to ignore languages that do not have single-token VMWEs
 for a in $SYS_PATH/*/results.txt $DUMMIES; do
-  sed -i -e '/Single-token.*R=[0-9]*\/0=/d' -e '/Single-token.*gold=0\//d' $a
+  sed -e '/Single-token.*R=[0-9]*\/0=/d' -e '/Single-token.*gold=0\//d' $a > $a.nosingle
+  #echo $a.nosingle
 done
 
 #Get the macro-average for the system for all languages
 #echo "Average over" $SYS_PATH/*/results.txt $DUMMIES > /dev/stderr
-$MACRO_AVE --operation avg $SYS_PATH/*/results.txt $DUMMIES > $SYS_PATH/ave-results.txt
+$MACRO_AVE --operation avg $SYS_PATH/*/results.txt.nosingle $DUMMIESNOSINGLE > $SYS_PATH/ave-results.txt
+
+
 
 #General macro-averages
 AVE_P_MWE=`cat $SYS_PATH/ave-results.txt | grep '* MWE-based' | cut -d' ' -f3 | cut -d= -f2 | awk '{print $0*100}'`
@@ -115,7 +120,7 @@ for i in "${!PHENOMENA_LEFT[@]}"; do
   R_SUB_LANGS=`cat $SYS_PATH/*/results.txt | grep "* $PHR: MWE-based" | wc -l | awk '{print $1}'`
 
   L_AVE_LANGS=`cat $SYS_PATH/ave-results.txt | grep "* $PHL: MWE-based" | cut -d' ' -f8 | sed 's%@(\([0-9]*\)/.*)%\1%g'`
-  L_SUB_LANGS=`cat $SYS_PATH/*/results.txt | grep "* $PHL: MWE-based" | wc -l | awk '{print $1}'`
+  L_SUB_LANGS=`cat $SYS_PATH/*/results.txt.nosingle | grep "* $PHL: MWE-based" | wc -l | awk '{print $1}'`
 
   R_AVE_LANGS_TEST=`cat $SYS_PATH/ave-results.txt | grep "* $PHR: MWE-based" | cut -d' ' -f8 | sed 's%@(\([0-9]*\)/.*)%\1%g'`
   R_SUB_LANGS_TEST=`cat $SYS_PATH/*/results.txt | grep "* $PHR: MWE-based" | wc -l | awk '{print $1}'`
@@ -127,6 +132,11 @@ for i in "${!PHENOMENA_LEFT[@]}"; do
 #   fi
 
   echo "$SNAME $STRACK $L_AVE_P_MWE $L_AVE_R_MWE $L_AVE_F_MWE $R_AVE_P_MWE $R_AVE_R_MWE $R_AVE_F_MWE $L_SUB_LANGS/$L_AVE_LANGS $R_SUB_LANGS/$R_AVE_LANGS" >> $RESULTS_DIR/macro-ave-${PHL}_${PHR}.${STRACK}.txt
+done
+
+# Ugly workaround to ignore languages that do not have single-token VMWEs
+for a in $SYS_PATH/*/results.txt.nosingle $DUMMIESNOSINGLE; do
+  rm $a
 done
 
 #rm results.txt
