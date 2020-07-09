@@ -22,7 +22,7 @@ echo "Using evaluation script: $EVALUATE"
 #LANGUAGES=(AR BG DE EL EN ES EU FA FR HE HI HR HU IT LT PL PT RO SL TR)
 LANGUAGES=(DE EL EU FR GA HE HI IT PL PT RO SV TR ZH)
 
-export LC_ALL="en_US.UTF-8" #Needed by evaluate.py
+export LC_ALL="en_US.UTF-8" #Needed to rank everything in correct numerical order
 
 ##############################################################################
 

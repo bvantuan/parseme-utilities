@@ -15,6 +15,8 @@
 LANGUAGES=(DE EL EU FR GA HE HI IT PL PT RO SV TR ZH)
 #LANGUAGES=(AR BG DE EL EN ES EU FA FR HE HI HR HU IT LT PL PT RO SL TR)
 
+export LC_ALL="en_US.UTF-8" #Needed to rank everything in correct numerical order
+
 #Check the number of parameters
 if [ $# -ne 1 ]; then
 	echo "usage: $0 results-dir"

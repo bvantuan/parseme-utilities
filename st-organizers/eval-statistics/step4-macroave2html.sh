@@ -13,6 +13,7 @@
 
 LANGUAGES=(DE EL EU FR GA HE HI IT PL PT RO SV TR ZH)
 # PHENOMENA=(Unseen-in-train Seen-in-train Variant-of-train Identical-to-train Continuous Discontinuous Multi-token Single-token)
+export LC_ALL="en_US.UTF-8" #Needed to rank everything in correct numerical order
 
 # JW 09.07.2020: pairs of phenomena to report in the same table
 PHENOMENA_LEFT=(Discontinuous Unseen-in-train Variant-of-train Single-token)
@@ -27,6 +28,8 @@ fi
 
 RES_DIR=$1
 RES_HTML=$1/macro-ave.html
+
+export LC_ALL="en_US.UTF-8" #Needed by evaluate.py
 
 
 #Rank and format the global evaluation (for all categories in total). If different systems run for a given language in both tracks, the rankings are done separately.
