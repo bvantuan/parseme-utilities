@@ -5,14 +5,17 @@
 # $1 = results directory path
 #	It is supposed to contain one folder per system; with the .closed or .open extension.
 #	Each system folder contains one folder per language, and a results.txt file in it.
-# 
+#
 # As a result, an HTML table is printed to the results.html file in $1
 #
 # Sample call:
 # ./step2-results2html.all.sh ~/shared-task/Gitlab/sharedtask-data-dev/1.1/system-results
 
 #LANGUAGES=(AR BG DE EL EN ES EU FA FR HE HI HR HU IT LT PL PT RO SL TR)
-LANGUAGES=(BG DE EL EN ES EU FA FR HE HI HR HU IT LT PL PT RO SL TR)
+#LANGUAGES=(BG DE EL EN ES EU FA FR HE HI HR HU IT LT PL PT RO SL TR)
+LANGUAGES=(DE EL EU FR GA HE HI IT PL PT RO SV TR ZH)
+
+export LC_ALL="en_US.UTF-8" #Needed to rank everything in correct numerical order
 
 #Check the number of parameters
 if [ $# -ne 1 ]; then
@@ -26,7 +29,7 @@ RES_HTML=$1/results.html
 
 #Rank and format the global evaluation (for all categories in total). If different systems run for a given language in both tracks, the rankings are done separately.
 #As a result, a file named <LANG>.ranked.txt is created for every language in $1, containing ranked results of all systems for this language
-../../lib/formatEvalResults.sh $RES_DIR
+../../lib/formatEvalResults.sh $RES_DIR ${LANGUAGES[*]}
 
 rm -f $RES_HTML
 
@@ -42,10 +45,10 @@ echo "</style>" >> $RES_HTML
 
 echo "<h1 id=\"lang\">Language-specific system rankings</h1>" >> $RES_HTML
 
-
-for f in `ls $RES_DIR/*.ranked.txt`; do 
+# ?? instead of * because macro-ave.ranked.txt may be present
+for f in `ls $RES_DIR/??.ranked.txt`; do
 	#Get the language code
-	fname=`echo $f | sed 's/.*\///g'` 
+	fname=`echo $f | sed 's/.*\///g'`
 	lang=${fname:0:2}
 	echo "Formatting the global results for $lang..."
 	gawk -f ../../lib/results2html.gawk $lang $f >> $RES_HTML
@@ -55,4 +58,3 @@ done
 for LANG in ${LANGUAGES[*]}; do
 	rm -f $RES_DIR/$LANG.ranked.txt
 done
-
