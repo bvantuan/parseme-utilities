@@ -35,7 +35,8 @@ sed -e 's@## File: [A-Z][A-Z]/@@g' -e 's/.cupt//g'\
     -e 's/Language: //g' -e 's/^\*.*: //g' |
 awk 'BEGIN{   prevlang = "XX";}
 /(test|train|dev)/{ # (train|test|dev) #<= CHANGEME IF NEEDED!  
-  head=$2 "  ";   
+#  head=$2 "  ";   
+  head=$2 "";   
   if(prevlang!=lang && prevlang != "XX"){    
     print rowsep;
     if (langsent!=0){
@@ -87,15 +88,15 @@ awk 'BEGIN{   prevlang = "XX";}
   prevlang = lang;	
 
   if (head ~ /train/)
-    print bline lang "-" head, sent, tok, int(10*(tok/sent))/10, vmwe, vid, irv, lvcfull, lvccause, vpcfull, vpcsemi, iav, mvc, lsicv, "", "", "", "" eline;
+    print bline lang "-" head, sent, tok, int(10*(tok/sent))/10, vmwe, vid, irv, lvcfull, lvccause, vpcfull, vpcsemi, iav, mvc, lsicv, "", "", "", "", eline;
   else
     if (head ~ /dev/)
-      print bline lang "-" head, sent, tok, int(10*(tok/sent))/10, vmwe, vid, irv, lvcfull, lvccause, vpcfull, vpcsemi, iav, mvc, lsicv, unseen_wrt_train, ratio_unseen_wrt_train, "", "" eline;
+      print bline lang "-" head, sent, tok, int(10*(tok/sent))/10, vmwe, vid, irv, lvcfull, lvccause, vpcfull, vpcsemi, iav, mvc, lsicv, unseen_wrt_train, ratio_unseen_wrt_train, "", "", eline;
     else
       if (version == "blind")
-        print bline lang "-" head, sent, tok, int(10*(tok/sent))/10, "TBA", "TBA", "TBA", "TBA", "TBA", "TBA", "TBA", "TBA", "TBA", "TBA", unseen_wrt_train, ratio_unseen_wrt_train, unseen_wrt_train_dev, ratio_unseen_wrt_train_dev eline;
+        print bline lang "-" head, sent, tok, int(10*(tok/sent))/10, "TBA", "TBA", "TBA", "TBA", "TBA", "TBA", "TBA", "TBA", "TBA", "TBA", unseen_wrt_train, ratio_unseen_wrt_train, unseen_wrt_train_dev, ratio_unseen_wrt_train_dev, eline;
       else
-        print bline lang "-" head, sent, tok, int(10*(tok/sent))/10, vmwe, vid, irv, lvcfull, lvccause, vpcfull, vpcsemi, iav, mvc, lsicv, unseen_wrt_train, ratio_unseen_wrt_train, unseen_wrt_train_dev, ratio_unseen_wrt_train_dev eline;
+        print bline lang "-" head, sent, tok, int(10*(tok/sent))/10, vmwe, vid, irv, lvcfull, lvccause, vpcfull, vpcsemi, iav, mvc, lsicv, unseen_wrt_train, ratio_unseen_wrt_train, unseen_wrt_train_dev, ratio_unseen_wrt_train_dev, eline;
 }
 /Statistics [A-Z][A-Z]$/{
   lang=$2;  
@@ -132,7 +133,10 @@ awk 'BEGIN{   prevlang = "XX";}
 }
 END{ 
   print rowsep;
-  print bline prevlang "-Total" , langsent, langtok, int(10*(langtok/langsent))/10, langvmwe, langvid, langirv, langlvcfull, langlvccause, langvpcfull, langvpcsemi, langiav, langmvc, langlsicv eline;    
+  if (version == "blind")
+    print bline prevlang "-Total" , langsent, langtok, int(10*(langtok/langsent))/10, "TBA", "TBA", "TBA", "TBA", "TBA", "TBA", "TBA", "TBA", "TBA", "TBA", "", "", "", "", eline;
+  else
+    print bline prevlang "-Total" , langsent, langtok, int(10*(langtok/langsent))/10, langvmwe, langvid, langirv, langlvcfull, langlvccause, langvpcfull, langvpcsemi, langiav, langmvc, langlsicv, "", "", "", "", eline;    
   print langsep;
   print bline "Total    ",tsent,ttok,int(10*(ttok/tsent))/10,tvmwe,tvid,tirv,tlvcfull,tlvccause,tvpcfull, tvpcsemi, tiav, tmvc, tlsicv eline;
   print langsep;  
