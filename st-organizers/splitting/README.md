@@ -5,6 +5,23 @@
 
 # Usage
 
+### Script
+
+To perform splitting for several/all languages:
+```
+utilities/st-organizers/splitting$ ./scripts/run_split_1.2.sh <file-with-langs> <origininal-corpora> <preliminary-sharedtask-data>
+```
+where `<file-with-langs>` is a file with lower-case language codes, one per line, e.g.:
+"""
+fr
+de
+pl
+zh
+el
+...
+"""
+`<original-corpora>` is a path to the directory with the gitlab repositories (`parseme_corpus_fr`, `parseme_corpus_de`, etc.), and `<preliminary-sharedtask-data>` is a path to the `sharedtask-data-dev/1.2/preliminary-sharedtask-data` directory of the `sharedtask-data-dev` repository.
+
 ### Estimation
 
 To estimate the number of sentences which should be put in the test set so as
