@@ -12,30 +12,17 @@ To perform splitting for several/all languages:
 utilities/st-organizers/splitting$ ./scripts/run_split_1.2.sh <file-with-langs> <origininal-corpora> <preliminary-sharedtask-data>
 ```
 where `<file-with-langs>` is a file with lower-case language codes, one per line, e.g.:
-"""
+```
 fr
 de
 pl
 zh
 el
 ...
-"""
+```
 `<original-corpora>` is a path to the directory with the gitlab repositories (`parseme_corpus_fr`, `parseme_corpus_de`, etc.), and `<preliminary-sharedtask-data>` is a path to the `sharedtask-data-dev/1.2/preliminary-sharedtask-data` directory of the `sharedtask-data-dev` repository.
 
-### Estimation
-
-To estimate the number of sentences which should be put in the test set so as
-to obtain the target number (e.g., `300`) of unseen MWEs:
-```
-./split_cupt.py estimate --unseen-mwes 300 -i file1.cupt file2.cupt ...
-```
-where `file1.cupt`, `file2.cupt`, ... are the input CUPT files.
-
-Let the size of a set be it's number of sentences. 
-The tool performs a binary search (within the sequence `1`..`M-1`, where `M` is the size of the entire dataset) for the appropriate size of the test set.  In each step, for
-the given test set size, the input dataset (all files following `-i`) is randomly split into a train set and
-a test set a given number of times (`10` by default, you can increase it using `-n` to get more reliable results) and
-the average number of unseen MWEs (as well as average unseen/seen ratio) in the test set is determined.
+The `run_split_1.2.sh` script uses `split_cupt.py` described [below](#splitting) to perform splitting for the individual languages.
 
 ### Splitting
 
@@ -53,6 +40,21 @@ the files following `--train-path`, `--dev-path`, and `--test-path`.
 **NOTE**: the `--alt` option determines how the number of unseen MWEs in `test` is calculated:
 * Without `--alt`, it is calculated w.r.t. `train` only.
 * With `--alt`, it is calculated w.r.t. both `train` and `dev`.
+
+### Estimation
+
+To estimate the number of sentences which should be put in the test set so as
+to obtain the target number (e.g., `300`) of unseen MWEs:
+```
+./split_cupt.py estimate --unseen-mwes 300 -i file1.cupt file2.cupt ...
+```
+where `file1.cupt`, `file2.cupt`, ... are the input CUPT files.
+
+Let the size of a set be it's number of sentences. 
+The tool performs a binary search (within the sequence `1`..`M-1`, where `M` is the size of the entire dataset) for the appropriate size of the test set.  In each step, for
+the given test set size, the input dataset (all files following `-i`) is randomly split into a train set and
+a test set a given number of times (`10` by default, you can increase it using `-n` to get more reliable results) and
+the average number of unseen MWEs (as well as average unseen/seen ratio) in the test set is determined.
 
 
 <!---
