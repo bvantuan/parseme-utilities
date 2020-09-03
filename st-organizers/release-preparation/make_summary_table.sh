@@ -103,7 +103,7 @@ langsent=0; langtok=0; langvmwe=0; langvid=0; langlvcfull=0; langlvccause=0; lan
   prevlang = lang;
   if (stats == "overall"){
     if (head ~ /train/) {
-      print bline lang "-" head, sent, tok, int(10*(tok/sent))/10, vmwe, vid, irv, lvcfull, lvccause, vpcfull, vpcsemi, iav, mvc, lsicv, "", "", "", "" eline;
+      print bline lang "-" head, sent, tok, int(10*(tok/sent))/10, vmwe, vid, irv, lvcfull, lvccause, vpcfull, vpcsemi, iav, mvc, lsicv eline;
     }
     else {
       if (head ~ /dev/) {
@@ -171,7 +171,7 @@ langsent=0; langtok=0; langvmwe=0; langvid=0; langlvcfull=0; langlvccause=0; lan
     }
     print langsep;
     if (stats == "overall"){
-        print bline "Lang-split","Sentences","Tokens","Avg. length","VMWE", "VID", "IRV", "LVC.full", "LVC.cause", "VPC.full", "VPC.semi", "IAV", "MVC", "LS.ICV", eline;
+        print bline "Lang-split","Sentences","Tokens","Avg. length","VMWE", "VID", "IRV", "LVC.full", "LVC.cause", "VPC.full", "VPC.semi", "IAV", "MVC", "LS.ICV" eline;
     }
     else{
       print "TODO";
@@ -187,9 +187,9 @@ langsent=0; langtok=0; langvmwe=0; langvid=0; langlvcfull=0; langlvccause=0; lan
 END{
   print rowsep;
   if (version == "blind")
-    print bline prevlang "-Total" , langsent, langtok, int(10*(langtok/langsent))/10, "TBA", "TBA", "TBA", "TBA", "TBA", "TBA", "TBA", "TBA", "TBA", "TBA", "", "", "", "", eline;
+    print bline prevlang "-Total" , langsent, langtok, int(10*(langtok/langsent))/10, "TBA", "TBA", "TBA", "TBA", "TBA", "TBA", "TBA", "TBA", "TBA", "TBA" eline;
   else
-    print bline prevlang "-Total" , langsent, langtok, int(10*(langtok/langsent))/10, langvmwe, langvid, langirv, langlvcfull, langlvccause, langvpcfull, langvpcsemi, langiav, langmvc, langlsicv, "", "", "", "", eline;    
+    print bline prevlang "-Total" , langsent, langtok, int(10*(langtok/langsent))/10, langvmwe, langvid, langirv, langlvcfull, langlvccause, langvpcfull, langvpcsemi, langiav, langmvc, langlsicv eline;    
   print langsep;
   print bline "Total    ",tsent,ttok,int(10*(ttok/tsent))/10,tvmwe,tvid,tirv,tlvcfull,tlvccause,tvpcfull, tvpcsemi, tiav, tmvc, tlsicv eline;
   print langsep;
