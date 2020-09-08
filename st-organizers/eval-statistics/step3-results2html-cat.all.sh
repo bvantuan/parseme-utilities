@@ -7,9 +7,6 @@
 #	Each system folder contains one folder per language, and one test.system.cupt file in it.
 #
 # The HTML table is printed to the results-cat.html file in $1
-#
-# Sample call:
-# ./step3-results2html-cat.all.sh ~/shared-task/Gitlab/sharedtask-data-dev/1.1/system-results
 
 
 LANGUAGES=(DE EL EU FR GA HE HI IT PL PT RO SV TR ZH)

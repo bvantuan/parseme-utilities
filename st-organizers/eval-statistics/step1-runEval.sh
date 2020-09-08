@@ -10,9 +10,7 @@
 #	Each of them should contain the test.cupt file with the gold version of the test data.
 #
 # As a result, a results.txt file, containing the ouput of the evaluation script, is added to every language directory of every system.
-#Sample run:
-# ./step1-runEval.sh ~/shared-task/Gitlab/sharedtask-data-dev/1.1/system-results ~/shared-task/Gitlab/sharedtask-data-dev/1.1/preliminary-sharedtask-data/
-# Author: Agata Savary
+# Alternatively, results-traindev.txt contains the same data but unseen are considered wrt. train+dev
 
 
 source ../../lib/parseme_st_data_dev_path.bash #Define the PARSEME_SHAREDTASK_DATA_DEV variable
@@ -42,6 +40,8 @@ for SYS_DIR in `ls $RESULTS_DIR | grep -E '(closed)|(open)$'`; do
 	#Run the evaluation for each language for which the system submitted results
 	for LANG in ${LANGUAGES[*]}; do
 		if [ -d $RESULTS_DIR/$SYS_DIR/$LANG ]; then
+			cat $GOLD_DIR/$LANG/{train,dev}.cupt > $GOLD_DIR/$LANG/train-dev.cupt
+			TRAINDEV=$GOLD_DIR/$LANG/train-dev.cupt #Get the train-dev
 			TRAIN=$GOLD_DIR/$LANG/train.cupt #Get the train
 			GOLD=$GOLD_DIR/$LANG/test.cupt # Get the gold file
 			PRED=$RESULTS_DIR/$SYS_DIR/$LANG/test.system.cupt #Get the system's predictions
@@ -51,6 +51,8 @@ for SYS_DIR in `ls $RESULTS_DIR | grep -E '(closed)|(open)$'`; do
 				rm -rf $RESULTS_DIR/$SYS_DIR/$LANG/results.txt;
 			fi
 			$EVALUATE --train $TRAIN --gold $GOLD --pred $PRED  > $RESULTS_DIR/$SYS_DIR/$LANG/results.txt
+			$EVALUATE --train $TRAINDEV --gold $GOLD --pred $PRED  > $RESULTS_DIR/$SYS_DIR/$LANG/results-traindev.txt
+			rm $GOLD_DIR/$LANG/train-dev.cupt
 		fi
 	done
 done
@@ -59,6 +61,8 @@ done
 mkdir -p $RESULTS_DIR/dummy
 for LANG in ${LANGUAGES[*]}; do
   mkdir -p $RESULTS_DIR/dummy/$LANG
+	cat $GOLD_DIR/$LANG/{train,dev}.cupt > $GOLD_DIR/$LANG/train-dev.cupt
+	TRAINDEV=$GOLD_DIR/$LANG/train-dev.cupt #Get the train-dev
 	TRAIN=$GOLD_DIR/$LANG/train.cupt #Get the train
 	GOLD=$GOLD_DIR/$LANG/test.cupt # Get the gold file
 	sed 's/_$/*/g' $GOLD_DIR/$LANG/test.blind.cupt > $GOLD_DIR/$LANG/test.dummy.cupt
@@ -67,5 +71,7 @@ for LANG in ${LANGUAGES[*]}; do
 	#Run the evaluation
 	if [ -f $RESULTS_DIR/dummy/$LANG/results.txt ]; then rm -rf $RESULTS_DIR/dummy/$LANG/results.txt; fi
 	$EVALUATE --train $TRAIN --gold $GOLD --pred $PRED  > $RESULTS_DIR/dummy/$LANG/results.txt
-	rm $GOLD_DIR/$LANG/test.dummy.cupt
+	$EVALUATE --train $TRAINDEV --gold $GOLD --pred $PRED  > $RESULTS_DIR/dummy/$LANG/results-traindev.txt	
+	rm $GOLD_DIR/$LANG/test.dummy.cupt	
+	rm $GOLD_DIR/$LANG/train-dev.cupt
 done
