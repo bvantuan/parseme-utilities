@@ -47,6 +47,8 @@ calculate the unseen F1 scores. This version is not the one reported in
 the official scores, but it was calculated for the shared task paper
 to ensure coherence with splitting strategy (300 unseen wrt. train+dev!)
 
+TODO: In the future, modify th evaluation script so that it outputs Seen-in-traindev (rather than Seen-in-train), Unseen-in-traindev (rather than Unseen-in-train, Variant-of-traindev (rather than Variant-of-train) and Identical-to-traindev (rather than Identical-to-train) if the unseen VMWEs are defined with respect ti train+dev rather than train alone.
+
 --------------------------------------------------------------
 
 ## Step 2 - create one ranking per language
@@ -78,9 +80,9 @@ one per language. The resulting `.html` page is printed into the
 ## Step 4 - calculate and format the macro-averages
 
 Convert the macro-average results to HTML tables. The resulting .html 
-page is printed into the `macro-ave.html` and `macro-ave-traindev.html` 
+pages are printed into the `macro-ave.html` and `macro-ave-traindev.html` 
 files in `sharedtask-data-dev/$EDITION/system-results`:
 
 ```bash
-./step4-macroave2html.sh ${DATADEV}/${EDITION}/system-results
+./step4-macroave2html.sh ${DATADEV}/${EDITION}/system-results 
 ```

@@ -11,7 +11,11 @@
 #
 # As a result, a results.txt file, containing the ouput of the evaluation script, is added to every language directory of every system.
 # Alternatively, results-traindev.txt contains the same data but unseen are considered wrt. train+dev
-
+#
+# TODO:
+# Currently the evaluation output is post-processed, in case of the traindev option, to change:
+# Seen-in-train --> Seen-in-traindev, Unseen-in-train --> Unseen-in-traindev, Variant-of-train --> Variant-of-traindev, Identical-to-train --> Identical-to-traindev
+# In the future, the evaluation script itself should output the right label.
 
 source ../../lib/parseme_st_data_dev_path.bash #Define the PARSEME_SHAREDTASK_DATA_DEV variable
 CHECK_CUPT="$PARSEME_SHAREDTASK_DATA_DEV/bin/validate_cupt.py" #Format validation script
@@ -51,7 +55,10 @@ for SYS_DIR in `ls $RESULTS_DIR | grep -E '(closed)|(open)$'`; do
 				rm -rf $RESULTS_DIR/$SYS_DIR/$LANG/results.txt;
 			fi
 			$EVALUATE --train $TRAIN --gold $GOLD --pred $PRED  > $RESULTS_DIR/$SYS_DIR/$LANG/results.txt
-			$EVALUATE --train $TRAINDEV --gold $GOLD --pred $PRED  > $RESULTS_DIR/$SYS_DIR/$LANG/results-traindev.txt
+			$EVALUATE --train $TRAINDEV --gold $GOLD --pred $PRED | \
+				sed 's/Seen-in-train/Seen-in-traindev/' | sed 's/Unseen-in-train/Unseen-in-traindev/' | \
+				sed 's/Variant-of-train/Variant-of-traindev/' | sed 's/Identical-to-train/Identical-to-traindev/' \
+				> $RESULTS_DIR/$SYS_DIR/$LANG/results-traindev.txt
 			rm $GOLD_DIR/$LANG/train-dev.cupt
 		fi
 	done
@@ -71,7 +78,11 @@ for LANG in ${LANGUAGES[*]}; do
 	#Run the evaluation
 	if [ -f $RESULTS_DIR/dummy/$LANG/results.txt ]; then rm -rf $RESULTS_DIR/dummy/$LANG/results.txt; fi
 	$EVALUATE --train $TRAIN --gold $GOLD --pred $PRED  > $RESULTS_DIR/dummy/$LANG/results.txt
-	$EVALUATE --train $TRAINDEV --gold $GOLD --pred $PRED  > $RESULTS_DIR/dummy/$LANG/results-traindev.txt	
+	# AS (14.09.2020: Renaming Unseen-in-train into Unseen-in-traindev, etc.
+	$EVALUATE --train $TRAINDEV --gold $GOLD --pred $PRED | \
+				sed 's/Seen-in-train/Seen-in-traindev/' | sed 's/Unseen-in-train/Unseen-in-traindev/' | \
+				sed 's/Variant-of-train/Variant-of-traindev/' | sed 's/Identical-to-train/Identical-to-traindev/' \
+		> $RESULTS_DIR/dummy/$LANG/results-traindev.txt	
 	rm $GOLD_DIR/$LANG/test.dummy.cupt	
 	rm $GOLD_DIR/$LANG/train-dev.cupt
 done

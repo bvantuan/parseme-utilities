@@ -1,6 +1,7 @@
 #This script formats the PARSEME shared task macro-average results into HTML tables for display.
 #Parameters:
-#	ARGV[1] = a phenomenon e.g. Discontinuous, Single-token, etc.
+#	ARGV[1] = a (left) phenomenon e.g. Discontinuous, Single-token, etc.
+#	ARGV[2] = the (right) phenomenon corresponding to the left one above (Continuous, Multi-token, etc.)
 # Stdin is a space-separated CSV format with the following fields:
 #	System Track P-MWE R-MWE F-MWE Rank
 # The output is an HTML table for the given phenomenon.

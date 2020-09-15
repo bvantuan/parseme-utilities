@@ -17,8 +17,9 @@ LANGUAGES=${@:3}
 MACRO_AVE="$PARSEME_SHAREDTASK_DATA_DEV/bin/average_of_evaluations.py" #Script for calculating macro-averages
 
 # JW 09.07.2020: pairs of phenomena to report in the same table
-PHENOMENA_LEFT=(Discontinuous Unseen-in-train Variant-of-train Single-token)
-PHENOMENA_RIGHT=(Continuous Seen-in-train Identical-to-train Multi-token)
+# AS 10.09.2020: To update when the eval scripts have changed so as to output also (Un)Seen-in-traindev, Identical-to-traindev, Variant-of-traindev
+# PHENOMENA_LEFT=(Discontinuous Unseen-in-train Variant-of-train Single-token)
+# PHENOMENA_RIGHT=(Continuous Seen-in-train Identical-to-train Multi-token)
 
 ##############################################################################
 # Format the global average results for a given system
@@ -193,8 +194,12 @@ fi
 RESULTS_DIR=$1
 if [ "$2" = "TRAIN" ]; then
 	TRAINDEV=""
+	PHENOMENA_LEFT=(Discontinuous Unseen-in-train Variant-of-train Single-token)
+	PHENOMENA_RIGHT=(Continuous Seen-in-train Identical-to-train Multi-token)
 elif [ "$2" = "TRAINDEV" ]; then
 	TRAINDEV="-traindev"
+	PHENOMENA_LEFT=(Discontinuous Unseen-in-traindev Variant-of-traindev Single-token)
+	PHENOMENA_RIGHT=(Continuous Seen-in-traindev Identical-to-traindev Multi-token)
 else
 	echo "Second parameter \"train-or-traindev\" must be TRAIN or TRAINDEV, found $2"
 	usage $0
@@ -206,13 +211,15 @@ for i in "${!PHENOMENA_LEFT[@]}"; do
   PHL=${PHENOMENA_LEFT[$i]}
   PHR=${PHENOMENA_RIGHT[$i]}
   echo -n "" > $RESULTS_DIR/macro-ave-${PHL}_${PHR}.open.txt
+#  echo "I'M WRITING TO $RESULTS_DIR/macro-ave-${PHL}_${PHR}.open.txt"
   echo -n "" > $RESULTS_DIR/macro-ave-${PHL}_${PHR}.closed.txt
+#  echo "I'M WRITING TO $RESULTS_DIR/macro-ave-${PHL}_${PHR}.closed.txt"
 done
 
-#For a given language, calculate the macro-avergaes for each system
+#For a given language, calculate the macro-averages for each system
 for SYS_DIR in `ls $RESULTS_DIR | grep -E '(closed)|(open)$' | grep -v .txt`; do
 	echo "Processing $SYS_DIR"
-	#Run the evaluation for the given language and system
+	#Run the macri average calculation for the given language and system
 	getResultsSys $RESULTS_DIR/$SYS_DIR $TRAINDEV
 done
 

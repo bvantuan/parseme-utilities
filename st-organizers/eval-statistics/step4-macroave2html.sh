@@ -6,17 +6,17 @@
 #	It is supposed to contain one folder per system; with the .closed or .open extension.
 #	Each system folder contains one folder per language, and a results.txt file in it.
 #
-# As a result, an HTML table is printed to the macro-ave.html file in $1
-# Alternatively, macro-ave-traindev.html contains the same data but unseen are considered wrt. train+dev
-
+# As a result, an HTML table is printed to the macro-ave.html and macro-ave-traindev.html file in $1,
+# depending if the unseen VMWEs are defined wrt. train alone or wrt. train+dev
 
 LANGUAGES=(DE EL EU FR GA HE HI IT PL PT RO SV TR ZH)
 # PHENOMENA=(Unseen-in-train Seen-in-train Variant-of-train Identical-to-train Continuous Discontinuous Multi-token Single-token)
 export LC_ALL="en_US.UTF-8" #Needed to rank everything in correct numerical order
 
 # JW 09.07.2020: pairs of phenomena to report in the same table
-PHENOMENA_LEFT=(Discontinuous Unseen-in-train Variant-of-train Single-token)
-PHENOMENA_RIGHT=(Continuous Seen-in-train Identical-to-train Multi-token)
+# AS 10.09.2020: Udapting below
+#PHENOMENA_LEFT=(Discontinuous Unseen-in-train Variant-of-train Single-token)
+#PHENOMENA_RIGHT=(Continuous Seen-in-train Identical-to-train Multi-token)
 
 #Check the number of parameters
 if [ $# -ne 1 ]; then
@@ -34,6 +34,16 @@ formatResults(){
 	RES_HTML=$1 # File where to store the results in HTML format
 	TRAINDEV=$2 # Use regular version or "-traindev" version of results
 	
+	# JW 09.07.2020: pairs of phenomena to report in the same table
+	# AS 10.09.2020: Udapting the labels to train or traindev
+	if [ "$TRAINDEV" == "-traindev" ]; then
+		PHENOMENA_LEFT=(Discontinuous Unseen-in-traindev Variant-of-traindev Single-token)
+		PHENOMENA_RIGHT=(Continuous Seen-in-traindev Identical-to-traindev Multi-token)
+	else
+		PHENOMENA_LEFT=(Discontinuous Unseen-in-train Variant-of-train Single-token)
+		PHENOMENA_RIGHT=(Continuous Seen-in-train Identical-to-train Multi-token)
+		
+	fi
 	rm -f $RES_HTML
 
 	#Print the result table style

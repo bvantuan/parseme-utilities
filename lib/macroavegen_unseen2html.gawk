@@ -1,6 +1,6 @@
 #This script formats the PARSEME shared task general macro-average results into HTML tables for display.
 # Stdin is a space-separated CSV format with the following fields:
-#	System Track P-token R-token F-token P-MWE R-MWE F-MWE Rank-token Rank-MWE
+#	System Track P-unseen R-unseen F-unseen P-token R-token F-token P-MWE R-MWE F-MWE Rank-token Rank-MWE
 # The output is an HTML table for the given phenomenon.
 
 BEGIN {
