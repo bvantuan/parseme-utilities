@@ -531,6 +531,7 @@ class Sentence:
 
     def calc_artificial_sent_id(self, sent_id_key="source_sent_id") -> KVPair:
         r"""Calculate required `source_sent_id` attribute for CoNLL-UP."""
+        import pdb; pdb.set_trace()
         sentid = self.get_kvpair("sent_id","autogen--{}".format(self.nth_sent)).value
         return KVPair(sent_id_key, '. {} {}'.format(
             os.path.basename(self.corpusinfo.file_path), sentid))
@@ -541,7 +542,7 @@ class Sentence:
         """
         ret = [kv for kv in self.kv_pairs if kv.key == key]
         if len(ret) != 1:
-            return backoff
+            return KVPair(key,backoff)
         return ret[0]
 
 
