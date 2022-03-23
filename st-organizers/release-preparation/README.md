@@ -1,7 +1,7 @@
 This directory contains scripts used to prepare the PARSEME corpora releases in versions 1.1 and 1.2.
 
-* `splitTrainTestDev.py` splits the whole corpus into TRAIN/DEV/TEST subcorpora depending on the size of the total corpus
-  * if less than 550 VMWEs are annotated, TEST will contain 10% of the corpus (randomly selected), TRAIN the remaining 90% and no DEV is created
-  * if at least 550 VMWEs but less than 1500 VMWEs are annotated, TEST will contain 500 VMWEs, TRAIN the remaining part, and no DEV is created
-  * if at least 1500 VMWEs but less than 5000 VMWEs are annotated, TEST and DEV will contain 500 VMWEs each, and TRAIN the remaining part
-  * otherwise (at least 5000 VMWEs are annotated), TEST and DEV will contain 10% of VMWEs each, and TRAIN the ramaining 20%
+* `splitTrainTestDev.py` splits the whole corpus into TRAIN/DEV/TEST subcorpora depending on its size, in terms of annotated VMWEs
+  * less than 550 VMWEs: 10% of the VMWEs for TEST; 90% for TRAIN; no DEV is created
+  * at least 550 but less than 1500 VMWEs: 500 VMWEs for TEST; the rest for TRAIN; no DEV is created
+  * at least 1500 but less than 5000 VMWEs: 500 VMWEs for TEST and DEV (each); the rest for TRAIN
+  * at least 5000 VMWEs: 10% of VMWEs for TEST and DEV (each); 80% for TRAIN
