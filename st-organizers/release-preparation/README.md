@@ -1,4 +1,4 @@
-This directory contains scripts unsed to prepare the PARSEME corpora releases in versions 1.1 and 1.2.
+This directory contains scripts used to prepare the PARSEME corpora releases in versions 1.1 and 1.2.
 
 * `splitTrainTestDev.py` splits the whole corpus into TRAIN/DEV/TEST subcorpora depending on the size of the total corpus
   * if less than 550 VMWEs are annotated, TEST will contain 10% of the corpus (randomly selected), TRAIN the remaining 90% and no DEV is created
