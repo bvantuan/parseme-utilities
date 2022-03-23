@@ -541,7 +541,7 @@ class Sentence:
         """
         ret = [kv for kv in self.kv_pairs if kv.key == key]
         if len(ret) != 1:
-            return backoff
+            return KVPair(key,backoff)
         return ret[0]
 
 

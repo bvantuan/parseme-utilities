@@ -37,7 +37,7 @@ sed -e 's@## File: [A-Z][A-Z]/@@g' -e 's/.cupt//g'\
 awk 'BEGIN{   prevlang = "XX";
 langsent=0; langtok=0; langvmwe=0; langvid=0; langlvcfull=0; langlvccause=0; langvpcfull=0; langvpccause=0; langvpcsemi=0; langiav=0; langmvc=0; langlsicv=0; langirv=0;
 }
-/(test|train|dev)/{ # (train|test|dev) #<= CHANGEME IF NEEDED!
+/(test|train|dev)/{ 
   head=$2 "  ";
   if(prevlang!=lang && prevlang != "XX"){
     print rowsep;
