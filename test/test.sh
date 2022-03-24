@@ -95,7 +95,7 @@ done
 
 #===> release-preparation scripts
 run_devnull ../st-organizers/release-preparation/calcSubcorpusJson.py --lang PT --input data/pt.cupt
-run_devnull ../st-organizers/release-preparation/splitTrainTestDev.py --lang PT --input data/pt.cupt --subcorpora data/subcorpora.json
+run_devnull ../st-organizers/release-preparation/splitTrainTestDev-1.1.py --lang PT --input data/pt.cupt --subcorpora data/subcorpora.json
 run_devnull rm -rf SPLIT
 
 
