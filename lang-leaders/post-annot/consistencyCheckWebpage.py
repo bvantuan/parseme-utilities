@@ -1,5 +1,6 @@
 #! /usr/bin/env python3
 
+import datetime
 import argparse
 import collections
 import json
@@ -328,6 +329,8 @@ p { margin-bottom: 5px; }  /* used inside mwe-occur-comment */
 
 """ + _shared_code.global_box_and_warning_modal() + """
 
+<p>Updated <span class="timeago" title='"""+datetime.datetime.now().isoformat()+"""'></span>.</p>
+
 <div class="panel panel-default">
   <div class="panel-heading">1. Overview</div>
   <div class="panel-body">
@@ -554,6 +557,7 @@ function loadStateFromLocalStorage() {
 /********* Post-load actions *******/
 
 $(document).ready(function() {
+    jQuery("span.timeago").timeago();
     window.addEventListener("beforeunload", function (e) {
         try { saveStateInLocalStorage(); } catch(e) { }
         if (!window.havePendingParsemeNotes) {
