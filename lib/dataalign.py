@@ -52,8 +52,8 @@ LANGS_WITH_ALL_CANONICAL_TOKENS_LEMATIZED = set("HI HU".split())
 
 ############################################################
 
-# Set of all valid languages in the latest PARSEME Shared-Task
-LANGS = set("AR BG CS DE EL EN ES EU FA FR GA HE HR HU HI IT LT MT PL PT RO SL SV TR ZH".split())
+# Set of all valid languages in PARSEME corpora
+LANGS = set("AR BG CS DE EL EN ES EU FA FR GA HE HR HU HI IT LT MT PL PT RO SL SR SV TR ZH".split())
 
 # Languages where the pronoun in IRV is canonically on the left
 LANGS_WITH_CANONICAL_REFL_PRON_ON_LEFT = set("DE EU FR RO".split())
