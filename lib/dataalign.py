@@ -1380,7 +1380,9 @@ class AbstractFileIterator:
         match = KVPair.KV_REGEX.match(line)
         keyval = KVPair.from_conllup(*match.groups()) if match else KVPair("RAWLINE", line[1:].strip())
         if isinstance(keyval, MWEAnnotMetadata):
-            assert keyval.mweid not in self.mwe_metadata
+            #assert keyval.mweid not in self.mwe_metadata
+            if keyval.mweid in self.mwe_metadata:
+                self.warn("Duplicated metadata, new value: "+re.sub("([{}])",r'\1\1',str(keyval)))                
             self.mwe_metadata[keyval.mweid] = keyval
         elif keyval.key == "global.columns":
             self.corpusinfo.colnames = keyval.value.strip().split()
