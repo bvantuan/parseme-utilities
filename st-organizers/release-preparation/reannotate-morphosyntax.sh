@@ -21,7 +21,7 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 
 #.cupt to .conllu converter
 CUPT2CONLLU=$HERE/../to_conllup.py
-TOCUPT=$HERE/../to_conllup.py
+TOCUPT=$HERE/../to_cupt.py
 SPLITCONLLU=$HERE/split-conllu.py
 #echo "CUPT2CONLLU=$CUPT2CONLLU"
 #echo "TOCUPT=$TOCUPT"
@@ -36,7 +36,7 @@ LOG=reannotate-log.txt
 
 #Language codes and the prefixes of the names of the corresponding UDPipe models (if several models per language, the one with the best LAS for gold tokanization is taken)
 #See here: https://ufal.mff.cuni.cz/udpipe/2/models
-declare -A LANGS=( [AR]=arabic [BG]=bulgarian [CS]=czech-pdt [DE]=german-hdt [EL]=greek-gdt [EN]=english-atis [ES]=spanish-ancora [EU]=basque [FA]=persian-perdt [FR]=french-sequoia [HE]=hebrew-iahltwiki  [HI]=hindi [HR]=croatian [HU]=hungarian [IT]=italian-partut [LT]=lithuanian-alksnis [MT]=maltese-mudt [PL]=polish-lfg [PT]=portuguese [RO]=romanian-simoner [SL]=slovenian-ssj [TR]=turkish-tourism )
+declare -A LANGS=( [AR]=arabic [BG]=bulgarian [CS]=czech-pdt [DE]=german-hdt [EL]=greek-gdt [EN]=english-atis [ES]=spanish-ancora [EU]=basque [FA]=persian-perdt [FR]=french-sequoia [HE]=hebrew-iahltwiki  [HI]=hindi-hdtb [HR]=croatian [HU]=hungarian [IT]=italian-partut [LT]=lithuanian-alksnis [MT]=maltese-mudt [PL]=polish-lfg [PT]=portuguese [RO]=romanian-simoner [SL]=slovenian-ssj [SV]=swedish-talbanken [TR]=turkish-tourism [ZH]=chinese-gsd)
 
 #Language of the data
 LANG=""
@@ -108,6 +108,8 @@ reannotate() {
         sub_new_conllu=$sub_old_conllu.reannot
         #Run UDPipi via a REST API
         curl -F data=@$sub_old_conllu -F model=$MODEL_PREF -F  tagger= -F parser= http://lindat.mff.cuni.cz/services/udpipe/api/process | PYTHONIOENCODING=utf-8 python -c "import sys,json; sys.stdout.write(json.load(sys.stdin)['result'])" > $sub_new_conllu
+	#Uncomment if only HEAD and DEPREL is to be re-annotated
+        #curl -F data=@$sub_old_conllu -F model=$MODEL_PREF -F  parser= http://lindat.mff.cuni.cz/services/udpipe/api/process | PYTHONIOENCODING=utf-8 python -c "import sys,json; sys.stdout.write(json.load(sys.stdin)['result'])" > $sub_new_conllu
         if [ $fileID -eq "1" ]; then
             cat $sub_new_conllu >> $new_conllu
         else

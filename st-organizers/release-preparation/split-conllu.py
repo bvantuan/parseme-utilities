@@ -7,7 +7,7 @@
 #  $2 = maximum size in MB 
 #The subfiles are named like the original file with .1, .2, etc. extensions
 #Sample call
-#    ./split-conllu.gawk test.cupt 4
+#    ./split-conllu.py test.cupt 4
 
 import sys
 
