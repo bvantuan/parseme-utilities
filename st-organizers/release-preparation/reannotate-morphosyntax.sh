@@ -116,7 +116,7 @@ prepare_reannot_dir() {
 #     $2 = path of the reannotation directory, where the reannotated files are to be placed
 reannotate_udpipe() {
     #generating all intermediate file names
-    file=`basename $1 .cupt`   # remove suffix starting with "_"
+    file=`basename $1 .cupt`   # remove suffix starting with   "_"
     old_conllu=$2/$file.old.conllu
     new_conllu=$2/$file.new.conllu
     new_cupt=$2/$file.new.cupt
