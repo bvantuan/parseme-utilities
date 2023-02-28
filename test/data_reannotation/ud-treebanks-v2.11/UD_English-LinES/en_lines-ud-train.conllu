@@ -1,0 +1,119 @@
+# sent_id = en_lines-ud-train-doc6-2288
+# text = With an absent smile to Bray across the room, she took up, for a moment, an abandoned beauty.
+1	With	with	ADP	_	_	4	case	_	_
+2	an	an	DET	IND-SG	Definite=Ind|PronType=Art	4	det	_	_
+3	absent	absent	ADJ	POS	Degree=Pos	4	amod	_	_
+4	smile	smile	NOUN	SG-NOM	Case=Nom	12	obl	_	_
+5	to	to	ADP	_	_	6	case	_	_
+6	Bray	Bray	PROPN	SG-NOM	Number=Sing	4	nmod	_	_
+7	across	across	ADP	_	_	9	case	_	_
+8	the	the	DET	DEF	Definite=Def|PronType=Art	9	det	_	_
+9	room	room	NOUN	SG-NOM	Number=Sing	4	nmod	_	SpaceAfter=No
+10	,	,	PUNCT	Comma	_	4	punct	_	_
+11	she	she	PRON	PERS-SG-NOM	Case=Nom|Gender=Fem|Number=Sing|Person=3|PronType=Prs	12	nsubj	_	_
+12	took	take	VERB	PAST	Mood=Ind|Tense=Past|VerbForm=Fin	0	root	_	_
+13	up	up	ADV	_	_	12	compound:prt	_	SpaceAfter=No
+14	,	,	PUNCT	Comma	_	17	punct	_	_
+15	for	for	ADP	_	_	17	case	_	_
+16	a	a	DET	IND-SG	Definite=Ind|PronType=Art	17	det	_	_
+17	moment	moment	NOUN	SG-NOM	Number=Sing	12	obl	_	SpaceAfter=No
+18	,	,	PUNCT	Comma	_	17	punct	_	_
+19	an	an	DET	IND-SG	Definite=Ind|PronType=Art	21	det	_	_
+20	abandoned	abandon	ADJ	PASS	Degree=Pos	21	amod	_	_
+21	beauty	beauty	NOUN	SG-NOM	Number=Sing	12	obj	_	SpaceAfter=No
+22	.	.	PUNCT	Period	_	12	punct	_	_
+
+# sent_id = en_lines-ud-train-doc6-2289
+# text = When he joined the group, they were listening to her.
+1	When	when	SCONJ	_	Case=Nom	3	mark	_	_
+2	he	he	PRON	PERS-P3SG-NOM	Case=Nom|Gender=Masc|Number=Sing|Person=3|PronType=Prs	3	nsubj	_	_
+3	joined	join	VERB	PAST	Mood=Ind|Tense=Past|VerbForm=Fin	9	advcl	_	_
+4	the	the	DET	DEF	Definite=Def|PronType=Art	5	det	_	_
+5	group	group	NOUN	SG-NOM	Number=Sing	3	obj	_	SpaceAfter=No
+6	,	,	PUNCT	Comma	_	3	punct	_	_
+7	they	they	PRON	PERS-PL-NOM	Case=Nom|Number=Plur|Person=3|PronType=Prs	9	nsubj	_	_
+8	were	be	AUX	PAST	Mood=Ind|Tense=Past|VerbForm=Fin	9	aux	_	_
+9	listening	listen	VERB	ING	Tense=Pres|VerbForm=Part	0	root	_	_
+10	to	to	ADP	_	_	11	case	_	_
+11	her	she	PRON	PERS-P3SG-ACC	Case=Acc|Gender=Fem|Number=Sing|Person=3|PronType=Prs	9	obl	_	SpaceAfter=No
+12	.	.	PUNCT	Period	_	9	punct	_	_
+
+# sent_id = en_lines-ud-train-doc6-2292
+# text = Timothy Odara's eyes were closed; leaning against the wall he kept his lips drawn back slightly, alert.
+1	Timothy	Timothy	PROPN	SG-NOM	Number=Sing	4	nmod:poss	_	_
+2	Odara	Odara	PROPN	SG	Number=Sing	1	flat	_	SpaceAfter=No
+3	's	's	PART	GEN	_	1	case	_	_
+4	eyes	eye	NOUN	PL-NOM	Number=Plur	6	nsubj:pass	_	_
+5	were	be	AUX	PAST	Mood=Ind|Tense=Past|VerbForm=Fin	6	aux:pass	_	_
+6	closed	close	VERB	PASS	Tense=Past|VerbForm=Part|Voice=Pass	0	root	_	SpaceAfter=No
+7	;	;	PUNCT	SemiColon	_	8	punct	_	_
+8	leaning	lean	VERB	ING	Tense=Pres|VerbForm=Part	6	advcl	_	_
+9	against	against	ADP	_	_	11	case	_	_
+10	the	the	DET	DEF	Definite=Def|PronType=Art	11	det	_	_
+11	wall	wall	NOUN	SG-NOM	Number=Sing	8	obl	_	_
+12	he	he	PRON	PERS-P3SG-NOM	Case=Nom|Gender=Masc|Number=Sing|Person=3|PronType=Prs	13	nsubj	_	_
+13	kept	keep	VERB	PAST	Mood=Ind|Tense=Past|VerbForm=Fin	6	conj	_	_
+14	his	he	PRON	P3SG-GEN	Gender=Masc|Number=Sing|Person=3|Poss=Yes|PronType=Prs	15	nmod:poss	_	_
+15	lips	lip	NOUN	PL-NOM	Number=Plur	13	obj	_	_
+16	drawn	draw	VERB	PASS	Tense=Past|VerbForm=Part|Voice=Pass	13	obj	_	_
+17	back	back	ADV	_	_	16	advmod	_	_
+18	slightly	slight	ADV	_	_	16	advmod	_	SpaceAfter=No
+19	,	,	PUNCT	Comma	_	20	punct	_	_
+20	alert	alert	ADJ	POS	Case=Nom	13	advmod	_	SpaceAfter=No
+21	.	.	PUNCT	Period	_	13	punct	_	_
+
+# sent_id = en_lines-ud-train-doc6-2290
+# text = We don't have to argue; we can take it that colonialism is indefensible, for us, no?
+1	We	we	PRON	PERS-P1PL-NOM	Case=Nom|Number=Plur|Person=1|PronType=Prs	6	nsubj	_	_
+2	do	do	AUX	PRES-AUX	Mood=Ind|Tense=Pres|VerbForm=Fin	6	aux	_	SpaceAfter=No
+3	n't	not	PART	NEG	_	6	advmod	_	_
+4	have	have	AUX	INF-AUX	Mood=Ind|Tense=Pres|VerbForm=Fin	6	aux	_	_
+5	to	to	PART	_	_	6	mark	_	_
+6	argue	argue	VERB	INF	VerbForm=Inf	0	root	_	SpaceAfter=No
+7	;	;	PUNCT	SemiColon	_	10	punct	_	_
+8	we	we	PRON	PERS-P1PL-NOM	Case=Nom|Number=Plur|Person=1|PronType=Prs	10	nsubj	_	_
+9	can	can	AUX	PRES-AUX	VerbForm=Fin	10	aux	_	_
+10	take	take	VERB	INF	VerbForm=Inf	6	parataxis	_	_
+11	it	it	PRON	PERS-SG	_	10	obj	_	_
+12	that	that	SCONJ	_	_	15	mark	_	_
+13	colonialism	colonialism	NOUN	SG-NOM	Number=Sing	15	nsubj	_	_
+14	is	be	AUX	PRES	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	15	cop	_	_
+15	indefensible	indefensible	ADJ	POS	Degree=Pos	10	ccomp	_	SpaceAfter=No
+16	,	,	PUNCT	Comma	_	18	punct	_	_
+17	for	for	ADP	_	_	18	case	_	_
+18	us	we	PRON	PERS-P1PL-ACC	Case=Acc|Number=Plur|Person=1|PronType=Prs	15	nmod	_	SpaceAfter=No
+19	,	,	PUNCT	Comma	_	20	punct	_	_
+20	no	no	INTJ	_	_	10	discourse	_	SpaceAfter=No
+21	?	?	PUNCT	QuestionMark	_	20	punct	_	_
+
+# sent_id = en_lines-ud-train-doc1-3
+# text = Some of the content in this topic may not be applicable to some languages.
+1	Some	some	PRON	IND	Case=Nom	11	nsubj	_	_
+2	of	of	ADP	_	_	4	case	_	_
+3	the	the	DET	DEF	Definite=Def|PronType=Art	4	det	_	_
+4	content	content	NOUN	SG-NOM	Number=Sing	1	nmod	_	_
+5	in	in	ADP	_	_	7	case	_	_
+6	this	this	DET	DEM-SG	Number=Sing|PronType=Dem	7	det	_	_
+7	topic	topic	NOUN	SG-NOM	Number=Sing	4	nmod	_	_
+8	may	may	AUX	PRES-AUX	VerbForm=Fin	11	aux	_	_
+9	not	not	PART	NEG	_	11	advmod	_	_
+10	be	be	AUX	INF	VerbForm=Inf	11	cop	_	_
+11	applicable	applicable	ADJ	POS	Degree=Pos	0	root	_	_
+12	to	to	ADP	_	_	14	case	_	_
+13	some	some	DET	IND	_	14	det	_	_
+14	languages	language	NOUN	PL-NOM	Number=Plur	11	nmod	_	SpaceAfter=No
+15	.	.	PUNCT	Period	_	11	punct	_	_
+
+# sent_id = en_lines-ud-train-doc6-2291
+# text = You think so, I think so... right.
+1	You	you	PRON	PERS-P2	_	2	nsubj	_	_
+2	think	think	VERB	PRES	Mood=Ind|Tense=Pres|VerbForm=Fin	0	root	_	_
+3	so	so	ADV	_	_	2	advmod	_	SpaceAfter=No
+4	,	,	PUNCT	Comma	_	6	punct	_	_
+5	I	I	PRON	PERS-P1SG-NOM	Case=Nom|Number=Sing|Person=1|PronType=Prs	6	nsubj	_	_
+6	think	think	VERB	PRES	Mood=Ind|Tense=Pres|VerbForm=Fin	2	parataxis	_	_
+7	so	so	ADV	_	_	6	advmod	_	SpaceAfter=No
+8	...	...	PUNCT	Dots	_	9	punct	_	_
+9	right	right	ADJ	POS	Degree=Pos	6	discourse	_	SpaceAfter=No
+10	.	.	PUNCT	Period	_	9	punct	_	_
+

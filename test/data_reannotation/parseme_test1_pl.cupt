@@ -1,0 +1,34 @@
+# global.columns = ID FORM LEMMA UPOS XPOS FEATS HEAD DEPREL DEPS MISC PARSEME:MWE
+# source_sent_id = http://hdl.handle.net/11234/1-3105 UD_Polish-PDB/pl_pdb-ud-dev.conllu dev-s1251
+# orig_file_sentence = 120-4-900001_morph_35.17-s
+# text = O przyczynie śmierci kolegi niewiele potrafią powiedzieć, ale domyślają się, jak mogła ona wyglądać.
+1	O	o	ADP	prep:loc	AdpType=Prep	2	case	2:case	Case=Loc	*
+2	przyczynie	przyczyna	NOUN	subst:sg:loc:f	Case=Loc|Gender=Fem|Number=Sing	7	obl:arg	7:obl:arg	_	*
+3	śmierci	śmierć	NOUN	subst:sg:gen:f	Case=Gen|Gender=Fem|Number=Sing	2	nmod	2:nmod	_	*
+4	kolegi	kolega	NOUN	subst:sg:gen:m1	Animacy=Hum|Case=Gen|Gender=Masc|Number=Sing	3	nmod	3:nmod	_	*
+5	niewiele	niewiele	DET	num:pl:acc:n:rec:ncol	Case=Acc|Gender=Neut|Number=Plur|NumType=Card|PronType=Ind	7	obj	7:obj	_	*
+6	potrafią	potrafić	VERB	fin:pl:ter:imperf	Aspect=Imp|Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin|Voice=Act	0	root	0:root	_	*
+7	powiedzieć	powiedzieć	VERB	inf:perf	Aspect=Perf|VerbForm=Inf|Voice=Act	6	xcomp	6:xcomp	SpaceAfter=No	*
+8	,	,	PUNCT	interp	PunctType=Comm	10	punct	10:punct	_	*
+9	ale	ale	CCONJ	conj	_	10	cc	10:cc	_	*
+10	domyślają	domyślać	VERB	fin:pl:ter:imperf	Aspect=Imp|Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin|Voice=Act	6	conj	0:root|6:conj	_	1:IRV
+11	się	się	PRON	part	PronType=Prs|Reflex=Yes	10	expl:pv	10:expl:pv	SpaceAfter=No	1
+12	,	,	PUNCT	interp	PunctType=Comm	14	punct	14:punct	_	*
+13	jak	jak	ADV	adv:pos	Degree=Pos|PronType=Int	14	advmod	14:advmod	_	*
+14	mogła	móc	VERB	praet:sg:f:imperf	Aspect=Imp|Gender=Fem|Mood=Ind|Number=Sing|Tense=Past|VerbForm=Fin|Voice=Act	10	ccomp	10:ccomp	_	*
+15	ona	on	PRON	ppron3:sg:nom:f:ter:akc:npraep	Case=Nom|Gender=Fem|Number=Sing|Person=3|PrepCase=Npr|PronType=Prs|Variant=Long	14	nsubj	14:nsubj	_	*
+16	wyglądać	wyglądać	VERB	inf:imperf	Aspect=Imp|VerbForm=Inf|Voice=Act	14	xcomp	14:xcomp	SpaceAfter=No	*
+17	.	.	PUNCT	interp	PunctType=Peri	6	punct	6:punct	_	*
+
+# source_sent_id = http://hdl.handle.net/11234/1-3105 UD_Polish-PDB/pl_pdb-ud-dev.conllu dev-s1252
+# orig_file_sentence = 120-4-900001_morph_35.17-s
+# text = O przyczynie śmierci kolegi niewiele potrafią powiedzieć.
+1	O	o	ADP	prep:loc	AdpType=Prep	2	case	2:case	Case=Loc	*
+2	przyczynie	przyczyna	NOUN	subst:sg:loc:f	Case=Loc|Gender=Fem|Number=Sing	7	obl:arg	7:obl:arg	_	*
+3	śmierci	śmierć	NOUN	subst:sg:gen:f	Case=Gen|Gender=Fem|Number=Sing	2	nmod	2:nmod	_	*
+4	kolegi	kolega	NOUN	subst:sg:gen:m1	Animacy=Hum|Case=Gen|Gender=Masc|Number=Sing	3	nmod	3:nmod	_	*
+5	niewiele	niewiele	DET	num:pl:acc:n:rec:ncol	Case=Acc|Gender=Neut|Number=Plur|NumType=Card|PronType=Ind	7	obj	7:obj	_	*
+6	potrafią	potrafić	VERB	fin:pl:ter:imperf	Aspect=Imp|Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin|Voice=Act	0	root	0:root	_	*
+7	powiedzieć	powiedzieć	VERB	inf:perf	Aspect=Perf|VerbForm=Inf|Voice=Act	6	xcomp	6:xcomp	SpaceAfter=No	*
+8	.	.	PUNCT	interp	PunctType=Peri	6	punct	6:punct	_	*
+

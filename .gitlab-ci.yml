@@ -1,8 +1,28 @@
-test:
+stages:
+  - setup
+  - test
+
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    
+setup:
+  stage: setup
+  script:
+    - apt-get update -qy
+    - apt-get install -y python3-pip
+    - pip3 install -U folia
+    - export TERM=xterm
+
+test_morphosyntax:
+  stage: test
+  script: 
+    - echo "Testing the morphosyntax reannotation script"
+    - ./test/test_reannotate-morphosyntax.sh
+
+test_all:
   stage: test
   script:
-  - apt-get update -qy
-  - apt-get install -y python3-pip
-  - pip3 install -U folia
-  - export TERM=xterm
-  - ./test/test.sh
+    - echo "Testing if we can run all scripts to completion"
+    - ./test/test.sh
+    
