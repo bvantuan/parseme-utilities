@@ -7,6 +7,11 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 
 cd "$HERE"
 
+# Same as `echo`, but output in bold
+bold_echo() {
+    (tput bold; echo "$@"; tput sgr0)
+}
+
 ###########################################################
 # run_devnull <command> [args...]
 # Runs command and discards its output.
