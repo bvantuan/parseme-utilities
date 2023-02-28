@@ -10,7 +10,7 @@ test_morphosyntax:
     - ./test/test_reannotate-morphosyntax.sh
   artifacts:
     paths:
-      - ./test/data_reannotation/REANNOTATION/*
+      - ./test/data_reannotation/REANNOTATION/
     expire_in: 1 week
 
 test_all:
