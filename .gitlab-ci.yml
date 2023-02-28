@@ -11,6 +11,7 @@ test_morphosyntax:
   artifacts:
     paths:
       - ./test/data_reannotation/REANNOTATION/*
+    expire_in: 1 week
 
 test_all:
   stage: test
