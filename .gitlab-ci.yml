@@ -8,6 +8,9 @@ test_morphosyntax:
   script: 
     - echo "Testing the morphosyntax reannotation script"
     - ./test/test_reannotate-morphosyntax.sh
+  artifacts:
+    paths:
+      - ./test/data_reannotation/REANNOTATION/*
 
 test_all:
   stage: test
