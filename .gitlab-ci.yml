@@ -1,13 +1,5 @@
 stages:
-  - setup
   - test
-
-setup:
-  stage: setup
-  script:
-    - apt-get update -qy
-    - apt-get install -y python3-pip
-    - pip3 install -U folia
 
 test_morphosyntax:
   stage: test
@@ -20,6 +12,9 @@ test_morphosyntax:
 test_all:
   stage: test
   before_script:
+    - apt-get update -qy
+    - apt-get install -y python3-pip
+    - pip3 install -U folia
     - export TERM=xterm
   script:
     - echo "Testing if we can run all scripts to completion"
