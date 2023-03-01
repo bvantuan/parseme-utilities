@@ -156,7 +156,7 @@ reannotate_udpipe() {
      # validate the format .cupt
     ${VALIDATE_CUPT} --input $new_cupt
     bold_echo "===> Finished at: `date`"
-    echo "========================================================================================"
+    bold_echo "========================================================================================"
 }
 
 
@@ -193,6 +193,9 @@ reannotate_udtreebank() {
 
     # count the line number while reading
     declare -i count_line_number=1
+    declare -i nb_sentences_updated=0
+    declare -i nb_sentences_to_correct=0
+    declare -i nb_sentences_not_changed=0
 
     # Reading old annotaion (temporary file)
     while read -r line; do
@@ -218,6 +221,7 @@ reannotate_udtreebank() {
                 # Copy the old annotation into a new reannotated file
                 echo -e "$old_blocktext" >> $new_cupt
                 echo "" >> $new_cupt
+                nb_sentences_not_changed=$((nb_sentences_not_changed+1))
             # If the sentence is in the latest source treebanks' version
             else
                 # Extract the block of lines of new annotation of the text (metadata and morphosyntax in the UD)
@@ -266,6 +270,7 @@ reannotate_udtreebank() {
                     # MWE_annotation isn't changed, copy the new morphosyntax to new annotation file
                     paste <(echo -e "$new_morphosyntax_text") <(echo "$old_MWE_annotation") >> $new_cupt
                     echo "" >> $new_cupt
+                    nb_sentences_updated=$((nb_sentences_updated+1))
                 # The tokenizations are different in the two versions
                 else
                     echo "Tokenization has changed for the latest source treebank' version"
@@ -329,6 +334,7 @@ reannotate_udtreebank() {
                             # Copy the sentence into a new reannotated file
                             echo -e "$old_blocktext" >> $new_cupt
                             echo "" >> $new_cupt
+                            nb_sentences_not_changed=$((nb_sentences_not_changed+1))
                             # go to the next sentence
                             echo "Continue to update the morphosyntax for the next sentence"
                         # The annotator answered yes
@@ -357,7 +363,7 @@ reannotate_udtreebank() {
                             # copy the MWE_annotationto new annotation file
                             paste <(echo -e "$new_morphosyntax_text") <(echo "$old_MWE_annotation") >> $new_cupt
                             echo "" >> $new_cupt
-
+                            nb_sentences_updated=$((nb_sentences_updated+1))
                         fi
                     # the changed tokens are in a MWE
                     else
@@ -381,6 +387,7 @@ reannotate_udtreebank() {
                         # Copy the old morphosyntax into a new reannotated file
                         echo -e "$old_blocktext" >> $new_cupt
                         echo "" >> $new_cupt
+                        nb_sentences_to_correct=$((nb_sentences_to_correct+1))
 
                         bold_echo "===> Please correct manually the tokenization, the MWE annotation and the metadata(source_sent_id)" 
                         bold_echo "===> Continue to update the morphosyntax for the next sentence" 
@@ -404,11 +411,19 @@ reannotate_udtreebank() {
     #Remove intermediate files
     rm -f $old_cupt
 
+    bold_echo "========================================================================================"
+    bold_echo "=================================Summary================================================"
+    bold_echo "===> From the UD treebank $2"
+    bold_echo "===> $nb_sentences_not_changed sentences are not changed"
+    bold_echo "===> $nb_sentences_updated sentences are updated automatically"
+    bold_echo "===> $nb_sentences_to_correct sentences need to be corrected"
+    bold_echo "========================================================================================"
+
     bold_echo "===> File ready: $new_cupt" 
     # validate the format .cupt
     ${VALIDATE_CUPT} --input $new_cupt
     bold_echo "===> Finished at: `date`" 
-    echo "========================================================================================"
+    bold_echo "========================================================================================"
 }
 
 
