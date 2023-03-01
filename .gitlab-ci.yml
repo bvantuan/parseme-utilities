@@ -1,5 +1,6 @@
 stages:
   - test
+  - deploy
 
 test_morphosyntax:
   stage: test
@@ -11,7 +12,7 @@ test_morphosyntax:
   artifacts:
     paths:
       - ./test/data_reannotation/REANNOTATION/
-    expire_in: 1 week
+    expire_in: 2 days
 
 test_all:
   stage: test
@@ -23,4 +24,10 @@ test_all:
   script:
     - echo "Testing if we can run all scripts to completion"
     - ./test/test.sh
+
+release:
+  stage: deploy
+  script:
+    - echo "Next release for PARSEME Shared Task"
+    - ./test/release_script.sh
     
