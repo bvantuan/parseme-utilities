@@ -193,8 +193,11 @@ reannotate_udtreebank() {
 
     # count the line number while reading
     declare -i count_line_number=1
+    # The number of sentences is updated during the synchronisarion from UD treebank
     declare -i nb_sentences_updated=0
+    # The number of sentences needs to corrected manually 
     declare -i nb_sentences_to_correct=0
+    # The number of sentences is not changed
     declare -i nb_sentences_not_changed=0
 
     # Reading old annotaion (temporary file)
@@ -221,6 +224,7 @@ reannotate_udtreebank() {
                 # Copy the old annotation into a new reannotated file
                 echo -e "$old_blocktext" >> $new_cupt
                 echo "" >> $new_cupt
+                # The number of sentences that are not changed increases
                 nb_sentences_not_changed=$((nb_sentences_not_changed+1))
             # If the sentence is in the latest source treebanks' version
             else
@@ -270,6 +274,7 @@ reannotate_udtreebank() {
                     # MWE_annotation isn't changed, copy the new morphosyntax to new annotation file
                     paste <(echo -e "$new_morphosyntax_text") <(echo "$old_MWE_annotation") >> $new_cupt
                     echo "" >> $new_cupt
+                    # The number of sentences that are updated increases
                     nb_sentences_updated=$((nb_sentences_updated+1))
                 # The tokenizations are different in the two versions
                 else
@@ -334,6 +339,7 @@ reannotate_udtreebank() {
                             # Copy the sentence into a new reannotated file
                             echo -e "$old_blocktext" >> $new_cupt
                             echo "" >> $new_cupt
+                            # The number of sentences that are not changed increases
                             nb_sentences_not_changed=$((nb_sentences_not_changed+1))
                             # go to the next sentence
                             echo "Continue to update the morphosyntax for the next sentence"
@@ -363,6 +369,7 @@ reannotate_udtreebank() {
                             # copy the MWE_annotationto new annotation file
                             paste <(echo -e "$new_morphosyntax_text") <(echo "$old_MWE_annotation") >> $new_cupt
                             echo "" >> $new_cupt
+                            # The number of sentences that are updated increases
                             nb_sentences_updated=$((nb_sentences_updated+1))
                         fi
                     # the changed tokens are in a MWE
@@ -387,6 +394,7 @@ reannotate_udtreebank() {
                         # Copy the old morphosyntax into a new reannotated file
                         echo -e "$old_blocktext" >> $new_cupt
                         echo "" >> $new_cupt
+                        # The number of sentences that need to be corrected increases
                         nb_sentences_to_correct=$((nb_sentences_to_correct+1))
 
                         bold_echo "===> Please correct manually the tokenization, the MWE annotation and the metadata(source_sent_id)" 
