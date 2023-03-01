@@ -63,12 +63,9 @@ usage() {
     echo "The resulting .cupt files are placed in the directory 'REANNOTATION' which is under the same directory as the input files, with extension .new.cupt."
 
     echo ""
-    echo "Example: reannotate-morphosyntax.sh -m udtreebank -s parseme.cupt -t ud.conllu"
-    echo "         reannotate-morphosyntax.sh -m udpipe -l PL -s parseme1.cupt parseme2.cupt" 
-    echo "         ./reannotate-morphosyntax.sh --method udtreebank -s ~/Documents/parseme/test/parseme_test_en.cupt -t ~/Documents/parseme/UD/ud-treebanks-v2.11/UD_English-LinES/en_lines-ud-train.conllu -u http://hdl.handle.net/11234/1-4923 -p UD_English-LinES/en_lines-ud-train.conllu"
-    echo "         ./reannotate-morphosyntax.sh --method udtreebank -s ~/Documents/parseme/test/parseme_test_eu.cupt -t ~/Documents/parseme/UD/ud-treebanks-v2.11/UD_Basque-BDT -u http://hdl.handle.net/11234/1-4923"
-    echo "         ./reannotate-morphosyntax.sh --method udtreebank -s ~/Documents/parseme/test/parseme_test_pl.cupt -t ~/Documents/parseme/UD/ud-treebanks-v2.11/UD_Polish-PDB/ -u http://hdl.handle.net/11234/1-4923"
-    echo "         ./reannotate-morphosyntax.sh --method udtreebank -s ~/Documents/parseme/test/parseme_test1_pl.cupt -t ~/Documents/parseme/test/parseme_test1_pl_pdb-ud.conllu -u http://hdl.handle.net/11234/1-4923 -p UD_Polish-PDB/pl_pdb-ud-dev.conllu"
+    echo "Example: ./reannotate-morphosyntax.sh -m udpipe -l PL -s parseme1.cupt parseme2.cupt"
+    echo "         ./reannotate-morphosyntax.sh --method udtreebank -s parseme_test_en.cupt -t ud-treebanks-v2.11/UD_English-LinES/en_lines-ud-train.conllu -u http://hdl.handle.net/11234/1-4923 -p UD_English-LinES/en_lines-ud-train.conllu"
+    echo "         ./reannotate-morphosyntax.sh --method udtreebank -s parseme_test_pl.cupt -t ud-treebanks-v2.11/UD_Polish-PDB/ -u http://hdl.handle.net/11234/1-4923"
 
     echo ""
     echo "Parameters: "
@@ -156,6 +153,8 @@ reannotate_udpipe() {
     rm -f $old_conllu $new_conllu
 
     bold_echo "===> File ready: $new_cupt"
+     # validate the format .cupt
+    ${VALIDATE_CUPT} --input $new_cupt
     bold_echo "===> Finished at: `date`"
     echo "========================================================================================"
 }
@@ -406,6 +405,8 @@ reannotate_udtreebank() {
     rm -f $old_cupt
 
     bold_echo "===> File ready: $new_cupt" 
+    # validate the format .cupt
+    ${VALIDATE_CUPT} --input $new_cupt
     bold_echo "===> Finished at: `date`" 
     echo "========================================================================================"
 }
@@ -493,7 +494,7 @@ if [ -n "$method_type" ]; then
     # If the method is udpipe
     if [ $method_type = "udpipe" ]; then
         # If parameters language and source files are set
-        if [ -n "$language_code" ] && [ -n "$source_files" ]; then
+        if [ -n "$language_code" ] && [ ! "${#source_files[@]}" -eq 0 ]; then
             LANG="$language_code"
             MODEL_PREF=${LANGS[$language_code]}
             echo "Language: $language_code"
