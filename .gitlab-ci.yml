@@ -30,4 +30,6 @@ release:
   script:
     - echo "Next release for PARSEME Shared Task"
     - ./test/release_script.sh
+  only:
+    - schedules
     
