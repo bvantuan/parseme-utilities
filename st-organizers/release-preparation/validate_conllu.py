@@ -24,7 +24,7 @@ with open(filename, 'r') as f:
             continue
 
         # Split the line into fields
-        fields = line.split('\t')
+        fields = line.strip().split('\t')
         # Check if the line has the expected number of fields
         if len(fields) != 10:
             exit("ERROR: Line does not conform to CoNLL-U format: {}".format(line))
