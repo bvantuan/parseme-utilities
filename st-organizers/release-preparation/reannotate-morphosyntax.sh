@@ -34,6 +34,8 @@ declare -A VMWEs=( [LVC.full]='Light verb constructions in which the verb is sem
                     [VPC.semi]='semi non-compositional verb-particle constructions' 
                     [MVC]='multi-verb constructions' 
                     [IAV]='inherently adpositional verbs')
+# declare a constant array
+declare -r INVALID_VMWEs=("NotMWE")
 
 #Language of the data
 LANG=""
@@ -49,9 +51,9 @@ usage() {
     echo "The resulting .cupt files are placed in the directory 'REANNOTATION' which is under the same directory as the input files, with extension .new.cupt."
 
     echo ""
-    echo "Example: ./reannotate-morphosyntax.sh -m udpipe -l PL -s parseme1.cupt parseme2.cupt"
+    echo "Example: ./reannotate-morphosyntax.sh -m udpipe -l PL -s parseme1.cupt parseme2.cupt --tagger --parser"
     echo "         ./reannotate-morphosyntax.sh --method udtreebank -s parseme_test_en.cupt -t ud-treebanks-v2.11/UD_English-LinES/en_lines-ud-train.conllu -u http://hdl.handle.net/11234/1-4923 -p UD_English-LinES/en_lines-ud-train.conllu"
-    echo "         ./reannotate-morphosyntax.sh --method udtreebank -s parseme_test_pl.cupt -t ud-treebanks-v2.11/UD_Polish-PDB/ -u http://hdl.handle.net/11234/1-4923"
+    echo "         ./reannotate-morphosyntax.sh --method udtreebank -s parseme_test_pl.cupt -t ud-treebanks-v2.11/UD_Polish-PDB/ -u http://hdl.handle.net/11234/1-4923 -r"
 
     echo ""
     echo "Parameters: "
@@ -62,6 +64,9 @@ usage() {
     echo -e "\t -t, --treebank \t File .conllu or a directory of treebanks of Universal Dependencies (UD)"
     echo -e "\t -u, --uri \t\t The persistent URI of the original corpus"
     echo -e "\t -p, --path \t\t The path of the source file in the original corpus (used only if the parameter --treebank is a file)"
+    echo -e "\t --tagger \t\t Reannotate columns LEMMA, UPOS, XPOS and FEATS in udpipe method (default:false)"
+    echo -e "\t --parser \t\t Reannotate columns HEAD and DEPREL in udpipe method (default:false)"
+    echo -e "\t -r, --release \t\t Correct invalid VMWE annotations (e.g. NotMWE to *) (default:false)"
 }
 
 ########################################
@@ -119,10 +124,21 @@ reannotate_udpipe() {
     sub_old_conllu=$old_conllu.$fileID
     while [ -f $sub_old_conllu ]; do
         sub_new_conllu=$sub_old_conllu.reannot
-        #Run UDPipi via a REST API
-        curl -F data=@$sub_old_conllu -F model=$MODEL_PREF -F  tagger= -F parser= http://lindat.mff.cuni.cz/services/udpipe/api/process | PYTHONIOENCODING=utf-8 python3 -c "import sys,json; sys.stdout.write(json.load(sys.stdin)['result'])" > $sub_new_conllu
-	#Uncomment if only HEAD and DEPREL is to be re-annotated
-        #curl -F data=@$sub_old_conllu -F model=$MODEL_PREF -F  parser= http://lindat.mff.cuni.cz/services/udpipe/api/process | PYTHONIOENCODING=utf-8 python -c "import sys,json; sys.stdout.write(json.load(sys.stdin)['result'])" > $sub_new_conllu
+
+        if $tagger && $parser; then
+            #Run UDPipi via a REST API
+            curl -F data=@$sub_old_conllu -F model=$MODEL_PREF -F  tagger= -F parser= http://lindat.mff.cuni.cz/services/udpipe/api/process | PYTHONIOENCODING=utf-8 python3 -c "import sys,json; sys.stdout.write(json.load(sys.stdin)['result'])" > $sub_new_conllu
+        elif $tagger && ! $parser; then
+            #Run UDPipi via a REST API
+            curl -F data=@$sub_old_conllu -F model=$MODEL_PREF -F  tagger= http://lindat.mff.cuni.cz/services/udpipe/api/process | PYTHONIOENCODING=utf-8 python3 -c "import sys,json; sys.stdout.write(json.load(sys.stdin)['result'])" > $sub_new_conllu
+        elif ! $tagger && $parser; then
+            #Run UDPipi via a REST API
+            curl -F data=@$sub_old_conllu -F model=$MODEL_PREF -F  parser= http://lindat.mff.cuni.cz/services/udpipe/api/process | PYTHONIOENCODING=utf-8 python3 -c "import sys,json; sys.stdout.write(json.load(sys.stdin)['result'])" > $sub_new_conllu
+        else
+            #Run UDPipi via a REST API
+            curl -F data=@$sub_old_conllu -F model=$MODEL_PREF  http://lindat.mff.cuni.cz/services/udpipe/api/process | PYTHONIOENCODING=utf-8 python3 -c "import sys,json; sys.stdout.write(json.load(sys.stdin)['result'])" > $sub_new_conllu
+        fi
+    
         if [ $fileID -eq "1" ]; then
             cat $sub_new_conllu >> $new_conllu
         else
@@ -139,8 +155,13 @@ reannotate_udpipe() {
     rm -f $old_conllu $new_conllu
 
     bold_echo "===> File ready: $new_cupt"
-     # validate the format .cupt
-    ${VALIDATE_CUPT} --input $new_cupt
+
+    if $release; then
+        bold_echo "===> Validating the new .cupt file for the release version"
+        # validate the format .cupt
+        ${VALIDATE_CUPT} --input $new_cupt
+    fi
+    
     bold_echo "===> Finished at: `date`"
     bold_echo "========================================================================================"
 }
@@ -158,7 +179,7 @@ reannotate_udtreebank() {
     file_path=${4:-}
 
     # validate the format .cupt
-    ${VALIDATE_CUPT} --input $1
+    # ${VALIDATE_CUPT} --input $1
     # # validate the format .conllu
     ${VALIDATE_CONLLU} $2
 
@@ -196,15 +217,61 @@ reannotate_udtreebank() {
             old_blocktext_before=$(sed '/^$/d' <<< $old_blocktext_before)
             old_blocktext=$(echo -e "$old_blocktext_before\n$old_blocktext_after")
 
+            # if release parameter is set
+            if $release; then
+                # new release block text (remove invalid vmwe tags)
+                old_release_blocktext=""
+                # new invalid vmwe tags including the index (1:NotMWE, add 1 to the invalid vmwe tags)
+                new_invalid_vmwes=("${INVALID_VMWEs[@]}")
+    
+                # loop over the tokenization lines in the parseme sentence
+                while read token_line; do
+                    # If the line is a token line
+                    if grep -q -v '^#' <<< "$token_line"; then
+                        # vmwe tag in the line
+                        vmwe_tag=$(cut -f11 <<< $token_line)
+                        # vmwe indexed tag in the line
+                        vmwe_tag_key=$(cut -d: -f1 <<< "$vmwe_tag")
+                        # vmwe value tag in the line
+                        vmwe_tag_value=$(cut -d: -f2 <<< "$vmwe_tag")
+                        
+                        # the line has a invalid vmwe tag
+                        if [[ " ${new_invalid_vmwes[*]} " =~ " ${vmwe_tag_value} " ]]; then
+                            # add indexed tag
+                            new_invalid_vmwes+=($vmwe_tag_key)
+                            # the new token line from replacing the invalid vmwe tag by *
+                            release_token_line=$(echo "$token_line" | awk -v OFS='\t' -v replacement="*" '{ $11=replacement; print }')
+                            # add the new token line
+                            old_release_blocktext=$(echo -e "$old_release_blocktext\n$release_token_line")
+                        # the line has a valid vmwe tag
+                        else
+                            # the token line is kept
+                            old_release_blocktext=$(echo -e "$old_release_blocktext\n$token_line")
+                        fi
+                    # If the line is not a token line
+                    else
+                        # the token line is kept
+                        old_release_blocktext=$(echo -e "$old_release_blocktext\n$token_line")
+                    fi
+                done <<< "$old_blocktext"
+
+                # remove new lines
+                old_release_blocktext=$(sed '/^$/d' <<< $old_release_blocktext)
+                # block text is replaced
+                old_blocktext=$old_release_blocktext
+            fi
+
             # Metadata of the text
             old_metadata_text=$(grep '^#' <<< $old_blocktext)
             # Line starting with # source_sent_id =
             old_metadata_source_sent_id=$(grep '# source_sent_id =' <<< $old_metadata_text)
             # morphosyntax of the text
             old_morphosyntax_text=$(grep -v '^#' <<< $old_blocktext)
+            # Old MWE annotation
+            old_MWE_annotation=$(cut -f11 <<< $old_morphosyntax_text)
 
             # Find the line number of the first occurrence of the sentence in the latest source treebanks' version
-            line_number=$(grep -n -F "$line" "$2" | head -1 | cut -d: -f1)
+            line_number=$(grep -n -Fx "$line" "$2" | head -1 | cut -d: -f1)
             # If the sentence is not in the latest source treebanks' version
             if [ -z "$line_number" ]; then
                 # Copy the old annotation into a new reannotated file
@@ -214,6 +281,8 @@ reannotate_udtreebank() {
                 nb_sentences_not_changed=$((nb_sentences_not_changed+1))
             # If the sentence is in the latest source treebanks' version
             else
+                echo "The sentence \"$line\" is founded in the UD treebank"
+
                 # Extract the block of lines of new annotation of the text (metadata and morphosyntax in the UD)
                 new_blocktext_after=$(sed -n "$line_number,/^$/p" "$2")
                 new_blocktext_before=$(head -n $line_number "$2" | tac | sed -n "2,/^$/p" | tac)
@@ -227,8 +296,6 @@ reannotate_udtreebank() {
                 # the newest morphosyntax in the UD
                 new_morphosyntax_text=$(grep -v '^#' <<< $new_blocktext)
 
-                # Old MWE annotation
-                old_MWE_annotation=$(cut -f11 <<< $old_morphosyntax_text)
                 # Tokenisation of old annotaion
                 source_tokens=$(cut -f2 <<< $old_morphosyntax_text)
                 # Tokenisation of the latest source treebanks' version
@@ -253,6 +320,7 @@ reannotate_udtreebank() {
                 # Tokenisations are the same in both versions
                 if [ "$source_tokens" = "$destination_tokens" ]; then
                     echo "Tokenisations are the same in both versions, the morphosyntax is updated automatically"
+                    echo ""
                     # Metadata is copied 
                     echo -e "$new_metadata_text" >> $new_cupt
                     # MWE_annotation isn't changed, copy the new morphosyntax to new annotation file
@@ -262,6 +330,11 @@ reannotate_udtreebank() {
                     nb_sentences_updated=$((nb_sentences_updated+1))
                 # The tokenizations are different in the two versions
                 else
+                    # associative arrays for id:token:vmwe tag 
+                    declare -A id_source_token
+                    declare -A id_source_MWE_annotation
+                    declare -A id_destination_token
+                    
                     # Three columns id, token form and MWE annotation in the old morphosyntax 
                     source_tokens_with_id_and_MWE_annotation=$(cut -f1,2,11 <<< $old_morphosyntax_text)
                     # loop through each line in the columns variable
@@ -276,8 +349,10 @@ reannotate_udtreebank() {
                     destination_tokens_with_id=$(cut -f1,2 <<< $new_morphosyntax_text)
                     # loop through each line in the columns variable
                     while read -r id token; do
+                        # echo "id: $id   token: $token"
                         # add the id-token pair to the associative array
-                        id_destination_token[$id]=$token
+                        id_destination_token["$id"]="$token"
+                        # echo "with id $id, we have ${id_destination_token[$id]}"
                     done <<< "$destination_tokens_with_id"
 
                     # boolean variable indicate id the changed tokens are in a MWE
@@ -291,12 +366,12 @@ reannotate_udtreebank() {
                     # all changed token ids in ud sentence
                     destination_changed_tokens=()
                     # new MWE annotation for the changed tokenization
-                    new_MWE_annotation=
+                    declare -A new_MWE_annotation
 
                     # Compare two tokenizations in the while loop
-                    while [[ ! $source_id -gt ${#id_source_token[@]} ]] || [[ ! $destination_id -gt ${#id_destination_token[@]} ]]; do
+                    while [[ ! $source_id -gt ${#id_source_token[@]} ]] && [[ ! $destination_id -gt ${#id_destination_token[@]} ]]; do
                         # MWE annotation is the same 
-                        new_MWE_annotation+="${id_source_MWE_annotation[$source_id]}\n"
+                        new_MWE_annotation[$source_id]=${id_source_MWE_annotation[$source_id]}
                         # If the tokens are the same
                         if [[ "${id_source_token[$source_id]}" == "${id_destination_token[$destination_id]}" ]]; then
                             # Next token
@@ -325,7 +400,8 @@ reannotate_udtreebank() {
                                     # find the changed token id in the ud sentence
                                     destination_changed_tokens+=($id)
                                     # MWE annotation is the same for the cas of division
-                                    new_MWE_annotation+="${id_source_MWE_annotation[$source_id]}\n"
+                                    # new_MWE_annotation+="${id_source_MWE_annotation[$source_id]}\n"
+                                    new_MWE_annotation[$id]=${id_source_MWE_annotation[$source_id]}
                                     # if the next token in ud sentence is the remaining token
                                     if [[ "$remaining_token" == "${id_destination_token[$id]}" ]]; then
                                         remaining_token="${remaining_token/${id_destination_token[$id]}}"
@@ -386,20 +462,46 @@ reannotate_udtreebank() {
                         fi
                     done
 
+                    # loop over the ids in the ud tokenization
+                    for id in "${!id_destination_token[@]}"; do
+                        # If the id is not found in the new MWE annotation
+                        if [ ! -v new_MWE_annotation[$id] ]; then
+                            # find the origin id in the variable
+                            id1=$(cut -d- -f1 <<< "$id")
+                            # If the origin id is found in the new MWE annotation
+                            if [ -v new_MWE_annotation[$id1] ]; then
+                                # add a MWE annotation for the id
+                                new_MWE_annotation[$id]=${new_MWE_annotation[$id1]}
+                            # If the origin id is not found in the new MWE annotation
+                            else
+                                # default value
+                                new_MWE_annotation[$id]="*"
+                            fi
+                        fi
+                    done
+
+                    # new MWE annotation that is formatted in lines for the changed tokenization
+                    new_MWE_annotation_in_lines=
+                    # loop through each line in the columns variable
+                    while read -r id token; do
+                        # format the MWE annotation in line
+                        new_MWE_annotation_in_lines+="${new_MWE_annotation[$id]}\n"
+                    done <<< "$destination_tokens_with_id"
+
                     # the changed tokens are not in a MWE
                     if ! $are_changed_tokens_in_a_MWE; then
-                        echo "Tokenization has changed for the latest source treebank' version"
+                        echo "Tokenization has changed for the latest source treebank' version ($file_path)"
                         echo "Here are the details:"
                         echo "$line"
                         echo ""
                         echo "Source PARSEME tokenization"
-                        
+
                         # loop over the tokenization lines in the parseme sentence
                         while read token_line; do
                             # token id
                             id_token=$(cut -f1 <<< $token_line)
                             # If it is a changed token
-                            if [[ "${source_changed_tokens[*]}" =~ "${id_token}" ]]; then
+                            if [[ " ${source_changed_tokens[*]} " =~ " ${id_token} " ]]; then
                                 # display in green and bold
                                 echo "$(tput setaf 2)$(tput bold)${token_line}$(tput sgr0)"
                             # If it is not a changed token
@@ -416,7 +518,7 @@ reannotate_udtreebank() {
                             # token id
                             id_token=$(cut -f1 <<< $token_line)
                             # If it is a changed token
-                            if [[ "${destination_changed_tokens[*]}" =~ "${id_token}" ]]; then
+                            if [[ " ${destination_changed_tokens[*]} " =~ " ${id_token} " ]]; then
                                 # display in green and bold
                                 echo "$(tput setaf 2)$(tput bold)${token_line}$(tput sgr0)"
                             # If it is not a changed token
@@ -426,6 +528,7 @@ reannotate_udtreebank() {
                             fi
                         done <<< "$new_morphosyntax_text"
                         echo ""
+
 
                         # terminate the redirection of stderr
                         exec 2>&1
@@ -460,9 +563,9 @@ reannotate_udtreebank() {
                             # Metadata is copied into a new reannotated file
                             echo -e "$new_metadata_text" >> $new_cupt
                             # remove the last newline character
-                            new_MWE_annotation=$(sed '/^$/d' <(echo -e "$new_MWE_annotation"))
+                            new_MWE_annotation_in_lines=$(sed '/^$/d' <(echo -e "$new_MWE_annotation_in_lines"))
                             # copy the MWE_annotationto into the new annotation file
-                            paste <(echo -e "$new_morphosyntax_text") <(echo -e "$new_MWE_annotation") >> $new_cupt
+                            paste <(echo -e "$new_morphosyntax_text") <(echo -e "$new_MWE_annotation_in_lines") >> $new_cupt
                             echo "" >> $new_cupt
                             # The number of sentences that are updated increases
                             nb_sentences_updated=$((nb_sentences_updated+1))
@@ -516,8 +619,12 @@ reannotate_udtreebank() {
     bold_echo "========================================================================================"
 
     bold_echo "===> File ready: $new_cupt" 
-    # validate the format .cupt
-    ${VALIDATE_CUPT} --input $new_cupt
+
+    if $release; then
+        bold_echo "===> Validating the new .cupt file for the release version"
+        # validate the format .cupt
+        ${VALIDATE_CUPT} --input $new_cupt
+    fi
     bold_echo "===> Finished at: `date`" 
     bold_echo "========================================================================================"
 }
@@ -534,8 +641,8 @@ bold_echo() {
 
 # Parse command-line options
 # define the short and long options that the script will accept
-OPTIONS=m:l:s:t:u:p:h
-LONGOPTIONS=help,method:,language:,source:,treebank:,uri:,path:
+OPTIONS=m:l:s:t:u:p:hr
+LONGOPTIONS=help,tagger,parser,release,method:,language:,source:,treebank:,uri:,path:
 
 # parse the command line arguments.
 PARSED=$(getopt --options=$OPTIONS --longoptions=$LONGOPTIONS --name "$0" -- "$@")
@@ -554,6 +661,10 @@ source_files=()
 treebank_file=
 corpus_uri=
 file_path=
+# set default values for boolean arguments
+tagger=false
+parser=false
+release=false
 
 # iterating over positional parameters with a for loop.
 while true; do
@@ -585,6 +696,18 @@ while true; do
             file_path=$2
             shift 2
             ;;
+        --tagger)
+            tagger=true
+            shift
+            ;;
+        --parser)
+            parser=true
+            shift
+            ;;
+        -r|--release)
+            release=true
+            shift
+            ;;
         -h|--help)
             usage
             exit 0
@@ -599,6 +722,20 @@ while true; do
             ;;
     esac
 done
+
+if [ ! $method_type = "udpipe" ] && ($tagger || $parser); then
+    if $tagger; then
+        # error
+        echo "Expected tagger parameter only for udpipe method"
+        exit 2
+    fi
+
+    if $parser; then
+        # error
+        echo "Expected parser parameter only for udpipe method"
+        exit 2
+    fi
+fi
 
 # If parameter method is set
 if [ -n "$method_type" ]; then
