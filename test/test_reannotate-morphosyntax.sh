@@ -20,7 +20,7 @@ run_devnull() {
     "$@" >/dev/null  # Run command and discard output
 }
 
-run_devnull ../st-organizers/release-preparation/reannotate-morphosyntax.sh --method udtreebank -s ./data_reannotation/parseme_test_en.cupt -t ./data_reannotation/ud-treebanks-v2.11/UD_English-LinES/en_lines-ud-train.conllu -u http://hdl.handle.net/11234/1-4923 -p UD_English-LinES/en_lines-ud-train.conllu
+run_devnull ../st-organizers/release-preparation/reannotate-morphosyntax.sh --method udtreebank -s ./data_reannotation/parseme_test_en.cupt -t ./data_reannotation/ud-treebanks-v2.11/UD_English-LinES/en_lines-ud-train.conllu -u http://hdl.handle.net/11234/1-4923
 diff ./data_reannotation/parseme_test_en.new.cupt ./data_reannotation/REANNOTATION/parseme_test_en.new.cupt
 
 run_devnull ../st-organizers/release-preparation/reannotate-morphosyntax.sh --method udtreebank -s ./data_reannotation/parseme_test_eu.cupt -t ./data_reannotation/ud-treebanks-v2.11/UD_Basque-BDT -u http://hdl.handle.net/11234/1-4923
