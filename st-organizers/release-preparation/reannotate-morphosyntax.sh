@@ -53,7 +53,7 @@ usage() {
     echo ""
     echo "Example: ./reannotate-morphosyntax.sh -m udpipe -l PL -s parseme1.cupt parseme2.cupt --tagger --parser"
     echo "         ./reannotate-morphosyntax.sh --method udtreebank -s parseme_test_en.cupt -t ud-treebanks-v2.11/UD_English-LinES/en_lines-ud-train.conllu -u http://hdl.handle.net/11234/1-4923 -p UD_English-LinES/en_lines-ud-train.conllu"
-    echo "         ./reannotate-morphosyntax.sh --method udtreebank -s parseme_test_pl.cupt -t ud-treebanks-v2.11/UD_Polish-PDB/ -u http://hdl.handle.net/11234/1-4923 -r"
+    echo "         ./reannotate-morphosyntax.sh --method udtreebank -s parseme_test_pl.cupt -t ud-treebanks-v2.11/UD_Polish-PDB/ -u http://hdl.handle.net/11234/1-4923"
 
     echo ""
     echo "Parameters: "
@@ -104,6 +104,10 @@ function prepare_log_file() {
     # Prepare the reannotation directory
     REANNOT_DIR=$(prepare_reannot_dir $1)
     echo "Reannotated files go to $REANNOT_DIR"
+    # filename
+    filename=`basename $1 .cupt`   # remove suffix starting with   "_"
+    #Log file
+    LOG="logs-reannotate-$filename.txt"
     exec 2> $REANNOT_DIR/$LOG      #Redirecting standard error to a log file
     echo "Logs go to $REANNOT_DIR/$LOG"
     echo ""
@@ -174,21 +178,147 @@ reannotate_udpipe() {
 
 
 ########################################
+# Validate conllu format
+# Parameters: 
+#     $1 = an UD corpus (or a directory of UD corpus)
+function validate_conllu() {
+    # If parameter $1 is a file
+    if [ ! -d "$1" ]; then
+        # validate conllu format
+        ${VALIDATE_CONLLU} "$1"
+    else
+        # Loop over all treebanks in the directory
+        for f in $1/*.conllu; do
+            # remove redundant / characters from treebank file path
+            f=$(readlink -m -f "$f")
+            # validate conllu format
+            ${VALIDATE_CONLLU} "$f"
+        done
+    fi
+
+} 
+
+
+########################################
 # Extract the block of lines of annotation of the text (metadata and morphosyntax)
 # Parameters: 
 #     $1 = a line number
 #     $2 = an input file
 function find_blocktext() {
+    line_number=$1
+    # line number right before
+    line_number_before=$((line_number-1))
+
     # Extract the block of lines until the newline
     blocktext_after=$(sed -n "$1,/^$/p" "$2")
     # Extract the block of lines until the newline in reverse order
-    blocktext_before=$(head -n $1 "$2" | tac | sed -n "2,/^$/p" | tac)
-    # remove newlines
-    blocktext_before=$(sed '/^$/d' <<< $blocktext_before)
+    blocktext_before=$(head -n "$line_number_before" "$2" | tac | sed -n "0,/^$/p" | tac)
     # concatenate two blocks of lines
     blocktext=$(echo -e "$blocktext_before\n$blocktext_after")
+    # remove newlines
+    blocktext=$(sed '/^$/d' <<< $blocktext)
     # return the block of lines of annotation of the text (metadata and morphosyntax)
     echo "$blocktext"
+}
+
+
+########################################
+# Get UD line number and UD corpus with the same text but looking first for the sentence identifier of the parseme
+# Parameters: 
+#     $1 = a parseme sentence id
+#     $2 = an UD corpus (or a directory of UD corpus)
+function get_ud_line_number_with_the_same_text() {
+    # declare an empty associative array of line number of found parseme sentence identifiers in the UD
+    declare -A line_number_sent_ids
+
+    # If parameter $2 is a file
+    if [ ! -d $2 ]; then
+        # all line numbers contain parseme sentence id
+        line_numbers=$(grep -n '^# sent_id =' "$2" | grep "$1" | cut -d: -f1,2)
+
+        # If it have a line number that contain parseme sentence id
+        if [ ! -z "$line_numbers" ]; then
+            # loop through each match
+            while IFS=':' read -r line_number text_sent_id; do
+                # sentence identifier
+                sent_id=$(cut -d= -f2 <<< "$text_sent_id")
+                # remove leading spaces using parameter expansion
+                sent_id="${sent_id#"${sent_id%%[![:space:]]*}"}"
+                # Compare two identifiers
+                if [ "$sent_id" == "$1" ]; then  
+                    # Find a line number of matched parseme sentence identifier
+                    line_number_sent_ids["$line_number"]="$2"
+                fi
+            done <<< "$line_numbers"
+        fi
+    # If parameter $2 is a directory
+    else
+        # all line numbers contain parseme sentence id
+        line_numbers=$(grep -nr '^# sent_id =' "$2" | grep "$1" | cut -d: -f1,2,3)
+
+        # If it have a line number that contain parseme sentence id
+        if [ ! -z "$line_numbers" ]; then
+            # loop through each match
+            while IFS=':' read -r filename line_number text_sent_id; do
+                # sentence identifier
+                sent_id=$(cut -d= -f2 <<< "$text_sent_id")
+                # remove leading spaces using parameter expansion
+                sent_id="${sent_id#"${sent_id%%[![:space:]]*}"}"
+                # Compare two identifiers
+                if [ "$sent_id" == "$1" ]; then  
+                    # Find a line number of matched parseme sentence identifier
+                    line_number_sent_ids["$line_number"]="$filename"
+                fi
+            done <<< "$line_numbers"
+        fi
+    fi
+
+    # line number corresponding to UD
+    ud_line_number=""
+    # UD corpus corresponding to matched parseme sentence identifier
+    ud_corpus=""
+
+    # Loop over all line numbers contain parseme sentence id
+    for line_sent_id in "${!line_number_sent_ids[@]}"; do
+        # If it have a line number that contain parseme sentence id
+        if [ ! -z "$line_sent_id" ]; then
+            # find the block of lines of that sentence
+            blocktext=$(find_blocktext "$line_sent_id" "${line_number_sent_ids[$line_sent_id]}")
+            # find the text line
+            text=$(grep '^# text =' <<< "$blocktext")
+            # If two texts are the same
+            if [ "$text" == "$line" ]; then
+                # line number corresponding to UD is found
+                ud_line_number="$line_sent_id"
+                # UD corpus corresponding to matched parseme sentence identifier
+                ud_corpus="${line_number_sent_ids[$line_sent_id]}"
+                break
+            fi
+        fi
+    done
+
+    # sentence id in the parseme is not found
+    if [ -z "$ud_line_number" ]; then
+        # If parameter $2 is a file
+        if [ ! -d $2 ]; then
+            # Find the line number of the first occurrence of the sentence in the latest source treebanks' version
+            ud_line_number=$(grep -n -Fx "$line" "$2" | head -1 | cut -d: -f1)
+            # UD corpus corresponding
+            ud_corpus="$2"
+        else
+            # Find the line number of the first occurrence of the sentence in the latest source treebanks' version
+            ud_line_number_and_corpus=$(grep -nr -Fx "$line" "$2" | head -1 | cut -d: -f1,2)
+            ud_line_number=$(cut -d: -f2 <<< "$ud_line_number_and_corpus")
+            # UD corpus corresponding
+            ud_corpus=$(cut -d: -f1 <<< "$ud_line_number_and_corpus")
+        fi
+    fi
+
+    # delete the arrays
+    unset line_number_sent_ids
+
+    echo "$ud_line_number"
+    echo "$ud_corpus"
 }
 
 
@@ -221,7 +351,7 @@ function replace_source_sent_id() {
 # Get changed tokens and new MWE annotation in case of changed tokenization
 # Parameters: None
 function get_changed_tokens_and_new_MWE_annotation() {
-    # 
+    # first ids to iterate
     source_id=1
     destination_id=1
     # all changed token ids in parseme sentence
@@ -389,6 +519,8 @@ function display_token_lines() {
     changed_tokens=("$@")
     # loop over the tokenization lines in the parseme sentence
     while read token_line; do
+        # logs
+        bold_echo "$token_line"
         # token id
         id_token=$(cut -f1 <<< $token_line)
         # If it is a changed token
@@ -402,7 +534,7 @@ function display_token_lines() {
         fi
     done <<< "$morphosyntax_text"
 
-    echo ""
+    echo_and_bold_echo ""
 }
 
 
@@ -414,8 +546,8 @@ function display_token_lines() {
 reannotate_udtreebank() {
     # validate the format .cupt
     # ${VALIDATE_CUPT} --input $1
-    # # validate the format .conllu
-    ${VALIDATE_CONLLU} $2
+    # validate the format .conllu
+    validate_conllu "$2"
 
     # generating all intermediate file names
     file=`basename $1 .cupt`   # remove suffix starting with "_"
@@ -434,12 +566,16 @@ reannotate_udtreebank() {
 
     # count the line number while reading
     declare -i count_line_number=1
-    # The number of sentences is updated during the synchronisarion from UD treebank
-    declare -i nb_sentences_updated=0
+    # The number of sentences is updated for the morphosyntax during the synchronisarion from UD treebank
+    declare -i nb_sentences_updated_morpho=0
     # The number of sentences needs to corrected manually 
     declare -i nb_sentences_to_correct=0
-    # The number of sentences is not changed
-    declare -i nb_sentences_not_changed=0
+    # The number of sentences is not found
+    declare -i nb_sentences_not_found=0
+    # The number of sentences is found but not updated
+    declare -i nb_sentences_found_not_updated=0
+    # The number of sentences is updated for the tokenization and the morphosyntax during the synchronisarion from UD treebank
+    declare -i nb_sentences_updated_token_and_morpho=0
 
     # Reading old annotaion (temporary file)
     while read -r line; do
@@ -454,21 +590,31 @@ reannotate_udtreebank() {
             # Old MWE annotation
             old_MWE_annotation=$(cut -f11 <<< $old_morphosyntax_text)
 
-            # Find the line number of the first occurrence of the sentence in the latest source treebanks' version
-            line_number=$(grep -n -Fx "$line" "$2" | head -1 | cut -d: -f1)
+            # sentence id in the parseme
+            parseme_setence_id=$(grep '# source_sent_id =' <<< "$old_metadata_text" | cut -d' ' -f6)
+            # get UD line number and UD corpus with the same text but looking first for the sentence identifier of the parseme
+            ud_line_number_and_corpus=$(get_ud_line_number_with_the_same_text "$parseme_setence_id" "$2")
+            # UD line number corresponding
+            ud_line_number=$(echo "$ud_line_number_and_corpus" | head -n 1)
+            # UD corpus corresponding
+            ud_corpus=$(echo "$ud_line_number_and_corpus" | tail -n 1)
+            # Get the last two names
+            file_path=$(echo "$ud_corpus" | awk -F/ '{print $(NF-1)"/"$NF}')
+            
             # If the sentence is not in the latest source treebanks' version
-            if [ -z "$line_number" ]; then
+            if [ -z "$ud_line_number" ]; then
                 # Copy the old annotation into a new reannotated file
                 echo -e "$old_blocktext" >> $new_cupt
                 echo "" >> $new_cupt
                 # The number of sentences that are not changed increases
-                nb_sentences_not_changed=$((nb_sentences_not_changed+1))
+                nb_sentences_not_found=$((nb_sentences_not_found+1))
             # If the sentence is in the latest source treebanks' version
             else
-                echo "The sentence \"$line\" is founded in the UD treebank"
+                echo "The sentence \"$line\" is founded in the UD treebank \"$file_path\""
 
                 # Extract the block of lines of new annotation of the text (metadata and morphosyntax in the UD)
-                new_blocktext=$(find_blocktext "$line_number" "$2")
+                new_blocktext=$(find_blocktext "$ud_line_number" "$ud_corpus")
+                # echo "new_blocktext: $new_blocktext"
                 # Metadata of the text in the UD
                 new_metadata_text=$(grep '^#' <<< $new_blocktext)
                 # the newest morphosyntax in the UD
@@ -492,9 +638,13 @@ reannotate_udtreebank() {
                     paste <(echo -e "$new_morphosyntax_text") <(echo "$old_MWE_annotation") >> $new_cupt
                     echo "" >> $new_cupt
                     # The number of sentences that are updated increases
-                    nb_sentences_updated=$((nb_sentences_updated+1))
+                    nb_sentences_updated_morpho=$((nb_sentences_updated_morpho+1))
                 # The tokenizations are different in the two versions
                 else
+                    bold_echo "========================================================================================"
+                    bold_echo "===> In the parseme corpus $1"
+                    bold_echo "The sentence of line number $count_line_number: \"$line\" is founded in the UD treebank"
+
                     # associative arrays for id:token:vmwe tag 
                     declare -gA id_source_token
                     declare -gA id_source_MWE_annotation
@@ -533,15 +683,15 @@ reannotate_udtreebank() {
 
                     # the changed tokens are not in a MWE
                     if [ "${#source_changed_tokens_in_MWE[@]}" -eq 0 ]; then
-                        echo "Tokenization has changed for the latest source treebank' version ($file_path)"
-                        echo "Here are the details:"
-                        echo "$line"
-                        echo ""
-                        echo "Source PARSEME tokenization"
+                        echo_and_bold_echo "Tokenization has changed for the latest source treebank' version ($file_path)"
+                        echo_and_bold_echo "Here are the details:"
+                        echo_and_bold_echo "$line"
+                        echo_and_bold_echo ""
+                        echo_and_bold_echo "Source PARSEME tokenization"
                         # display PARSEME tokenization and morphosyntax
                         display_token_lines "$old_morphosyntax_text" "${source_changed_tokens[@]}" 
 
-                        echo "Source UD tokenization"
+                        echo_and_bold_echo "Source UD tokenization"
                         # display UD tokenization and morphosyntax
                         display_token_lines "$new_morphosyntax_text" "${destination_changed_tokens[@]}"
 
@@ -550,7 +700,7 @@ reannotate_udtreebank() {
 
                         # Ask the annotator
                         while true; do
-                            read -p "None of the changed tokens is in a MWE, Do you want to update the morphosyntax of the sentence? (y/n) " yn
+                            read -p "None of the changed tokens is in a MWE, Do you want to update the tokenization and the morphosyntax of the sentence? (y/n) " yn
                             case $yn in
                                 [Yy]* ) answer=true; break;;
                                 [Nn]* ) answer=false; break;;
@@ -567,12 +717,18 @@ reannotate_udtreebank() {
                             echo -e "$old_blocktext" >> $new_cupt
                             echo "" >> $new_cupt
                             # The number of sentences that are not changed increases
-                            nb_sentences_not_changed=$((nb_sentences_not_changed+1))
+                            nb_sentences_found_not_updated=$((nb_sentences_found_not_updated+1))
                             # go to the next sentence
                             echo "Continue to update the morphosyntax for the next sentence"
+
+                            # bold_echo "========================================================================================"
+                            # bold_echo "===> In the parseme corpus $1"
+                            # bold_echo "===> For the sentence of line number $count_line_number: \"$line\""
+                            bold_echo "===> You have indicated no for the tokenization and morphosyntax update in case the tokenization has changed in the UD version"
+                            bold_echo "========================================================================================"
                         # The annotator answered yes
                         else
-                            echo "OK, the morphosyntax is updated automatically"
+                            echo "OK, the tokenization and the morphosyntax are updated automatically"
                             echo ""
 
                             # Metadata is copied into a new reannotated file
@@ -583,7 +739,10 @@ reannotate_udtreebank() {
                             paste <(echo -e "$new_morphosyntax_text") <(echo -e "$new_MWE_annotation_in_lines") >> $new_cupt
                             echo "" >> $new_cupt
                             # The number of sentences that are updated increases
-                            nb_sentences_updated=$((nb_sentences_updated+1))
+                            nb_sentences_updated_token_and_morpho=$((nb_sentences_updated_token_and_morpho+1))
+
+                            bold_echo "===> You have indicated yes for the tokenization and morphosyntax update in case the tokenization has changed in the UD version"
+                            bold_echo "========================================================================================"
                         fi
                     # the changed tokens are in a MWE
                     else
@@ -591,11 +750,12 @@ reannotate_udtreebank() {
                         echo "Continue to update the morphosyntax for the next sentence"
                         echo ""
                     
-                        bold_echo "========================================================================================"
-                        bold_echo "===> In the sentence : $line"
+                        # bold_echo "========================================================================================"
+                        bold_echo "===> The tokenisation in the UD corpus $file_path is different and it affects the MWE annotation"
+                        bold_echo "===> Here are the details:"
                         # print the changed tokens are in a MWE
                         for id in "${source_changed_tokens_in_MWE[@]}"; do
-                            bold_echo "===> The changed token ${id_source_token[$id]} with the id $id has tagged ${id_source_MWE_annotation[$id]} in MWE annotation"
+                            bold_echo "===> The changed token ${id_source_token[$id]} with the id $id has been tagged to ${id_source_MWE_annotation[$id]} in MWE annotation"
                         done
 
                         # Copy the old morphosyntax into a new reannotated file
@@ -605,7 +765,7 @@ reannotate_udtreebank() {
                         nb_sentences_to_correct=$((nb_sentences_to_correct+1))
 
                         bold_echo "===> Please correct manually the tokenization, the MWE annotation and the metadata(source_sent_id)" 
-                        bold_echo "===> Continue to update the morphosyntax for the next sentence" 
+                        # bold_echo "===> Continue to update the morphosyntax for the next sentence" 
                         bold_echo "========================================================================================"
                     fi
 
@@ -627,10 +787,12 @@ reannotate_udtreebank() {
 
     bold_echo "========================================================================================"
     bold_echo "=================================Summary================================================"
-    bold_echo "===> From the UD treebank $2"
-    bold_echo "===> $nb_sentences_not_changed sentences are not changed"
-    bold_echo "===> $nb_sentences_updated sentences are updated automatically"
-    bold_echo "===> $nb_sentences_to_correct sentences need to be corrected"
+    bold_echo "===> From the UD treebanks $2"
+    bold_echo "===> $nb_sentences_not_found sentences are not found"
+    bold_echo "===> $nb_sentences_updated_morpho sentences are updated automatically for the morphosyntax with the same tokenization in the UD"
+    bold_echo "===> $nb_sentences_updated_token_and_morpho sentences are updated automatically for the tokenization and the morphosyntax with the different tokenization in the UD"
+    bold_echo "===> $nb_sentences_found_not_updated sentences are not updated automatically with the different tokenization in the UD because of the non agreement of the user"
+    bold_echo "===> $nb_sentences_to_correct sentences need to be corrected manually for the changed tokenization"
     bold_echo "========================================================================================"
 
     bold_echo "===> File ready: $new_cupt" 
@@ -639,10 +801,15 @@ reannotate_udtreebank() {
 }
 
 
-########################################
-
 bold_echo() {
     (tput bold; echo "$@">&2; tput sgr0)
+}
+
+
+########################################
+echo_and_bold_echo() {
+    echo "$@"
+    bold_echo "$@"
 }
 
 ########################################
@@ -781,15 +948,8 @@ if [ -n "$method_type" ]; then
             if [ ${#source_files[@]} -eq 1 ]; then
                 # If parameter treebank is a file
                 if [ ! -d $treebank_file ]; then
-                    # If parameter path is set
-                    if [ -n "$file_path" ]; then
-                        # Prepare the reannotation directory
-                        prepare_log_file "${source_files[0]}"
-
-                        # Reannotate to the latest source treebanks' version
-                        reannotate_udtreebank "${source_files[0]}" $treebank_file # $corpus_uri $file_path
                     # If parameter path is not set
-                    else
+                    if [ ! -n "$file_path" ]; then
                         # error
                         echo "Expected the path of the source file in the original corpus if the treebank is not a directory"
                         exit 2
@@ -801,45 +961,15 @@ if [ -n "$method_type" ]; then
                         # error
                         echo "Unexpected the path of the source file in the original corpus if the treebank is a directory"
                         exit 2
-                    # If parameter path is not set
-                    else
-                        # Prepare the reannotation directory
-                        prepare_log_file "${source_files[0]}"
-
-                        # directory name of the source file
-                        dir=$(dirname ${source_files[0]})
-                        # Name of the source file
-                        file_name=`basename ${source_files[0]} .cupt`   # remove suffix starting with "_"
-                        # Temporary updated morphosyntax
-                        source_temp_file=$dir/$file_name.temp.cupt
-                        # Copy the old morphosyntax fule into temporary updated morphosyntax file
-                        cp "${source_files[0]}" $source_temp_file
-                        # New temporary updated morphosyntax
-                        new_cupt=$(dirname ${source_files[0]})/$SUBDIR/$file_name.temp.new.cupt
-                        
-                        # Loop over all treebanks in the directory
-                        for f in $treebank_file/*.conllu; do
-                            # remove redundant / characters from treebank file path
-                            f=$(readlink -m -f "$f")
-                            # Get the last two names
-                            file_path=$(echo $f | awk -F/ '{print $(NF-1)"/"$NF}')
-                            # Reannotate to the latest source treebanks' version
-                            reannotate_udtreebank $source_temp_file $f # $corpus_uri $file_path
-                            # Result of reannotation is copied into the temporary updated morphosyntax file to continue update the morphosyntax from next treebanks
-                            cp $new_cupt $source_temp_file
-                        done
-                        
-                        # Change the name of latest result file
-                        mv $new_cupt $dir/$SUBDIR/$file_name.new.cupt
-                        new_cupt=$dir/$SUBDIR/$file_name.new.cupt
-                        # Remove Temporary updated morphosyntax file
-                        rm -f $source_temp_file
-
-                        bold_echo "===> File ready: $new_cupt" 
-                        bold_echo "===> Finished at: `date`" 
-                        echo "========================================================================================"
                     fi
                 fi
+
+                # Prepare the reannotation directory
+                prepare_log_file "${source_files[0]}"
+
+                # Reannotate to the latest source treebanks' version
+                reannotate_udtreebank "${source_files[0]}" $treebank_file 
+
             # If parameter source files has more than one file
             else
                 # error

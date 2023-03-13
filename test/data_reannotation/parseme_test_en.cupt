@@ -51,3 +51,21 @@
 9	right	right	ADJ	POS	_	6	parataxis	_	SpaceAfter=No	*
 10	.	.	PUNCT	Period	_	2	punct	_	_	*
 
+# source_sent_id = . . en_lines-ud-train-doc1-4
+# text = Some of the content in this topic may not be applicable to some languages.
+1	Some	some	PRON	IND	Case=Nom	11	nsubj	_	_	*
+2	of	of	ADP	_	_	4	_	_	_	*
+3	the	the	DET	DEF	Definite=Def|PronType=Art	4	det	_	_	*
+4	content	content	NOUN	SG-NOM	Number=Sing	1	nmod	_	_	*
+5	in	in	ADP	_	_	7	case	_	_	*
+6	this	this	DET	DEM-SG	Number=Sing|PronType=Dem	7	det	_	_	*
+7	topic	topic	NOUN	SG-NOM	Number=Sing	4	nmod	_	_	*
+8	may	may	AUX	PRES-AUX	VerbForm=Fin	11	aux	_	_	*
+9	not	not	PART	NEG	_	11	advmod	_	_	*
+10	be	be	AUX	INF	VerbForm=Inf	11	cop	_	_	*
+11	applicable	applicable	ADJ	POS	Degree=Pos	0	root	_	_	*
+12	to	to	ADP	_	_	14	case	_	_	*
+13	some	some	DET	IND	_	14	det	_	_	*
+14	languages	language	NOUN	PL-NOM	Number=Plur	11	nmod	_	SpaceAfter=No	*
+15	.	.	_	Period	_	11	punct	_	_	*
+
