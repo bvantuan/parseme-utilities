@@ -22,6 +22,7 @@ MAX_CONLLU_SIZE=4
 SUBDIR=REANNOTATION
 #Log file
 LOG=reannotate-log.txt
+REANNOT_DIR=
 
 #Language codes and the prefixes of the names of the corresponding UDPipe models (if several models per language, the one with the best LAS for gold tokanization is taken)
 #See here: https://ufal.mff.cuni.cz/udpipe/2/models
@@ -73,49 +74,50 @@ fail() {
     echo "$(basename "$0"): $1"; exit 1
 }
 
-########################################
-#Split a .conllu file if it exceeds a given size (see the UDPipe constraints in the REST API) 
-#Parameter: $1 = path of the .cupt file
 
 ########################################
-#Create the reannotation subdirectory if needed
-#Parameter: $1 = a file or a directory to reannotate
-#Return the path to the reannotation directory
-prepare_reannot_dir() {
-#Copy the files to a reannotation subdirectory
-    # $1 exists and is a directory
-   if [ -d $1 ]; then
-        reannot_dir=$1/$SUBDIR
-    # $1 is a file
-   else
-        reannot_dir=$(dirname $1)/$SUBDIR
-   fi
-   if [ ! -d $reannot_dir ]; then mkdir $reannot_dir; fi    #Create the reannotation directory if needed
-   
-   echo $reannot_dir
-}
-
-
-########################################
-# Prepare the log file
+# Prepare the log file and create the reannotation subdirectory if needed
 # Parameters: 
-#     $1 = an input file
+#     $1 = an input file or a directory to reannotate
 function prepare_log_file() {
+    # $1 exists and is a directory
+    if [ -d $1 ]; then
+        # reannotation subdirectory
+        reannot_dir=$1/$SUBDIR
+    # $1 is not a directory
+    else
+        # If $1 is a file
+        if [ -f "$1" ]; then
+            # reannotation subdirectory
+            reannot_dir=$(dirname $1)/$SUBDIR
+             #Create the reannotation directory if needed
+            if [ ! -d $reannot_dir ]; then mkdir $reannot_dir; fi   
+        # If $1 doesn't exist
+        else
+            # error
+            echo "File $1 does not exist"
+            exit 2
+        fi
+    fi
+
     # Prepare the reannotation directory
-    REANNOT_DIR=$(prepare_reannot_dir $1)
-    echo "Reannotated files go to $REANNOT_DIR"
+    REANNOT_DIR="$reannot_dir"
+    echo "Reannotated files go to $reannot_dir"
     # filename
     filename=`basename $1 .cupt`   # remove suffix starting with   "_"
     #Log file
     LOG="logs-reannotate-$filename.txt"
-    exec 2> $REANNOT_DIR/$LOG      #Redirecting standard error to a log file
-    echo "Logs go to $REANNOT_DIR/$LOG"
+    # Re-create an empty file
+    > "$reannot_dir/$LOG"
+    exec 2> "$reannot_dir/$LOG"      #Redirecting standard error to a log file
+    echo "Logs go to $reannot_dir/$LOG"
     echo ""
 }
 
 
 ########################################
-#Reannotate a single .cupt file
+# Reannotate a single .cupt file
+# Split a .conllu file if it exceeds a given size (see the UDPipe constraints in the REST API) 
 #Parameters: 
 #     $1 = path of the .cupt file to reannotate
 #     $2 = path of the reannotation directory, where the reannotated files are to be placed
@@ -598,8 +600,11 @@ reannotate_udtreebank() {
             ud_line_number=$(echo "$ud_line_number_and_corpus" | head -n 1)
             # UD corpus corresponding
             ud_corpus=$(echo "$ud_line_number_and_corpus" | tail -n 1)
-            # Get the last two names
-            file_path=$(echo "$ud_corpus" | awk -F/ '{print $(NF-1)"/"$NF}')
+            # If the UD corpus corresponding exists
+            if [ ! -z "$ud_corpus" ]; then
+                # Get the last two names
+                file_path=$(echo "$ud_corpus" | awk -F/ '{print $(NF-1)"/"$NF}')
+            fi
             
             # If the sentence is not in the latest source treebanks' version
             if [ -z "$ud_line_number" ]; then
@@ -616,7 +621,7 @@ reannotate_udtreebank() {
                 new_blocktext=$(find_blocktext "$ud_line_number" "$ud_corpus")
                 # echo "new_blocktext: $new_blocktext"
                 # Metadata of the text in the UD
-                new_metadata_text=$(grep '^#' <<< $new_blocktext)
+                ud_metadata_text=$(grep '^#' <<< $new_blocktext)
                 # the newest morphosyntax in the UD
                 new_morphosyntax_text=$(grep -v '^#' <<< $new_blocktext)
 
@@ -626,7 +631,7 @@ reannotate_udtreebank() {
                 destination_tokens=$(cut -f2 <<< $new_morphosyntax_text)
 
                 # Replace the old source_sent_id by the new one in the metadata
-                new_metadata_text=$(replace_source_sent_id "$old_metadata_text" "$new_metadata_text")
+                new_metadata_text=$(replace_source_sent_id "$old_metadata_text" "$ud_metadata_text")
                 
                 # Tokenisations are the same in both versions
                 if [ "$source_tokens" = "$destination_tokens" ]; then
@@ -681,20 +686,22 @@ reannotate_udtreebank() {
                     # new MWE annotation for the changed tokenization
                     new_MWE_annotation_in_lines=${changed_tokens_and_new_MWE_annotation[3]}
 
+                    echo_and_bold_echo "Tokenization has changed for the latest source treebank' version ($file_path)"
+                    echo_and_bold_echo "Here are the details:"
+                    echo_and_bold_echo "$line"
+                    echo_and_bold_echo ""
+                    echo_and_bold_echo "Source PARSEME tokenization"
+                    # display PARSEME metadata, tokenization and morphosyntax
+                    echo_and_bold_echo "$old_metadata_text"
+                    display_token_lines "$old_morphosyntax_text" "${source_changed_tokens[@]}" 
+
+                    echo_and_bold_echo "Source UD tokenization"
+                    # display UD metadata, tokenization and morphosyntax
+                    echo_and_bold_echo "$ud_metadata_text"
+                    display_token_lines "$new_morphosyntax_text" "${destination_changed_tokens[@]}"
+
                     # the changed tokens are not in a MWE
                     if [ "${#source_changed_tokens_in_MWE[@]}" -eq 0 ]; then
-                        echo_and_bold_echo "Tokenization has changed for the latest source treebank' version ($file_path)"
-                        echo_and_bold_echo "Here are the details:"
-                        echo_and_bold_echo "$line"
-                        echo_and_bold_echo ""
-                        echo_and_bold_echo "Source PARSEME tokenization"
-                        # display PARSEME tokenization and morphosyntax
-                        display_token_lines "$old_morphosyntax_text" "${source_changed_tokens[@]}" 
-
-                        echo_and_bold_echo "Source UD tokenization"
-                        # display UD tokenization and morphosyntax
-                        display_token_lines "$new_morphosyntax_text" "${destination_changed_tokens[@]}"
-
                         # terminate the redirection of stderr
                         exec 2>&1
 
@@ -721,9 +728,7 @@ reannotate_udtreebank() {
                             # go to the next sentence
                             echo "Continue to update the morphosyntax for the next sentence"
 
-                            # bold_echo "========================================================================================"
-                            # bold_echo "===> In the parseme corpus $1"
-                            # bold_echo "===> For the sentence of line number $count_line_number: \"$line\""
+                            bold_echo ""
                             bold_echo "===> You have indicated no for the tokenization and morphosyntax update in case the tokenization has changed in the UD version"
                             bold_echo "========================================================================================"
                         # The annotator answered yes
@@ -741,6 +746,7 @@ reannotate_udtreebank() {
                             # The number of sentences that are updated increases
                             nb_sentences_updated_token_and_morpho=$((nb_sentences_updated_token_and_morpho+1))
 
+                            bold_echo ""
                             bold_echo "===> You have indicated yes for the tokenization and morphosyntax update in case the tokenization has changed in the UD version"
                             bold_echo "========================================================================================"
                         fi
@@ -750,12 +756,13 @@ reannotate_udtreebank() {
                         echo "Continue to update the morphosyntax for the next sentence"
                         echo ""
                     
-                        # bold_echo "========================================================================================"
+                        bold_echo ""
                         bold_echo "===> The tokenisation in the UD corpus $file_path is different and it affects the MWE annotation"
-                        bold_echo "===> Here are the details:"
+                        
+                        bold_echo "===> Concretely, "
                         # print the changed tokens are in a MWE
                         for id in "${source_changed_tokens_in_MWE[@]}"; do
-                            bold_echo "===> The changed token ${id_source_token[$id]} with the id $id has been tagged to ${id_source_MWE_annotation[$id]} in MWE annotation"
+                            bold_echo "===> The changed token ${id_source_token[$id]} in the parseme tokenization with the id $id has been tagged to ${id_source_MWE_annotation[$id]} in MWE annotation"
                         done
 
                         # Copy the old morphosyntax into a new reannotated file
@@ -765,7 +772,6 @@ reannotate_udtreebank() {
                         nb_sentences_to_correct=$((nb_sentences_to_correct+1))
 
                         bold_echo "===> Please correct manually the tokenization, the MWE annotation and the metadata(source_sent_id)" 
-                        # bold_echo "===> Continue to update the morphosyntax for the next sentence" 
                         bold_echo "========================================================================================"
                     fi
 
@@ -787,7 +793,7 @@ reannotate_udtreebank() {
 
     bold_echo "========================================================================================"
     bold_echo "=================================Summary================================================"
-    bold_echo "===> From the UD treebanks $2"
+    bold_echo "===> The result of the re-annotation of morphosyntax for the parseme corpus $1 with the UD treebanks $2"
     bold_echo "===> $nb_sentences_not_found sentences are not found"
     bold_echo "===> $nb_sentences_updated_morpho sentences are updated automatically for the morphosyntax with the same tokenization in the UD"
     bold_echo "===> $nb_sentences_updated_token_and_morpho sentences are updated automatically for the tokenization and the morphosyntax with the different tokenization in the UD"
