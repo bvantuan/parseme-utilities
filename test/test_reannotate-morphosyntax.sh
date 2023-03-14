@@ -21,7 +21,7 @@ run_devnull() {
 }
 
 run_devnull ../st-organizers/release-preparation/reannotate-morphosyntax.sh --method udtreebank -l EN -s ./data_reannotation/parseme_test_en.cupt -t ./data_reannotation/ud-treebanks-v2.11/UD_English-LinES/ -u http://hdl.handle.net/11234/1-4923
-diff ./data_reannotation/parseme_test_en.new.cupt ./data_reannotation/REANNOTATION/parseme_test_en.new.cupt
+diff ./data_reannotation/parseme_test_en.new.cupt ./data_reannotation/REANNOTATION/parseme_test_en.new.cupt 
 
 run_devnull ../st-organizers/release-preparation/reannotate-morphosyntax.sh --method udtreebank -l EU -s ./data_reannotation/parseme_test_eu.cupt -t ./data_reannotation/ud-treebanks-v2.11/UD_Basque-BDT -u http://hdl.handle.net/11234/1-4923
 diff ./data_reannotation/parseme_test_eu.new.cupt ./data_reannotation/REANNOTATION/parseme_test_eu.new.cupt
