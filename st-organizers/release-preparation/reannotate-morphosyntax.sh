@@ -10,10 +10,8 @@ CUPT2CONLLU=$HERE/../to_conllup.py
 TOCUPT=$HERE/../to_cupt.py
 SPLITCONLLU=$HERE/split-conllu.py
 
-# validate the format .cupt
-VALIDATE_CUPT=$HERE/validate_cupt.py
-# validate the format .conllu
-VALIDATE_CONLLU=$HERE/validate_conllu.py
+# # validate the format .cupt
+# VALIDATE_CUPT=$HERE/validate_cupt.py
 
 #Maximum size of a .conllu file to process by the UDPipe API (in megabytes)
 MAX_CONLLU_SIZE=4 
@@ -21,7 +19,8 @@ MAX_CONLLU_SIZE=4
 #Working directory for the newly annotated files
 SUBDIR=REANNOTATION
 #Log file
-LOG=reannotate-log.txt
+LOG=""
+LOG_SENTENCES_NOT_FOUND=""
 REANNOT_DIR=
 
 #Language codes and the prefixes of the names of the corresponding UDPipe models (if several models per language, the one with the best LAS for gold tokanization is taken)
@@ -72,6 +71,14 @@ usage() {
 ########################################
 fail() {
     echo "$(basename "$0"): $1"; exit 1
+}
+
+###########################################################
+# run_devnull <command> [args...]
+# Runs command and discards its output.
+run_devnull() {
+    # bold_echo "=> $@" >&2
+    "$@" >/dev/null  # Run command and discard output
 }
 
 
@@ -184,20 +191,33 @@ reannotate_udpipe() {
 # Parameters: 
 #     $1 = an UD corpus (or a directory of UD corpus)
 function validate_conllu() {
+    bold_echo "===> Validate conllu format"
+
     # If parameter $1 is a file
     if [ ! -d "$1" ]; then
         # validate conllu format
-        ${VALIDATE_CONLLU} "$1"
+        run_devnull ${CUPT2CONLLU} --lang $LANG --keepranges --colnames ID FORM LEMMA UPOS XPOS FEATS HEAD DEPREL DEPS MISC --input $1
     else
-        # Loop over all treebanks in the directory
-        for f in $1/*.conllu; do
+        # find all conllu files
+        conllu_files=$(find "$1" -type f -name "*.conllu")
+        # loop through each file
+        while read -r f; do
             # remove redundant / characters from treebank file path
             f=$(readlink -m -f "$f")
             # validate conllu format
-            ${VALIDATE_CONLLU} "$f"
-        done
+            run_devnull ${CUPT2CONLLU} --lang $LANG --keepranges --colnames ID FORM LEMMA UPOS XPOS FEATS HEAD DEPREL DEPS MISC --input $f
+        done <<< "$conllu_files"
     fi
+} 
 
+
+########################################
+# Validate cupt format
+# Parameters: 
+#     $1 = a cupt file
+function validate_cupt() {
+    bold_echo "===> Validate cupt format"
+    run_devnull ${TOCUPT} --lang $LANG --input "$1" 
 } 
 
 
@@ -456,16 +476,43 @@ function get_changed_tokens_and_new_MWE_annotation() {
         fi
     done
 
+    # loop over the ids in the parseme tokenization
+    for id in "${!id_source_token[@]}"; do
+        # If the id is not found in the new MWE annotation
+        if [ ! -v new_MWE_annotation[$id] ]; then
+            # find the origin id in the variable 
+            origin_id=$(cut -d- -f1 <<< "$id" | cut -d. -f1)
+            # If the origin id is found in the new MWE annotation
+            if [ -v new_MWE_annotation[$origin_id] ]; then
+                # add a MWE annotation for the id
+                new_MWE_annotation[$id]=${new_MWE_annotation[$origin_id]}
+                # find the changed token id in the parseme sentence
+                source_changed_tokens+=("$id")
+                # If the changed token is in a MWE
+                if [[ ! "${id_source_MWE_annotation[$id]}" == "*" ]]; then
+                    # find the changed token id in a MWE
+                    source_changed_tokens_in_MWE+=($id)
+                fi
+            # If the origin id is not found in the new MWE annotation
+            else
+                # default value
+                new_MWE_annotation[$id]="*"
+            fi
+        fi
+    done
+
     # loop over the ids in the ud tokenization
     for id in "${!id_destination_token[@]}"; do
         # If the id is not found in the new MWE annotation
         if [ ! -v new_MWE_annotation[$id] ]; then
             # find the origin id in the variable
-            id1=$(cut -d- -f1 <<< "$id")
+            origin_id=$(cut -d- -f1 <<< "$id" | cut -d. -f1)
             # If the origin id is found in the new MWE annotation
-            if [ -v new_MWE_annotation[$id1] ]; then
+            if [ -v new_MWE_annotation[$origin_id] ]; then
                 # add a MWE annotation for the id
-                new_MWE_annotation[$id]=${new_MWE_annotation[$id1]}
+                new_MWE_annotation[$id]=${new_MWE_annotation[$origin_id]}
+                # find the changed token id in the ud sentence
+                destination_changed_tokens+=("$id")
             # If the origin id is not found in the new MWE annotation
             else
                 # default value
@@ -521,14 +568,14 @@ function display_token_lines() {
     changed_tokens=("$@")
     # loop over the tokenization lines in the parseme sentence
     while read token_line; do
-        # logs
-        bold_echo "$token_line"
         # token id
         id_token=$(cut -f1 <<< $token_line)
         # If it is a changed token
         if is_element_in_array "$id_token" "${changed_tokens[@]}"; then
             # display in green and bold
             echo "$(tput setaf 2)$(tput bold)${token_line}$(tput sgr0)"
+            # logs
+            bold_echo "$token_line"
         # If it is not a changed token
         else
             # normal display
@@ -541,16 +588,38 @@ function display_token_lines() {
 
 
 ########################################
+# Log the sentence identifiers not found in the UD treebanks
+# Parameters: 
+#     $1 = a log file
+#     $@ = an array of sentences not found
+function log_sentences_not_found() {
+    # log file
+    log_file="$1"
+    shift
+
+    # If it exists at least a sentence id not found
+    if [ ! "$#" -eq 0 ]; then
+        echo "========================================================================================" > "$log_file"
+        echo "===> Here is a list of sentence identifiers of parseme corpus ${source_files[0]} not found in the UD treebanks $treebank_file" >> "$log_file"
+        echo "========================================================================================" >> "$log_file"
+        
+        # loop over the array and print each element on a new line
+        for element in "$@"; do
+            echo "$element"
+        done >> "$log_file"
+
+        echo "========================================================================================" >> "$log_file"
+    fi
+
+}
+
+
+########################################
 # Reannotate to the latest source treebanks' versions
 # Parameters: 
 #     $1 = file .cupt with columns to be replaced
 #     $2 = latest source treebanks' version in format .conllu
 reannotate_udtreebank() {
-    # validate the format .cupt
-    # ${VALIDATE_CUPT} --input $1
-    # validate the format .conllu
-    validate_conllu "$2"
-
     # generating all intermediate file names
     file=`basename $1 .cupt`   # remove suffix starting with "_"
     # old annotaion (temporary file)
@@ -574,6 +643,8 @@ reannotate_udtreebank() {
     declare -i nb_sentences_to_correct=0
     # The number of sentences is not found
     declare -i nb_sentences_not_found=0
+    # array of setence ids not found in UD
+    declare -a sentences_not_found=()
     # The number of sentences is found but not updated
     declare -i nb_sentences_found_not_updated=0
     # The number of sentences is updated for the tokenization and the morphosyntax during the synchronisarion from UD treebank
@@ -613,6 +684,8 @@ reannotate_udtreebank() {
                 echo "" >> $new_cupt
                 # The number of sentences that are not changed increases
                 nb_sentences_not_found=$((nb_sentences_not_found+1))
+                # sentence id not found
+                sentences_not_found+=("$parseme_setence_id")
             # If the sentence is in the latest source treebanks' version
             else
                 echo "The sentence \"$line\" is founded in the UD treebank \"$file_path\""
@@ -729,7 +802,7 @@ reannotate_udtreebank() {
                             echo "Continue to update the morphosyntax for the next sentence"
 
                             bold_echo ""
-                            bold_echo "===> You have indicated no for the tokenization and morphosyntax update in case the tokenization has changed in the UD version"
+                            bold_echo "===> You have indicated NO for the tokenization and morphosyntax update in case the tokenization has changed in the UD version"
                             bold_echo "========================================================================================"
                         # The annotator answered yes
                         else
@@ -747,7 +820,7 @@ reannotate_udtreebank() {
                             nb_sentences_updated_token_and_morpho=$((nb_sentences_updated_token_and_morpho+1))
 
                             bold_echo ""
-                            bold_echo "===> You have indicated yes for the tokenization and morphosyntax update in case the tokenization has changed in the UD version"
+                            bold_echo "===> You have indicated YES for the tokenization and morphosyntax update in case the tokenization has changed in the UD version"
                             bold_echo "========================================================================================"
                         fi
                     # the changed tokens are in a MWE
@@ -771,7 +844,7 @@ reannotate_udtreebank() {
                         # The number of sentences that need to be corrected increases
                         nb_sentences_to_correct=$((nb_sentences_to_correct+1))
 
-                        bold_echo "===> Please correct manually the tokenization, the MWE annotation and the metadata(source_sent_id)" 
+                        bold_echo "===> Please correct MANUALLY the tokenization, the MWE annotation and the metadata(source_sent_id)" 
                         bold_echo "========================================================================================"
                     fi
 
@@ -791,16 +864,30 @@ reannotate_udtreebank() {
     #Remove intermediate files
     rm -f $old_cupt
 
+    # log sentence ids not found
+    LOG_SENTENCES_NOT_FOUND="$REANNOT_DIR/sentence-ids-not-found-$filename.txt"
+    log_sentences_not_found "$LOG_SENTENCES_NOT_FOUND" "${sentences_not_found[@]}" 
+
     bold_echo "========================================================================================"
-    bold_echo "=================================Summary================================================"
+    bold_echo "=================================SUMMARY================================================"
     bold_echo "===> The result of the re-annotation of morphosyntax for the parseme corpus $1 with the UD treebanks $2"
-    bold_echo "===> $nb_sentences_not_found sentences are not found"
+
+    # If it exists at least a sentence id not found
+    if [ ! "${#sentences_not_found[@]}" -eq 0 ]; then
+        bold_echo "===> $nb_sentences_not_found sentences are not found (see $LOG_SENTENCES_NOT_FOUND for details)"
+    # If it doesn't exist a sentence id not found
+    else
+        bold_echo "===> $nb_sentences_not_found sentences are not found"
+    fi
+    
     bold_echo "===> $nb_sentences_updated_morpho sentences are updated automatically for the morphosyntax with the same tokenization in the UD"
     bold_echo "===> $nb_sentences_updated_token_and_morpho sentences are updated automatically for the tokenization and the morphosyntax with the different tokenization in the UD"
     bold_echo "===> $nb_sentences_found_not_updated sentences are not updated automatically with the different tokenization in the UD because of the non agreement of the user"
     bold_echo "===> $nb_sentences_to_correct sentences need to be corrected manually for the changed tokenization"
     bold_echo "========================================================================================"
 
+    # validate the new format .cupt
+    validate_cupt "$new_cupt" 
     bold_echo "===> File ready: $new_cupt" 
     bold_echo "===> Finished at: `date`" 
     bold_echo "========================================================================================"
@@ -933,9 +1020,15 @@ if [ -n "$method_type" ]; then
 
                 # If a directory, reannotate all .cupt files in it
                 if [ -d $input ]; then
-                    for f in $input/*.cupt; do
+                    # find all cupt files
+                    cupt_files=$(find "$input" -type f -name "*.cupt")
+                    # loop through each cupt file
+                    while read -r f; do
+                        # remove redundant / characters from treebank file path
+                        f=$(readlink -m -f "$f")
+                        # reannotate the cupt file
                         reannotate_udpipe $f $REANNOT_DIR
-                    done
+                    done <<< "$cupt_files"
                 else  
                     reannotate_udpipe $input $REANNOT_DIR
                 fi
@@ -949,7 +1042,7 @@ if [ -n "$method_type" ]; then
     # If the method is udtreebank
     elif [ $method_type = "udtreebank" ]; then
         # If parameters source files, treebank and uri are set
-        if [ ! "${#source_files[@]}" -eq 0 ] && [ -n "$treebank_file" ] && [ -n "$corpus_uri" ]; then
+        if [ ! "${#source_files[@]}" -eq 0 ] && [ -n "$treebank_file" ] && [ -n "$corpus_uri" ] && [ -n "$language_code" ]; then
             # If parameter source files has only one file
             if [ ${#source_files[@]} -eq 1 ]; then
                 # If parameter treebank is a file
@@ -970,8 +1063,15 @@ if [ -n "$method_type" ]; then
                     fi
                 fi
 
+                LANG="$language_code"
+
                 # Prepare the reannotation directory
                 prepare_log_file "${source_files[0]}"
+
+                # validate the format .conllu
+                validate_conllu "$treebank_file"
+                # validate the format .cupt
+                validate_cupt "${source_files[0]}" 
 
                 # Reannotate to the latest source treebanks' version
                 reannotate_udtreebank "${source_files[0]}" $treebank_file 
@@ -985,7 +1085,7 @@ if [ -n "$method_type" ]; then
         # If parameters source files, treebank and uri are not set
         else
             # error
-            echo "Expected a source file, a treebank file or directory and a parameter --uri for udtreebank reannotation method"
+            echo "Expected language code, a source file, a treebank file or directory and a parameter --uri for udtreebank reannotation method"
             exit 2
         fi
     # If the method is neither udtreebank nor udpipe

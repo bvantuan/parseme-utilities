@@ -31,7 +31,7 @@
 6	już	już	PART	part	_	7	advmod:emph	7:advmod:emph	_
 7	wcześniej	wcześnie	ADV	adv:com	Degree=Cmp	9	advmod	9:advmod	_
 8	nie	nie	PART	part	Polarity=Neg	9	advmod:neg	9:advmod:neg	_
-9	z	z	PART	part	_	10	advmod	_	_		
+9	z	z	PART	part	_	10	advmod	_	_
 10	wrócił 	wrócił	VERB	praet:sg:m1:perf	Animacy=Hum|Aspect=Perf|Gender=Masc	2	ccomp	2:ccomp	_
 11	na	na	ADP	prep:acc	AdpType=Prep	11	case	11:case	Case=Acc
 12	to	to	PRON	subst:sg:acc:n:ncol	Case=Acc|Gender=Neut|Number=Sing|PronType=Dem	9	obl:arg	9:obl:arg	_
