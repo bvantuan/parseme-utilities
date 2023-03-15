@@ -1,4 +1,9 @@
-image: python:3.9
+image: python:latest
+
+# Change pip's cache directory to be inside the project directory since we can
+# only cache local items.
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
 
 # Define the pipeline stages
 stages:
@@ -12,7 +17,8 @@ cache:
   key: ${CI_COMMIT_REF_SLUG}
   paths:
     - /var/cache/apt/archives/
-    - /usr/local/lib/python3.9/site-packages/
+    # - /usr/local/lib/python3.9/site-packages/
+    - .cache/pip
 
 before_script:
   # Update and cache apt packages
