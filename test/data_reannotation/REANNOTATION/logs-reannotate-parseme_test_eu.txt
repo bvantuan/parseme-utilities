@@ -1,0 +1,17 @@
+===> Validate conllu format
+===> Validate cupt format
+===> Started at: Wed Mar 15 10:12:10 CET 2023
+===> Generating: ./data_reannotation/REANNOTATION/parseme_test_eu.new.cupt
+========================================================================================
+=================================SUMMARY================================================
+===> The result of the re-annotation of morphosyntax for the parseme corpus ./data_reannotation/parseme_test_eu.cupt with the UD treebanks ./data_reannotation/ud-treebanks-v2.11/UD_Basque-BDT
+===> 0 sentences are not found
+===> 3 sentences are updated automatically for the morphosyntax with the same tokenization in the UD
+===> 0 sentences are updated automatically for the tokenization and the morphosyntax with the different tokenization in the UD
+===> 0 sentences are not updated automatically with the different tokenization in the UD because of the non agreement of the user
+===> 0 sentences need to be corrected manually for the changed tokenization
+========================================================================================
+===> Validate cupt format
+===> File ready: ./data_reannotation/REANNOTATION/parseme_test_eu.new.cupt
+===> Finished at: Wed Mar 15 10:12:11 CET 2023
+========================================================================================
