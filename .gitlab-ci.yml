@@ -1,14 +1,40 @@
+image: python:3.9
+
+# Define the pipeline stages
 stages:
+  - install_dependencies
   - test
   - deploy
 
+# Cache the directories for apt and pip packages
+cache:
+  # the cache is created and shared separately for each branch or tag. 
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - /var/cache/apt/archives/
+    - /usr/local/lib/python3.9/site-packages/
+
+before_script:
+  # Update and cache apt packages
+  - apt-get update -qy
+  - apt-get install -y --no-install-recommends python3-pip
+  # - export TERM=xterm
+
+
+# Stage: Install dependencies
+install_dependencies:
+  stage: install_dependencies
+  script:
+    - pip3 install -U folia
+
+# Stage: Run tests
 test_morphosyntax:
   stage: test
-  before_script:
-    - apt-get update -qy
-    - apt-get install -y python3-pip
-    - pip3 install -U folia
-    - export TERM=xterm
+  # before_script:
+  #   - apt-get update -qy
+  #   - apt-get install -y python3-pip
+  #   - pip3 install -U folia
+  #   - export TERM=xterm
   script: 
     - echo "Testing the morphosyntax reannotation script"
     - ./test/test_reannotate-morphosyntax.sh
@@ -19,13 +45,14 @@ test_morphosyntax:
 
 test_all:
   stage: test
-  before_script:
-    - apt-get update -qy
-    - apt-get install -y python3-pip
-    - pip3 install -U folia
-    - export TERM=xterm
+  # before_script:
+  #   - apt-get update -qy
+  #   - apt-get install -y python3-pip
+  #   - pip3 install -U folia
+  #   - export TERM=xterm
   script:
     - echo "Testing if we can run all scripts to completion"
+    - export TERM=xterm
     - ./test/test.sh
 
 release:
