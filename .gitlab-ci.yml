@@ -25,7 +25,7 @@ before_script:
   - apt-get install -y --no-install-recommends python3-pip
   - python -V               # Print out python version for debugging
   - pip3 install -U folia
-  # - export TERM=xterm
+  - export TERM=xterm
 
 
 # # Stage: Install dependencies
