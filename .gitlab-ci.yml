@@ -27,21 +27,9 @@ before_script:
   - pip3 install -U folia
   - export TERM=xterm
 
-
-# # Stage: Install dependencies
-# install_dependencies:
-#   stage: install_dependencies
-#   script:
-#     - pip3 install -U folia
-
 # Stage: Run tests
 test_morphosyntax:
   stage: test
-  # before_script:
-  #   - apt-get update -qy
-  #   - apt-get install -y python3-pip
-  #   - pip3 install -U folia
-  #   - export TERM=xterm
   script: 
     - echo "Testing the morphosyntax reannotation script"
     - ./test/test_reannotate-morphosyntax.sh
@@ -50,16 +38,16 @@ test_morphosyntax:
       - ./test/data_reannotation/REANNOTATION/
     expire_in: 2 days
 
+test_cupt:
+  stage: test
+  script:
+    - echo "Testing the format cupt"
+    - ./test/test_cupt.sh
+
 test_all:
   stage: test
-  # before_script:
-  #   - apt-get update -qy
-  #   - apt-get install -y python3-pip
-  #   - pip3 install -U folia
-  #   - export TERM=xterm
   script:
     - echo "Testing if we can run all scripts to completion"
-    - export TERM=xterm
     - ./test/test.sh
 
 release:
