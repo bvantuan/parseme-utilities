@@ -28,7 +28,7 @@ before_script:
   - export TERM=xterm
 
 # Stage: Run tests
-test_morphosyntax:
+test_script_reannotate_morphosyntax:
   stage: test
   script: 
     - echo "Testing the morphosyntax reannotation script"
