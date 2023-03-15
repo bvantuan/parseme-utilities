@@ -1,6 +1,0 @@
-========================================================================================
-===> Here is a list of sentence identifiers of parseme corpus ./data_reannotation/parseme_test_en.cupt not found in the UD treebanks ./data_reannotation/ud-treebanks-v2.11/UD_English-LinES/
-========================================================================================
-en_lines-ud-test-doc1-4210
-en_lines-ud-test-doc1-4213
-========================================================================================

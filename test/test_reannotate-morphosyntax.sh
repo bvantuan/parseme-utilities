@@ -20,15 +20,11 @@ run_devnull() {
     "$@" >/dev/null  # Run command and discard output
 }
 
-# run_devnull ../st-organizers/release-preparation/reannotate-morphosyntax.sh --method udtreebank -l EN -s ./data_reannotation/parseme_test_en.cupt -t ./data_reannotation/ud-treebanks-v2.11/UD_English-LinES/ -u http://hdl.handle.net/11234/1-4923
-# ../st-organizers/release-preparation/reannotate-morphosyntax.sh --method udtreebank -l EN -s ./data_reannotation/parseme_test_en.cupt -t ./data_reannotation/ud-treebanks-v2.11/UD_English-LinES/ -u http://hdl.handle.net/11234/1-4923
-# diff ./data_reannotation/parseme_test_en.new.cupt ./data_reannotation/REANNOTATION/parseme_test_en.new.cupt 
+run_devnull ../st-organizers/release-preparation/reannotate-morphosyntax.sh --method udtreebank -l EN -s ./data_reannotation/parseme_test_en.cupt -t ./data_reannotation/ud-treebanks-v2.11/UD_English-LinES/ -u http://hdl.handle.net/11234/1-4923
+diff ./data_reannotation/parseme_test_en.new.cupt ./data_reannotation/REANNOTATION/parseme_test_en.new.cupt 
 
-# run_devnull ../st-organizers/release-preparation/reannotate-morphosyntax.sh --method udtreebank -l EU -s ./data_reannotation/parseme_test_eu.cupt -t ./data_reannotation/ud-treebanks-v2.11/UD_Basque-BDT -u http://hdl.handle.net/11234/1-4923
-# diff ./data_reannotation/parseme_test_eu.new.cupt ./data_reannotation/REANNOTATION/parseme_test_eu.new.cupt
+run_devnull ../st-organizers/release-preparation/reannotate-morphosyntax.sh --method udtreebank -l EU -s ./data_reannotation/parseme_test_eu.cupt -t ./data_reannotation/ud-treebanks-v2.11/UD_Basque-BDT -u http://hdl.handle.net/11234/1-4923
+diff ./data_reannotation/parseme_test_eu.new.cupt ./data_reannotation/REANNOTATION/parseme_test_eu.new.cupt
 
 run_devnull ../st-organizers/release-preparation/reannotate-morphosyntax.sh --method udtreebank -l PL -s ./data_reannotation/parseme_test_pl.cupt -t ./data_reannotation/ud-treebanks-v2.11/UD_Polish-PDB/ -u http://hdl.handle.net/11234/1-4923
 diff ./data_reannotation/parseme_test_pl.new.cupt ./data_reannotation/REANNOTATION/parseme_test_pl.new.cupt
-
-# run_devnull ../st-organizers/release-preparation/reannotate-morphosyntax.sh --method udtreebank -s ./data_reannotation/parseme_test1_pl.cupt -t ./data_reannotation/parseme_test1_pl_pdb-ud.conllu -u http://hdl.handle.net/11234/1-4923 -p UD_Polish-PDB/pl_pdb-ud-dev.conllu
-# diff ./data_reannotation/parseme_test1_pl.new.cupt ./data_reannotation/REANNOTATION/parseme_test1_pl.new.cupt

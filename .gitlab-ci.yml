@@ -5,6 +5,9 @@ stages:
 test_morphosyntax:
   stage: test
   before_script:
+    - apt-get update -qy
+    - apt-get install -y python3-pip
+    - pip3 install -U folia
     - export TERM=xterm
   script: 
     - echo "Testing the morphosyntax reannotation script"
