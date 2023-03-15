@@ -7,7 +7,6 @@ variables:
 
 # Define the pipeline stages
 stages:
-  - install_dependencies
   - test
   - deploy
 
@@ -24,14 +23,16 @@ before_script:
   # Update and cache apt packages
   - apt-get update -qy
   - apt-get install -y --no-install-recommends python3-pip
+  - python -V               # Print out python version for debugging
+  - pip3 install -U folia
   # - export TERM=xterm
 
 
-# Stage: Install dependencies
-install_dependencies:
-  stage: install_dependencies
-  script:
-    - pip3 install -U folia
+# # Stage: Install dependencies
+# install_dependencies:
+#   stage: install_dependencies
+#   script:
+#     - pip3 install -U folia
 
 # Stage: Run tests
 test_morphosyntax:
