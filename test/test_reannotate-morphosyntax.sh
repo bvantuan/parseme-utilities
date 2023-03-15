@@ -16,7 +16,7 @@ bold_echo() {
 # run_devnull <command> [args...]
 # Runs command and discards its output.
 run_devnull() {
-    bold_echo "=> $@" >&2
+    # bold_echo "=> $@" >&2
     "$@" >/dev/null  # Run command and discard output
 }
 
