@@ -1,7 +1,7 @@
 # global.columns = ID FORM LEMMA UPOS XPOS FEATS HEAD DEPREL DEPS MISC PARSEME:MWE
 # source_sent_id = . . 2289
 # text = When he joined the group, they were listening to her.
-1	When	when	SCONJ	_	_	3	mark	_	_
+1	When	when	SCONJ	_	_	3	mark	_	_	*
 2	he	he	PRON	PERS-P3SG-NOM	_	3	nsubj	_	_	*
 3	joined	join	VERB	PAST	_	9	advcl	_	_	*
 4	the	the	DET	DEF	_	5	det	_	_	*

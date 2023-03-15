@@ -43,6 +43,10 @@ test_cupt:
   script:
     - echo "Testing the format cupt"
     - ./test/test_cupt.sh
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+    - if: $CI_PIPELINE_SOURCE == "push"
 
 test_all:
   stage: test
