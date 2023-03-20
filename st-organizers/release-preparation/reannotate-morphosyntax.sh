@@ -52,8 +52,8 @@ usage() {
 
     echo ""
     echo "Example: ./reannotate-morphosyntax.sh -m udpipe -l PL -s parseme1.cupt parseme2.cupt --tagger --parser"
-    echo "         ./reannotate-morphosyntax.sh --method udtreebank -s parseme_test_en.cupt -t ud-treebanks-v2.11/UD_English-LinES/en_lines-ud-train.conllu -u http://hdl.handle.net/11234/1-4923 -p UD_English-LinES/en_lines-ud-train.conllu"
-    echo "         ./reannotate-morphosyntax.sh --method udtreebank -s parseme_test_pl.cupt -t ud-treebanks-v2.11/UD_Polish-PDB/ -u http://hdl.handle.net/11234/1-4923"
+    echo "         ./reannotate-morphosyntax.sh --method udtreebank -l PL -s parseme_test_pl.cupt -t ud-treebanks-v2.11/UD_Polish-PDB/ -u http://hdl.handle.net/11234/1-4923"
+    echo "         ./reannotate-morphosyntax.sh --method udtreebank -l EN -s parseme_test_en.cupt -t ud-treebanks-v2.11/UD_English-LinES/en_lines-ud-train.conllu -u http://hdl.handle.net/11234/1-4923 -p UD_English-LinES/en_lines-ud-train.conllu"
 
     echo ""
     echo "Parameters: "
@@ -66,6 +66,10 @@ usage() {
     echo -e "\t -p, --path \t\t The path of the source file in the original corpus (used only if the parameter --treebank is a file)"
     echo -e "\t --tagger \t\t Reannotate columns LEMMA, UPOS, XPOS and FEATS in udpipe method (default:false)"
     echo -e "\t --parser \t\t Reannotate columns HEAD and DEPREL in udpipe method (default:false)"
+    echo -e "\t -v, --verbose \t\t The verbose option, display detailed processing information (default:false)"
+    echo ""
+
+    echo "For the udtreebank method, a directory of treebanks is recommended because the script will search for the sentence identifier and the sentence of parseme in all the treebank files of the directory"
 }
 
 ########################################
@@ -79,6 +83,41 @@ fail() {
 run_devnull() {
     # bold_echo "=> $@" >&2
     "$@" >/dev/null  # Run command and discard output
+}
+
+
+########################################
+# Function to print progress bar
+# Parameters: 
+#     $1 = current progress in number
+function print_progress_bar() {
+    local current_progress="$1"
+    local total_progress=100
+    local progress_bar_length=50
+
+    # Calculate the number of filled and empty bar segments
+    local filled_segments=$((current_progress * progress_bar_length / total_progress))
+    local empty_segments=$((progress_bar_length - filled_segments))
+
+    # Create the progress bar string
+    local progress_bar=$(printf "[%-${progress_bar_length}s]" $(printf "%${filled_segments}s" | tr ' ' '#'))
+
+    # Save the current cursor position
+    printf "\033[s"
+
+    # # Get the terminal height
+    # local terminal_height=$(tput lines)
+
+    # # Move cursor to the bottom-left corner of the screen
+    # tput cup 5 0
+
+    # Print the progress bar with percentage
+    printf "\rRe-annotating: %s %2d%%" "$progress_bar" $((current_progress * 100 / total_progress)) 
+    # echo ""
+
+    # Restore the cursor position
+    printf "\033[u"
+    # echo ""
 }
 
 
@@ -650,6 +689,9 @@ reannotate_udtreebank() {
     # The number of sentences is updated for the tokenization and the morphosyntax during the synchronisarion from UD treebank
     declare -i nb_sentences_updated_token_and_morpho=0
 
+    # number of lines in cupt file
+    number_of_lines=$(wc -l < "$1")
+
     # Reading old annotaion (temporary file)
     while read -r line; do
         # If the line is a text (sentence)
@@ -688,7 +730,9 @@ reannotate_udtreebank() {
                 sentences_not_found+=("$parseme_setence_id")
             # If the sentence is in the latest source treebanks' version
             else
-                echo "The sentence \"$line\" is founded in the UD treebank \"$file_path\""
+                if $verbose; then
+                    echo "The sentence \"$line\" is founded in the UD treebank \"$file_path\""
+                fi
 
                 # Extract the block of lines of new annotation of the text (metadata and morphosyntax in the UD)
                 new_blocktext=$(find_blocktext "$ud_line_number" "$ud_corpus")
@@ -708,8 +752,10 @@ reannotate_udtreebank() {
                 
                 # Tokenisations are the same in both versions
                 if [ "$source_tokens" = "$destination_tokens" ]; then
-                    echo "Tokenisations are the same in both versions, the morphosyntax is updated automatically"
-                    echo ""
+                    if $verbose; then
+                        echo "Tokenisations are the same in both versions, the morphosyntax is updated automatically"
+                        echo ""
+                    fi
                     # Metadata is copied 
                     echo -e "$new_metadata_text" >> $new_cupt
                     # MWE_annotation isn't changed, copy the new morphosyntax to new annotation file
@@ -799,7 +845,9 @@ reannotate_udtreebank() {
                             # The number of sentences that are not changed increases
                             nb_sentences_found_not_updated=$((nb_sentences_found_not_updated+1))
                             # go to the next sentence
-                            echo "Continue to update the morphosyntax for the next sentence"
+                            echo "Continue to update the morphosyntax for the next sentence in 2 seconds..."
+                            echo ""
+                            sleep 2
 
                             bold_echo ""
                             bold_echo "===> You have indicated NO for the tokenization and morphosyntax update in case the tokenization has changed in the UD version"
@@ -807,7 +855,9 @@ reannotate_udtreebank() {
                         # The annotator answered yes
                         else
                             echo "OK, the tokenization and the morphosyntax are updated automatically"
+                            echo "Continue to update the morphosyntax for the next sentence in 2 seconds..."
                             echo ""
+                            sleep 2
 
                             # Metadata is copied into a new reannotated file
                             echo -e "$new_metadata_text" >> $new_cupt
@@ -826,8 +876,9 @@ reannotate_udtreebank() {
                     # the changed tokens are in a MWE
                     else
                         echo "The tokenisation in the .conllu sentence is different and it affects the MWE annotation, please go to the $REANNOT_DIR/$LOG for the details"
-                        echo "Continue to update the morphosyntax for the next sentence"
+                        echo "Continue to update the morphosyntax for the next sentence in 5 seconds..."
                         echo ""
+                        sleep 5
                     
                         bold_echo ""
                         bold_echo "===> The tokenisation in the UD corpus $file_path is different and it affects the MWE annotation"
@@ -855,6 +906,9 @@ reannotate_udtreebank() {
                 fi
             fi
         fi
+
+        current_progress=$((count_line_number * 100 / number_of_lines)) 
+        print_progress_bar "$current_progress"
 
         # Next line number
         count_line_number=$((count_line_number+1))
@@ -910,8 +964,8 @@ echo_and_bold_echo() {
 
 # Parse command-line options
 # define the short and long options that the script will accept
-OPTIONS=m:l:s:t:u:p:hr
-LONGOPTIONS=help,tagger,parser,method:,language:,source:,treebank:,uri:,path:
+OPTIONS=m:l:s:t:u:p:hv
+LONGOPTIONS=help,tagger,parser,verbose,method:,language:,source:,treebank:,uri:,path:
 
 # parse the command line arguments.
 PARSED=$(getopt --options=$OPTIONS --longoptions=$LONGOPTIONS --name "$0" -- "$@")
@@ -933,6 +987,7 @@ file_path=
 # set default values for boolean arguments
 tagger=false
 parser=false
+verbose=false
 
 # iterating over positional parameters with a for loop.
 while true; do
@@ -972,6 +1027,10 @@ while true; do
             parser=true
             shift
             ;;
+        -v|--verbose)
+            verbose=true
+            shift
+            ;;
         -h|--help)
             usage
             exit 0
@@ -981,122 +1040,162 @@ while true; do
             break
             ;;
         *)
-            echo "Invalid option: $1" >&2
+            echo "Invalid option: $1"
             exit 1
             ;;
     esac
 done
 
 
-if [ ! $method_type = "udpipe" ] && ($tagger || $parser); then
-    if $tagger; then
+########################################
+# Handle parameter syntax
+# Parameters: None
+function handle_parameters() {
+    # If parameter method is not set
+    if [ ! -n "$method_type" ]; then
         # error
-        echo "Expected tagger parameter only for udpipe method"
+        echo "Expected synchronisation method"
         exit 2
-    fi
-
-    if $parser; then
-        # error
-        echo "Expected parser parameter only for udpipe method"
-        exit 2
-    fi
-fi
-
-# If parameter method is set
-if [ -n "$method_type" ]; then
-    # If the method is udpipe
-    if [ $method_type = "udpipe" ]; then
-        # If parameters language and source files are set
-        if [ -n "$language_code" ] && [ ! "${#source_files[@]}" -eq 0 ]; then
-            LANG="$language_code"
-            MODEL_PREF=${LANGS[$language_code]}
-            echo "Language: $language_code"
-            echo "Model-prefix: $MODEL_PREF"
-
-            # Reannotate all source files
-            for input in ${source_files[@]}; do   
-                #Prepare the reannotation directory
-                prepare_log_file "$input"
-
-                # If a directory, reannotate all .cupt files in it
-                if [ -d $input ]; then
-                    # find all cupt files
-                    cupt_files=$(find "$input" -type f -name "*.cupt")
-                    # loop through each cupt file
-                    while read -r f; do
-                        # remove redundant / characters from treebank file path
-                        f=$(readlink -m -f "$f")
-                        # reannotate the cupt file
-                        reannotate_udpipe $f $REANNOT_DIR
-                    done <<< "$cupt_files"
-                else  
-                    reannotate_udpipe $input $REANNOT_DIR
-                fi
-            done
-        # If parameters language and source files are not set
-        else
-            # error
-            echo "Expected language code and at least 1 input .cupt file or directory for udpipe method"
+    # If parameter method is set
+    else
+        # If the method is neither udtreebank nor udpipe
+        if [ ! $method_type = "udtreebank" ] && [ ! $method_type = "udpipe" ]; then
+            echo "Only two method of synchronisation udpipe and udtreebank are available" 
             exit 2
         fi
+    fi
+
+    # If parameter language is not set
+    if [ ! -n "$language_code" ]; then
+        # error
+        echo "Expected language code"
+        exit 2
+    # If parameter language is set
+    else
+        # If it is an invalide language code
+        if ! is_element_in_array "$language_code" "${!LANGS[@]}"; then
+            # error
+            echo "Invalid language code"
+            exit 2
+        fi
+    fi
+
+    # If input file is not set
+    if [ "${#source_files[@]}" -eq 0 ]; then
+        # error
+        echo "Expected at least 1 input .cupt file for the reannotation"
+        exit 2
+    fi
+
+    # If tagger or parser is not used for udpipe method
+    if [ ! $method_type = "udpipe" ] && ($tagger || $parser); then
+        if $tagger; then
+            # error
+            echo "Expected tagger parameter only for udpipe method"
+            exit 2
+        fi
+
+        if $parser; then
+            # error
+            echo "Expected parser parameter only for udpipe method"
+            exit 2
+        fi
+    fi
+
+    
     # If the method is udtreebank
-    elif [ $method_type = "udtreebank" ]; then
-        # If parameters source files, treebank and uri are set
-        if [ ! "${#source_files[@]}" -eq 0 ] && [ -n "$treebank_file" ] && [ -n "$corpus_uri" ] && [ -n "$language_code" ]; then
-            # If parameter source files has only one file
-            if [ ${#source_files[@]} -eq 1 ]; then
-                # If parameter treebank is a file
-                if [ ! -d $treebank_file ]; then
-                    # If parameter path is not set
-                    if [ ! -n "$file_path" ]; then
-                        # error
-                        echo "Expected the path of the source file in the original corpus if the treebank is not a directory"
-                        exit 2
-                    fi
-                # If parameter treebank is a directory
-                else
-                    # If parameter path is set
-                    if [ -n "$file_path" ]; then
-                        # error
-                        echo "Unexpected the path of the source file in the original corpus if the treebank is a directory"
-                        exit 2
-                    fi
-                fi
+    if [ $method_type = "udtreebank" ]; then
+        # If parameter source files has more than one file
+        if [ ! ${#source_files[@]} -eq 1 ]; then
+            # error
+            echo "Expected only one input source file for udtreebank method"
+            exit 2
+        fi
 
-                LANG="$language_code"
+        # If parameter uri is not set
+        if [ ! -n "$corpus_uri" ]; then
+            # error
+            echo "Expected the persistent URI of the UD treebanks"
+            exit 2
+        fi
 
-                # Prepare the reannotation directory
-                prepare_log_file "${source_files[0]}"
-
-                # validate the format .conllu
-                validate_conllu "$treebank_file"
-                # validate the format .cupt
-                validate_cupt "${source_files[0]}" 
-
-                # Reannotate to the latest source treebanks' version
-                reannotate_udtreebank "${source_files[0]}" $treebank_file 
-
-            # If parameter source files has more than one file
-            else
+        # If parameter treebank is a file
+        if [ ! -d $treebank_file ]; then
+            # If treebank file does not exist
+            if [ ! -f "$treebank_file" ]; then
                 # error
-                echo "Expected only one input source file for udtreebank method"
+                echo "File $treebank_file does not exist"
                 exit 2
             fi
-        # If parameters source files, treebank and uri are not set
+
+            # If parameter path is not set
+            if [ ! -n "$file_path" ]; then
+                # error
+                echo "Expected the path of the source file in the UD original corpus if the treebank is not a directory"
+                exit 2
+            fi
+        # If parameter treebank is a directory
         else
-            # error
-            echo "Expected language code, a source file, a treebank file or directory and a parameter --uri for udtreebank reannotation method"
-            exit 2
+            # If parameter path is set
+            if [ -n "$file_path" ]; then
+                # error
+                echo "Unexpected the path of the source file in the UD original corpus if the treebank is a directory"
+                exit 2
+            fi
         fi
-    # If the method is neither udtreebank nor udpipe
-    else
-        echo "Only two method of synchronisation udpipe and udtreebank are available" >&2
-        exit 2
     fi
-# If parameter method is not set
-else
-    # error
-    echo "Expected synchronisation method"
-    exit 2
+}
+
+
+# Handle parameter syntax
+handle_parameters
+
+LANG="$language_code"
+# If the method is udpipe
+if [ $method_type = "udpipe" ]; then
+    MODEL_PREF=${LANGS[$language_code]}
+    echo "Language: $language_code"
+    echo "Model-prefix: $MODEL_PREF"
+
+    # Reannotate all source files
+    for input in ${source_files[@]}; do   
+        #Prepare the reannotation directory
+        prepare_log_file "$input"
+
+        # If a directory, reannotate all .cupt files in it
+        if [ -d $input ]; then
+            # find all cupt files
+            cupt_files=$(find "$input" -type f -name "*.cupt")
+            # loop through each cupt file
+            while read -r f; do
+                # remove redundant / characters from treebank file path
+                f=$(readlink -m -f "$f")
+                # reannotate the cupt file
+                reannotate_udpipe $f $REANNOT_DIR
+            done <<< "$cupt_files"
+        else  
+            reannotate_udpipe $input $REANNOT_DIR
+        fi
+    done
 fi
+
+if [ $method_type = "udtreebank" ]; then
+    # Prepare the reannotation directory
+    prepare_log_file "${source_files[0]}"
+
+    # validate the format .conllu
+    validate_conllu "$treebank_file"
+    # validate the format .cupt
+    validate_cupt "${source_files[0]}" 
+
+    # Reannotate to the latest source treebanks' version
+    reannotate_udtreebank "${source_files[0]}" $treebank_file 
+fi
+
+echo ""
+echo "Terminated !"
+echo "Reannotated files go to $REANNOT_DIR"
+echo "Logs go to $REANNOT_DIR/$LOG"
+echo "========================================================================================"
+
 
