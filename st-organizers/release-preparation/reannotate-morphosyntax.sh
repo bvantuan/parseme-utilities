@@ -295,7 +295,7 @@ function get_ud_line_number_with_the_same_text() {
     # If parameter $2 is a file
     if [ ! -d $2 ]; then
         # all line numbers contain parseme sentence id
-        line_numbers=$(grep -n '^# sent_id =' "$2" | grep "$1" | cut -d: -f1,2)
+        line_numbers=$(grep -n '^# sent_id =' "$2" | grep "# sent_id = $1$" | cut -d: -f1,2)
 
         # If it have a line number that contain parseme sentence id
         if [ ! -z "$line_numbers" ]; then
@@ -315,7 +315,7 @@ function get_ud_line_number_with_the_same_text() {
     # If parameter $2 is a directory
     else
         # all line numbers contain parseme sentence id
-        line_numbers=$(grep -nr '^# sent_id =' "$2" | grep "$1" | cut -d: -f1,2,3)
+        line_numbers=$(grep -nr '^# sent_id =' "$2" | grep "# sent_id = $1$" | cut -d: -f1,2,3)
 
         # If it have a line number that contain parseme sentence id
         if [ ! -z "$line_numbers" ]; then
@@ -390,9 +390,9 @@ function get_ud_line_number_with_the_same_text() {
 #     $2 = UD metadata
 function replace_source_sent_id() {
     # Line starting with # source_sent_id =
-    old_metadata_source_sent_id=$(grep '# source_sent_id =' <<< "$1")
+    old_metadata_source_sent_id=$(grep '^# source_sent_id =' <<< "$1")
     # Sentence id of the text in the UD
-    new_sentence_id=$(grep -n '# sent_id =' <<< "$2" | cut -d: -f2 | cut -d' ' -f4)
+    new_sentence_id=$(grep -n '^# sent_id =' <<< "$2" | cut -d: -f2 | cut -d' ' -f4)
 
     # Replace the old identifier by the sentence identifier of the text sentence in the UD
     new_metadata_source_sent_id=$(echo "$old_metadata_source_sent_id" | awk -v replacement="$new_sentence_id" '{ $6=replacement; print }')
@@ -706,7 +706,7 @@ reannotate_udtreebank() {
             old_MWE_annotation=$(cut -f11 <<< $old_morphosyntax_text)
 
             # sentence id in the parseme
-            parseme_setence_id=$(grep '# source_sent_id =' <<< "$old_metadata_text" | cut -d' ' -f6)
+            parseme_setence_id=$(grep '^# source_sent_id =' <<< "$old_metadata_text" | cut -d' ' -f6)
             # get UD line number and UD corpus with the same text but looking first for the sentence identifier of the parseme
             ud_line_number_and_corpus=$(get_ud_line_number_with_the_same_text "$parseme_setence_id" "$2")
             # UD line number corresponding
