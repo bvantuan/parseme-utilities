@@ -104,20 +104,10 @@ function print_progress_bar() {
 
     # Save the current cursor position
     printf "\033[s"
-
-    # # Get the terminal height
-    # local terminal_height=$(tput lines)
-
-    # # Move cursor to the bottom-left corner of the screen
-    # tput cup 5 0
-
     # Print the progress bar with percentage
     printf "\rRe-annotating: %s %2d%%" "$progress_bar" $((current_progress * 100 / total_progress)) 
-    # echo ""
-
     # Restore the cursor position
     printf "\033[u"
-    # echo ""
 }
 
 
@@ -482,9 +472,11 @@ function get_changed_tokens_and_new_MWE_annotation() {
             # same line
             '= ')
                 # get the token id in the parseme tokenization
-                token_id="${source_token_ids[$source_token_index]}"
+                source_token_id="${source_token_ids[$source_token_index]}"
+                # get the token id in the UD tokenization
+                destination_token_id="${destination_token_ids[$destination_token_index]}"
                 # MWE annotation is the same 
-                new_MWE_annotation["$token_id"]="${id_source_MWE_annotation[$token_id]}"
+                new_MWE_annotation["$destination_token_id"]="${id_source_MWE_annotation[$source_token_id]}"
                 # It is not a case of changed token
                 is_changed_token=false
                 # next index
@@ -679,8 +671,11 @@ reannotate_udtreebank() {
             ud_corpus=$(echo "$ud_line_number_and_corpus" | tail -n 1)
             # If the UD corpus corresponding exists
             if [ ! -z "$ud_corpus" ]; then
-                # Get the last two names
-                file_path=$(echo "$ud_corpus" | awk -F/ '{print $(NF-1)"/"$NF}')
+                # If parameter file_path is not set
+                if ! $is_set_file_path; then
+                    # Get the last two names
+                    file_path=$(echo "$ud_corpus" | awk -F/ '{print $(NF-1)"/"$NF}')
+                fi
             fi
             
             # If the sentence is not in the latest source treebanks' version
@@ -758,7 +753,6 @@ reannotate_udtreebank() {
                     while read -r id token; do
                         # add the id-token pair to the associative array
                         id_destination_token["$id"]="$token"
-                        # echo "with id $id, we have ${id_destination_token[$id]}"
                     done <<< "$destination_tokens_with_id"
 
                     # Get changed tokens and new MWE annotation 
@@ -952,6 +946,7 @@ source_files=()
 treebank_file=
 corpus_uri=
 file_path=
+is_set_file_path=false
 # set default values for boolean arguments
 tagger=false
 parser=false
@@ -985,6 +980,7 @@ while true; do
             ;;
         -p|--path)
             file_path=$2
+            is_set_file_path=true
             shift 2
             ;;
         --tagger)
