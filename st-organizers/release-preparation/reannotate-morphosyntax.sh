@@ -410,11 +410,19 @@ function replace_source_sent_id() {
 
 ########################################
 # Get changed tokens and new MWE annotation in case of changed tokenization
-# Parameters: None
+# Parameters: 
+#     $1 = Tokenisation contains only tokens of parseme annotaion
+#     $2 = Tokenisation contains only token ids of parseme annotaion
+#     $3 = Tokenisation contains only tokens of the latest source treebanks' version
+#     $4 = Tokenisation contains only token ids of the latest source treebanks' version
 function get_changed_tokens_and_new_MWE_annotation() {
-    # first ids to iterate
-    source_id=1
-    destination_id=1
+    # id index to iterate
+    source_token_index=0
+    destination_token_index=0
+    # Is it a case of changed token in parseme tokenization
+    is_changed_token=false
+    # the first token id in case of changed token in parseme tokenization
+    first_changed_token_id=0
     # all changed token ids in parseme sentence
     source_changed_tokens=()
     # changed token ids in a MWE
@@ -424,119 +432,77 @@ function get_changed_tokens_and_new_MWE_annotation() {
     # new MWE annotation for the changed tokenization
     declare -A new_MWE_annotation
 
-    # Compare two tokenizations in the while loop
-    while [[ ! $source_id -gt ${#id_source_token[@]} ]] && [[ ! $destination_id -gt ${#id_destination_token[@]} ]]; do
-        # MWE annotation is the same 
-        new_MWE_annotation[$source_id]=${id_source_MWE_annotation[$source_id]}
-        # If the tokens are the same
-        if [[ "${id_source_token[$source_id]}" == "${id_destination_token[$destination_id]}" ]]; then
-            # Next token
-            source_id=$((source_id+1))
-            destination_id=$((destination_id+1))
-        # If the tokens are not the same
-        else
-            # find the changed token id in the parseme sentence
-            source_changed_tokens+=($source_id)
-            # find the changed token id in the ud sentence
-            destination_changed_tokens+=($destination_id)
-            # If the changed token is in a MWE
-            if [[ ! "${id_source_MWE_annotation[$source_id]}" == "*" ]]; then
-                # find the changed token id in a MWE
-                source_changed_tokens_in_MWE+=($source_id)
-            fi
+    # Declare an empty array: Tokenisation contains only token ids of parseme annotaion
+    declare -a source_token_ids
+    # Read the multi-line variable line by line and add each line to the array
+    while read -r id; do
+        source_token_ids+=("$id")
+    done <<< "$2"
 
-            # compare the lengths of two tokens : if it is a division
-            if [[ "${#id_source_token[$source_id]}" -gt "${#id_destination_token[$destination_id]}" ]]; then
-                # the remaining token
-                remaining_token="${id_source_token[$source_id]/${id_destination_token[$destination_id]}}"
-                temp_id=$((destination_id+1))
-                # loop from next token to the end token in the ud sentence
-                for id in $(seq $temp_id ${#id_destination_token[@]}); do
-                    # find the changed token id in the ud sentence
-                    destination_changed_tokens+=($id)
-                    # MWE annotation is the same for the cas of division
-                    new_MWE_annotation[$id]=${id_source_MWE_annotation[$source_id]}
-                    # if the next token in ud sentence is the remaining token
-                    if [[ "$remaining_token" == "${id_destination_token[$id]}" ]]; then
-                        remaining_token="${remaining_token/${id_destination_token[$id]}}"
-                        # Next token for comparaison
-                        source_id=$((source_id+1))
-                        destination_id=$((id+1))
-                        break
-                    # if the next token in ud sentence is not the remaining token
-                    else
-                        # the new remaining token
-                        remaining_token="${remaining_token/${id_destination_token[$id]}}"
-                    fi
-                    
-                done
-                
-                # Can't not find the remaining token
-                if [[ ! -z $remaining_token ]]; then
-                    bold_echo "Something went wrong during the search of changed tokens"
-                    exit 1
-                fi
-            # compare the lengths of two tokens : if it is an union
-            else
-                # the remaining token
-                remaining_token="${id_destination_token[$destination_id]/${id_source_token[$source_id]}}"
-                temp_id=$((source_id+1))
-                # loop from next token to the end token in the parseme sentence
-                for id in $(seq $temp_id ${#id_source_token[@]}); do
-                    # find the changed token id in the parseme sentence
-                    source_changed_tokens+=($id)
-                    # If the changed token is in a MWE
-                    if [[ ! "${id_source_MWE_annotation[$id]}" == "*" ]]; then
-                        # find the changed token id in a MWE
-                        source_changed_tokens_in_MWE+=($id)
-                    fi
-                    
-                    # if the next token in ud sentence is the remaining token
-                    if [[ "$remaining_token" == "${id_source_token[$id]}" ]]; then
-                        remaining_token="${remaining_token/${id_source_token[$id]}}"
-                        # Next token for comparaison
-                        source_id=$((id+1))
-                        destination_id=$((destination_id+1))
-                        break
-                    # if the next token in parseme sentence is not the remaining token
-                    else
-                        # the new remaining token
-                        remaining_token="${remaining_token/${id_source_token[$id]}}"
-                    fi
-                done
+    # Declare an empty array: Tokenisation contains only token ids of the latest source treebanks' version
+    declare -a destination_token_ids
+    # Read the multi-line variable line by line and add each token id to the array
+    while read -r id; do
+        destination_token_ids+=("$id")
+    done <<< "$4"
 
-                # Can't not find the remaining token
-                if [[ ! -z $remaining_token ]]; then
-                    bold_echo "Something went wrong during the search of changed tokens"
-                    exit 1
-                fi
-                
-            fi
-        fi
-    done
+    # Loop over output of diff command between tokens of two corpus parseme and UD
+    while IFS= read -r line; do
+        # get the prefix for added, deleted, and unchanged lines
+        prefix=${line:0:2}
 
-    # loop over the ids in the parseme tokenization
-    for id in "${!id_source_token[@]}"; do
-        # If the id is not found in the new MWE annotation
-        if [ ! -v new_MWE_annotation[$id] ]; then
-            # find the origin id in the variable 
-            origin_id=$(cut -d- -f1 <<< "$id" | cut -d. -f1)
-            # If the origin id is found in the new MWE annotation
-            if [ -v new_MWE_annotation[$origin_id] ]; then
-                # add a MWE annotation for the id
-                new_MWE_annotation[$id]=${new_MWE_annotation[$origin_id]}
+        case "$prefix" in
+            # deleted line
+            '< ')
+                # get the token id in the parseme tokenization
+                token_id="${source_token_ids[$source_token_index]}"
                 # find the changed token id in the parseme sentence
-                source_changed_tokens+=("$id")
-                # If the changed token is in a MWE
-                if [[ ! "${id_source_MWE_annotation[$id]}" == "*" ]]; then
-                    # find the changed token id in a MWE
-                    source_changed_tokens_in_MWE+=($id)
+                source_changed_tokens+=("$token_id")
+                # It is a case of changed token
+                is_changed_token=true
+                # get the first id of changed token in the parseme tokenization
+                first_changed_token_id="$token_id"
+                # next id index
+                source_token_index=$((source_token_index+1))
+                ;;
+            # added line
+            '> ')
+                # get the token id in the UD tokenization
+                token_id="${destination_token_ids[$destination_token_index]}"
+                # find the changed token id in the UD sentence
+                destination_changed_tokens+=("$token_id")
+                # If tt is a case of changed token (not a added token)
+                if $is_changed_token; then
+                    # MWE annotation is the same 
+                    new_MWE_annotation["$token_id"]="${id_source_MWE_annotation[$first_changed_token_id]}"
                 fi
-            # If the origin id is not found in the new MWE annotation
-            else
-                # default value
-                new_MWE_annotation[$id]="*"
-            fi
+                # next id index
+                destination_token_index=$((destination_token_index+1))
+                ;;
+            # same line
+            '= ')
+                # get the token id in the parseme tokenization
+                token_id="${source_token_ids[$source_token_index]}"
+                # MWE annotation is the same 
+                new_MWE_annotation["$token_id"]="${id_source_MWE_annotation[$token_id]}"
+                # It is not a case of changed token
+                is_changed_token=false
+                # next index
+                source_token_index=$((source_token_index+1))
+                destination_token_index=$((destination_token_index+1))
+                ;;
+        esac
+    done < <(diff --unchanged-line-format='= %l
+' --old-line-format='< %l
+' --new-line-format='> %l
+' <(echo "$1") <(echo "$3"))
+
+    # loop over the token ids that are changed in tokenization
+    for source_id in "${source_changed_tokens[@]}"; do
+        # If the changed token is in a MWE
+        if [[ ! "${id_source_MWE_annotation[$source_id]}" == "*" ]]; then
+            # find the changed token id in a MWE
+            source_changed_tokens_in_MWE+=($source_id)
         fi
     done
 
@@ -550,8 +516,6 @@ function get_changed_tokens_and_new_MWE_annotation() {
             if [ -v new_MWE_annotation[$origin_id] ]; then
                 # add a MWE annotation for the id
                 new_MWE_annotation[$id]=${new_MWE_annotation[$origin_id]}
-                # find the changed token id in the ud sentence
-                destination_changed_tokens+=("$id")
             # If the origin id is not found in the new MWE annotation
             else
                 # default value
@@ -600,17 +564,17 @@ function is_element_in_array() {
 # Display the morphosyntax lines
 # Parameters: 
 #     $1 = a block of morphosyntax lines
-#     $@ = an array of changed tokens
+#     $@ = an array of changed token ids
 function display_token_lines() {
     morphosyntax_text="$1"
     shift
-    changed_tokens=("$@")
+    changed_token_ids=("$@")
     # loop over the tokenization lines in the parseme sentence
     while read token_line; do
         # token id
-        id_token=$(cut -f1 <<< $token_line)
+        token_id=$(cut -f1 <<< $token_line)
         # If it is a changed token
-        if is_element_in_array "$id_token" "${changed_tokens[@]}"; then
+        if is_element_in_array "$token_id" "${changed_token_ids[@]}"; then
             # display in green and bold
             echo "$(tput setaf 2)$(tput bold)${token_line}$(tput sgr0)"
             # logs
@@ -744,8 +708,12 @@ reannotate_udtreebank() {
 
                 # Tokenisation of old annotaion
                 source_tokens=$(cut -f2 <<< $old_morphosyntax_text)
+                # columns id in the old morphosyntax 
+                source_token_ids=$(cut -f1 <<< "$old_morphosyntax_text")
                 # Tokenisation of the latest source treebanks' version
                 destination_tokens=$(cut -f2 <<< $new_morphosyntax_text)
+                # column id in the new morphosyntax 
+                destination_token_ids=$(cut -f1 <<< "$new_morphosyntax_text")
 
                 # Replace the old source_sent_id by the new one in the metadata
                 new_metadata_text=$(replace_source_sent_id "$old_metadata_text" "$ud_metadata_text")
@@ -783,8 +751,8 @@ reannotate_udtreebank() {
                         # add the id-MWE_annotation pair to another associative array
                         id_source_MWE_annotation[$id]=$MWE_annotation
                     done <<< "$source_tokens_with_id_and_MWE_annotation"
-
-                    # Two columns id, token form in the new morphosyntax 
+                    
+                    # Two columns id, token form in the UD morphosyntax 
                     destination_tokens_with_id=$(cut -f1,2 <<< "$new_morphosyntax_text")
                     # loop through each line in the columns variable
                     while read -r id token; do
@@ -794,7 +762,7 @@ reannotate_udtreebank() {
                     done <<< "$destination_tokens_with_id"
 
                     # Get changed tokens and new MWE annotation 
-                    changed_tokens_and_new_MWE_annotation=$(get_changed_tokens_and_new_MWE_annotation)
+                    changed_tokens_and_new_MWE_annotation=$(get_changed_tokens_and_new_MWE_annotation "$source_tokens" "$source_token_ids" "$destination_tokens" "$destination_token_ids")
                     IFS='|' read -ra changed_tokens_and_new_MWE_annotation <<< "${changed_tokens_and_new_MWE_annotation}"
                     # changed tokens in parseme
                     read -ra source_changed_tokens <<< "${changed_tokens_and_new_MWE_annotation[0]}"
