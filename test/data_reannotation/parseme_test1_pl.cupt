@@ -2,7 +2,7 @@
 # source_sent_id = http://hdl.handle.net/11234/1-3105 UD_Polish-PDB/pl_pdb-ud-dev.conllu dev-s1251
 # orig_file_sentence = 120-4-900001_morph_35.17-s
 # text = O przyczynie śmierci kolegi niewiele potrafią powiedzieć, ale domyślają się, jak mogła ona wyglądać.
-1	O	o	ADP	prep:loc	AdpType=Prep	2	case	2:case	Case=Loc    *
+1	O	o	ADP	prep:loc	AdpType=Prep	2	case	2:case	Case=Loc	*
 2	przyczynie	przyczyna	NOUN	subst:sg:loc:f	Case=Loc|Gender=Fem|Number=Sing	7	obl:arg	7:obl:arg	_	*
 3	śmierci	śmierć	NOUN	subst:sg:gen:f	Case=Gen|Gender=Fem|Number=Sing	2	nmod	2:nmod	_	*
 4	kolegi	kolega	NOUN	subst:sg:gen:m1	Animacy=Hum|Case=Gen|Gender=Masc|Number=Sing	3	nmod	3:nmod	_	*
