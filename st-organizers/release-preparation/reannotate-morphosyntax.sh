@@ -41,7 +41,7 @@ declare -r INVALID_VMWEs=("NotMWE")
 LANG=""
 
 set -o nounset    # Using "$UNDEF" var raises error
-set -o errexit    # Exit on error, do not continue quietly
+# set -o errexit    # Exit on error, do not continue quietly
 
 ########################################
 usage() {
@@ -374,11 +374,41 @@ function get_ud_line_number_with_the_same_text() {
 
 
 ########################################
-# Replace source_sent_id in parseme corpus by new one based on the latese UD corpus
+# Get UD line number and UD corpus with the approximate matchings while ignoring case distinctions and spaces
+# Parameters: 
+#     $1 = a parseme sentence
+#     $2 = an UD corpus (or a directory of UD corpus)
+function get_ud_line_number_with_the_approximate_text() {
+    # declare an empty array of line number and ud corpus of approximate matchings in the UD
+    line_number_filename=()
+
+    # Remove spaces and convert to lowercase
+    search_string_no_spaces=$(echo "$1" | tr -d ' ' | tr '[:upper:]' '[:lower:]')
+
+    # Iterate through all files
+    while IFS= read -r -d '' file; do
+        # Remove spaces from each line, convert to lowercase, and search for the parseme sentence
+        matches=$(cat "$file" | tr -d ' ' | tr '[:upper:]' '[:lower:]' | grep -nF "$search_string_no_spaces" | cut -d: -f1)
+        # If we have the approximate matchings
+        if [ ! -z "$matches" ]; then
+            # read the matchings
+            while read -r line_number; do
+                # stock the matchings in the array
+                line_number_filename+=("$line_number|$file")
+            done <<< "$matches"
+        fi
+    done < <(find "$2" -type f -name "*.conllu" -print0)
+
+    echo "${line_number_filename[@]}"
+}
+
+
+########################################
+# Replace source_sent_id and text in parseme corpus by new ones based on the latese UD corpus
 # Parameters: 
 #     $1 = parseme metadata
 #     $2 = UD metadata
-function replace_source_sent_id() {
+function replace_source_sent_id_and_text() {
     # Line starting with # source_sent_id =
     old_metadata_source_sent_id=$(grep '^# source_sent_id =' <<< "$1")
     # Sentence id of the text in the UD
@@ -394,6 +424,11 @@ function replace_source_sent_id() {
     
     # Replace the old source_sent_id by the new one in the metadata
     new_metadata_text=$(echo -e "$old_metadata_text" | sed "/^# source_sent_id =/s/.*/$(echo "$new_metadata_source_sent_id" | sed 's/[\/&]/\\&/g')/")
+
+    # new text in UD
+    new_text=$(grep '^# text =' <<< "$2")
+    # Replace the old text by the new one in the metadata
+    new_metadata_text=$(echo -e "$new_metadata_text" | sed "/^# text =/s/.*/$(echo "$new_text" | sed 's/[\/&]/\\&/g')/")
     echo "$new_metadata_text"
 }
 
@@ -604,6 +639,13 @@ function log_sentences_not_found() {
         done >> "$log_file"
 
         echo "========================================================================================" >> "$log_file"
+    # If it doesn't have a sentence id not found
+    else
+        # If the log file exists
+        if [ -f "$log_file" ]; then
+            # remove the log file
+            rm "$log_file"
+        fi
     fi
 
 }
@@ -678,19 +720,103 @@ reannotate_udtreebank() {
                 fi
             fi
             
-            # If the sentence is not in the latest source treebanks' version
+            # If the parseme sentence or the approximate matchings is in the UD corpus
+            is_parseme_sentence_in_UD=true
+            # If the sentence is not in the latest source treebanks' version, find the approximate matchings
             if [ -z "$ud_line_number" ]; then
-                # Copy the old annotation into a new reannotated file
-                echo -e "$old_blocktext" >> $new_cupt
-                echo "" >> $new_cupt
-                # The number of sentences that are not changed increases
-                nb_sentences_not_found=$((nb_sentences_not_found+1))
-                # sentence id not found
-                sentences_not_found+=("$parseme_setence_id")
+                # Get UD line number and UD corpus with the approximate matchings while ignoring case distinctions and spaces
+                read -ra ud_line_number_filenames <<< $(get_ud_line_number_with_the_approximate_text "$line" "$2")
+                # If the approximate matchings are found
+                if [ ! "${#ud_line_number_filenames[@]}" -eq 0 ]; then
+                    # Loop over all the approximate matchings
+                    for ud_line_number_filename in "${ud_line_number_filenames[@]}"; do
+                        # ud line number
+                        ud_line_number=$(cut -d'|' -f1 <<< "$ud_line_number_filename")
+                        # ud corpus
+                        ud_corpus=$(cut -d'|' -f2 <<< "$ud_line_number_filename")
+
+                        # If parameter file_path is not set
+                        if ! $is_set_file_path; then
+                            # Get the last two names
+                            file_path=$(echo "$ud_corpus" | awk -F/ '{print $(NF-1)"/"$NF}')
+                        fi
+
+                        # Extract the block of lines of new annotation of the text (metadata and morphosyntax in the UD)
+                        new_blocktext=$(find_blocktext "$ud_line_number" "$ud_corpus")
+                        # Metadata of the text in the UD
+                        ud_metadata_text=$(grep '^#' <<< $new_blocktext)
+                        # ud sentence
+                        ud_line=$(grep '^# text = ' <<< $ud_metadata_text)
+                        # the newest morphosyntax in the UD
+                        new_morphosyntax_text=$(grep -v '^#' <<< $new_blocktext)
+
+                        bold_echo "========================================================================================"
+                        bold_echo "===> In the parseme corpus $1"
+                        echo_and_bold_echo "The sentence of line number $count_line_number: \"$line\" is not found in the UD treebanks but an approximate matching is found in the UD treebank \"$file_path\""
+                        echo_and_bold_echo "Here are the details (the words in color red appear only in the parseme sentence and the words in color green appear only in the UD sentence):"
+
+                        # Compare the two texts and show the differences with colors
+                        wdiff_output=$(wdiff -n -w "$(tput bold; tput setaf 1)" -x "$(tput sgr0)" -y "$(tput bold; tput setaf 2)" -z "$(tput sgr0)" <(echo "$line") <(echo "$ud_line"))
+
+                        echo_and_bold_echo "Parseme sentence: $line"
+                        echo_and_bold_echo "UD sentence     : $ud_line"
+                        # Print the wdiff output
+                        echo               "Differences     : $wdiff_output"
+                        echo ""
+
+                        # terminate the redirection of stderr
+                        exec 2>&1
+                        # Ask the annotator
+                        while true; do
+                            read -p "Do you want to update the morphosyntax of the sentence for this approximate matching of UD? (y/n) " yn
+                            case $yn in
+                                [Yy]* ) answer=true; break;;
+                                [Nn]* ) answer=false; break;;
+                                * ) echo "Please answer yes or no.";;
+                            esac
+                        done <&1
+                        # Redirecting standard error to a log file
+                        exec 2>> $REANNOT_DIR/$LOG      
+                        # answer=true
+
+                        echo ""
+                        # The annotator answered no
+                        if ! $answer; then
+                            is_parseme_sentence_in_UD=false
+                            bold_echo ""
+                            bold_echo "===> You have indicated NO for the morphosyntax update in case the approximate matching of UD for the parseme sentence is found"
+                            bold_echo "========================================================================================"
+                        # The annotator answered yes
+                        else
+                            is_parseme_sentence_in_UD=true
+                            bold_echo ""
+                            bold_echo "===> You have indicated YES for the morphosyntax update in case the approximate matching of UD for the parseme sentence is found"
+                            bold_echo "========================================================================================"
+
+                            break
+                        fi
+                    done
+                # If the approximate matchings are not found
+                else
+                    is_parseme_sentence_in_UD=false
+                fi
+
+                # If the sentence or the approximate matchings is not in the latest source treebanks' version
+                if ! $is_parseme_sentence_in_UD; then
+                    # Copy the sentence into a new reannotated file
+                    echo -e "$old_blocktext" >> $new_cupt
+                    echo "" >> $new_cupt
+                     # The number of sentences that are not changed increases
+                    nb_sentences_not_found=$((nb_sentences_not_found+1))
+                    # sentence id not found
+                    sentences_not_found+=("$parseme_setence_id")
+                fi
+            fi
+
             # If the sentence is in the latest source treebanks' version
-            else
+            if $is_parseme_sentence_in_UD; then
                 if $verbose; then
-                    echo "The sentence \"$line\" is founded in the UD treebank \"$file_path\""
+                    echo "The sentence (or an approximate matching) \"$line\" is found in the UD treebank \"$file_path\""
                 fi
 
                 # Extract the block of lines of new annotation of the text (metadata and morphosyntax in the UD)
@@ -710,8 +836,8 @@ reannotate_udtreebank() {
                 # column id in the new morphosyntax 
                 destination_token_ids=$(cut -f1 <<< "$new_morphosyntax_text")
 
-                # Replace the old source_sent_id by the new one in the metadata
-                new_metadata_text=$(replace_source_sent_id "$old_metadata_text" "$ud_metadata_text")
+                # Replace the old source_sent_id and text by the new ones in the metadata
+                new_metadata_text=$(replace_source_sent_id_and_text "$old_metadata_text" "$ud_metadata_text")
                 
                 # Tokenisations are the same in both versions
                 if [ "$source_tokens" = "$destination_tokens" ]; then
@@ -730,7 +856,7 @@ reannotate_udtreebank() {
                 else
                     bold_echo "========================================================================================"
                     bold_echo "===> In the parseme corpus $1"
-                    bold_echo "The sentence of line number $count_line_number: \"$line\" is founded in the UD treebank"
+                    bold_echo "The sentence of line number $count_line_number: \"$line\" is found in the UD treebank"
 
                     # associative arrays for id:token:vmwe tag 
                     declare -gA id_source_token
@@ -785,7 +911,6 @@ reannotate_udtreebank() {
                     if [ "${#source_changed_tokens_in_MWE[@]}" -eq 0 ]; then
                         # terminate the redirection of stderr
                         exec 2>&1
-
                         # Ask the annotator
                         while true; do
                             read -p "None of the changed tokens is in a MWE, Do you want to update the tokenization and the morphosyntax of the sentence? (y/n) " yn
@@ -795,9 +920,9 @@ reannotate_udtreebank() {
                                 * ) echo "Please answer yes or no.";;
                             esac
                         done <&1
-
                         # Redirecting standard error to a log file
                         exec 2>> $REANNOT_DIR/$LOG      
+                        # answer=true
 
                         # The annotator answered no
                         if ! $answer; then
@@ -1110,9 +1235,19 @@ function handle_parameters() {
     fi
 }
 
+########################################
+# Install the necessary packages
+function install_packages() {
+    echo "Installing wdiff package"
+    sudo apt-get install wdiff
+    echo "========================================================================================"
+}
+
 
 # Handle parameter syntax
 handle_parameters
+# Install the necessary packages
+install_packages
 
 LANG="$language_code"
 # If the method is udpipe
