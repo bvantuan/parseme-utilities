@@ -1009,23 +1009,23 @@ reannotate_udtreebank() {
     LOG_SENTENCES_NOT_FOUND="$REANNOT_DIR/sentence-ids-not-found-$filename.txt"
     log_sentences_not_found "$LOG_SENTENCES_NOT_FOUND" "${sentences_not_found[@]}" 
 
-    bold_echo "========================================================================================"
-    bold_echo "=================================SUMMARY================================================"
-    bold_echo "===> The result of the re-annotation of morphosyntax for the parseme corpus $1 with the UD treebanks $2"
+    echo_and_bold_echo "========================================================================================"
+    echo_and_bold_echo "=================================SUMMARY================================================"
+    echo_and_bold_echo "===> The result of the re-annotation of morphosyntax for the parseme corpus $1 with the UD treebanks $2"
 
     # If it exists at least a sentence id not found
     if [ ! "${#sentences_not_found[@]}" -eq 0 ]; then
-        bold_echo "===> $nb_sentences_not_found sentences are not found (see $LOG_SENTENCES_NOT_FOUND for details)"
+        echo_and_bold_echo "===> $nb_sentences_not_found sentences are not found (see $LOG_SENTENCES_NOT_FOUND for details)"
     # If it doesn't exist a sentence id not found
     else
-        bold_echo "===> $nb_sentences_not_found sentences are not found"
+        echo_and_bold_echo "===> $nb_sentences_not_found sentences are not found"
     fi
     
-    bold_echo "===> $nb_sentences_updated_morpho sentences are updated automatically for the morphosyntax with the same tokenization in the UD"
-    bold_echo "===> $nb_sentences_updated_token_and_morpho sentences are updated automatically for the tokenization and the morphosyntax with the different tokenization in the UD"
-    bold_echo "===> $nb_sentences_found_not_updated sentences are not updated automatically with the different tokenization in the UD because of the non agreement of the user"
-    bold_echo "===> $nb_sentences_to_correct sentences need to be corrected manually for the changed tokenization"
-    bold_echo "========================================================================================"
+    echo_and_bold_echo "===> $nb_sentences_updated_morpho sentences are updated automatically for the morphosyntax with the same tokenization in the UD"
+    echo_and_bold_echo "===> $nb_sentences_updated_token_and_morpho sentences are updated automatically for the tokenization and the morphosyntax with the different tokenization in the UD"
+    echo_and_bold_echo "===> $nb_sentences_found_not_updated sentences are not updated automatically with the different tokenization in the UD because of the non agreement of the user"
+    echo_and_bold_echo "===> $nb_sentences_to_correct sentences need to be corrected manually for the changed tokenization"
+    echo_and_bold_echo "========================================================================================"
 
     # validate the new format .cupt
     validate_cupt "$new_cupt" 
