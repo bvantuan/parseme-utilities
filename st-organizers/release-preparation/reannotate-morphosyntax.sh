@@ -1238,8 +1238,11 @@ function handle_parameters() {
 ########################################
 # Install the necessary packages
 function install_packages() {
-    echo "Installing wdiff package"
-    sudo apt-get install wdiff
+    # Check if the wdiff package is installed
+    if ! command -v wdiff >/dev/null 2>&1; then
+        echo "Installing wdiff package"
+        sudo apt-get install wdiff
+    fi
     echo "========================================================================================"
 }
 
