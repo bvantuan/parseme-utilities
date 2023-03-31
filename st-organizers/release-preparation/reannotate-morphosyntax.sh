@@ -1191,7 +1191,13 @@ function handle_parameters() {
         fi
     fi
 
-    
+    # If tagger or parser is not presented for udpipe method
+    if [ $method_type = "udpipe" ] && ! ($tagger || $parser); then
+        # error
+        echo "Expected tagger or parser parameter for udpipe method"
+        exit 2
+    fi
+
     # If the method is udtreebank
     if [ $method_type = "udtreebank" ]; then
         # If parameter source files has more than one file

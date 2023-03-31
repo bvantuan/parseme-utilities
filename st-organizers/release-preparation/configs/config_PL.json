@@ -1,0 +1,49 @@
+{
+  "language": "PL",
+  "treebank": "/home/tuan/Documents/parseme/UD/ud-treebanks-v2.11/UD_Polish-PDB",
+  "uri": "http://hdl.handle.net/11234/1-4923",
+  "language_repository": "/home/tuan/Documents/parseme_dev/parseme_corpus_pl",
+  "verbose": "false",
+  "source": {
+    "NKJP.cupt": {
+      "method": "udpipe",
+      "tagger": false,
+      "parser": true
+    },
+    "PCC.cupt": {
+      "method": "udpipe",
+      "tagger": true,
+      "parser": true
+    },
+    "PDB.cupt": {
+      "method": "udtreebank"
+    },
+    "pl-pdb-ud-dev-110-200-320.cupt": {
+      "method": "udtreebank"
+    },
+    "pl-pdb-ud-dev-NEWS.cupt": {
+      "method": "udtreebank"
+    },
+    "pl-pdb-ud-dev-OTHER.cupt": {
+      "method": "udtreebank"
+    },
+    "pl-pdb-ud-test-110-200-320.cupt": {
+      "method": "udtreebank"
+    },
+    "pl-pdb-ud-test-NEWS.cupt": {
+      "method": "udtreebank"
+    },
+    "pl-pdb-ud-test-OTHER.cupt": {
+      "method": "udtreebank"
+    },
+    "pl-pdb-ud-train-110-200-320.cupt": {
+      "method": "udtreebank"
+    },
+    "pl-pdb-ud-train-NEWS.cupt": {
+      "method": "udtreebank"
+    },
+    "pl-pdb-ud-train-OTHER.cupt": {
+      "method": "udtreebank"
+    }
+  }
+}
