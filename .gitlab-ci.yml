@@ -26,6 +26,7 @@ before_script:
   - apt-get install -y --no-install-recommends python3-pip
   - python -V               # Print out python version for debugging
   - pip3 install -U folia
+  - pip3 install regex
   - export TERM=xterm
 
 # Stage: Run tests
