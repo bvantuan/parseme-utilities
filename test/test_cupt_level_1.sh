@@ -4,7 +4,7 @@ set -o errexit  # Exit on error, do not continue quietly
 exec </dev/null   # Don't hang if a script tries to read from stdin
 
 HERE="$(cd "$(dirname "$0")" && pwd)"
-TOCUPT=$HERE/../st-organizers/to_cupt.py
+VALIDATE=$HERE/../st-organizers/release-preparation/parseme_validate.py
 DIR_CUPT=$HERE/data_reannotation
 
 cd "$HERE"
@@ -31,5 +31,5 @@ while read -r f; do
     # remove redundant / characters from treebank file path
     f=$(readlink -m -f "$f")
     # validate cupt format
-    run_devnull ${TOCUPT} --lang "EN" --input "$f"
+    run_devnull ${VALIDATE} --level 1 "$f"
 done <<< "$cupt_files"

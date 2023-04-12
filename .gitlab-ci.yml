@@ -7,7 +7,8 @@ variables:
 
 # Define the pipeline stages
 stages:
-  - test
+  - test_level_1
+  - test_level_2
   - deploy
 
 # Cache the directories for apt and pip packages
@@ -29,7 +30,7 @@ before_script:
 
 # Stage: Run tests
 test_script_reannotate_morphosyntax:
-  stage: test
+  stage: test_level_1
   script: 
     - echo "Testing the morphosyntax reannotation script"
     - ./test/test_reannotate-morphosyntax.sh
@@ -38,21 +39,31 @@ test_script_reannotate_morphosyntax:
       - ./test/data_reannotation/REANNOTATION/
     expire_in: 2 days
 
-test_cupt:
-  stage: test
+test_cupt_level_1:
+  stage: test_level_1
   script:
     - echo "Testing the format cupt"
-    - ./test/test_cupt.sh
+    - ./test/test_cupt_level_1.sh
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_PIPELINE_SOURCE == "schedule"
     - if: $CI_PIPELINE_SOURCE == "push"
 
 test_all:
-  stage: test
+  stage: test_level_1
   script:
     - echo "Testing if we can run all scripts to completion"
     - ./test/test.sh
+
+test_cupt_level_2:
+  stage: test_level_2
+  script:
+    - echo "Testing the PARSEME and UD concepts"
+    - ./test/test_cupt_level_2.sh
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+    - if: $CI_PIPELINE_SOURCE == "push"
 
 release:
   stage: deploy
