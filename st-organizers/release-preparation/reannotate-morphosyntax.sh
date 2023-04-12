@@ -324,11 +324,6 @@ function get_ud_line_number_with_the_same_text() {
         fi
     fi
 
-    # line number corresponding to UD
-    ud_line_number=""
-    # UD corpus corresponding to matched parseme sentence identifier
-    ud_corpus=""
-
     # Loop over all line numbers contain parseme sentence id
     for line_sent_id in "${!line_number_sent_ids[@]}"; do
         # If it have a line number that contain parseme sentence id
@@ -352,24 +347,72 @@ function get_ud_line_number_with_the_same_text() {
     if [ -z "$ud_line_number" ]; then
         # If parameter $2 is a file
         if [ ! -d $2 ]; then
-            # Find the line number of the first occurrence of the sentence in the latest source treebanks' version
-            ud_line_number=$(grep -n -Fx "$line" "$2" | head -1 | cut -d: -f1)
-            # UD corpus corresponding
-            ud_corpus="$2"
+            # Find the line number of the sentence in the latest source treebanks' version
+            line_numbers=$(grep -n -Fx "$line" "$2" | cut -d: -f1)
+
+            # Matches found
+            if [ -n "$line_numbers" ]; then
+                # Read the found line numbers
+                while read -r line_number; do
+                    # block text of the sentence
+                    blocktext=$(find_blocktext "$line_number" "$2")
+                    # sentence identifier
+                    sent_id=$(grep '^# sent_id =' <<< "$blocktext" | cut -d= -f2)
+                    # remove leading spaces using parameter expansion
+                    sent_id="${sent_id#"${sent_id%%[![:space:]]*}"}"
+                    
+                    # If it is a existing sentence identifier
+                    if grep -q "^$sent_id$" "$existing_sentence_ids"; then
+                        # keep the existing sentence identifier if no new identifier is found
+                        ud_line_number=$line_number
+                        ud_corpus=$2
+                        # ignore and continue
+                        continue
+                    # If it is not a existing sentence identifier
+                    else
+                        # find the ud corresponding
+                        ud_line_number=$line_number
+                        ud_corpus=$2
+                        break
+                    fi
+                done <<< "$line_numbers"
+            fi
         else
-            # Find the line number of the first occurrence of the sentence in the latest source treebanks' version
-            ud_line_number_and_corpus=$(grep -nr -Fx "$line" "$2" | head -1 | cut -d: -f1,2)
-            ud_line_number=$(cut -d: -f2 <<< "$ud_line_number_and_corpus")
-            # UD corpus corresponding
-            ud_corpus=$(cut -d: -f1 <<< "$ud_line_number_and_corpus")
+            # Find the line numbers of the sentence in the latest source treebanks' version
+            ud_line_number_and_corpus=$(grep -nr -Fx "$line" "$2" | cut -d: -f1,2)
+
+            # Matches found
+            if [ -n "$ud_line_number_and_corpus" ]; then
+                # Read the found line numbers
+                while IFS=':' read -r corpus line_number; do
+                    # block text of the sentence
+                    blocktext=$(find_blocktext "$line_number" "$corpus")
+                    # sentence identifier
+                    sent_id=$(grep '^# sent_id =' <<< "$blocktext" | cut -d= -f2)
+                    # remove leading spaces using parameter expansion
+                    sent_id="${sent_id#"${sent_id%%[![:space:]]*}"}"
+                    
+                    # If it is a existing sentence identifier
+                    if grep -q "^$sent_id$" "$existing_sentence_ids"; then
+                        # keep the existing sentence identifier if no new identifier is found
+                        ud_line_number=$line_number
+                        ud_corpus=$corpus
+                        # ignore and continue
+                        continue
+                    # If it is not a existing sentence identifier
+                    else
+                        # find the ud corresponding
+                        ud_line_number=$line_number
+                        ud_corpus=$corpus
+                        break
+                    fi
+                done <<< "$ud_line_number_and_corpus"
+            fi
         fi
     fi
 
     # delete the arrays
     unset line_number_sent_ids
-
-    echo "$ud_line_number"
-    echo "$ud_corpus"
 }
 
 
@@ -686,6 +729,10 @@ reannotate_udtreebank() {
     declare -i nb_sentences_found_not_updated=0
     # The number of sentences is updated for the tokenization and the morphosyntax during the synchronisarion from UD treebank
     declare -i nb_sentences_updated_token_and_morpho=0
+    # existing sentence identifiers
+    existing_sentence_ids="$REANNOT_DIR/existing-sentence-ids-$filename.tmp.txt"
+    # Re-create an empty file
+    > $existing_sentence_ids
 
     # number of lines in cupt file
     number_of_lines=$(wc -l < "$1")
@@ -705,12 +752,14 @@ reannotate_udtreebank() {
 
             # sentence id in the parseme
             parseme_setence_id=$(grep '^# source_sent_id =' <<< "$old_metadata_text" | cut -d' ' -f6)
+
+            # line number corresponding to UD
+            ud_line_number=""
+            # UD corpus corresponding to matched parseme sentence identifier
+            ud_corpus=""
             # get UD line number and UD corpus with the same text but looking first for the sentence identifier of the parseme
-            ud_line_number_and_corpus=$(get_ud_line_number_with_the_same_text "$parseme_setence_id" "$2")
-            # UD line number corresponding
-            ud_line_number=$(echo "$ud_line_number_and_corpus" | head -n 1)
-            # UD corpus corresponding
-            ud_corpus=$(echo "$ud_line_number_and_corpus" | tail -n 1)
+            get_ud_line_number_with_the_same_text "$parseme_setence_id" "$2" "$new_cupt"
+            
             # If the UD corpus corresponding exists
             if [ ! -z "$ud_corpus" ]; then
                 # If parameter file_path is not set
@@ -821,9 +870,12 @@ reannotate_udtreebank() {
 
                 # Extract the block of lines of new annotation of the text (metadata and morphosyntax in the UD)
                 new_blocktext=$(find_blocktext "$ud_line_number" "$ud_corpus")
-                # echo "new_blocktext: $new_blocktext"
                 # Metadata of the text in the UD
                 ud_metadata_text=$(grep '^#' <<< $new_blocktext)
+                # UD sentence identifier
+                ud_sent_id=$(grep '^# sent_id =' <<< "$ud_metadata_text" | cut -d= -f2)
+                # remove leading spaces using parameter expansion
+                ud_sent_id="${sent_id#"${sent_id%%[![:space:]]*}"}"
                 # the newest morphosyntax in the UD
                 new_morphosyntax_text=$(grep -v '^#' <<< $new_blocktext)
 
@@ -850,6 +902,8 @@ reannotate_udtreebank() {
                     # MWE_annotation isn't changed, copy the new morphosyntax to new annotation file
                     paste <(echo -e "$new_morphosyntax_text") <(echo "$old_MWE_annotation") >> $new_cupt
                     echo "" >> $new_cupt
+                    # add a UD sentence identifier into the file
+                    echo "$ud_sent_id" >> $existing_sentence_ids
                     # The number of sentences that are updated increases
                     nb_sentences_updated_morpho=$((nb_sentences_updated_morpho+1))
                 # The tokenizations are different in the two versions
@@ -953,6 +1007,8 @@ reannotate_udtreebank() {
                             # copy the MWE_annotationto into the new annotation file
                             paste <(echo -e "$new_morphosyntax_text") <(echo -e "$new_MWE_annotation_in_lines") >> $new_cupt
                             echo "" >> $new_cupt
+                            # add a UD sentence identifier into the file
+                            echo "$ud_sent_id" >> $existing_sentence_ids
                             # The number of sentences that are updated increases
                             nb_sentences_updated_token_and_morpho=$((nb_sentences_updated_token_and_morpho+1))
 
@@ -1003,7 +1059,7 @@ reannotate_udtreebank() {
     done < "$old_cupt"	
 
     #Remove intermediate files
-    rm -f $old_cupt
+    rm -f $old_cupt $existing_sentence_ids
 
     # log sentence ids not found
     LOG_SENTENCES_NOT_FOUND="$REANNOT_DIR/sentence-ids-not-found-$filename.txt"
