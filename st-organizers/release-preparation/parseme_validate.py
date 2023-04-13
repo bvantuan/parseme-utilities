@@ -2,6 +2,10 @@
 # Original code (2015) by Filip Ginter and Sampo Pyysalo.
 # DZ 2018-11-04: Porting the validator to Python 3.
 # DZ: Many subsequent changes. See the git history.
+
+# Modified on 13/04/2023 for PARSEME corpora validation
+# Level 1 and level 2 from UD are used
+# Add tests on PARSEME:MWE column
 import fileinput
 import sys
 import io
