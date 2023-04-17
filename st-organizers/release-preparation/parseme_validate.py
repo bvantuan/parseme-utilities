@@ -286,6 +286,7 @@ edeprelpart_resrc = '[\p{Ll}\p{Lm}\p{Lo}\p{M}]+(_[\p{Ll}\p{Lm}\p{Lo}\p{M}]+)*';
 # ^[a-z]+(:[a-z]+)?(:[\p{Ll}\p{Lm}\p{Lo}\p{M}]+(_[\p{Ll}\p{Lm}\p{Lo}\p{M}]+)*)?(:[a-z]+)?$
 edeprel_resrc = '^[a-z]+(:[a-z]+)?(:' + edeprelpart_resrc + ')?(:[a-z]+)?$'
 edeprel_re = re.compile(edeprel_resrc, re.U)
+mwecode_re = re.compile(r'^(\d+)(?::([a-zA-Z]+(?:\.[a-zA-Z]+)?))?$')
 def validate_character_constraints(cols):
     """
     Checks general constraints on valid characters, e.g. that UPOS
@@ -301,11 +302,16 @@ def validate_character_constraints(cols):
         testid = 'invalid-upos'
         testmessage = "Invalid UPOS value '%s'." % cols[UPOS]
         warn(testmessage, testclass, testlevel=testlevel, testid=testid)
-    if not (re.match(r"^(\d+)(?::([a-zA-Z]+(?:\.[a-z]+)?))?(?:;(\d+)(?::([a-zA-Z]+(?:\.[a-z]+)?))?)?$", cols[MWE]) or (cols[MWE] == DEFAULT_MWE)):
-        testclass = 'MWE'
-        testid = 'invalid-mwe'
-        testmessage = "Invalid MWE value '%s'." % cols[MWE]
-        warn(testmessage, testclass, testlevel=testlevel, testid=testid)
+    # MWE codes
+    # If it is a MWE
+    if cols[MWE] not in "*_":
+        for mwe_code in cols[MWE].split(";"):
+            if not mwecode_re.match(mwe_code):
+                testclass = 'MWE'
+                testid = 'invalid-mwe'
+                testmessage = "Invalid MWE code '%s'." % mwe_code
+                warn(testmessage, testclass, testlevel=testlevel, testid=testid)
+
     if not (re.match(r"^[a-z]+(:[a-z]+)?$", cols[DEPREL]) or (is_empty_node(cols) and cols[DEPREL] == '_')):
         testclass = 'Syntax'
         testid = 'invalid-deprel'
@@ -542,6 +548,13 @@ def validate_token_empty_vals(cols):
             testid = 'mwt-nonempty-field'
             testmessage = "A multi-word token line must have '_' in the column %s. Now: '%s'." % (COLNAMES[col_idx], cols[col_idx])
             warn(testmessage, testclass, testlevel=testlevel, testid=testid)
+    
+    if col_idx == MWE and cols[col_idx] != DEFAULT_MWE:
+        testlevel = 2
+        testclass = 'Format'
+        testid = 'mwt-nonempty-field'
+        testmessage = "A multi-word token line must have '%s' in the column %s. Now: '%s'." % (DEFAULT_MWE, COLNAMES[col_idx], cols[col_idx])
+        warn(testmessage, testclass, testlevel=testlevel, testid=testid)
 
 
 def validate_empty_node_empty_vals(cols):
@@ -931,6 +944,7 @@ def validate_source_sent_id(comments, known_ids, lcode):
             testid = 'non-unique-sent-id'
             testmessage = "Non-unique id attribute '%s'." % sid
             warn(testmessage, testclass, testlevel=testlevel, testid=testid)
+
         if sid.count(u"/")>1 or (sid.count(u"/")==1 and lcode!=u"ud" and lcode!=u"shopen"):
             testid = 'slash-in-sent-id'
             testmessage = "The forward slash is reserved for special use in parallel treebanks: '%s'" % sid
@@ -941,6 +955,7 @@ def validate_source_sent_id(comments, known_ids, lcode):
 newdoc_re = re.compile('^#\s*newdoc(\s|$)')
 newpar_re = re.compile('^#\s*newpar(\s|$)')
 text_re = re.compile('^#\s*text\s*=\s*(.+)$')
+metadata_re = re.compile('^#\s*metadata\s*=\s*')
 def validate_text_meta(comments, tree):
     # In trees(), sentence_line was already moved to the first token/node line
     # after the sentence comment lines. While this is useful in most validation
@@ -961,6 +976,14 @@ def validate_text_meta(comments, tree):
         text_match = text_re.match(c)
         if text_match:
             text_matched.append(text_match)
+        
+        if args.level > 2:
+            testlevel = 3
+            if metadata_re.match(c):
+                testid = 'forbidden-metadata'
+                testmessage = "The metadata field is forbidden in metadata comments: %s" % c
+                warn(testmessage, testclass, testlevel=testlevel, testid=testid)
+
     if len(newdoc_matched) > 1:
         testid = 'multiple-newdoc'
         testmessage = 'Multiple newdoc attributes.'
