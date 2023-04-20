@@ -24,7 +24,6 @@ THISDIR=os.path.dirname(os.path.realpath(os.path.abspath(__file__))) # The folde
 # UD Validation release 2.11
 # https://github.com/UniversalDependencies/tools/tree/r2.11
 UD_VALIDATE = f"{THISDIR}/UD_Validation_release_2.11/validate.py"
-CUPT2CONLLUP = f"{THISDIR}/../to_conllup.py"
 
 # Constants for the column indices
 COLCOUNT=11
@@ -597,16 +596,16 @@ if __name__=="__main__":
 
     args = opt_parser.parse_args() #Parsed command-line arguments
 
-    # Transform CUPT to CONLLUP
-    conllup_files = [filename + ".conllu" for filename in args.input]
-    for index in range(len(conllup_files)):
-        cupt2conllu(args.input[index], conllup_files[index])
+    # Transform CUPT to CONLLU
+    conllu_files = [filename + ".conllu" for filename in args.input]
+    for index in range(len(conllu_files)):
+        cupt2conllu(args.input[index], conllu_files[index])
     
     # Store the arguments in a list
     if args.quiet:
-        ud_validate_arguments = ["--quiet", "--max-err", str(args.max_err), "--level", str(args.level), "--lang", "ud"] + conllup_files
+        ud_validate_arguments = ["--quiet", "--max-err", str(args.max_err), "--level", str(args.level), "--lang", "ud"] + conllu_files
     else:
-        ud_validate_arguments = ["--max-err", str(args.max_err), "--level", str(args.level), "--lang", "ud"] + conllup_files
+        ud_validate_arguments = ["--max-err", str(args.max_err), "--level", str(args.level), "--lang", "ud"] + conllu_files
     # Execute the script UD validation using subprocess.run()
     command = ["python3", UD_VALIDATE] + ud_validate_arguments
 
@@ -615,6 +614,11 @@ if __name__=="__main__":
     print("========================================================================================")
     result = subprocess.run(command, capture_output=True, text=True)
     print(result.stderr)
+    # Remove conllu files
+    for file in conllu_files:
+        if os.path.exists(file):
+            os.remove(file)
+        
 
     print("========================================================================================")
     print("============================***PARSEME Validation***====================================")
