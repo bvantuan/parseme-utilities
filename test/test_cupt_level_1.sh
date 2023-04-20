@@ -31,5 +31,5 @@ while read -r f; do
     # remove redundant / characters from treebank file path
     f=$(readlink -m -f "$f")
     # validate cupt format
-    run_devnull ${VALIDATE} --level 1 "$f"
+    run_devnull ${VALIDATE} --level 1 --lang ud "$f"
 done <<< "$cupt_files"
