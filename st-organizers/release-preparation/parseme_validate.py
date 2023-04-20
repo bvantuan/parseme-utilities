@@ -588,11 +588,11 @@ if __name__=="__main__":
     io_group.add_argument('--quiet', dest="quiet", action="store_true", default=False, help='Do not print any error messages. Exit with 0 on pass, non-zero on fail.')
     io_group.add_argument('--max-err', action="store", type=int, default=20, help='How many errors to output before exiting? 0 for all. Default: %(default)d.')
     io_group.add_argument("--underspecified_mwes", action='store_true', default=False, help='If set, check that all MWEs are underspecified as "_" (for blind).')
-    io_group.add_argument('input', nargs='*', help='Input file name(s), or "-" or nothing for standard input.')
+    io_group.add_argument('input', nargs='*', help='Input file name(s)')
 
     list_group = opt_parser.add_argument_group("Tag sets", "Options relevant to checking tag sets.")
     list_group.add_argument("--lang", action="store", required=True, default=None, help="Which langauge are we checking? If you specify this (as a two-letter code), the tags will be checked using the language-specific files in the data/ directory of the validator.")
-    list_group.add_argument("--level", action="store", type=int, default=3, dest="level", help="Level 1: Test only the CUPT backbone: order of lines, newline encoding, core tests that check the file integrity. Level 2: PARSEME and UD contents. Level 3: PARSEME releases: NotMWE tag excluded, more constraints on metadata.")
+    list_group.add_argument("--level", action="store", type=int, default=3, dest="level", help="The validation tests are organized to several levels. Level 1: Test only the CUPT backbone: order of lines, newline encoding, core tests that check the file integrity. Level 2: PARSEME and UD contents. Level 3: PARSEME releases: NotMWE tag excluded, more constraints on metadata.")
 
     args = opt_parser.parse_args() #Parsed command-line arguments
 
@@ -643,8 +643,6 @@ if __name__=="__main__":
 
     try:
         open_files=[]
-        if args.input==[]:
-            args.input.append('-')
         for fname in args.input:
             if fname=='-':
                 # Set PYTHONIOENCODING=utf-8 before starting Python. See https://docs.python.org/3/using/cmdline.html#envvar-PYTHONIOENCODING
