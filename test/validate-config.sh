@@ -2,6 +2,9 @@
 
 SCHEMA_FILE="../st-organizers/release-preparation/configs/config-schema.json"
 CONFIG_DIRECTORY="../st-organizers/release-preparation/configs"
+HERE="$(cd "$(dirname "$0")" && pwd)"
+
+cd "$HERE"
 
 # Check if the JSON schema file exists
 if [ ! -f "$SCHEMA_FILE" ]; then
