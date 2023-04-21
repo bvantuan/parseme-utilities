@@ -1,0 +1,62 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Schema configuration file for the re-annotation script",
+  "type": "object",
+  "properties": {
+    "language": {
+      "description": "2-letter iso code of the language",
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 2
+    },
+    "treebank": {
+      "description": "A file .conllu or a directory of treebanks of Universal Dependencies (UD)",
+      "type": "string",
+      "minLength": 1
+    },
+    "uri": {
+      "description": "The persistent URI of the original corpus",
+      "type": "string",
+      "minLength": 1
+    },
+    "language_repository": {
+      "description": "The language repository path in local",
+      "type": "string",
+      "minLength": 1
+    },
+    "verbose": {
+      "description": "The verbose option, display detailed processing information",
+      "type": "boolean"
+    },
+    "source": {
+      "description": "Files .cupt to reannotate",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "corpus": {
+            "description": "A file .cupt to reannotate",
+            "type": "string",
+            "pattern": "^.*\\.cupt$"
+          },
+          "method": {
+            "description": "Method of reannotation (supported udtreebank and udpipe)",
+            "type": "string",
+            "enum": ["udpipe", "udtreebank"]
+          },
+          "tagger": {
+            "description": "Reannotate columns LEMMA, UPOS, XPOS and FEATS in udpipe method",
+            "type": "boolean"
+          },
+          "parser": {
+            "description": "Reannotate columns HEAD and DEPREL in udpipe method",
+            "type": "boolean"
+          }
+        },
+        "required": ["corpus", "method"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": ["language", "treebank", "uri", "language_repository", "verbose", "source"]
+}

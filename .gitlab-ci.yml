@@ -27,6 +27,7 @@ before_script:
   - python -V               # Print out python version for debugging
   - pip3 install -U folia
   - pip3 install regex
+  - npm install -g ajv-cli
   - export TERM=xterm
 
 # Stage: Run tests
@@ -39,6 +40,12 @@ test_script_reannotate_morphosyntax:
     paths:
       - ./test/data_reannotation/REANNOTATION/
     expire_in: 2 days
+
+test_json:
+  stage: test_level_1
+  script: 
+    - echo "Testing the configuration files for the re-annotation script"
+    - ./test/validate-config.sh
 
 test_cupt_level_1:
   stage: test_level_1

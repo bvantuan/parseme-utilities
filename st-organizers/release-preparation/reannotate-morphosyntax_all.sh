@@ -137,7 +137,7 @@ function read_input() {
                 * ) echo "Please answer true or false.";;
             esac
         else
-            verbose_input="$verbose"
+            verbose_input=$verbose
             break
         fi
     done <&1
@@ -162,39 +162,49 @@ function read_input() {
         fi
     fi
 
-    # Iterate through the source keys
-    while read -r source_file; do
+    KEY="source"
+    # Read the array of dictionaries for the specified key using jq
+    dicts_json=$(jq ".${KEY}?" "$config_file")
+
+    # Convert the JSON array of dictionaries to a Bash array of dictionaries
+    readarray -t dicts < <(echo "$dicts_json" | jq -c '.[]')
+
+    # Iterate over the array of dictionaries and process each one
+    for dict in "${dicts[@]}"; do
+        # A corpus
+        source_file=$(echo "$dict" | jq -r '.corpus')
+        # Method
+        method=$(echo "$dict" | jq -r '.method')
+
         # command line parameter
         source_files_parameters_in_line["$source_file"]="--source $language_repository_input/$source_file "
+        source_files_parameters_in_line["$source_file"]+="--method $method "
+        # add the value to the associative array
+        source_files_parameters["$source_file|method"]="$method"
+        
+        # Udpipe method
+        if [ "$method" == "udpipe" ]; then
+            tagger=$(echo "$dict" | jq -r '.tagger')
+            parser=$(echo "$dict" | jq -r '.parser')
 
-        # Iterate through the parameter keys
-        while read -r parameter; do
-            # Read the value for the parameter
-            value=$(jq -r ".source.\"$source_file\".\"$parameter\"" "$config_file")
-            # add the value to the associative array
-            source_files_parameters["$source_file|$parameter"]="$value"
-            # If the paramter is tagger
-            if [ "$parameter" == "tagger" ]; then
-                if $value; then
-                    # command line parameter
-                    source_files_parameters_in_line["$source_file"]+="--$parameter "
-                fi
-            # If the paramter is parser
-            elif [ "$parameter" == "parser" ]; then
-                if $value; then
-                    # command line parameter
-                    source_files_parameters_in_line["$source_file"]+="--$parameter "
-                fi
-            else
+            # Add the tagger parameter
+            if $tagger; then
+                source_files_parameters["$source_file|tagger"]="$tagger"
                 # command line parameter
-                source_files_parameters_in_line["$source_file"]+="--$parameter $value "
+                source_files_parameters_in_line["$source_file"]+="--tagger "
             fi
-            
-        done < <(jq -r ".source.\"$source_file\" | keys[]" "$config_file")
+
+            # Add the parser parameter
+            if $parser; then
+                source_files_parameters["$source_file|parser"]="$parser"
+                # command line parameter
+                source_files_parameters_in_line["$source_file"]+="--parser "
+            fi
+        fi
 
         # add the parseme corpus into the array
         source_files+=("$source_file")
-    done < <(jq -r '.source | keys[]' "$config_file")
+    done
 }
 
 
@@ -209,7 +219,8 @@ function save_config() {
         updated_json=$(jq --arg treebank "$treebank_input" '.treebank = $treebank' <<< "$updated_json")
         updated_json=$(jq --arg uri "$uri_input" '.uri = $uri' <<< "$updated_json") 
         updated_json=$(jq --arg language_repository "$language_repository_input" '.language_repository = $language_repository' <<< "$updated_json")
-        updated_json=$(jq --arg verbose "$verbose_input" '.verbose = $verbose' <<< "$updated_json")
+        # Add the boolean value to the JSON file using jq
+        updated_json=$(jq --arg key "verbose" --argjson value "$verbose_input" '. + {($key): $value}' <<< "$updated_json")
         echo "$updated_json" | jq '.' > "$config_file"
     fi
 }
@@ -221,6 +232,7 @@ treebank=$(jq -r '.treebank' "$config_file")
 uri=$(jq -r '.uri' "$config_file")
 language_repository=$(jq -r '.language_repository' "$config_file")
 verbose=$(jq -r '.verbose' "$config_file")
+
 path_input=
 # an array of parseme corpus
 source_files=()
