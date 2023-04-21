@@ -24,8 +24,8 @@ before_script:
   # Update and cache apt packages
   - apt-get update -qy
   - apt-get install -y --no-install-recommends python3-pip
-  - apt-get install nodejs
-  - apt-get install npm
+  - apt-get install -y nodejs
+  - apt-get install -y npm
   - python -V               # Print out python version for debugging
   - pip3 install -U folia
   - pip3 install regex
