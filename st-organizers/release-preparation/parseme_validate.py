@@ -601,11 +601,16 @@ if __name__=="__main__":
     for index in range(len(conllu_files)):
         cupt2conllu(args.input[index], conllu_files[index])
     
+    # Only level 1 and 2 of UD are used
+    if args.level > 2:
+        level = 2
+    else:
+        level = args.level
     # Store the arguments in a list
     if args.quiet:
-        ud_validate_arguments = ["--quiet", "--max-err", str(args.max_err), "--level", str(args.level), "--lang", "ud"] + conllu_files
+        ud_validate_arguments = ["--quiet", "--max-err", str(args.max_err), "--level", str(level), "--lang", "ud"] + conllu_files
     else:
-        ud_validate_arguments = ["--max-err", str(args.max_err), "--level", str(args.level), "--lang", "ud"] + conllu_files
+        ud_validate_arguments = ["--max-err", str(args.max_err), "--level", str(level), "--lang", "ud"] + conllu_files
     # Execute the script UD validation using subprocess.run()
     command = ["python3", UD_VALIDATE] + ud_validate_arguments
 
