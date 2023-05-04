@@ -127,13 +127,15 @@ def warn(msg, error_type, testlevel=0, testid='some-test', lineno=True, nodeline
 
 
 ##### Tests applicable to the whole sentence
-mwecode_re = re.compile(r'^(\d+)(?::([a-zA-Z]+(?:\.[a-zA-Z]+)?))?$')
-def validate_character_constraints(cols):
+
+def validate_mwe_codes(cols):
     """
-    Checks general constraints on valid characters of MWE codes
+    Checks general constraints on valid MWE codes
     """
     testlevel = 2
     testclass = 'MWE'
+
+    mwecode_re = re.compile(r'^(\d+)(?::([a-zA-Z]+(?:\.[a-zA-Z]+)?))?$')
     # MWE codes
     # If it is a MWE
     if cols[MWE] not in "*_":
@@ -186,7 +188,7 @@ def validate_cols(cols, tag_sets):
     All tests that can run on a single line. Done as soon as the line is read,
     called from trees() if level>1.
     """
-    validate_character_constraints(cols) # level 2
+    validate_mwe_codes(cols) # level 2
     validate_mwe(cols, tag_sets)  # level 2 et up
 
 

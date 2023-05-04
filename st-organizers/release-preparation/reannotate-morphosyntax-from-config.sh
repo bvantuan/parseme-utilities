@@ -15,7 +15,18 @@ declare -A LANGS=( [AR]=arabic [BG]=bulgarian [CS]=czech-pdt [DE]=german-hdt [EL
 
 ########################################
 usage() {
+    echo "Usage: $(basename "$0") [-h] [-c config]" 
+    echo "Reannotate the morphosyntax in all the .cupt files of a language from framework Universal Dependencies (UD)(treebanks or latest UDPipe model)"
+    echo "Any existing information other than tokenisation and MWE annotation (columns 1, 2 and 11) will be overwritten."
+    echo "The resulting .cupt files are placed in the directory 'REANNOTATION' which is under the same directory as the input files, with extension .new.cupt."
+
+    echo ""
+    echo "Example: ./reannotate-morphosyntax-from-config.sh -c configs/config_PL.json"
+
+    echo ""
+    echo "Parameters: "
     echo -e "\t -h, --help \t\t Display this help message"
+    echo -e "\t -c, --config \t\t A configuration file containing all the parameters needed for the reannotation"
 }
 
 
@@ -86,6 +97,11 @@ while true; do
     esac
 done
 
+# A configuration file is required
+if [ ! -n "$config_file" ]; then
+    echo "Error: A configuration file is required!"
+    exit 1
+fi
 
 ########################################
 # Prompt the user for parameter inputs
