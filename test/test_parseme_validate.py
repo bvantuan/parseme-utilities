@@ -4,8 +4,6 @@ import unittest
 from unittest.mock import patch
 import sys, os
 from io import StringIO
-sys.path.append('../st-organizers/release-preparation')
-from parseme_validate import main
 
 # MWE = 10
 # MWE_CATEG = {MWE: {'NotMWE', 'VPC.full', 'IRV', 'MVC', 'VPC.semi', 'VID', 'IAV', 'LVC.full', 'LVC.cause'}}
@@ -13,6 +11,9 @@ from parseme_validate import main
 #to get the current working directory
 CURRENT_DIRECTORY = os.getcwd()
 TEST_DATA = f'{CURRENT_DIRECTORY}/test_data'
+DIR_PARSEME_VALIDATE = f'{CURRENT_DIRECTORY}/../st-organizers/release-preparation'
+sys.path.append(DIR_PARSEME_VALIDATE)
+from parseme_validate import main
 
 class TestFunctionalParsemeValidate(unittest.TestCase):
 
