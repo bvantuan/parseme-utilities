@@ -12,7 +12,7 @@ from io import StringIO
 CURRENT_DIRECTORY = os.getcwd()
 os.chdir(CURRENT_DIRECTORY)
 TEST_DATA = f'{CURRENT_DIRECTORY}/test_data'
-DIR_PARSEME_VALIDATE = f'{CURRENT_DIRECTORY}/../st-organizers/release-preparation'
+DIR_PARSEME_VALIDATE = f'{CURRENT_DIRECTORY}/st-organizers/release-preparation'
 print("DIR_PARSEME_VALIDATE: ", DIR_PARSEME_VALIDATE)
 sys.path.append(DIR_PARSEME_VALIDATE)
 from parseme_validate import main
