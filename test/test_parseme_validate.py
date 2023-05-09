@@ -132,6 +132,20 @@ class TestFunctionalParsemeValidate(unittest.TestCase):
             exit_code = main()
             self.assertEqual(exit_code, expected_exit_code)
         
+        # An invalid MWE code '1:VID;*;_', failed
+        test_args = ["--quiet", "--lang", "en", "--level", "2", f"{TEST_DATA}/train37.cupt"]
+        expected_exit_code = 1
+        with patch('sys.argv', ["parseme_validate.py"] + test_args):
+            exit_code = main()
+            self.assertEqual(exit_code, expected_exit_code)
+        
+        # An invalid MWE code '*;1', failed
+        test_args = ["--quiet", "--lang", "en", "--level", "2", f"{TEST_DATA}/train38.cupt"]
+        expected_exit_code = 1
+        with patch('sys.argv', ["parseme_validate.py"] + test_args):
+            exit_code = main()
+            self.assertEqual(exit_code, expected_exit_code)
+        
         # A MWE code was repeated '1:LVC.cause' and '1:LVC.cause', failed
         test_args = ["--quiet", "--lang", "en", "--level", "2", f"{TEST_DATA}/train10.cupt"]
         expected_exit_code = 1

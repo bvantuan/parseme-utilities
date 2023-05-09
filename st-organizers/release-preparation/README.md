@@ -22,3 +22,8 @@ This directory contains scripts used to prepare the PARSEME corpora releases in 
 
 * `reannotate-morphosyntax-from-config.sh` is the same functionality as the script `reannotate-morphosyntax.sh`, but more user-friendly as all parameters are placed in a configuration file.
 
+* `parseme_validate.py` is a CUPT validation script. The validation tests are organized to three levels.
+  * Level 1: Test only the CUPT backbone: order of lines, newline encoding, core tests that check the file integrity.
+  * Level 2: PARSEME and UD contents.
+  * Level 3: PARSEME releases: NotMWE tag excluded, more constraints on metadata.
+

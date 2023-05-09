@@ -57,13 +57,21 @@ error_counter = {} # key: error type value: error count
 ###### Support functions
 
 def is_whitespace(line):
-    # checks if the entire line consists of only whitespace characters. 
+    """
+    Checks if the entire line consists of only whitespace characters. 
+    """
     return re.match(r"^\s+$", line)
 
 def is_word(cols):
+    """
+    Checks if words are indexed with integers 
+    """
     return re.match(r"^[1-9][0-9]*$", cols[ID])
 
 def load_file(filename):
+    """
+    Loads lines that aren't starting # into a set
+    """
     res = set()
     with io.open(filename, 'r', encoding='utf-8') as f:
         for line in f:
@@ -81,7 +89,7 @@ def load_mwe_set(filename, lcode):
     with open(os.path.join(THISDIR, 'data', filename), 'r', encoding='utf-8') as f:
         all_mwe_categories = json.load(f)
     # Universal mwe tag set
-    mwe_set = set(all_mwe_categories['ud'])
+    mwe_set = set(all_mwe_categories['all'])
 
     # defined language-specific mwe tag set
     if lcode.lower() in all_mwe_categories:
@@ -149,7 +157,7 @@ def validate_mwe_codes(cols: list, tag_sets: dict):
                 mwe_id = int(mwe_id)
             except ValueError:
                 testid = 'invalid-mwe-code'
-                testmessage = 'Invalid MWE code %s (expecting an integer like \'3\' a pair like \'3:LVC.full\')' % (mwe_code)
+                testmessage = 'Invalid MWE code %s in the MWE content %s (expecting an integer like \'3\' a pair like \'3:LVC.full\')' % (mwe_code, cols[MWE])
                 warn(testmessage, testclass, testlevel=testlevel, testid=testid)
                 return 1
             else:
@@ -168,19 +176,16 @@ def validate_mwe_codes(cols: list, tag_sets: dict):
 
 def validate_mwe_cols(cols: list, tag_sets: dict, underspecified_mwes: bool = False):
     """
-    All tests that can run on a single line. Done as soon as the line is read,
+    All tests that can run on a single line (content of the column MWE). Done as soon as the line is read,
     called from trees() if level>1.
     """
     testlevel = 2
     testclass = 'MWE'
 
-    # print("args: ", args, type(args))
-
-    # print("cols: ", cols)
-    # print("tag_sets: ", tag_sets)
     if MWE >= len(cols):
         return 0 # this has been already reported in trees()
     
+    # If the words are indexed with integers 
     if is_word(cols):
         if cols[MWE] == DEFAULT_MWE:
             return 0
@@ -190,8 +195,9 @@ def validate_mwe_cols(cols: list, tag_sets: dict, underspecified_mwes: bool = Fa
                 testmessage = "Unknown MWE content, only _ (for blind version): '%s'." % cols[MWE]
                 warn(testmessage, testclass, testlevel=testlevel, testid=testid)
                 return 1
-
+        # Checks general constraints on valid MWE codes
         validate_mwe_codes(cols, tag_sets) # level 2 et up
+    # multiword tokens or empty nodes 
     else:
         if cols[MWE] != DEFAULT_MWE:
             testid = 'invalid-mwe'
@@ -621,8 +627,6 @@ def main():
     list_group.add_argument("--level", action="store", type=int, default=3, dest="level", help="The validation tests are organized to several levels. Level 1: Test only the CUPT backbone: order of lines, newline encoding, core tests that check the file integrity. Level 2: PARSEME and UD contents. Level 3: PARSEME releases: NotMWE tag excluded, more constraints on metadata.")
  
     args = opt_parser.parse_args() #Parsed command-line arguments
-
-    # print("sys.argv[0]: ", sys.argv[0])
 
     # Transform CUPT to CONLLU
     conllu_files = [filename + ".conllu" for filename in args.input]
