@@ -1,0 +1,11 @@
+# global.columns = ID FORM LEMMA UPOS XPOS FEATS HEAD DEPREL DEPS MISC PARSEME:MWE
+# source_sent_id = http://hdl.handle.net/11234/1-4923;UD_English-EWT/en_ewt-ud-train.conllu;email-enronsent17_01-0049
+# text = I'll initiate the call.
+1-2	I'll	_	_	_	_	_	_	_	_	*
+1	I	I	PRON	PRP	Case=Nom|Number=Sing|Person=1|PronType=Prs	3	nsubj	3:nsubj	_	1:LVC.cause
+2	'll	will	AUX	MD	VerbForm=Fin	3	aux	3:aux	_	1
+3	initiate	initiate	VERB	VB	VerbForm=Inf	0	root	0:root	_	*
+4	the	the	DET	DT	Definite=Def|PronType=Art	5	det	5:det	_	*
+5	call	call	NOUN	NN	Number=Sing	3	obj	3:obj	SpaceAfter=No	*
+6	.	.	PUNCT	.	_	3	punct	3:punct	_	*
+

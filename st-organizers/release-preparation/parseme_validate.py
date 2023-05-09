@@ -29,6 +29,7 @@ UD_VALIDATE = f"{THISDIR}/UD_Validation_release_2.11/validate.py"
 COLCOUNT=11
 ID,FORM,LEMMA,UPOS,XPOS,FEATS,HEAD,DEPREL,DEPS,MISC,MWE=range(COLCOUNT)
 MWE_COLNAME = 'PARSEME:MWE'
+ID_COLNAME = 'ID'
 # Set of all valid languages in PARSEME corpora
 LANGS = set("UD AR BG CS DE EL EN ES EU FA FR GA HE HR HU HI IT LT MT PL PT RO SL SR SV TR ZH".split())
 
@@ -58,6 +59,9 @@ error_counter = {} # key: error type value: error count
 def is_whitespace(line):
     # checks if the entire line consists of only whitespace characters. 
     return re.match(r"^\s+$", line)
+
+def is_word(cols):
+    return re.match(r"^[1-9][0-9]*$", cols[ID])
 
 def load_file(filename):
     res = set()
@@ -128,68 +132,72 @@ def warn(msg, error_type, testlevel=0, testid='some-test', lineno=True, nodeline
 
 ##### Tests applicable to the whole sentence
 
-def validate_mwe_codes(cols):
+def validate_mwe_codes(cols: list, tag_sets: dict):
     """
     Checks general constraints on valid MWE codes
     """
     testlevel = 2
     testclass = 'MWE'
-
-    mwecode_re = re.compile(r'^(\d+)(?::([a-zA-Z]+(?:\.[a-zA-Z]+)?))?$')
-    # MWE codes
-    # If it is a MWE
-    if cols[MWE] not in "*_":
-        for mwe_code in cols[MWE].split(";"):
-            if not mwecode_re.match(mwe_code):
-                testid = 'invalid-mwe'
-                testmessage = "Invalid MWE code '%s'." % mwe_code
-                warn(testmessage, testclass, testlevel=testlevel, testid=testid)
-
-
-def validate_mwe(cols: list, tag_sets: dict) -> None:
-    """Validate MWE tag set
-
-    Args:
-        cols (list): Values of columns of a line
-        tag_sets (dict): MWE tag set
-
-    Returns:
-        None
-    """
-    testlevel = 2
-    testclass = 'MWE'
-
-    if MWE >= len(cols):
-        return # this has been already reported in trees()
-    if cols[MWE] == DEFAULT_MWE:
-        return
-    else:
-        if args.underspecified_mwes and cols[MWE] != DEFAULT_MWE:
-            testid = 'unknown-mwe'
-            testmessage = "Unknown MWE tag, only _ (for blind version): '%s'." % cols[MWE]
-            warn(testmessage, testclass, testlevel=testlevel, testid=testid)
     
-    # Remove digit elements using a list comprehension
-    mwe_tags = set([tag for tag in re.split(r"[:;]", cols[MWE]) if not tag.isdigit()])
+    # MWE codes
+    for mwe_code in cols[MWE].split(";"):
+        try:
+            mwe_id = int(mwe_code)
+        except ValueError:
+            try:
+                mwe_id, mwe_categ = mwe_code.split(':')
+                mwe_id = int(mwe_id)
+            except ValueError:
+                testid = 'invalid-mwe-code'
+                testmessage = 'Invalid MWE code %s (expecting an integer like \'3\' a pair like \'3:LVC.full\')' % (mwe_code)
+                warn(testmessage, testclass, testlevel=testlevel, testid=testid)
+                return 1
+            else:
+                # Level 3, remove NotMWE tag
+                if args.level > 2:
+                    testlevel = 3
+                    tag_sets[MWE].discard("NotMWE")
 
-    # Level 3, remove NotMWE tag
-    if args.level > 2:
-        testlevel = 3
-        tag_sets[MWE].discard("NotMWE")
-
-    if mwe_tags and not mwe_tags <= tag_sets[MWE]:
-            testid = 'unknown-mwe'
-            testmessage = "Unknown MWE tag: '%s'." % cols[MWE]
-            warn(testmessage, testclass, testlevel=testlevel, testid=testid)
+                if mwe_categ not in tag_sets[MWE]:
+                        testid = 'unknown-mwe-category'
+                        testmessage = "Unknown MWE category '%s' in the MWE code '%s'." % (mwe_categ, mwe_code)
+                        warn(testmessage, testclass, testlevel=testlevel, testid=testid)
+                        return 1
+    return 0
 
 
-def validate_cols(cols, tag_sets):
+def validate_mwe_cols(cols: list, tag_sets: dict, underspecified_mwes: bool = False):
     """
     All tests that can run on a single line. Done as soon as the line is read,
     called from trees() if level>1.
     """
-    validate_mwe_codes(cols) # level 2
-    validate_mwe(cols, tag_sets)  # level 2 et up
+    testlevel = 2
+    testclass = 'MWE'
+
+    # print("args: ", args, type(args))
+
+    # print("cols: ", cols)
+    # print("tag_sets: ", tag_sets)
+    if MWE >= len(cols):
+        return 0 # this has been already reported in trees()
+    
+    if is_word(cols):
+        if cols[MWE] == DEFAULT_MWE:
+            return 0
+        else:
+            if underspecified_mwes and cols[MWE] != DEFAULT_MWE:
+                testid = 'unknown-mwe-content'
+                testmessage = "Unknown MWE content, only _ (for blind version): '%s'." % cols[MWE]
+                warn(testmessage, testclass, testlevel=testlevel, testid=testid)
+                return 1
+
+        validate_mwe_codes(cols, tag_sets) # level 2 et up
+    else:
+        if cols[MWE] != DEFAULT_MWE:
+            testid = 'invalid-mwe'
+            testmessage = "Invalid mwe annotation, only _ (for blind version) or *: '%s'." % cols[MWE]
+            warn(testmessage, testclass, testlevel=testlevel, testid=testid)
+            return 1
 
 
 whitespace_re = re.compile('.*\s', re.U)
@@ -299,7 +307,7 @@ def trees(inp, tag_sets, args):
             # pertain to the CoNLL-U file format
             validate_cols_level1(cols)
             if args.level > 1:
-                validate_cols(cols, tag_sets)
+                validate_mwe_cols(cols, tag_sets, args.underspecified_mwes)
     else: # end of file
         if comments or lines: # These should have been yielded on an empty line!
             yield comments, lines
@@ -394,9 +402,8 @@ def validate_mwe_sequence(tree: list) -> None:
                         mweid, mwecateg = word_mwe.split(':')
                         mweid = int(mweid)
                     except ValueError:
-                        testid = 'invalid-mwe-code'
-                        testmessage = 'Invalid MWE code %s (expecting an integer like \'3\' a pair like \'3:LVC.full\')' % (cols[MWE])
-                        warn(testmessage, testclass, testlevel=testlevel, testid=testid, nodelineno=node_line)
+                        # Already reported in validate_mwe_cols()
+                        pass
                     else:
                         if mweid in mweid2categ:
                             testid = 'redefined-mwe-code'
@@ -455,6 +462,7 @@ def cupt2conllu(cupt_input_file: str, conllu_output_file: str) -> None:
     """
     testlevel = 1
     testclass = 'Format'
+    ok = True
 
     # Open files
     with open(cupt_input_file, "r", encoding="utf-8") as infile, open(conllu_output_file, "w", encoding="utf-8") as outfile:
@@ -466,7 +474,15 @@ def cupt2conllu(cupt_input_file: str, conllu_output_file: str) -> None:
             testid = 'invalid-first-line'
             testmessage = "Spurious first line: '%s'. First line must specify global.columns" % (line)
             warn(testmessage, testclass, testlevel=testlevel, testid=testid)
-            sys.exit(1)
+            ok = False
+        
+        try:
+            colnames.index(ID_COLNAME)
+        except ValueError:
+            testid = 'missing-id-column'
+            testmessage = "Spurious first line: '%s'. First line must specify column %s" % (line, ID_COLNAME)
+            warn(testmessage, testclass, testlevel=testlevel, testid=testid)
+            ok = False
         
         try:
             colnames.index(MWE_COLNAME)
@@ -474,7 +490,7 @@ def cupt2conllu(cupt_input_file: str, conllu_output_file: str) -> None:
             testid = 'missing-mwe-column'
             testmessage = "Spurious first line: '%s'. First line must specify column %s" % (line, MWE_COLNAME)
             warn(testmessage, testclass, testlevel=testlevel, testid=testid)
-            sys.exit(1)
+            ok = False
 
         # First tokenization line
         token_id = 1
@@ -581,9 +597,17 @@ def cupt2conllu(cupt_input_file: str, conllu_output_file: str) -> None:
         # Close files
         infile.close()
         outfile.close()
+    
+    if not ok:
+        if os.path.exists(conllu_output_file):
+            os.remove(conllu_output_file)
+
+    return ok
 
 
-if __name__=="__main__":
+def main():
+    global args, MWE, ID, curr_line, tree_counter, error_counter, DEFAULT_MWE
+
     opt_parser = argparse.ArgumentParser(description="CUPT validation script. Python 3 is needed to run it!")
 
     io_group = opt_parser.add_argument_group("Input / output options")
@@ -595,13 +619,16 @@ if __name__=="__main__":
     list_group = opt_parser.add_argument_group("Tag sets", "Options relevant to checking tag sets.")
     list_group.add_argument("--lang", action="store", required=True, default=None, help="Which langauge are we checking? If you specify this (as a two-letter code), the tags will be checked using the language-specific files in the data/ directory of the validator.")
     list_group.add_argument("--level", action="store", type=int, default=3, dest="level", help="The validation tests are organized to several levels. Level 1: Test only the CUPT backbone: order of lines, newline encoding, core tests that check the file integrity. Level 2: PARSEME and UD contents. Level 3: PARSEME releases: NotMWE tag excluded, more constraints on metadata.")
-
+ 
     args = opt_parser.parse_args() #Parsed command-line arguments
+
+    # print("sys.argv[0]: ", sys.argv[0])
 
     # Transform CUPT to CONLLU
     conllu_files = [filename + ".conllu" for filename in args.input]
     for index in range(len(conllu_files)):
-        cupt2conllu(args.input[index], conllu_files[index])
+        if not cupt2conllu(args.input[index], conllu_files[index]):
+            return 1
     
     # Only level 1 and 2 of UD are used
     if args.level > 2:
@@ -616,9 +643,10 @@ if __name__=="__main__":
     # Execute the script UD validation using subprocess.run()
     command = ["python3", UD_VALIDATE] + ud_validate_arguments
 
-    print("========================================================================================")
-    print("============================***UD Validation***=========================================")
-    print("========================================================================================")
+    if not args.quiet:
+        print("========================================================================================")
+        print("============================***UD Validation***=========================================")
+        print("========================================================================================")
     result = subprocess.run(command, capture_output=True, text=True)
     print(result.stderr)
     # Remove conllu files
@@ -626,15 +654,17 @@ if __name__=="__main__":
         if os.path.exists(file):
             os.remove(file)
         
-
-    print("========================================================================================")
-    print("============================***PARSEME Validation***====================================")
-    print("========================================================================================")
+    if not args.quiet:
+        print("========================================================================================")
+        print("============================***PARSEME Validation***====================================")
+        print("========================================================================================")
     error_counter={} # Incremented by warn()  {key: error type value: its count}
     tree_counter=0
 
     if args.underspecified_mwes:
         DEFAULT_MWE='_'
+    else:
+        DEFAULT_MWE='*'
 
     # Level of validation
     if args.level < 1:
@@ -662,9 +692,11 @@ if __name__=="__main__":
             line = next(inp)
             colnames = line.split("=")[-1].strip().split()
             MWE = colnames.index(MWE_COLNAME)
+            ID = colnames.index(ID_COLNAME)
             curr_line += 1
             
             validate(inp, args, tagsets)
+            inp.close()
     except:
         warn('Exception caught!', 'Format')
         # If the output is used in an HTML page, it must be properly escaped
@@ -673,6 +705,7 @@ if __name__=="__main__":
         traceback.print_exc()
     # Summarize the warnings and errors.
     passed = True
+
     nerror = 0
     if error_counter:
         for k, v in sorted(error_counter.items()):
@@ -688,8 +721,19 @@ if __name__=="__main__":
     if passed:
         if not args.quiet:
             print('*** PASSED ***', file=sys.stderr)
-        sys.exit(0)
     else:
         if not args.quiet:
             print('*** FAILED *** with %d errors' % nerror, file=sys.stderr)
-        sys.exit(1)
+
+   
+    if result.returncode == 1:
+        passed = False
+    
+    if passed:
+        return 0
+    else:
+        return 1
+
+
+if __name__== "__main__":
+    sys.exit(main())

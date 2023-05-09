@@ -43,6 +43,12 @@ test_script_reannotate_morphosyntax:
       - ./test/data_reannotation/REANNOTATION/
     expire_in: 2 days
 
+test_parseme_validate:
+  stage: test_level_1
+  script: 
+    - echo "Functional Testing of the script parseme_validate.py"
+    - ./test/test_parseme_validate.py
+
 test_json:
   stage: test_level_1
   script: 
