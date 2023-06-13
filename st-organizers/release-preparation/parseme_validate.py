@@ -51,7 +51,8 @@ curr_line = 0 # Current line in the input file
 comment_start_line = 0 # The line in the input file on which the current sentence starts, including sentence-level comments.
 sentence_line = 0 # The line in the input file on which the current sentence starts (the first node/token line, skipping comments)
 sentence_id = None # The most recently read sentence id
-error_counter = {} # key: error type value: error count
+error_counter = {} # Incremented by warn()  {key: error type value: its count}
+tree_counter = 0  # number of trees
 
 
 ###### Support functions
@@ -455,6 +456,92 @@ def validate(inp, args, tag_sets):
                 validate_text_meta(comments) # level 3
 
 
+def get_ud_columns(colnames: list, line: str, token_id: int) -> list:
+    """Get a UD line from PARSEME line
+
+    Args:
+        colnames (list): PARSEME column names
+        line (str): A PARSEME line
+        token_id (int): a tokenization id
+
+    Returns:
+        A UD line (list)
+    """
+    # initialize the UD line
+    ud_columns = ['_' for _ in range(COLCOUNT-1)]
+
+    # Split the line into columns
+    columns = line.strip().split("\t")
+
+    # Write ID column into the .conllu file
+    if "ID" in colnames:
+        ud_columns[ID] = columns[colnames.index("ID")]
+    else:
+        ud_columns[ID] = token_id
+    
+    # Write FORM column into the .conllu file
+    if "FORM" in colnames:
+        ud_columns[FORM] = columns[colnames.index("FORM")]
+    else:
+        ud_columns[FORM] = DEFAULT_FORM
+    
+    # Write LEMMA column into the .conllu file
+    if "LEMMA" in colnames:
+        ud_columns[LEMMA] = columns[colnames.index("LEMMA")]
+    else:
+        ud_columns[LEMMA] = DEFAULT_LEMMA
+    
+    # Write UPOS column into the .conllu file
+    if "UPOS" in colnames:
+        ud_columns[UPOS] = columns[colnames.index("UPOS")]
+    else:
+        ud_columns[UPOS] = DEFAULT_UPOS
+    
+    # Write XPOS column into the .conllu file
+    if "XPOS" in colnames:
+        ud_columns[XPOS] = columns[colnames.index("XPOS")]
+    else:
+        ud_columns[XPOS] = DEFAULT_XPOS
+    
+    # Write FEATS column into the .conllu file
+    if "FEATS" in colnames:
+        ud_columns[FEATS] = columns[colnames.index("FEATS")]
+    else:
+        ud_columns[FEATS] = DEFAULT_FEATS
+    
+    # Write HEAD column into the .conllu file
+    if "HEAD" in colnames:
+        ud_columns[HEAD] = columns[colnames.index("HEAD")]
+    else:
+        if token_id == 1:
+            ud_columns[HEAD] = 0
+        else:
+            ud_columns[HEAD] = DEFAULT_HEAD
+    
+    # Write DEPREL column into the .conllu file
+    if "DEPREL" in colnames:
+        ud_columns[DEPREL] = columns[colnames.index("DEPREL")]
+    else:
+        if token_id == 1:
+            ud_columns[DEPREL] = "root"
+        else:
+            ud_columns[DEPREL] = DEFAULT_DEPREL
+    
+    # Write DEPS column into the .conllu file
+    if "DEPS" in colnames:
+        ud_columns[DEPS] = columns[colnames.index("DEPS")]
+    else:
+        ud_columns[DEPS] = DEFAULT_DEPS
+    
+    # Write MISC column into the .conllu file
+    if "MISC" in colnames:
+        ud_columns[MISC] = columns[colnames.index("MISC")]
+    else:
+        ud_columns[MISC] = DEFAULT_MISC
+    
+    return ud_columns
+
+
 sentid_re=re.compile('^# source_sent_id\s*=\s*(\S+)\s+(\S+)\s+(\S+)$')
 def cupt2conllu(cupt_input_file: str, conllu_output_file: str) -> None:
     """Convert a .cupt file to a .conllu file
@@ -503,7 +590,6 @@ def cupt2conllu(cupt_input_file: str, conllu_output_file: str) -> None:
 
         # Loop over all lines in the .cupt file
         for line in infile:
-            ud_columns = ['_' for _ in range(COLCOUNT-1)]
             # Ignore empty lines and comment lines
             if line.strip() == "":
                 outfile.write(line)
@@ -524,75 +610,9 @@ def cupt2conllu(cupt_input_file: str, conllu_output_file: str) -> None:
                 # reset for the new sentence
                 token_id = 1
                 continue
-
-            # Split the line into columns
-            columns = line.strip().split("\t")
-
-            # Write ID column into the .conllu file
-            if "ID" in colnames:
-                ud_columns[ID] = columns[colnames.index("ID")]
-            else:
-                ud_columns[ID] = token_id
             
-            # Write FORM column into the .conllu file
-            if "FORM" in colnames:
-                ud_columns[FORM] = columns[colnames.index("FORM")]
-            else:
-                ud_columns[FORM] = DEFAULT_FORM
-            
-            # Write LEMMA column into the .conllu file
-            if "LEMMA" in colnames:
-                ud_columns[LEMMA] = columns[colnames.index("LEMMA")]
-            else:
-                ud_columns[LEMMA] = DEFAULT_LEMMA
-            
-            # Write UPOS column into the .conllu file
-            if "UPOS" in colnames:
-                ud_columns[UPOS] = columns[colnames.index("UPOS")]
-            else:
-                ud_columns[UPOS] = DEFAULT_UPOS
-            
-            # Write XPOS column into the .conllu file
-            if "XPOS" in colnames:
-                ud_columns[XPOS] = columns[colnames.index("XPOS")]
-            else:
-                ud_columns[XPOS] = DEFAULT_XPOS
-            
-            # Write FEATS column into the .conllu file
-            if "FEATS" in colnames:
-                ud_columns[FEATS] = columns[colnames.index("FEATS")]
-            else:
-                ud_columns[FEATS] = DEFAULT_FEATS
-            
-            # Write HEAD column into the .conllu file
-            if "HEAD" in colnames:
-                ud_columns[HEAD] = columns[colnames.index("HEAD")]
-            else:
-                if token_id == 1:
-                    ud_columns[HEAD] = 0
-                else:
-                    ud_columns[HEAD] = DEFAULT_HEAD
-            
-            # Write DEPREL column into the .conllu file
-            if "DEPREL" in colnames:
-                ud_columns[DEPREL] = columns[colnames.index("DEPREL")]
-            else:
-                if token_id == 1:
-                    ud_columns[DEPREL] = "root"
-                else:
-                    ud_columns[DEPREL] = DEFAULT_DEPREL
-            
-            # Write DEPS column into the .conllu file
-            if "DEPS" in colnames:
-                ud_columns[DEPS] = columns[colnames.index("DEPS")]
-            else:
-                ud_columns[DEPS] = DEFAULT_DEPS
-            
-            # Write MISC column into the .conllu file
-            if "MISC" in colnames:
-                ud_columns[MISC] = columns[colnames.index("MISC")]
-            else:
-                ud_columns[MISC] = DEFAULT_MISC
+            # Get a UD line from PARSEME line
+            ud_columns = get_ud_columns(colnames, line, token_id)
             
             # next tokenization line
             token_id += 1
@@ -604,84 +624,92 @@ def cupt2conllu(cupt_input_file: str, conllu_output_file: str) -> None:
         infile.close()
         outfile.close()
     
+    # Errors
     if not ok:
+        # Remove conllu files
         if os.path.exists(conllu_output_file):
             os.remove(conllu_output_file)
 
     return ok
 
 
-def main():
-    global args, MWE, ID, curr_line, tree_counter, error_counter, DEFAULT_MWE
+def run_ud_validation() -> int:
+    """Run UD validation tests
 
-    opt_parser = argparse.ArgumentParser(description="CUPT validation script. Python 3 is needed to run it!")
+    Args:
+        None
 
-    io_group = opt_parser.add_argument_group("Input / output options")
-    io_group.add_argument('--quiet', dest="quiet", action="store_true", default=False, help='Do not print any error messages. Exit with 0 on pass, non-zero on fail.')
-    io_group.add_argument('--max-err', action="store", type=int, default=20, help='How many errors to output before exiting? 0 for all. Default: %(default)d.')
-    io_group.add_argument("--underspecified_mwes", action='store_true', default=False, help='If set, check that all MWEs are underspecified as "_" (for blind).')
-    io_group.add_argument('input', nargs='*', help='Input file name(s)')
-
-    list_group = opt_parser.add_argument_group("Tag sets", "Options relevant to checking tag sets.")
-    list_group.add_argument("--lang", action="store", required=True, default=None, help="Which langauge are we checking? If you specify this (as a two-letter code), the tags will be checked using the language-specific files in the data/ directory of the validator.")
-    list_group.add_argument("--level", action="store", type=int, default=3, dest="level", help="The validation tests are organized to several levels. Level 1: Test only the CUPT backbone: order of lines, newline encoding, core tests that check the file integrity. Level 2: PARSEME and UD contents. Level 3: PARSEME releases: NotMWE tag excluded, more constraints on metadata.")
- 
-    args = opt_parser.parse_args() #Parsed command-line arguments
-
+    Returns:
+        0 for passed
+        1 for failed
+    """
     # Transform CUPT to CONLLU
     conllu_files = [filename + ".conllu" for filename in args.input]
     for index in range(len(conllu_files)):
         if not cupt2conllu(args.input[index], conllu_files[index]):
             return 1
     
+    # Messages
+    if not args.quiet:
+        print("========================================================================================")
+        print("============================***UD Validation***=========================================")
+        print("========================================================================================")
+    
     # Only level 1 and 2 of UD are used
     if args.level > 2:
         level = 2
     else:
         level = args.level
-    # Store the arguments in a list
+
+    # Store the UD arguments in a list
     if args.quiet:
         ud_validate_arguments = ["--quiet", "--max-err", str(args.max_err), "--level", str(level), "--lang", "ud"] + conllu_files
     else:
         ud_validate_arguments = ["--max-err", str(args.max_err), "--level", str(level), "--lang", "ud"] + conllu_files
+
     # Execute the script UD validation using subprocess.run()
     command = ["python3", UD_VALIDATE] + ud_validate_arguments
-
-    if not args.quiet:
-        print("========================================================================================")
-        print("============================***UD Validation***=========================================")
-        print("========================================================================================")
     result = subprocess.run(command, capture_output=True, text=True)
     print(result.stderr)
+
     # Remove conllu files
     for file in conllu_files:
         if os.path.exists(file):
             os.remove(file)
-        
+    
+    return result.returncode
+
+
+def run_parseme_validation() -> int:
+    """Run PARSEME validation tests
+
+    Args:
+        None
+
+    Returns:
+        0 for passed
+        1 for failed
+    """
+    global DEFAULT_MWE, MWE, ID, curr_line
+
+    # Messages
     if not args.quiet:
         print("========================================================================================")
         print("============================***PARSEME Validation***====================================")
         print("========================================================================================")
-    error_counter={} # Incremented by warn()  {key: error type value: its count}
-    tree_counter=0
-
+    
+    # all MWEs are underspecified as "_"
     if args.underspecified_mwes:
         DEFAULT_MWE='_'
     else:
         DEFAULT_MWE='*'
-
-    # Level of validation
-    if args.level < 1:
-        print('Option --level must not be less than 1; changing from %d to 1' % args.level, file=sys.stderr)
-        args.level = 1
-
-    # Sets of tags for every column that needs to be checked, plus (in v2) other sets, like the allowed tokens with space
+    
+    # Sets of tags for every column that needs to be checked
     tagsets = {MWE:None}
-
-    if args.lang.upper() not in LANGS:
-        warn('Invalid language code!', 'Format')
+    # Load MWE tag sets
     tagsets[MWE] = load_mwe_set('mwe.json', args.lang)
 
+    # Open files and run tests
     try:
         open_files=[]
         for fname in args.input:
@@ -698,7 +726,7 @@ def main():
             MWE = colnames.index(MWE_COLNAME)
             ID = colnames.index(ID_COLNAME)
             curr_line += 1
-            
+            # Parseme validation tests
             validate(inp, args, tagsets)
             inp.close()
     except:
@@ -707,9 +735,9 @@ def main():
         # because the traceback can contain e.g. "<module>". However, escaping
         # is beyond the goal of validation, which can be also run in a console.
         traceback.print_exc()
+    
     # Summarize the warnings and errors.
-    passed = True
-
+    parseme_returncode = 0
     nerror = 0
     if error_counter:
         for k, v in sorted(error_counter.items()):
@@ -718,25 +746,56 @@ def main():
             else:
                 errors = k+' errors'
                 nerror += v
-                passed = False
+                parseme_returncode = 1
             if not args.quiet:
                 print('%s: %d' % (errors, v), file=sys.stderr)
+
     # Print the final verdict and exit.
-    if passed:
+    if not parseme_returncode:
         if not args.quiet:
             print('*** PASSED ***', file=sys.stderr)
     else:
         if not args.quiet:
             print('*** FAILED *** with %d errors' % nerror, file=sys.stderr)
-
-   
-    if result.returncode == 1:
-        passed = False
     
-    if passed:
-        return 0
-    else:
-        return 1
+    return parseme_returncode
+
+
+def main():
+    global args, error_counter, tree_counter
+    opt_parser = argparse.ArgumentParser(description="CUPT validation script. Python 3 is needed to run it!")
+
+    io_group = opt_parser.add_argument_group("Input / output options")
+    io_group.add_argument('--quiet', dest="quiet", action="store_true", default=False, help='Do not print any error messages. Exit with 0 on pass, non-zero on fail.')
+    io_group.add_argument('--max-err', action="store", type=int, default=20, help='How many errors to output before exiting? 0 for all. Default: %(default)d.')
+    io_group.add_argument("--underspecified_mwes", action='store_true', default=False, help='If set, check that all MWEs are underspecified as "_" (for blind).')
+    io_group.add_argument('input', nargs='*', help='Input file name(s)')
+
+    list_group = opt_parser.add_argument_group("Tag sets", "Options relevant to checking tag sets.")
+    list_group.add_argument("--lang", action="store", required=True, default=None, help="Which langauge are we checking? If you specify this (as a two-letter code), the tags will be checked using the language-specific files in the data/ directory of the validator.")
+    list_group.add_argument("--level", action="store", type=int, default=3, dest="level", help="The validation tests are organized to several levels. Level 1: Test only the CUPT backbone: order of lines, newline encoding, core tests that check the file integrity. Level 2: PARSEME and UD contents. Level 3: PARSEME releases: NotMWE tag excluded, more constraints on metadata.")
+ 
+    args = opt_parser.parse_args() #Parsed command-line arguments
+    error_counter = {} # Incremented by warn()  {key: error type value: its count}
+    tree_counter = 0   # number of trees
+
+    if args.lang.upper() not in LANGS:
+        warn('Invalid language code!', 'Format')
+    
+    # Level of validation
+    if args.level < 1:
+        print('Option --level must not be less than 1; changing from %d to 1' % args.level, file=sys.stderr)
+        args.level = 1
+
+    # Run UD validation tests
+    ud_returncode = run_ud_validation()
+    # If UD validation tests failed
+    if ud_returncode:
+        return ud_returncode
+    
+    # Run PARSEME validation tests
+    parseme_returncode = run_parseme_validation()
+    return parseme_returncode
 
 
 if __name__== "__main__":
