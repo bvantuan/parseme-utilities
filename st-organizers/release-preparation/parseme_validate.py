@@ -584,6 +584,7 @@ def cupt2conllu(cupt_input_file: str, conllu_output_file: str) -> None:
             testmessage = "Spurious first line: '%s'. First line must specify column %s" % (line, MWE_COLNAME)
             warn(testmessage, testclass, testlevel=testlevel, testid=testid)
             ok = False
+        outfile.write(line)
 
         # First tokenization line
         token_id = 1
