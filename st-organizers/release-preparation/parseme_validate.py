@@ -600,8 +600,14 @@ def cupt2conllu(cupt_input_file: str, conllu_output_file: str) -> None:
             
             match = sentid_re.match(line)
             if match:
+                prefix_uri = match.group(1)
+                file_path_under_root = match.group(2)
                 sentence_id = match.group(3)
-                outfile.write(f"# sent_id = {sentence_id}" + "\n")
+                # concatenate all three parts to form an id
+                ud_sent_id = prefix_uri + file_path_under_root + sentence_id
+                # remove all the forward slash
+                ud_sent_id = ud_sent_id.replace("/", "")
+                outfile.write(f"# sent_id = {ud_sent_id}" + "\n")
                 # reset for the new sentence
                 token_id = 1
                 continue
