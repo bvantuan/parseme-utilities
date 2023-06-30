@@ -8,8 +8,8 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 set -o nounset    # Using "$UNDEF" var raises error
 set -o errexit    # Exit on error, do not continue quietly
 
-source ../../lib/parseme_st_data_dev_path.bash
-cd "${PARSEME_SHAREDTASK_DATA_DEV:?}"
+source ../../lib/parseme_release_dev_path.bash
+cd "${PARSEME_RELEASE_DATA_DEV:?}"
 
 if [ $# -lt 3 ]; then
   echo "Usage:  "
@@ -23,8 +23,8 @@ fi
 # Simply makes a pretty table summarizing stats for all languages train/dev set
 # change line 18 below to (train|dev|test) if you also want test data stats - unsure if it works
 
-for a in preliminary-sharedtask-data/??/; do
-#for a in preliminary-sharedtask-data-alt/??/; do
+for a in preliminary-release-data/??/; do
+#for a in preliminary-release-data-alt/??/; do
   if [ -f $a/dev-stats.md ]; then
     cat $a/{train,dev,test}-stats.md
   elif [ -f $a/train-stats.md ]; then
@@ -38,6 +38,7 @@ awk 'BEGIN{   prevlang = "XX";
 langsent=0; langtok=0; langvmwe=0; langvid=0; langlvcfull=0; langlvccause=0; langvpcfull=0; langvpccause=0; langvpcsemi=0; langiav=0; langmvc=0; langlsicv=0; langirv=0;
 }
 /(test|train|dev)/{ 
+
   head=$2 "  ";
   if(prevlang!=lang && prevlang != "XX"){
     print rowsep;

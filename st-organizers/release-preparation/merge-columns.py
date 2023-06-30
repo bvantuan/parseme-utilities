@@ -29,7 +29,6 @@ if (int(sys.argv[3]) > 11):
    exit(-1)
 col=int(sys.argv[3])
 
-
 #Process command line parameters
 fileTo = open(sys.argv[1], "r")
 #print("fileTo=", fileTo)
