@@ -1,0 +1,17 @@
+{
+  "language": "EN",
+  "treebank": "/home/tuan/Documents/parseme/UD/UD_English",
+  "uri": "http://hdl.handle.net/11234/1-4923",
+  "language_repository": "/home/tuan/Documents/parseme_dev/parseme_corpus_en",
+  "verbose": false,
+  "source": [
+    {
+      "corpus": "train.cupt",
+      "method": "udtreebank"
+    },
+    {
+      "corpus": "test.cupt",
+      "method": "udtreebank"
+    }
+  ]
+}

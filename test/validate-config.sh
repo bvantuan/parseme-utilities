@@ -1,7 +1,7 @@
 #!/bin/bash
 
-SCHEMA_FILE="../st-organizers/release-preparation/configs/config-schema.json"
-CONFIG_DIRECTORY="../st-organizers/release-preparation/configs"
+SCHEMA_FILE="../lang-leaders/morphosyntax-update/configs/config-schema.json"
+CONFIG_DIRECTORY="../lang-leaders/morphosyntax-update/configs"
 HERE="$(cd "$(dirname "$0")" && pwd)"
 
 cd "$HERE"
