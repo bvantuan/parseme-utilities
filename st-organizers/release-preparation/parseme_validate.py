@@ -30,6 +30,7 @@ COLCOUNT=11
 ID,FORM,LEMMA,UPOS,XPOS,FEATS,HEAD,DEPREL,DEPS,MISC,MWE=range(COLCOUNT)
 MWE_COLNAME = 'PARSEME:MWE'
 ID_COLNAME = 'ID'
+COLNAMES = ''
 # Set of all valid languages in PARSEME corpora
 LANGS = set("UD AR BG CS DE EL EN ES EU FA FR GA HE HR HU HI IT LT MT PL PT RO SL SR SV TR ZH".split())
 
@@ -218,31 +219,38 @@ def validate_cols_level1(cols):
     testclass = 'Format'
     # Some whitespace may be permitted in FORM, LEMMA and MISC but not elsewhere.
     col_idx = MWE
-    # Must never be empty
-    if not cols[col_idx]:
-        testid = 'empty-column'
-        testmessage = 'Empty value in column %s.' % (MWE_COLNAME)
+    
+    # Number of columns is not match to global.columns
+    if len(COLNAMES) != len(cols):
+        testid = 'number-columns'
+        testmessage = 'Number of columns is not match to global.columns (Got %d. Expected %d)' % (len(cols), len(COLNAMES))
         warn(testmessage, testclass, testlevel=testlevel, testid=testid)
     else:
-        # Must never have leading/trailing whitespace
-        if cols[col_idx][0].isspace():
-            testid = 'leading-whitespace'
-            testmessage = 'Leading whitespace not allowed in column %s.' % (MWE_COLNAME)
+        # Must never be empty
+        if not cols[col_idx]:
+            testid = 'empty-column'
+            testmessage = 'Empty value in column %s.' % (MWE_COLNAME)
             warn(testmessage, testclass, testlevel=testlevel, testid=testid)
-        if cols[col_idx][-1].isspace():
-            testid = 'trailing-whitespace'
-            testmessage = 'Trailing whitespace not allowed in column %s.' % (MWE_COLNAME)
-            warn(testmessage, testclass, testlevel=testlevel, testid=testid)
-        # Must never contain two consecutive whitespace characters
-        if whitespace2_re.match(cols[col_idx]):
-            testid = 'repeated-whitespace'
-            testmessage = 'Two or more consecutive whitespace characters not allowed in column %s.' % (MWE_COLNAME)
-            warn(testmessage, testclass, testlevel=testlevel, testid=testid)
+        else:
+            # Must never have leading/trailing whitespace
+            if cols[col_idx][0].isspace():
+                testid = 'leading-whitespace'
+                testmessage = 'Leading whitespace not allowed in column %s.' % (MWE_COLNAME)
+                warn(testmessage, testclass, testlevel=testlevel, testid=testid)
+            if cols[col_idx][-1].isspace():
+                testid = 'trailing-whitespace'
+                testmessage = 'Trailing whitespace not allowed in column %s.' % (MWE_COLNAME)
+                warn(testmessage, testclass, testlevel=testlevel, testid=testid)
+            # Must never contain two consecutive whitespace characters
+            if whitespace2_re.match(cols[col_idx]):
+                testid = 'repeated-whitespace'
+                testmessage = 'Two or more consecutive whitespace characters not allowed in column %s.' % (MWE_COLNAME)
+                warn(testmessage, testclass, testlevel=testlevel, testid=testid)
     
-    if whitespace_re.match(cols[col_idx]):
-        testid = 'invalid-whitespace'
-        testmessage = "White space not allowed in column %s: '%s'." % (MWE_COLNAME, cols[col_idx])
-        warn(testmessage, testclass, testlevel=testlevel, testid=testid)
+        if whitespace_re.match(cols[col_idx]):
+            testid = 'invalid-whitespace'
+            testmessage = "White space not allowed in column %s: '%s'." % (MWE_COLNAME, cols[col_idx])
+            warn(testmessage, testclass, testlevel=testlevel, testid=testid)
    
 
 #==============================================================================
@@ -311,7 +319,7 @@ def trees(inp, tag_sets, args):
             cols=line.split(u"\t")
             
             lines.append(cols)
-            # pertain to the CoNLL-U file format
+            # pertain to the CUPT file format
             validate_cols_level1(cols)
             if args.level > 1:
                 validate_mwe_cols(cols, tag_sets, args.underspecified_mwes)
@@ -697,7 +705,7 @@ def run_parseme_validation() -> int:
         0 for passed
         1 for failed
     """
-    global DEFAULT_MWE, MWE, ID, curr_line
+    global DEFAULT_MWE, MWE, ID, COLNAMES, curr_line
 
     # Messages
     if not args.quiet:
@@ -729,9 +737,9 @@ def run_parseme_validation() -> int:
 
         for curr_fname, inp in zip(args.input, open_files):
             line = next(inp)
-            colnames = line.split("=")[-1].strip().split()
-            MWE = colnames.index(MWE_COLNAME)
-            ID = colnames.index(ID_COLNAME)
+            COLNAMES = line.split("=")[-1].strip().split()
+            MWE = COLNAMES.index(MWE_COLNAME)
+            ID = COLNAMES.index(ID_COLNAME)
             curr_line += 1
             # Parseme validation tests
             validate(inp, args, tagsets)

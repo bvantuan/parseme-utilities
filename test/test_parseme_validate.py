@@ -48,6 +48,13 @@ class TestFunctionalParsemeValidate(unittest.TestCase):
             exit_code = main()
             self.assertEqual(exit_code, expected_exit_code)
         
+        # The number of columns is not match to global.columns, failed
+        test_args = ["--quiet", "--lang", "en", "--level", "1", f"{TEST_DATA}/train39.cupt"]
+        expected_exit_code = 1
+        with patch('sys.argv', ["parseme_validate.py"] + test_args):
+            exit_code = main()
+            self.assertEqual(exit_code, expected_exit_code)
+        
         # Empty value in column PARSEME:MWE, failed
         test_args = ["--quiet", "--lang", "en", "--level", "1", f"{TEST_DATA}/train21.cupt"]
         expected_exit_code = 1
