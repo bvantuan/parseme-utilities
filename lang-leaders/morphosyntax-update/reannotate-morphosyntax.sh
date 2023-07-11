@@ -6,9 +6,9 @@
 HERE="$(cd "$(dirname "$0")" && pwd)"
 
 #.cupt to .conllu converter
-CUPT2CONLLU=$HERE/../to_conllup.py
-TOCUPT=$HERE/../to_cupt.py
-SPLITCONLLU=$HERE/split-conllu.py
+CUPT2CONLLU=$HERE/../../st-organizers/to_conllup.py
+TOCUPT=$HERE/../../st-organizers/to_cupt.py
+SPLITCONLLU=$HERE/../../st-organizers/release-preparation/split-conllu.py
 
 # # validate the format .cupt
 # VALIDATE_CUPT=$HERE/validate_cupt.py
