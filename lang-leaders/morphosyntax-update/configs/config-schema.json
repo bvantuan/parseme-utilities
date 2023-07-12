@@ -8,16 +8,6 @@
       "type": "string",
       "pattern": "^[A-Z]{2}$"
     },
-    "treebank": {
-      "description": "A file .conllu or a directory of treebanks of Universal Dependencies (UD)",
-      "type": "string",
-      "minLength": 1
-    },
-    "uri": {
-      "description": "The persistent URI of the original corpus",
-      "type": "string",
-      "minLength": 1
-    },
     "language_repository": {
       "description": "The language repository path in local",
       "type": "string",
@@ -50,6 +40,25 @@
           "parser": {
             "description": "Reannotate columns HEAD and DEPREL in udpipe method",
             "type": "boolean"
+          },
+          "treebank": {
+            "description": "Directories of treebanks of Universal Dependencies (UD)",
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 1,
+            "uniqueItems": true
+          },
+          "uri": {
+            "description": "The persistent URIs of the original UD treebanks",
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 1
           }
         },
         "required": ["corpus", "method"],
@@ -57,5 +66,5 @@
       }
     }
   },
-  "required": ["language", "treebank", "uri", "language_repository", "verbose", "source"]
+  "required": ["language", "language_repository", "verbose", "source"]
 }

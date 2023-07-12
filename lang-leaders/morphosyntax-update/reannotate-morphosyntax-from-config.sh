@@ -31,6 +31,13 @@ usage() {
 
 
 ########################################
+fail() {
+    echo "Error: $1"
+    exit 1
+}
+
+
+########################################
 # Check if an element is in an array
 # Parameters: 
 #     $1 = an element
@@ -91,16 +98,14 @@ while true; do
             break
             ;;
         *)
-            echo "Invalid option: $1"
-            exit 1
+            fail "Invalid option: $1"
             ;;
     esac
 done
 
 # A configuration file is required
 if [ ! -n "$config_file" ]; then
-    echo "Error: A configuration file is required!"
-    exit 1
+    fail "A configuration file is required!"
 fi
 
 ########################################
@@ -115,20 +120,7 @@ function read_input() {
     # If it is an invalide language code
     if ! is_element_in_array "$language" "${!LANGS[@]}"; then
         # error
-        echo "Invalid language code"
-        exit 2
-    fi
-
-    # Prompt the user for a treebank input
-    read -p "A file .conllu or a directory of treebanks of Universal Dependencies (UD): [$treebank] " treebank_input
-    if [ ! -n "$treebank_input" ]; then
-        treebank_input="$treebank"
-    fi
-
-    # Prompt the user for a uri input
-    read -p "The persistent URI of the original UD corpus: [$uri] " uri_input
-    if [ ! -n "$uri_input" ]; then
-        uri_input="$uri"
+        fail "Invalid language code"
     fi
 
     # Prompt the user for a language repository input
@@ -138,8 +130,7 @@ function read_input() {
     else
         if [ ! -d $language_repository_input ]; then
             # error
-            echo "Expected a directory for the language repository"
-            exit 2
+            fail "Expected a directory for the language repository"
         fi
     fi
 
@@ -158,26 +149,6 @@ function read_input() {
         fi
     done <&1
 
-    # If parameter treebank is a file
-    if [ ! -d $treebank_input ]; then
-        # If parameter treebank is a valid file
-        if [ -f "$treebank_input" ]; then
-            # Prompt the user for a path input
-            read -p "The path of the source file in the original UD corpus: " path_input
-            # If the path is empty
-            if [ ! -n "$path_input" ]; then
-                # error
-                echo "Expected the path of the source file in the original UD corpus"
-                exit 2
-            fi
-        # If parameter treebank is an invalid file
-        else
-            # error
-            echo "File $treebank_input does not exist"
-            exit 2
-        fi
-    fi
-
     KEY="source"
     # Read the array of dictionaries for the specified key using jq
     dicts_json=$(jq ".${KEY}?" "$config_file")
@@ -193,8 +164,7 @@ function read_input() {
         method=$(echo "$dict" | jq -r '.method')
 
         # command line parameter
-        source_files_parameters_in_line["$source_file"]="--source $language_repository_input/$source_file "
-        source_files_parameters_in_line["$source_file"]+="--method $method "
+        source_files_parameters_in_line["$source_file"]="--source $language_repository_input/$source_file --method $method "
         # add the value to the associative array
         source_files_parameters["$source_file|method"]="$method"
         
@@ -216,6 +186,14 @@ function read_input() {
                 # command line parameter
                 source_files_parameters_in_line["$source_file"]+="--parser "
             fi
+        # UDtreebank method
+        elif [ "$method" == "udtreebank" ]; then
+            # arrays of treebanks
+            readarray -t treebanks < <(echo "$dict" | jq -r '.treebank' | jq -cr '.[]')
+            # arrays of uris
+            readarray -t corpus_uris < <(echo "$dict" | jq -r '.uri' | jq -cr '.[]')
+            source_files_parameters["$source_file|treebanks"]="${treebanks[@]}"
+            source_files_parameters["$source_file|uris"]="${corpus_uris[@]}"
         fi
 
         # add the parseme corpus into the array
@@ -232,8 +210,6 @@ function save_config() {
     if [ $? -eq 0 ]; then
         # Save user inputs to the config file
         updated_json=$(jq --arg language "$language_input" '.language = $language' "$config_file") 
-        updated_json=$(jq --arg treebank "$treebank_input" '.treebank = $treebank' <<< "$updated_json")
-        updated_json=$(jq --arg uri "$uri_input" '.uri = $uri' <<< "$updated_json") 
         updated_json=$(jq --arg language_repository "$language_repository_input" '.language_repository = $language_repository' <<< "$updated_json")
         # Add the boolean value to the JSON file using jq
         updated_json=$(jq --arg key "verbose" --argjson value "$verbose_input" '. + {($key): $value}' <<< "$updated_json")
@@ -244,12 +220,9 @@ function save_config() {
 
 # Read parameters from the JSON file using jq
 language=$(jq -r '.language' "$config_file")
-treebank=$(jq -r '.treebank' "$config_file")
-uri=$(jq -r '.uri' "$config_file")
 language_repository=$(jq -r '.language_repository' "$config_file")
 verbose=$(jq -r '.verbose' "$config_file")
 
-path_input=
 # an array of parseme corpus
 source_files=()
 # Enable associative arrays
@@ -279,6 +252,31 @@ while true; do
 
     echo "You chose: $choice"
     echo ""
+
+    # udtreebank method
+    if [ ${source_files_parameters[$choice"|method"]} == "udtreebank" ]; then
+        # Prompt the user for treebanks input
+        echo "Directories of treebanks of Universal Dependencies (UD) synchronized with the $choice corpus: [${source_files_parameters[$source_file"|treebanks"]}] "
+        read -a treebanks_input
+        if [ "${#treebanks_input[@]}" -eq 0 ]; then
+            read -a treebanks_input <<< ${source_files_parameters[$source_file"|treebanks"]}
+        else
+            for treebank in "${treebanks_input[@]}"; do
+                if [ ! -d "$treebank" ]; then
+                    # error
+                    fail "Expected a directory for the treebank"
+                fi
+            done
+        fi
+
+        # Prompt the user for uris
+        echo "The persistent URIs of the original UD treebanks: [${source_files_parameters[$source_file"|uris"]}] " 
+        read -a uris_input
+        if [ "${#uris_input[@]}" -eq 0 ]; then
+            read -a uris_input <<< ${source_files_parameters[$source_file"|uris"]}
+        fi
+    fi
+
     echo "========================================================================================"
     echo "===> Re-annotating the parseme corpus $choice"
     echo "========================================================================================"
@@ -286,24 +284,18 @@ while true; do
     # udtreebank method
     if [ ${source_files_parameters[$choice"|method"]} == "udtreebank" ]; then
         # Run the script reannotate-morphosyntax.sh
-        if [ -n "$path_input" ] && $verbose_input; then
-            echo "${REANNOTATION_MORPHOSYNTAX} --lang $language_input --treebank $treebank_input --uri $uri_input --path $path_input ${source_files_parameters_in_line[$choice]} --verbose"
-            ${REANNOTATION_MORPHOSYNTAX} --lang $language_input --treebank $treebank_input --uri $uri_input --path $path_input ${source_files_parameters_in_line[$choice]} --verbose
-        elif [ -n "$path_input" ] && ! $verbose_input; then
-            echo "${REANNOTATION_MORPHOSYNTAX} --lang $language_input --treebank $treebank_input --uri $uri_input --path $path_input ${source_files_parameters_in_line[$choice]}"
-            ${REANNOTATION_MORPHOSYNTAX} --lang $language_input --treebank $treebank_input --uri $uri_input --path $path_input ${source_files_parameters_in_line[$choice]}
-        elif [ ! -n "$path_input" ] && $verbose_input; then
-            echo "${REANNOTATION_MORPHOSYNTAX} --lang $language_input --treebank $treebank_input --uri $uri_input ${source_files_parameters_in_line[$choice]} --verbose"
-            ${REANNOTATION_MORPHOSYNTAX} --lang $language_input --treebank $treebank_input --uri $uri_input ${source_files_parameters_in_line[$choice]} --verbose
+        if $verbose_input; then
+            echo "${REANNOTATION_MORPHOSYNTAX} --language $language_input ${source_files_parameters_in_line[$choice]} --treebank ${treebanks_input[@]} --uri ${uris_input[@]}--verbose"
+            ${REANNOTATION_MORPHOSYNTAX} --language $language_input ${source_files_parameters_in_line[$choice]} --treebank ${treebanks_input[@]} --uri ${uris_input[@]} --verbose
         else
-            echo "${REANNOTATION_MORPHOSYNTAX} --lang $language_input --treebank $treebank_input --uri $uri_input ${source_files_parameters_in_line[$choice]}"
-            ${REANNOTATION_MORPHOSYNTAX} --lang $language_input --treebank $treebank_input --uri $uri_input ${source_files_parameters_in_line[$choice]}
+            echo "${REANNOTATION_MORPHOSYNTAX} --language $language_input ${source_files_parameters_in_line[$choice]} --treebank ${treebanks_input[@]} --uri ${uris_input[@]}"
+            ${REANNOTATION_MORPHOSYNTAX} --language $language_input ${source_files_parameters_in_line[$choice]} --treebank ${treebanks_input[@]} --uri ${uris_input[@]}
         fi
     # udpipe method
     elif [ ${source_files_parameters[$choice"|method"]} == "udpipe" ]; then
         # Run the script reannotate-morphosyntax.sh
-        echo "${REANNOTATION_MORPHOSYNTAX} --lang $language_input ${source_files_parameters_in_line[$choice]}"
-        ${REANNOTATION_MORPHOSYNTAX} --lang $language_input ${source_files_parameters_in_line[$choice]}
+        echo "${REANNOTATION_MORPHOSYNTAX} --language $language_input ${source_files_parameters_in_line[$choice]}"
+        ${REANNOTATION_MORPHOSYNTAX} --language $language_input ${source_files_parameters_in_line[$choice]}
     else
         # error
         echo "Only two method of synchronisation udpipe and udtreebank are available"

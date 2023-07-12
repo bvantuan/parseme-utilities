@@ -17,7 +17,7 @@ SPLITCONLLU=$HERE/../../st-organizers/release-preparation/split-conllu.py
 MAX_CONLLU_SIZE=4 
 
 #Working directory for the newly annotated files
-SUBDIR=REANNOTATION
+SUBDIR=not_to_release/$(date +"%Y-%m-%d")-REANNOTATION
 #Log file
 LOG=""
 LOG_SENTENCES_NOT_FOUND=""
@@ -53,7 +53,7 @@ usage() {
     echo ""
     echo "Example: ./reannotate-morphosyntax.sh -m udpipe -l PL -s parseme1.cupt parseme2.cupt --tagger --parser"
     echo "         ./reannotate-morphosyntax.sh --method udtreebank -l PL -s parseme_test_pl.cupt -t ud-treebanks-v2.11/UD_Polish-PDB/ -u http://hdl.handle.net/11234/1-4923"
-    echo "         ./reannotate-morphosyntax.sh --method udtreebank -l EN -s parseme_test_en.cupt -t ud-treebanks-v2.11/UD_English-LinES/en_lines-ud-train.conllu -u http://hdl.handle.net/11234/1-4923 -p UD_English-LinES/en_lines-ud-train.conllu"
+    echo "         ./reannotate-morphosyntax.sh --method udtreebank -l EN -s parseme_test_en.cupt -t ud-treebanks-v2.11/UD_English-LinES ud-treebanks-v2.11/UD_English-EWT -u http://hdl.handle.net/11234/1-4923 http://hdl.handle.net/11234/1-5150"
 
     echo ""
     echo "Parameters: "
@@ -61,20 +61,21 @@ usage() {
     echo -e "\t -m, --method \t\t Method of reannotation (supported udtreebank and udpipe)"
     echo -e "\t -l, --language \t 2-letter iso code of the language (AR, BG, CS, etc.)"
     echo -e "\t -s, --source \t\t Files to reannotate"
-    echo -e "\t -t, --treebank \t File .conllu or a directory of treebanks of Universal Dependencies (UD)"
-    echo -e "\t -u, --uri \t\t The persistent URI of the original corpus"
-    echo -e "\t -p, --path \t\t The path of the source file in the original corpus (used only if the parameter --treebank is a file)"
+    echo -e "\t -t, --treebank \t Directories of treebanks of Universal Dependencies (UD)"
+    echo -e "\t -u, --uri \t\t The corresponding persistent URIs of the original UD treebanks"
     echo -e "\t --tagger \t\t Reannotate columns LEMMA, UPOS, XPOS and FEATS in udpipe method (default:false)"
     echo -e "\t --parser \t\t Reannotate columns HEAD and DEPREL in udpipe method (default:false)"
     echo -e "\t -v, --verbose \t\t The verbose option, display detailed processing information (default:false)"
     echo ""
 
-    echo "For the udtreebank method, a directory of treebanks is recommended because the script will search for the sentence identifier and the sentence of parseme in all the treebank files of the directory"
+    echo "For the udtreebank method, the script will search for the sentence identifier and the sentence of parseme in all the treebank files of the corresponding UD directory"
 }
 
 ########################################
 fail() {
-    echo "$(basename "$0"): $1"; exit 1
+    echo "Error: $1"
+    exit 1
+    # echo "$(basename "$0"): $1"; exit 1
 }
 
 ###########################################################
@@ -83,6 +84,11 @@ fail() {
 run_devnull() {
     # bold_echo "=> $@" >&2
     "$@" >/dev/null  # Run command and discard output
+    # Check error
+    if [ $? -ne 0 ]; then
+        # echo "The command $@ failed" >&2
+        exit 1
+    fi
 }
 
 
@@ -127,12 +133,11 @@ function prepare_log_file() {
             # reannotation subdirectory
             reannot_dir=$(dirname $1)/$SUBDIR
              #Create the reannotation directory if needed
-            if [ ! -d $reannot_dir ]; then mkdir $reannot_dir; fi   
+            if [ ! -d $reannot_dir ]; then mkdir -p $reannot_dir; fi   
         # If $1 doesn't exist
         else
             # error
-            echo "File $1 does not exist"
-            exit 2
+            fail "File $1 does not exist"
         fi
     fi
 
@@ -145,7 +150,7 @@ function prepare_log_file() {
     LOG="logs-reannotate-$filename.txt"
     # Re-create an empty file
     > "$reannot_dir/$LOG"
-    exec 2> "$reannot_dir/$LOG"      #Redirecting standard error to a log file
+    # exec 2> "$reannot_dir/$LOG"      #Redirecting standard error to a log file
     echo "Logs go to $reannot_dir/$LOG"
     echo ""
 }
@@ -282,46 +287,23 @@ function get_ud_line_number_with_the_same_text() {
     # declare an empty associative array of line number of found parseme sentence identifiers in the UD
     declare -A line_number_sent_ids
 
-    # If parameter $2 is a file
-    if [ ! -d $2 ]; then
-        # all line numbers contain parseme sentence id
-        line_numbers=$(grep -n '^# sent_id =' "$2" | grep "# sent_id = $1$" | cut -d: -f1,2)
+    # all line numbers contain parseme sentence id
+    line_numbers=$(grep -nr '^# sent_id =' $2 | grep "# sent_id = $1$" | cut -d: -f1,2,3)
 
-        # If it have a line number that contain parseme sentence id
-        if [ ! -z "$line_numbers" ]; then
-            # loop through each match
-            while IFS=':' read -r line_number text_sent_id; do
-                # sentence identifier
-                sent_id=$(cut -d= -f2 <<< "$text_sent_id")
-                # remove leading spaces using parameter expansion
-                sent_id="${sent_id#"${sent_id%%[![:space:]]*}"}"
-                # Compare two identifiers
-                if [ "$sent_id" == "$1" ]; then  
-                    # Find a line number of matched parseme sentence identifier
-                    line_number_sent_ids["$line_number"]="$2"
-                fi
-            done <<< "$line_numbers"
-        fi
-    # If parameter $2 is a directory
-    else
-        # all line numbers contain parseme sentence id
-        line_numbers=$(grep -nr '^# sent_id =' "$2" | grep "# sent_id = $1$" | cut -d: -f1,2,3)
-
-        # If it have a line number that contain parseme sentence id
-        if [ ! -z "$line_numbers" ]; then
-            # loop through each match
-            while IFS=':' read -r filename line_number text_sent_id; do
-                # sentence identifier
-                sent_id=$(cut -d= -f2 <<< "$text_sent_id")
-                # remove leading spaces using parameter expansion
-                sent_id="${sent_id#"${sent_id%%[![:space:]]*}"}"
-                # Compare two identifiers
-                if [ "$sent_id" == "$1" ]; then  
-                    # Find a line number of matched parseme sentence identifier
-                    line_number_sent_ids["$line_number"]="$filename"
-                fi
-            done <<< "$line_numbers"
-        fi
+    # If it have a line number that contain parseme sentence id
+    if [ ! -z "$line_numbers" ]; then
+        # loop through each match
+        while IFS=':' read -r filename line_number text_sent_id; do
+            # sentence identifier
+            sent_id=$(cut -d= -f2 <<< "$text_sent_id")
+            # remove leading spaces using parameter expansion
+            sent_id="${sent_id#"${sent_id%%[![:space:]]*}"}"
+            # Compare two identifiers
+            if [ "$sent_id" == "$1" ]; then  
+                # Find a line number of matched parseme sentence identifier
+                line_number_sent_ids["$line_number"]="$filename"
+            fi
+        done <<< "$line_numbers"
     fi
 
     # Loop over all line numbers contain parseme sentence id
@@ -345,69 +327,35 @@ function get_ud_line_number_with_the_same_text() {
 
     # sentence id in the parseme is not found
     if [ -z "$ud_line_number" ]; then
-        # If parameter $2 is a file
-        if [ ! -d $2 ]; then
-            # Find the line number of the sentence in the latest source treebanks' version
-            line_numbers=$(grep -n -Fx "$line" "$2" | cut -d: -f1)
+        # Find the line numbers of the sentence in the latest source treebanks' version
+        ud_line_number_and_corpus=$(grep -nr -Fx "$line" $2 | cut -d: -f1,2)
 
-            # Matches found
-            if [ -n "$line_numbers" ]; then
-                # Read the found line numbers
-                while read -r line_number; do
-                    # block text of the sentence
-                    blocktext=$(find_blocktext "$line_number" "$2")
-                    # sentence identifier
-                    sent_id=$(grep '^# sent_id =' <<< "$blocktext" | cut -d= -f2)
-                    # remove leading spaces using parameter expansion
-                    sent_id="${sent_id#"${sent_id%%[![:space:]]*}"}"
-                    
-                    # If it is a existing sentence identifier
-                    if grep -q "^$sent_id$" "$existing_sentence_ids"; then
-                        # keep the existing sentence identifier if no new identifier is found
-                        ud_line_number=$line_number
-                        ud_corpus=$2
-                        # ignore and continue
-                        continue
-                    # If it is not a existing sentence identifier
-                    else
-                        # find the ud corresponding
-                        ud_line_number=$line_number
-                        ud_corpus=$2
-                        break
-                    fi
-                done <<< "$line_numbers"
-            fi
-        else
-            # Find the line numbers of the sentence in the latest source treebanks' version
-            ud_line_number_and_corpus=$(grep -nr -Fx "$line" "$2" | cut -d: -f1,2)
-
-            # Matches found
-            if [ -n "$ud_line_number_and_corpus" ]; then
-                # Read the found line numbers
-                while IFS=':' read -r corpus line_number; do
-                    # block text of the sentence
-                    blocktext=$(find_blocktext "$line_number" "$corpus")
-                    # sentence identifier
-                    sent_id=$(grep '^# sent_id =' <<< "$blocktext" | cut -d= -f2)
-                    # remove leading spaces using parameter expansion
-                    sent_id="${sent_id#"${sent_id%%[![:space:]]*}"}"
-                    
-                    # If it is a existing sentence identifier
-                    if grep -q "^$sent_id$" "$existing_sentence_ids"; then
-                        # keep the existing sentence identifier if no new identifier is found
-                        ud_line_number=$line_number
-                        ud_corpus=$corpus
-                        # ignore and continue
-                        continue
-                    # If it is not a existing sentence identifier
-                    else
-                        # find the ud corresponding
-                        ud_line_number=$line_number
-                        ud_corpus=$corpus
-                        break
-                    fi
-                done <<< "$ud_line_number_and_corpus"
-            fi
+        # Matches found
+        if [ -n "$ud_line_number_and_corpus" ]; then
+            # Read the found line numbers
+            while IFS=':' read -r corpus line_number; do
+                # block text of the sentence
+                blocktext=$(find_blocktext "$line_number" "$corpus")
+                # sentence identifier
+                sent_id=$(grep '^# sent_id =' <<< "$blocktext" | cut -d= -f2)
+                # remove leading spaces using parameter expansion
+                sent_id="${sent_id#"${sent_id%%[![:space:]]*}"}"
+                
+                # If it is a existing sentence identifier
+                if grep -q "^$sent_id$" "$existing_sentence_ids"; then
+                    # keep the existing sentence identifier if no new identifier is found
+                    ud_line_number=$line_number
+                    ud_corpus=$corpus
+                    # ignore and continue
+                    continue
+                # If it is not a existing sentence identifier
+                else
+                    # find the ud corresponding
+                    ud_line_number=$line_number
+                    ud_corpus=$corpus
+                    break
+                fi
+            done <<< "$ud_line_number_and_corpus"
         fi
     fi
 
@@ -440,9 +388,30 @@ function get_ud_line_number_with_the_approximate_text() {
                 line_number_filename+=("$line_number|$file")
             done <<< "$matches"
         fi
-    done < <(find "$2" -type f -name "*.conllu" -print0)
+    done < <(find $2 -type f -name "*.conllu" -print0)
 
     echo "${line_number_filename[@]}"
+}
+
+
+########################################
+# Get uri for a UD corpus
+# Parameters: 
+#     $1 = a UD corpus
+function get_corpus_uri() {
+    # Get directory name
+    ud_treebank=$(dirname "$1")
+    ud_treebank_name=$(basename $ud_treebank)
+    ud_id=-1
+    # Loop over all elements in the array
+    # find position of treebank in the list of all treebanks
+    for treebank in "${treebank_files[@]}"; do
+        ud_id=$((ud_id+1))
+        if [[ $treebank == *"$ud_treebank_name"* ]]; then
+            break
+        fi
+    done
+    echo "${corpus_uris[$ud_id]}"
 }
 
 
@@ -700,8 +669,11 @@ function log_sentences_not_found() {
 #     $1 = file .cupt with columns to be replaced
 #     $2 = latest source treebanks' version in format .conllu
 reannotate_udtreebank() {
+    source_corpus="$1"
+    shift
+    ud_treebanks="$@"
     # generating all intermediate file names
-    file=`basename $1 .cupt`   # remove suffix starting with "_"
+    file=`basename $source_corpus .cupt`   # remove suffix starting with "_"
     # old annotaion (temporary file)
     old_cupt=$REANNOT_DIR/$file.old.cupt
     # new annotation file
@@ -713,7 +685,7 @@ reannotate_udtreebank() {
     # Re-create an empty file
     > $new_cupt
     # copy the old annotation to a temporary file to keep the file unchanged
-    cp $1 $old_cupt
+    cp $source_corpus $old_cupt
 
     # count the line number while reading
     declare -i count_line_number=1
@@ -735,14 +707,14 @@ reannotate_udtreebank() {
     > $existing_sentence_ids
 
     # number of lines in cupt file
-    number_of_lines=$(wc -l < "$1")
+    number_of_lines=$(wc -l < "$source_corpus")
 
     # Reading old annotaion (temporary file)
     while read -r line; do
         # If the line is a text (sentence)
         if grep -q -F "# text =" <<< "$line"; then
             # Extract the block of lines of annotation of the text (metadata and morphosyntax) in the parseme corpus
-            old_blocktext=$(find_blocktext "$count_line_number" "$1")
+            old_blocktext=$(find_blocktext "$count_line_number" "$source_corpus")
             # Metadata of the text
             old_metadata_text=$(grep '^#' <<< $old_blocktext)
             # morphosyntax of the text
@@ -758,15 +730,14 @@ reannotate_udtreebank() {
             # UD corpus corresponding to matched parseme sentence identifier
             ud_corpus=""
             # get UD line number and UD corpus with the same text but looking first for the sentence identifier of the parseme
-            get_ud_line_number_with_the_same_text "$parseme_setence_id" "$2" "$new_cupt"
+            get_ud_line_number_with_the_same_text "$parseme_setence_id" "$ud_treebanks"
             
             # If the UD corpus corresponding exists
             if [ ! -z "$ud_corpus" ]; then
-                # If parameter file_path is not set
-                if ! $is_set_file_path; then
-                    # Get the last two names
-                    file_path=$(echo "$ud_corpus" | awk -F/ '{print $(NF-1)"/"$NF}')
-                fi
+                # Get the last two names for the path of the source file in the original UD corpus
+                file_path=$(echo "$ud_corpus" | awk -F/ '{print $(NF-1)"/"$NF}')
+                # get the uri of corresponding UD corpus
+                corpus_uri=$(get_corpus_uri "$ud_corpus")
             fi
             
             # If the parseme sentence or the approximate matchings is in the UD corpus
@@ -774,7 +745,7 @@ reannotate_udtreebank() {
             # If the sentence is not in the latest source treebanks' version, find the approximate matchings
             if [ -z "$ud_line_number" ]; then
                 # Get UD line number and UD corpus with the approximate matchings while ignoring case distinctions and spaces
-                read -ra ud_line_number_filenames <<< $(get_ud_line_number_with_the_approximate_text "$line" "$2")
+                read -ra ud_line_number_filenames <<< $(get_ud_line_number_with_the_approximate_text "$line" "$ud_treebanks")
                 # If the approximate matchings are found
                 if [ ! "${#ud_line_number_filenames[@]}" -eq 0 ]; then
                     # Loop over all the approximate matchings
@@ -783,12 +754,10 @@ reannotate_udtreebank() {
                         ud_line_number=$(cut -d'|' -f1 <<< "$ud_line_number_filename")
                         # ud corpus
                         ud_corpus=$(cut -d'|' -f2 <<< "$ud_line_number_filename")
-
-                        # If parameter file_path is not set
-                        if ! $is_set_file_path; then
-                            # Get the last two names
-                            file_path=$(echo "$ud_corpus" | awk -F/ '{print $(NF-1)"/"$NF}')
-                        fi
+                        # Get the last two names for the path of the source file in the original UD corpus
+                        file_path=$(echo "$ud_corpus" | awk -F/ '{print $(NF-1)"/"$NF}')
+                        # get the uri of corresponding UD corpus
+                        corpus_uri=$(get_corpus_uri "$ud_corpus")
 
                         # Extract the block of lines of new annotation of the text (metadata and morphosyntax in the UD)
                         new_blocktext=$(find_blocktext "$ud_line_number" "$ud_corpus")
@@ -800,7 +769,7 @@ reannotate_udtreebank() {
                         new_morphosyntax_text=$(grep -v '^#' <<< $new_blocktext)
 
                         bold_echo "========================================================================================"
-                        bold_echo "===> In the parseme corpus $1"
+                        bold_echo "===> In the parseme corpus $source_corpus"
                         echo_and_bold_echo "The sentence of line number $count_line_number: \"$line\" is not found in the UD treebanks but an approximate matching is found in the UD treebank \"$file_path\""
                         echo_and_bold_echo "Here are the details (the words in color red appear only in the parseme sentence and the words in color green appear only in the UD sentence):"
 
@@ -814,7 +783,7 @@ reannotate_udtreebank() {
                         echo ""
 
                         # terminate the redirection of stderr
-                        exec 2>&1
+                        # exec 2>&1
                         # Ask the annotator
                         while true; do
                             read -p "Do you want to update the morphosyntax of the sentence for this approximate matching of UD? (y/n) " yn
@@ -825,7 +794,7 @@ reannotate_udtreebank() {
                             esac
                         done <&1
                         # Redirecting standard error to a log file
-                        exec 2>> $REANNOT_DIR/$LOG      
+                        # exec 2>> $REANNOT_DIR/$LOG      
                         # answer=true
 
                         echo ""
@@ -909,7 +878,7 @@ reannotate_udtreebank() {
                 # The tokenizations are different in the two versions
                 else
                     bold_echo "========================================================================================"
-                    bold_echo "===> In the parseme corpus $1"
+                    bold_echo "===> In the parseme corpus $source_corpus"
                     bold_echo "The sentence of line number $count_line_number: \"$line\" is found in the UD treebank"
 
                     # associative arrays for id:token:vmwe tag 
@@ -964,7 +933,7 @@ reannotate_udtreebank() {
                     # the changed tokens are not in a MWE
                     if [ "${#source_changed_tokens_in_MWE[@]}" -eq 0 ]; then
                         # terminate the redirection of stderr
-                        exec 2>&1
+                        # exec 2>&1
                         # Ask the annotator
                         while true; do
                             read -p "None of the changed tokens is in a MWE, Do you want to update the tokenization and the morphosyntax of the sentence? (y/n) " yn
@@ -975,7 +944,7 @@ reannotate_udtreebank() {
                             esac
                         done <&1
                         # Redirecting standard error to a log file
-                        exec 2>> $REANNOT_DIR/$LOG      
+                        # exec 2>> $REANNOT_DIR/$LOG      
                         # answer=true
 
                         # The annotator answered no
@@ -1067,7 +1036,7 @@ reannotate_udtreebank() {
 
     echo_and_bold_echo "========================================================================================"
     echo_and_bold_echo "=================================SUMMARY================================================"
-    echo_and_bold_echo "===> The result of the re-annotation of morphosyntax for the parseme corpus $1 with the UD treebanks $2"
+    echo_and_bold_echo "===> The result of the re-annotation of morphosyntax for the parseme corpus $source_corpus with the UD treebanks $ud_treebanks"
 
     # If it exists at least a sentence id not found
     if [ ! "${#sentences_not_found[@]}" -eq 0 ]; then
@@ -1092,7 +1061,7 @@ reannotate_udtreebank() {
 
 
 bold_echo() {
-    (tput bold; echo "$@">&2; tput sgr0)
+    (tput bold; echo "$@">>$REANNOT_DIR/$LOG; tput sgr0)
 }
 
 
@@ -1104,65 +1073,51 @@ echo_and_bold_echo() {
 
 ########################################
 ########################################
-
-# Parse command-line options
-# define the short and long options that the script will accept
-OPTIONS=m:l:s:t:u:p:hv
-LONGOPTIONS=help,tagger,parser,verbose,method:,language:,source:,treebank:,uri:,path:
-
-# parse the command line arguments.
-PARSED=$(getopt --options=$OPTIONS --longoptions=$LONGOPTIONS --name "$0" -- "$@")
-
-# there was an error parsing the option
-if [[ $? -ne 0 ]]; then
-    exit 2
-fi
-# set the positional parameters to the parsed options and arguments
-eval set -- "$PARSED"
-
 # Declare parameter variables 
 method_type=
 language_code=
 source_files=()
-treebank_file=
-corpus_uri=
+treebank_files=()
+corpus_uris=()
 file_path=
-is_set_file_path=false
 # set default values for boolean arguments
 tagger=false
 parser=false
 verbose=false
 
-# iterating over positional parameters with a for loop.
-while true; do
+# Parse command line arguments
+while [[ $# -gt 0 ]]; do
     case "$1" in
         -m|--method)
-            method_type="$2"
-            shift 2
-            ;;
-        -l|--language)
-            language_code="$2"
-            shift 2
-            ;;
-        -s|--source)
-            while [[ "$2" != -* && ! -z "$2" ]]; do
-                source_files+=($2)
-                shift 
-            done
+            shift
+            method_type="$1"
             shift
             ;;
+        -l|--language)
+            shift
+            language_code="$1"
+            shift
+            ;;
+        -s|--source)
+            shift # remove the -- parameter key
+            while [[ $# -gt 0 && $1 != -* ]]; do
+                source_files+=("$1")
+                shift
+            done
+            ;;
         -t|--treebank)
-            treebank_file=$2
-            shift 2
+            shift # remove the -- parameter key
+            while [[ $# -gt 0 && $1 != -* ]]; do
+                treebank_files+=("$1")
+                shift
+            done
             ;;
         -u|--uri)
-            corpus_uri=$2
-            shift 2
-            ;;
-        -p|--path)
-            file_path=$2
-            is_set_file_path=true
-            shift 2
+            shift # remove the -- parameter key
+            while [[ $# -gt 0 && $1 != -* ]]; do
+                corpus_uris+=("$1")
+                shift
+            done
             ;;
         --tagger)
             tagger=true
@@ -1185,8 +1140,7 @@ while true; do
             break
             ;;
         *)
-            echo "Invalid option: $1"
-            exit 1
+            fail "Invalid option: $1"
             ;;
     esac
 done
@@ -1199,59 +1153,51 @@ function handle_parameters() {
     # If parameter method is not set
     if [ ! -n "$method_type" ]; then
         # error
-        echo "Expected synchronisation method"
-        exit 2
+        fail "Expected synchronisation method"
     # If parameter method is set
     else
         # If the method is neither udtreebank nor udpipe
         if [ ! $method_type = "udtreebank" ] && [ ! $method_type = "udpipe" ]; then
-            echo "Only two method of synchronisation udpipe and udtreebank are available" 
-            exit 2
+            fail "Only two method of synchronisation udpipe and udtreebank are available" 
         fi
     fi
 
     # If parameter language is not set
     if [ ! -n "$language_code" ]; then
         # error
-        echo "Expected language code"
-        exit 2
+        fail "Expected language code"
     # If parameter language is set
     else
         # If it is an invalide language code
         if ! is_element_in_array "$language_code" "${!LANGS[@]}"; then
             # error
-            echo "Invalid language code"
-            exit 2
+            fail "Invalid language code"
         fi
     fi
 
     # If input file is not set
     if [ "${#source_files[@]}" -eq 0 ]; then
         # error
-        echo "Expected at least 1 input .cupt file for the reannotation"
-        exit 2
+        fail "Expected at least 1 input .cupt file for the reannotation"
     fi
 
     # If tagger or parser is not used for udpipe method
     if [ ! $method_type = "udpipe" ] && ($tagger || $parser); then
         if $tagger; then
             # error
-            echo "Expected tagger parameter only for udpipe method"
-            exit 2
+            fail "Expected tagger parameter only for udpipe method"
         fi
 
         if $parser; then
             # error
-            echo "Expected parser parameter only for udpipe method"
-            exit 2
+            fail "Expected parser parameter only for udpipe method"
         fi
     fi
 
     # If tagger or parser is not presented for udpipe method
     if [ $method_type = "udpipe" ] && ! ($tagger || $parser); then
         # error
-        echo "Expected tagger or parser parameter for udpipe method"
-        exit 2
+        fail "Expected tagger or parser parameter for udpipe method"
     fi
 
     # If the method is udtreebank
@@ -1259,40 +1205,34 @@ function handle_parameters() {
         # If parameter source files has more than one file
         if [ ! ${#source_files[@]} -eq 1 ]; then
             # error
-            echo "Expected only one input source file for udtreebank method"
-            exit 2
+            fail "Expected only one input source file for udtreebank method"
+        fi
+
+        # If parameter treebank is not set
+        if [ "${#treebank_files[@]}" -eq 0 ]; then
+            # error
+            fail "Expected the UD treebanks for udtreebank method"
+        else
+            # Check every treebank is a directory
+            for treebank_file in ${treebank_files[@]}; do
+                # If parameter treebank is a file
+                if [ ! -d $treebank_file ]; then
+                    # error
+                    fail "$treebank_file must be a directory"
+                fi
+            done
         fi
 
         # If parameter uri is not set
-        if [ ! -n "$corpus_uri" ]; then
+        if [ "${#corpus_uris[@]}" -eq 0 ]; then
             # error
-            echo "Expected the persistent URI of the UD treebanks"
-            exit 2
+            fail "Expected the persistent URI of the UD treebanks"
         fi
 
-        # If parameter treebank is a file
-        if [ ! -d $treebank_file ]; then
-            # If treebank file does not exist
-            if [ ! -f "$treebank_file" ]; then
-                # error
-                echo "File $treebank_file does not exist"
-                exit 2
-            fi
-
-            # If parameter path is not set
-            if [ ! -n "$file_path" ]; then
-                # error
-                echo "Expected the path of the source file in the UD original corpus if the treebank is not a directory"
-                exit 2
-            fi
-        # If parameter treebank is a directory
-        else
-            # If parameter path is set
-            if [ -n "$file_path" ]; then
-                # error
-                echo "Unexpected the path of the source file in the UD original corpus if the treebank is a directory"
-                exit 2
-            fi
+        # The number of treebanks must be equal to the number of uris
+        if [ ! "${#corpus_uris[@]}" -eq "${#treebank_files[@]}" ]; then
+            # error
+            fail "The number of treebanks must be equal to the number of uris, which means every treebank must have one and only one its uri"
         fi
     fi
 }
@@ -1353,7 +1293,7 @@ if [ $method_type = "udtreebank" ]; then
     validate_cupt "${source_files[0]}" 
 
     # Reannotate to the latest source treebanks' version
-    reannotate_udtreebank "${source_files[0]}" $treebank_file 
+    reannotate_udtreebank "${source_files[0]}" "${treebank_files[@]}"
 fi
 
 echo ""
