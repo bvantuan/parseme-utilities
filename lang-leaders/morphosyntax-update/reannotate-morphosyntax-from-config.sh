@@ -218,6 +218,20 @@ function save_config() {
 }
 
 
+########################################
+# Install the necessary packages
+function install_packages() {
+    # Check if the jq package is installed
+    if ! command -v jq >/dev/null 2>&1; then
+        echo "Installing jq package"
+        sudo apt-get install jq
+    fi
+    echo "========================================================================================"
+}
+
+# Install the necessary packages
+install_packages
+
 # Read parameters from the JSON file using jq
 language=$(jq -r '.language' "$config_file")
 language_repository=$(jq -r '.language_repository' "$config_file")

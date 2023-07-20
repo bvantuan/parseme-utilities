@@ -98,7 +98,7 @@ def load_mwe_set(filename, lcode):
         mwe_set.update(all_mwe_categories[lcode.lower()])
     return mwe_set
 
-def warn(msg, error_type, testlevel=0, testid='some-test', lineno=True, nodelineno=0, nodeid=0):
+def warn(msg, error_type, testlevel=0, testid='some-test', lineno=True, noterr=False, nodelineno=0, nodeid=0):
     """
     Print the warning.
     If lineno is True, print the number of the line last read from input. Note
@@ -110,11 +110,15 @@ def warn(msg, error_type, testlevel=0, testid='some-test', lineno=True, nodeline
     If lineno is False, print the number and starting line of the current tree.
     """
     global curr_fname, curr_line, sentence_line, sentence_id, error_counter, tree_counter, args
-    error_counter[error_type] = error_counter.get(error_type, 0)+1
+    if not noterr:
+        error_counter[error_type] = error_counter.get(error_type, 0)+1
+    # else:
+    #     error_counter[error_type] = 0
+        
     if not args.quiet:
-        if args.max_err > 0 and error_counter[error_type] == args.max_err:
+        if args.max_err > 0 and not noterr and error_counter[error_type] == args.max_err:
             print(('...suppressing further errors regarding ' + error_type), file=sys.stderr)
-        elif args.max_err > 0 and error_counter[error_type] > args.max_err:
+        elif args.max_err > 0 and not noterr and error_counter[error_type] > args.max_err:
             pass # suppressed
         else:
             if len(args.input) > 1: # several files, should report which one
@@ -140,6 +144,47 @@ def warn(msg, error_type, testlevel=0, testid='some-test', lineno=True, nodeline
                 print("[%sTree number %d on line %d%s%s]: [L%d %s %s] %s" % (fn, tree_counter, sentence_line, sent, node, testlevel, error_type, testid, msg), file=sys.stderr)
 
 
+def validate_first_line(line: str):
+    """
+    Ensures that the first line correctly indicates global.columns and includes the ID and PARSEME:MWE columns.
+    """
+    global COLNAMES, MWE, ID
+    
+    testlevel = 1
+    testclass = 'Format'
+    ok = True
+    
+    COLNAMES = line.split("=")[-1].strip().split()
+    
+    if not "global.columns =" in line:
+        testid = 'invalid-first-line'
+        testmessage = "Spurious first line: '%s'. First line must specify global.columns" % (line)
+        warn(testmessage, testclass, testlevel=testlevel, testid=testid)
+        ok = False
+    
+    try:
+        COLNAMES.index(ID_COLNAME)
+    except ValueError:
+        testid = 'missing-id-column'
+        testmessage = "Spurious first line: '%s'. First line must specify column %s" % (line, ID_COLNAME)
+        warn(testmessage, testclass, testlevel=testlevel, testid=testid)
+        ok = False
+    
+    try:
+        COLNAMES.index(MWE_COLNAME)
+    except ValueError:
+        testid = 'missing-mwe-column'
+        testmessage = "Spurious first line: '%s'. First line must specify column %s" % (line, MWE_COLNAME)
+        warn(testmessage, testclass, testlevel=testlevel, testid=testid)
+        ok = False
+    
+    MWE = COLNAMES.index(MWE_COLNAME)
+    ID = COLNAMES.index(ID_COLNAME)
+    
+    return ok
+    
+    
+    
 ##### Tests applicable to the whole sentence
 
 def validate_mwe_codes(cols: list, tag_sets: dict):
@@ -275,11 +320,16 @@ def trees(inp, tag_sets, args):
     global curr_line, comment_start_line, sentence_line
     comments = [] # List of comment lines to go with the current sentence
     lines = [] # List of token/word lines of the current sentence
+    corrupted = False # In case of wrong number of columns check the remaining lines of the sentence but do not yield the sentence for further processing.
     comment_start_line = None
     # Loop over all lines in the files
     for line_counter, line in enumerate(inp):
         # current line number
         curr_line += 1
+        
+        if line_counter == 0:
+            # Ensures that the first line correctly indicates global.columns and includes the ID and PARSEME:MWE columns.
+            corrupted = not validate_first_line(line)
         
         if not comment_start_line:
             comment_start_line = curr_line
@@ -290,14 +340,16 @@ def trees(inp, tag_sets, args):
         if is_whitespace(line):
             # We will pretend that the line terminates a sentence in order to avoid subsequent misleading error messages.
             if lines:
-                yield comments, lines
+                if not corrupted:
+                    yield comments, lines
                 comments = []
                 lines = []
                 comment_start_line = None
         # empty line
         elif not line: 
             if lines: # sentence done
-                yield comments, lines
+                if not corrupted:
+                    yield comments, lines
                 comments=[]
                 lines=[]
                 comment_start_line = None
@@ -325,7 +377,8 @@ def trees(inp, tag_sets, args):
                 validate_mwe_cols(cols, tag_sets, args.underspecified_mwes)
     else: # end of file
         if comments or lines: # These should have been yielded on an empty line!
-            yield comments, lines
+            if not corrupted:
+                yield comments, lines
 
 
 #==============================================================================
@@ -439,7 +492,7 @@ def validate_mwe_sequence(tree: list) -> None:
         if wrdstrseq != expstrseq:
             testid = 'mwe-sequence'
             testmessage = "MWE keys do not form a sequence. Got '%s'. Expected '%s'." % (wrdstrseq, expstrseq)
-            warn(testmessage, testclass, testlevel=testlevel, testid=testid, lineno=False)     
+            warn(testmessage, testclass, testlevel=testlevel, testid=testid, lineno=False, noterr=True)     
 
         if max(mweid2categ.keys()) > number_tokens: # out of range
             testid = 'mwe-interval-out'
@@ -571,27 +624,6 @@ def cupt2conllu(cupt_input_file: str, conllu_output_file: str) -> None:
         line = next(infile)
 
         colnames = line.split("=")[-1].strip().split()
-        if not "global.columns =" in line:
-            testid = 'invalid-first-line'
-            testmessage = "Spurious first line: '%s'. First line must specify global.columns" % (line)
-            warn(testmessage, testclass, testlevel=testlevel, testid=testid)
-            ok = False
-        
-        try:
-            colnames.index(ID_COLNAME)
-        except ValueError:
-            testid = 'missing-id-column'
-            testmessage = "Spurious first line: '%s'. First line must specify column %s" % (line, ID_COLNAME)
-            warn(testmessage, testclass, testlevel=testlevel, testid=testid)
-            ok = False
-        
-        try:
-            colnames.index(MWE_COLNAME)
-        except ValueError:
-            testid = 'missing-mwe-column'
-            testmessage = "Spurious first line: '%s'. First line must specify column %s" % (line, MWE_COLNAME)
-            warn(testmessage, testclass, testlevel=testlevel, testid=testid)
-            ok = False
         outfile.write(line)
 
         # First tokenization line
@@ -705,7 +737,7 @@ def run_parseme_validation() -> int:
         0 for passed
         1 for failed
     """
-    global DEFAULT_MWE, MWE, ID, COLNAMES, curr_line
+    global DEFAULT_MWE
 
     # Messages
     if not args.quiet:
@@ -736,11 +768,6 @@ def run_parseme_validation() -> int:
                 open_files.append(io.open(fname, 'r', encoding='utf-8'))
 
         for curr_fname, inp in zip(args.input, open_files):
-            line = next(inp)
-            COLNAMES = line.split("=")[-1].strip().split()
-            MWE = COLNAMES.index(MWE_COLNAME)
-            ID = COLNAMES.index(ID_COLNAME)
-            curr_line += 1
             # Parseme validation tests
             validate(inp, args, tagsets)
             inp.close()
@@ -768,7 +795,7 @@ def run_parseme_validation() -> int:
     # Print the final verdict and exit.
     if not parseme_returncode:
         if not args.quiet:
-            print('*** PASSED ***', file=sys.stderr)
+            print('*** PASSED ***')
     else:
         if not args.quiet:
             print('*** FAILED *** with %d errors' % nerror, file=sys.stderr)
@@ -801,16 +828,16 @@ def main():
     if args.level < 1:
         print('Option --level must not be less than 1; changing from %d to 1' % args.level, file=sys.stderr)
         args.level = 1
-
-    # Run UD validation tests
-    ud_returncode = run_ud_validation()
-    # If UD validation tests failed
-    if ud_returncode:
-        return ud_returncode
     
     # Run PARSEME validation tests
     parseme_returncode = run_parseme_validation()
-    return parseme_returncode
+    # If PARSEME validation tests failed
+    if parseme_returncode:
+        return parseme_returncode
+    
+    # Run UD validation tests
+    ud_returncode = run_ud_validation()
+    return ud_returncode
 
 
 if __name__== "__main__":

@@ -176,7 +176,7 @@ class TestFunctionalParsemeValidate(unittest.TestCase):
         
         # MWE keys do not form a sequence '1,3', failed
         test_args = ["--quiet", "--lang", "en", "--level", "2", f"{TEST_DATA}/train13.cupt"]
-        expected_exit_code = 1
+        expected_exit_code = 0
         with patch('sys.argv', ["parseme_validate.py"] + test_args):
             exit_code = main()
             self.assertEqual(exit_code, expected_exit_code)
