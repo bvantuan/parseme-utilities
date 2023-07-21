@@ -105,7 +105,7 @@ done
 
 # A configuration file is required
 if [ ! -n "$config_file" ]; then
-    fail "A configuration file is required!"
+    fail "A configuration file is required using option '-c'!"
 fi
 
 ########################################
