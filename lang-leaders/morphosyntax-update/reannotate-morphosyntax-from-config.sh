@@ -106,6 +106,10 @@ done
 # A configuration file is required
 if [ ! -n "$config_file" ]; then
     fail "A configuration file is required using option '-c'!"
+else
+    if [ ! -f "$config_file" ]; then
+        fail "The configuration file doesn't exist!"
+    fi
 fi
 
 ########################################
@@ -315,9 +319,11 @@ while true; do
         echo "Only two method of synchronisation udpipe and udtreebank are available"
         exit 2
     fi
-    echo ""
-
     # Save the configuration file
-    save_config
+    if [ $? == 0 ]; then
+        save_config
+    fi
+
+    echo ""
 done
 
