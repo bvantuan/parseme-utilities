@@ -1,0 +1,33 @@
+{
+  "language": "PT",
+  "language_repository": "/home/tuan/Documents/parseme_dev/1.4/parseme_corpus_pt",
+  "verbose": false,
+  "source": [
+    {
+      "corpus": "bosque_parseme1.3.cupt",
+      "method": "udtreebank",
+      "treebank": [
+        "/home/tuan/Documents/parseme_dev/1.4/ud-treebanks-v2.12/UD_Portuguese-Bosque"
+      ],
+      "uri": [
+        "http://hdl.handle.net/11234/1-5150"
+      ]
+    },
+    {
+      "corpus": "diario_gaucho_parseme1.3.cupt",
+      "method": "udpipe",
+      "tagger": true,
+      "parser": true
+    },
+    {
+      "corpus": "pt_gsd-ud-train_parseme1.3.cupt",
+      "method": "udtreebank",
+      "treebank": [
+        "/home/tuan/Documents/parseme_dev/1.4/ud-treebanks-v2.11/UD_Portuguese-GSD"
+      ],
+      "uri": [
+        "http://hdl.handle.net/11234/1-4923"
+      ]
+    }
+  ]
+}

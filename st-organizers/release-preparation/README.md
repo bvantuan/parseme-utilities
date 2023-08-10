@@ -17,3 +17,13 @@ This directory contains scripts used to prepare the PARSEME corpora releases in 
 * `correct-multiword-tokens.py` removes any MWE annotation from multiword tokens (ranges), propagate it onto the corresponding words that are part of the multiword token.
 
 * `add_unseen_stats.sh` adds statistics about unseen MWEs to the stats files when present in the log files.
+
+* `reannotate-morphosyntax.sh` reannotates the morphosyntax in a .cupt file from framework Universal Dependencies (UD)(treebanks or latest UDPipe model). Any existing information other than tokenisation and MWE annotation (columns 1, 2 and 11) will be overwritten. The resulting .cupt files are placed in the directory 'REANNOTATION' which is under the same directory as the input files, with extension .new.cupt.
+
+* `reannotate-morphosyntax-from-config.sh` is the same functionality as the script `reannotate-morphosyntax.sh`, but more user-friendly as all parameters are placed in a configuration file.
+
+* `parseme_validate.py` is a CUPT validation script. The validation tests are organized to three levels.
+  * Level 1: Test only the CUPT backbone: order of lines, newline encoding, core tests that check the file integrity.
+  * Level 2: PARSEME and UD contents.
+  * Level 3: PARSEME releases: NotMWE tag excluded, more constraints on metadata.
+
