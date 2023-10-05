@@ -274,10 +274,10 @@ while true; do
     # udtreebank method
     if [ ${source_files_parameters[$choice"|method"]} == "udtreebank" ]; then
         # Prompt the user for treebanks input
-        echo "Directories of treebanks of Universal Dependencies (UD) synchronized with the $choice corpus: [${source_files_parameters[$source_file"|treebanks"]}] "
+        echo "Directories of treebanks of Universal Dependencies (UD) synchronized with the $choice corpus: [${source_files_parameters[$choice"|treebanks"]}] "
         read -a treebanks_input
         if [ "${#treebanks_input[@]}" -eq 0 ]; then
-            read -a treebanks_input <<< ${source_files_parameters[$source_file"|treebanks"]}
+            read -a treebanks_input <<< ${source_files_parameters[$choice"|treebanks"]}
         else
             for treebank in "${treebanks_input[@]}"; do
                 if [ ! -d "$treebank" ]; then
@@ -288,10 +288,10 @@ while true; do
         fi
 
         # Prompt the user for uris
-        echo "The persistent URIs of the original UD treebanks: [${source_files_parameters[$source_file"|uris"]}] " 
+        echo "The persistent URIs of the original UD treebanks: [${source_files_parameters[$choice"|uris"]}] " 
         read -a uris_input
         if [ "${#uris_input[@]}" -eq 0 ]; then
-            read -a uris_input <<< ${source_files_parameters[$source_file"|uris"]}
+            read -a uris_input <<< ${source_files_parameters[$choice"|uris"]}
         fi
     fi
 
@@ -303,7 +303,7 @@ while true; do
     if [ ${source_files_parameters[$choice"|method"]} == "udtreebank" ]; then
         # Run the script reannotate-morphosyntax.sh
         if $verbose_input; then
-            echo "${REANNOTATION_MORPHOSYNTAX} --language $language_input ${source_files_parameters_in_line[$choice]} --treebank ${treebanks_input[@]} --uri ${uris_input[@]}--verbose"
+            echo "${REANNOTATION_MORPHOSYNTAX} --language $language_input ${source_files_parameters_in_line[$choice]} --treebank ${treebanks_input[@]} --uri ${uris_input[@]} --verbose"
             ${REANNOTATION_MORPHOSYNTAX} --language $language_input ${source_files_parameters_in_line[$choice]} --treebank ${treebanks_input[@]} --uri ${uris_input[@]} --verbose
         else
             echo "${REANNOTATION_MORPHOSYNTAX} --language $language_input ${source_files_parameters_in_line[$choice]} --treebank ${treebanks_input[@]} --uri ${uris_input[@]}"
