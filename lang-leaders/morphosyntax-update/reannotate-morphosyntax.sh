@@ -687,6 +687,8 @@ reannotate_udtreebank() {
     # copy the old annotation to a temporary file to keep the file unchanged
     cp $source_corpus $old_cupt
 
+    # Declare an empty array: all UD treebanks were used for updating the morphosyntax
+    declare -a UD_treebanks_used=()
     # count the line number while reading
     declare -i count_line_number=1
     # The number of sentences is updated for the morphosyntax during the synchronisarion from UD treebank
@@ -875,6 +877,10 @@ reannotate_udtreebank() {
                     echo "$ud_sent_id" >> $existing_sentence_ids
                     # The number of sentences that are updated increases
                     nb_sentences_updated_morpho=$((nb_sentences_updated_morpho+1))
+                    # UD treebank was used
+                    if ! is_element_in_array "$ud_corpus" "${UD_treebanks_used[@]}"; then
+                        UD_treebanks_used+=("$ud_corpus")
+                    fi
                 # The tokenizations are different in the two versions
                 else
                     bold_echo "========================================================================================"
@@ -891,7 +897,7 @@ reannotate_udtreebank() {
                     # loop through each line in the columns variable
                     while read -r id token MWE_annotation; do
                         # add the id-token pair to the associative array
-                        id_source_token[$id]=$token
+                        id_source_token["$id"]=$token
                         # add the id-MWE_annotation pair to another associative array
                         id_source_MWE_annotation[$id]=$MWE_annotation
                     done <<< "$source_tokens_with_id_and_MWE_annotation"
@@ -980,6 +986,10 @@ reannotate_udtreebank() {
                             echo "$ud_sent_id" >> $existing_sentence_ids
                             # The number of sentences that are updated increases
                             nb_sentences_updated_token_and_morpho=$((nb_sentences_updated_token_and_morpho+1))
+                            # UD treebank was used
+                            if ! is_element_in_array "$ud_corpus" "${UD_treebanks_used[@]}"; then
+                                UD_treebanks_used+=("$ud_corpus")
+                            fi
 
                             bold_echo ""
                             bold_echo "===> You have indicated YES for the tokenization and morphosyntax update in case the tokenization has changed in the UD version"
@@ -1050,6 +1060,13 @@ reannotate_udtreebank() {
     echo_and_bold_echo "===> $nb_sentences_updated_token_and_morpho sentences are updated automatically for the tokenization and the morphosyntax with the different tokenization in the UD"
     echo_and_bold_echo "===> $nb_sentences_found_not_updated sentences are not updated automatically with the different tokenization in the UD because of the non agreement of the user"
     echo_and_bold_echo "===> $nb_sentences_to_correct sentences need to be corrected manually for the changed tokenization"
+    echo_and_bold_echo "========================================================================================"
+
+    echo_and_bold_echo "===> The following is a comprehensive list of UD treebanks utilized for morphosyntactic updates:"
+    # print all the UD treebanks used
+    for corpus in "${UD_treebanks_used[@]}"; do
+        echo_and_bold_echo "$corpus"
+    done
     echo_and_bold_echo "========================================================================================"
 
     # validate the new format .cupt
