@@ -1262,6 +1262,12 @@ function install_packages() {
         echo "Installing wdiff package"
         sudo apt-get install wdiff
     fi
+
+     # Check if the curl package is installed
+    if ! command -v curl >/dev/null 2>&1; then
+        echo "Installing curl package"
+        sudo apt-get install curl
+    fi
     echo "========================================================================================"
 }
 
