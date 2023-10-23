@@ -1447,7 +1447,7 @@ class ConllupIterator(AbstractFileIterator):
         if len(data) != len(self.corpusinfo.colnames):
             self.warn("Line has {n} columns, not {n_exp}", n=len(data), n_exp=len(self.corpusinfo.colnames))
         tokendict = dict(zip(self.corpusinfo.colnames, data))
-        mwe_codes = tokendict.pop('PARSEME:MWE') or "_"
+        mwe_codes = tokendict.pop('PARSEME:MWE', "_")
         m = mwe_codes.split(";") if mwe_codes not in "_*" else []
         return Token(tokendict), m
 
