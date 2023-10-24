@@ -673,11 +673,11 @@ reannotate_udtreebank() {
     shift
     ud_treebanks="$@"
     # generating all intermediate file names
-    file=`basename $source_corpus .cupt`   # remove suffix starting with "_"
+    cupt_filename=`basename $source_corpus .cupt`   # remove suffix starting with "_"
     # old annotaion (temporary file)
-    old_cupt=$REANNOT_DIR/$file.old.cupt
+    old_cupt=$REANNOT_DIR/$cupt_filename.old.cupt
     # new annotation file
-    new_cupt=$REANNOT_DIR/$file.new.cupt
+    new_cupt=$REANNOT_DIR/$cupt_filename.new.cupt
 
     bold_echo "===> Started at: `date`" 
     bold_echo "===> Generating: $new_cupt"
@@ -704,7 +704,7 @@ reannotate_udtreebank() {
     # The number of sentences is updated for the tokenization and the morphosyntax during the synchronisarion from UD treebank
     declare -i nb_sentences_updated_token_and_morpho=0
     # existing sentence identifiers
-    existing_sentence_ids="$REANNOT_DIR/existing-sentence-ids-$filename.tmp.txt"
+    existing_sentence_ids="$REANNOT_DIR/existing-sentence-ids-$cupt_filename.tmp.txt"
     # Re-create an empty file
     > $existing_sentence_ids
 
@@ -1041,7 +1041,7 @@ reannotate_udtreebank() {
     rm -f $old_cupt $existing_sentence_ids
 
     # log sentence ids not found
-    LOG_SENTENCES_NOT_FOUND="$REANNOT_DIR/sentence-ids-not-found-$filename.txt"
+    LOG_SENTENCES_NOT_FOUND="$REANNOT_DIR/sentence-ids-not-found-$cupt_filename.txt"
     log_sentences_not_found "$LOG_SENTENCES_NOT_FOUND" "${sentences_not_found[@]}" 
 
     echo_and_bold_echo "========================================================================================"
