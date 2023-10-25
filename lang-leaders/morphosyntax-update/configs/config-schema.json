@@ -1,0 +1,70 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Schema configuration file for the re-annotation script",
+  "type": "object",
+  "properties": {
+    "language": {
+      "description": "2-letter iso code of the language",
+      "type": "string",
+      "pattern": "^[A-Z]{2}$"
+    },
+    "language_repository": {
+      "description": "The language repository path in local",
+      "type": "string",
+      "minLength": 1
+    },
+    "verbose": {
+      "description": "The verbose option, display detailed processing information",
+      "type": "boolean"
+    },
+    "source": {
+      "description": "Files .cupt to reannotate",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "corpus": {
+            "description": "A file .cupt to reannotate",
+            "type": "string",
+            "pattern": "^.*\\.cupt$"
+          },
+          "method": {
+            "description": "Method of reannotation (supported udtreebank and udpipe)",
+            "type": "string",
+            "enum": ["udpipe", "udtreebank"]
+          },
+          "tagger": {
+            "description": "Reannotate columns LEMMA, UPOS, XPOS and FEATS in udpipe method",
+            "type": "boolean"
+          },
+          "parser": {
+            "description": "Reannotate columns HEAD and DEPREL in udpipe method",
+            "type": "boolean"
+          },
+          "treebank": {
+            "description": "Directories of treebanks of Universal Dependencies (UD)",
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 1,
+            "uniqueItems": true
+          },
+          "uri": {
+            "description": "The persistent URIs of the original UD treebanks",
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 1
+          }
+        },
+        "required": ["corpus", "method"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": ["language", "language_repository", "verbose", "source"]
+}

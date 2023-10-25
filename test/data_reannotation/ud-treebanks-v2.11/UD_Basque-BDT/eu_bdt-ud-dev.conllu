@@ -1,0 +1,73 @@
+# sent_id = dev-s1
+# text = Atenasen ordea, beste bost jarduera gehiago izan daitezke.
+1	Atenasen	Atenas	PROPN	_	Case=Ine|Definite=Def|Number=Sing	8	obl	_	_
+2	ordea	ordea	CCONJ	_	_	8	advmod	_	SpaceAfter=No
+3	,	,	PUNCT	_	_	2	punct	_	_
+4	beste	beste	DET	_	_	6	det	_	_
+5	bost	bost	NUM	_	NumType=Card	6	nummod	_	_
+6	jarduera	jarduera	NOUN	_	Case=Abs|Definite=Ind	8	nsubj	_	_
+7	gehiago	gehiago	DET	_	Case=Abs|Definite=Ind	6	det	_	_
+8	izan	izan	VERB	_	Aspect=Perf|VerbForm=Part	0	root	_	_
+9	daitezke	edin	AUX	_	Mood=Pot|Number[abs]=Plur|Person[abs]=3|VerbForm=Fin	8	aux	_	ReconstructedLemma=Yes|SpaceAfter=No
+10	.	.	PUNCT	_	_	8	punct	_	_
+
+# sent_id = dev-s2
+# text = O.G.M. adin txikikoa aske irten da Langraiztik.
+1	O.G.M.	O.G.M.	PROPN	_	_	2	nmod	_	_
+2	adin	adin	NOUN	_	_	5	nsubj	_	_
+3	txikikoa	txiki	NOUN	_	Case=Abs|Definite=Def|Number=Sing	2	nmod	_	_
+4	aske	aske	ADV	_	_	5	advmod	_	_
+5	irten	irten	VERB	_	Aspect=Perf|VerbForm=Part	0	root	_	_
+6	da	izan	AUX	_	Mood=Ind|Number[abs]=Sing|Person[abs]=3|VerbForm=Fin	5	aux	_	_
+7	Langraiztik	Langraiz	PROPN	_	Case=Abl|Definite=Def|Number=Sing	5	obl	_	SpaceAfter=No
+8	.	.	PUNCT	_	_	5	punct	_	_
+
+# sent_id = dev-s1552
+# text = Joan den udaberrian Itziar Imazek salaketa ezarri zuen auzitegietan, admnistrazioak bertan bizitzeko derrigorrezko paperak ematen ez zizkiola eta.
+1	Joan	joan	VERB	_	Aspect=Perf|VerbForm=Part	3	acl	_	_
+2	den	izan	AUX	_	Mood=Ind|Number[abs]=Sing|Person[abs]=3|VerbForm=Fin	1	aux	_	_
+3	udaberrian	udaberri	NOUN	_	Case=Ine|Definite=Def|Number=Sing	7	obl	_	_
+4	Itziar	Itziar	PROPN	_	_	7	nsubj	_	_
+5	Imazek	Imaz	PROPN	_	Case=Erg|Definite=Def|Number=Sing	4	flat	_	_
+6	salaketa	salaketa	NOUN	_	Case=Abs|Definite=Def|Number=Sing	7	obj	_	_
+7	ezarri	ezarri	VERB	_	Aspect=Perf|VerbForm=Part	0	root	_	_
+8	zuen	edun	AUX	_	Mood=Ind|Number[abs]=Sing|Number[erg]=Sing|Person[abs]=3|Person[erg]=3|VerbForm=Fin	7	aux	_	ReconstructedLemma=Yes
+9	auzitegietan	auzitegi	NOUN	_	Animacy=Inan|Case=Ine|Definite=Def|Number=Plur	7	obl	_	SpaceAfter=No
+10	,	,	PUNCT	_	_	16	punct	_	_
+11	admnistrazioak	admnistrazio	NOUN	_	Case=Erg|Definite=Def|Number=Sing	16	nsubj	_	_
+12	bertan	bertan	ADV	_	_	13	advmod	_	_
+13	bizitzeko	bizitu	VERB	_	Case=Abs|Definite=Ind|VerbForm=Fin	16	advcl	_	_
+14	derrigorrezko	derrigorrezko	ADJ	_	_	15	amod	_	_
+15	paperak	paper	NOUN	_	Animacy=Inan|Case=Abs|Definite=Def|Number=Plur	16	obj	_	_
+16	ematen	eman	VERB	_	Aspect=Imp|VerbForm=Inf	7	advcl	_	_
+17	ez	ez	PART	_	Polarity=Neg	16	advmod	_	_
+18	zizkiola	edun	AUX	_	Mood=Ind|Number[abs]=Plur|Number[dat]=Sing|Number[erg]=Sing|Person[abs]=3|Person[dat]=3|Person[erg]=3|VerbForm=Fin	16	aux	_	ReconstructedLemma=Yes
+19	eta	eta	CCONJ	_	_	16	mark	_	SpaceAfter=No
+20	.	.	PUNCT	_	_	7	punct	_	_
+
+# sent_id = dev-s3
+# text = Gure etxea, egun batean, ordu batzuetan, zeharo aldatu zen.
+1	Gure	gu	PRON	_	PronType=Prs	2	nmod	_	_
+2	etxea	etxe	NOUN	_	Animacy=Inan|Case=Abs|Definite=Def|Number=Sing	11	obj	_	SpaceAfter=No
+3	,	,	PUNCT	_	_	2	punct	_	_
+4	egun	egun	NOUN	_	_	11	obl	_	_
+5	batean	bat	NUM	_	NumType=Card	4	nummod	_	SpaceAfter=No
+6	,	,	PUNCT	_	_	7	punct	_	_
+7	ordu	ordu	NOUN	_	_	4	appos	_	_
+8	batzuetan	batzuk	DET	_	Case=Ine|Definite=Def|Number=Plur	7	det	_	SpaceAfter=No
+9	,	,	PUNCT	_	_	4	punct	_	_
+10	zeharo	zeharo	ADV	_	_	11	advmod	_	_
+11	aldatu	aldatu	VERB	_	Aspect=Perf|VerbForm=Part	0	root	_	_
+12	zen	izan	AUX	_	Mood=Ind|Number[abs]=Sing|Person[abs]=3|VerbForm=Fin	11	aux	_	SpaceAfter=No
+13	.	.	PUNCT	_	_	11	punct	_	_
+
+# sent_id = dev-s4
+# text = Bigarren marrazkian agertzen den muntaia egizu.
+1	Bigarren	bigarren	ADJ	_	NumType=Ord	2	amod	_	_
+2	marrazkian	marrazki	NOUN	_	Animacy=Inan|Case=Ine|Definite=Def|Number=Sing	3	obl	_	_
+3	agertzen	agertu	VERB	_	Aspect=Imp|VerbForm=Inf	5	acl	_	_
+4	den	izan	AUX	_	Mood=Ind|Number[abs]=Sing|Person[abs]=3|VerbForm=Fin	3	aux	_	_
+5	muntaia	muntaia	NOUN	_	Case=Abs|Definite=Def|Number=Sing	6	obj	_	_
+6	egizu	egin	VERB	_	Aspect=Prog|Mood=Imp|Number[abs]=Sing|Number[erg]=Plur|Person[abs]=3|Person[erg]=1|VerbForm=Fin	0	root	_	SpaceAfter=No
+7	.	.	PUNCT	_	_	6	punct	_	_
+

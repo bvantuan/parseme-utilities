@@ -1,0 +1,66 @@
+# global.columns = ID FORM LEMMA UPOS XPOS FEATS HEAD DEPREL DEPS MISC PARSEME:MWE
+# source_sent_id = . . 2289
+# text = When he joined the group, they were listening to her.
+1	When	when	SCONJ	_	_	3	mark	_	_	*
+2	he	he	PRON	PERS-P3SG-NOM	_	3	nsubj	_	_	*
+3	joined	join	VERB	PAST	_	9	advcl	_	_	*
+4	the	the	DET	DEF	_	5	det	_	_	*
+5	group	group	NOUN	SG-NOM	_	3	obj	_	SpaceAfter=No	*
+6	,	,	PUNCT	Comma	_	3	punct	_	_	*
+7	they	they	PRON	PERS-PL-NOM	_	9	nsubj	_	_	*
+8	were	be	AUX	PAST	_	9	aux	_	_	*
+9	listening	listen	VERB	ING	_	0	root	_	_	*
+10	to	to	ADP	_	_	11	case	_	_	*
+11	her	she	PRON	PERS-P3SG-ACC	_	9	obl	_	SpaceAfter=No	*
+12	.	.	PUNCT	Period	_	9	punct	_	_	*
+
+# source_sent_id = . . 2290
+# text = We don't have to argue; we can take it that colonialism is indefensible, for us, no?
+1	We	we	PRON	PERS-P1PL-NOM	_	6	nsubj	_	_	*
+2	do	do	AUX	PRES-AUX	_	6	aux	_	SpaceAfter=No	*
+3	n't	not	PART	NEG	_	6	advmod	_	_	*
+4	have	have	AUX	INF-AUX	_	6	aux	_	_	*
+5	to	to	PART	_	_	6	mark	_	_	*
+6	argue	argue	VERB	INF	_	0	root	_	SpaceAfter=No	*
+7	;	;	PUNCT	Semicolon	_	2	punct	_	_	*
+8	we	we	PRON	PERS-P1PL-NOM	_	10	nsubj	_	_	*
+9	can	can	AUX	PRES-AUX	_	10	aux	_	_	*
+10	take	take	VERB	INF	_	6	advcl	_	_	1:VID
+11	it	it	PRON	PERS-SG	_	10	obj	_	_	1
+12	that	that	SCONJ	_	_	15	mark	_	_	*
+13	colonialism	colonialism	NOUN	SG-NOM	_	15	nsubj	_	_	*
+14	is	be	AUX	PRES	_	15	cop	_	_	*
+15	indefensible	indefensible	ADJ	POS	_	10	obj	_	SpaceAfter=No	*
+16	,	,	PUNCT	Comma	_	18	punct	_	_	*
+17	for	for	ADP	_	_	18	case	_	_	*
+18	us	we	PRON	PERS-P1PL-ACC	_	6	appos	_	SpaceAfter=No	*
+19	,	,	PUNCT	Comma	_	17	punct	_	_	*
+20	no	no	INTJ	_	_	10	parataxis	_	SpaceAfter=No	*
+21	?	?	PUNCT	Questionmark	_	15	punct	_	_	*
+
+# source_sent_id = . . answers-20111108104551AAVAVQR_ans-0026
+# text = Turn the water temp up to 82 degrees
+1	Turn	turn	VERB	VB	Mood=Imp|VerbForm=Fin	0	root	0:root	_	*
+2	the	the	DET	DT	Definite=Def|PronType=Art	4	det	4:det	_	*
+3	water	water	NOUN	NN	Number=Sing	4	compound	4:compound	_	*
+4	temp	temp	NOUN	NN	Number=Sing	1	obj	1:obj	_	*
+5	up	up	ADP	RP	_	1	compound:prt	1:compound:prt	_	*
+6	to	to	ADP	IN	_	8	case	8:case	_	*
+7	82	82	NUM	CD	NumType=Card	8	nummod	8:nummod	_	*
+8	degrees	degree	NOUN	NNS	Number=Plur	1	obl	1:obl	_	*
+
+# source_sent_id = . . answers-20111108105029AARU1Lf_ans-0002
+# text = I have a 1 1/2 year old female calico.
+1	I	I	PRON	PRP	Case=Nom|Number=Sing|Person=1|PronType=Prs	2	nsubj	2:nsubj	_	*
+2	have	have	VERB	VBP	Mood=Ind|Tense=Pres|VerbForm=Fin	0	root	0:root	_	*
+3	a	a	DET	DT	Definite=Ind|PronType=Art	11	det	11:det	_	*
+4	1	1	NUM	CD	NumType=Card	7	compound	7:compound	_	*
+5	1	1	NUM	CD	NumType=Card	7	compound	7:compound	SpaceAfter=No	*
+6	/	/	PUNCT	HYPH	_	7	punct	7:punct	SpaceAfter=No	*
+7	2	2	NUM	CD	NumType=Card	8	nummod	8:nummod	_	*
+8	year	year	NOUN	NN	Number=Sing	9	obl:npmod	9:obl:npmod	_	*
+9	old	old	ADJ	JJ	Degree=Pos	11	amod	11:amod	_	*
+10	female	female	ADJ	JJ	Degree=Pos	11	amod	11:amod	_	*
+11	calico	calico	NOUN	NN	Number=Sing	2	obj	2:obj	SpaceAfter=No	*
+12	.	.	PUNCT	.	_	2	punct	2:punct	_	*
+

@@ -1,0 +1,16 @@
+{
+  "all": [
+    "IAV",
+    "IRV",
+    "LVC.cause",
+    "LVC.full",
+    "MVC",
+    "NotMWE",
+    "VID",
+    "VPC.full",
+    "VPC.semi"
+ ],
+ "it": [
+    "LS.ICV"
+ ]
+}

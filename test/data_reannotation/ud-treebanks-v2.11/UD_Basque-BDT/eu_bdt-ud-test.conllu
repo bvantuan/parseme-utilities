@@ -1,0 +1,86 @@
+# sent_id = test-s1
+# text = Familian, aldiz, ez da inolako hazkunderik antzematen euskararen erabileran, elebidun gazteenen gurasoak erdaldunak direlako oraindik.
+1	Familian	familia	NOUN	_	Animacy=Inan|Case=Ine|Definite=Def|Number=Sing	9	obl	_	SpaceAfter=No
+2	,	,	PUNCT	_	_	1	punct	_	_
+3	aldiz	aldiz	CCONJ	_	_	9	advmod	_	SpaceAfter=No
+4	,	,	PUNCT	_	_	3	punct	_	_
+5	ez	ez	PART	_	Polarity=Neg	9	advmod	_	_
+6	da	izan	AUX	_	Mood=Ind|Number[abs]=Sing|Person[abs]=3|VerbForm=Fin	9	aux	_	_
+7	inolako	inolako	ADJ	_	_	8	amod	_	_
+8	hazkunderik	hazkunde	NOUN	_	Case=Par|Definite=Ind	9	nsubj	_	_
+9	antzematen	antzeman	VERB	_	Aspect=Imp|VerbForm=Inf	0	root	_	_
+10	euskararen	euskara	NOUN	_	Animacy=Inan|Case=Gen|Definite=Def|Number=Sing	11	nmod	_	_
+11	erabileran	erabilera	NOUN	_	Case=Ine|Definite=Def|Number=Sing	9	obl	_	SpaceAfter=No
+12	,	,	PUNCT	_	_	16	punct	_	_
+13	elebidun	elebidun	NOUN	_	_	15	nmod	_	_
+14	gazteenen	gazte	ADJ	_	Case=Gen|Definite=Def|Degree=Sup|Number=Plur	13	nmod	_	_
+15	gurasoak	guraso	NOUN	_	Case=Abs|Definite=Def|Number=Plur	16	nsubj	_	_
+16	erdaldunak	erdaldun	ADJ	_	Case=Abs|Definite=Def|Number=Plur	9	advcl	_	_
+17	direlako	izan	AUX	_	Aspect=Prog|Mood=Ind|Number[abs]=Plur|Person[abs]=3|VerbForm=Fin	16	cop	_	_
+18	oraindik	oraindik	ADV	_	_	16	advmod	_	SpaceAfter=No
+19	.	.	PUNCT	_	_	9	punct	_	_
+
+# sent_id = test-s2
+# text = Luxenburgoko agintari politikoek ziurtatu zuten eskari hau onartzeko prest zeudela eta hegazkin txiki bat zain zegoela Findeleko aireportuan.
+1	Luxenburgoko	Luxenburgo	PROPN	_	Case=Loc|Definite=Def|Number=Sing	2	nmod	_	_
+2	agintari	agintari	NOUN	_	_	4	nsubj	_	_
+3	politikoek	politiko	ADJ	_	Case=Erg|Definite=Def|Number=Plur	2	amod	_	_
+4	ziurtatu	ziurtatu	VERB	_	Aspect=Perf|VerbForm=Part	0	root	_	_
+5	zuten	edun	AUX	_	Mood=Ind|Number[abs]=Sing|Number[erg]=Plur|Person[abs]=3|Person[erg]=3|VerbForm=Fin	4	aux	_	ReconstructedLemma=Yes
+6	eskari	eskari	NOUN	_	_	8	obj	_	_
+7	hau	hau	DET	_	Case=Abs|Definite=Def|Number=Sing	6	det	_	_
+8	onartzeko	onartu	VERB	_	Case=Loc|VerbForm=Fin	10	xcomp	_	_
+9	prest	prest	ADJ	_	Case=Abs|Definite=Ind	10	compound	_	_
+10	zeudela	egon	VERB	_	VerbForm=Fin	4	ccomp	_	_
+11	eta	eta	CCONJ	_	_	16	cc	_	_
+12	hegazkin	hegazkin	NOUN	_	_	16	nsubj	_	_
+13	txiki	txiki	ADJ	_	_	12	amod	_	_
+14	bat	bat	NUM	_	NumType=Card	12	nummod	_	_
+15	zain	zain	ADV	_	_	16	advmod	_	_
+16	zegoela	egon	VERB	_	Aspect=Prog|Mood=Ind|Number[abs]=Sing|Person[abs]=3|VerbForm=Fin	10	conj	_	_
+17	Findeleko	Findel	PROPN	_	Case=Loc|Definite=Def|Number=Sing	18	nmod	_	_
+18	aireportuan	aireportu	NOUN	_	Case=Ine|Definite=Def|Number=Sing	16	obl	_	SpaceAfter=No
+19	.	.	PUNCT	_	_	4	punct	_	_
+
+# sent_id = test-s3
+# text = Arazoa da ez daudela instituzioak arau horiek betetzen diren bermatzeko.
+1	Arazoa	arazo	NOUN	_	Animacy=Inan|Case=Abs|Definite=Def|Number=Sing	2	nsubj	_	_
+2	da	izan	VERB	_	Aspect=Prog|Mood=Ind|Number[abs]=Sing|Person[abs]=3|VerbForm=Fin	0	root	_	_
+3	ez	ez	PART	_	Polarity=Neg	4	advmod	_	_
+4	daudela	egon	VERB	_	Aspect=Prog|Mood=Ind|Number[abs]=Plur|Person[abs]=3|VerbForm=Fin	2	ccomp	_	_
+5	instituzioak	instituzio	NOUN	_	Animacy=Inan|Case=Abs|Definite=Def|Number=Plur	4	nsubj	_	_
+6	arau	arau	NOUN	_	_	8	obj	_	_
+7	horiek	horiek	DET	_	Case=Abs|Definite=Def|Number=Plur	6	det	_	_
+8	betetzen	bete	VERB	_	Aspect=Imp|VerbForm=Inf	10	ccomp	_	_
+9	diren	izan	AUX	_	Mood=Ind|Number[abs]=Plur|Person[abs]=3|VerbForm=Fin	8	aux	_	_
+10	bermatzeko	bermatu	VERB	_	Case=Abs|Definite=Ind|VerbForm=Fin	4	advcl	_	SpaceAfter=No
+11	.	.	PUNCT	_	_	2	punct	_	_
+
+# sent_id = test-s4
+# text = Ipuin polit baten bukaera da hau, zoritxarrez.
+1	Ipuin	ipuin	NOUN	_	_	4	nmod	_	_
+2	polit	polit	ADJ	_	_	1	amod	_	_
+3	baten	bat	NUM	_	NumType=Card	1	nummod	_	_
+4	bukaera	bukaera	NOUN	_	Animacy=Inan|Case=Abs|Definite=Def|Number=Sing	0	root	_	_
+5	da	izan	AUX	_	Aspect=Prog|Mood=Ind|Number[abs]=Sing|Person[abs]=3|VerbForm=Fin	4	cop	_	_
+6	hau	hau	DET	_	Case=Abs|Definite=Def|Number=Sing	4	nsubj	_	SpaceAfter=No
+7	,	,	PUNCT	_	_	8	punct	_	_
+8	zoritxarrez	zoritxarrez	ADV	_	_	4	advmod	_	SpaceAfter=No
+9	.	.	PUNCT	_	_	4	punct	_	_
+
+# sent_id = test-s5
+# text = Lehen saria 50.000 pezetakoa izanen da, bigarrena 25.000koa eta hirugarrena 15.000koa.
+1	Lehen	lehen	ADJ	_	NumType=Ord	2	amod	_	_
+2	saria	sari	NOUN	_	Animacy=Inan|Case=Abs|Definite=Def|Number=Sing	4	nsubj	_	_
+3	50.000	50.000	NUM	_	NumType=Card	4	nummod	_	_
+4	pezetakoa	pezeta	NOUN	_	Animacy=Inan|Case=Abs|Definite=Def|Number=Sing	0	root	_	_
+5	izanen	izan	AUX	_	Aspect=Prosp|VerbForm=Part	4	cop	_	_
+6	da	izan	AUX	_	Mood=Ind|Number[abs]=Sing|Person[abs]=3|VerbForm=Fin	4	aux	_	SpaceAfter=No
+7	,	,	PUNCT	_	_	8	punct	_	_
+8	bigarrena	bigarren	ADJ	_	NumType=Ord	4	conj	_	_
+9	25.000koa	25.000	NUM	_	NumType=Card	8	orphan	_	_
+10	eta	eta	CCONJ	_	_	11	cc	_	_
+11	hirugarrena	hirugarren	ADJ	_	NumType=Ord	4	conj	_	_
+12	15.000koa	15.000	NUM	_	NumType=Card	11	orphan	_	SpaceAfter=No
+13	.	.	PUNCT	_	_	4	punct	_	_
+

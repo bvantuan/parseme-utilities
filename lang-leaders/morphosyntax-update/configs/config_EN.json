@@ -1,0 +1,35 @@
+{
+  "language": "EN",
+  "language_repository": "/home/tuan/Documents/parseme_dev/1.4/parseme_corpus_en",
+  "verbose": false,
+  "source": [
+    {
+      "corpus": "train.cupt",
+      "method": "udtreebank",
+      "treebank": [
+        "/home/tuan/Documents/parseme_dev/1.4/ud-treebanks-v2.12/UD_English-EWT",
+        "/home/tuan/Documents/parseme_dev/1.4/ud-treebanks-v2.12/UD_English-LinES",
+        "/home/tuan/Documents/parseme_dev/1.4/ud-treebanks-v2.12/UD_English-PUD"
+      ],
+      "uri": [
+        "http://hdl.handle.net/11234/1-5150",
+        "http://hdl.handle.net/11234/1-5150",
+        "http://hdl.handle.net/11234/1-5150"
+      ]
+    },
+    {
+      "corpus": "test.cupt",
+      "method": "udtreebank",
+      "treebank": [
+        "/home/tuan/Documents/parseme_dev/1.4/ud-treebanks-v2.12/UD_English-EWT",
+        "/home/tuan/Documents/parseme_dev/1.4/ud-treebanks-v2.12/UD_English-LinES",
+        "/home/tuan/Documents/parseme_dev/1.4/ud-treebanks-v2.12/UD_English-PUD"
+      ],
+      "uri": [
+        "http://hdl.handle.net/11234/1-5150",
+        "http://hdl.handle.net/11234/1-5150",
+        "http://hdl.handle.net/11234/1-5150"
+      ]
+    }
+  ]
+}

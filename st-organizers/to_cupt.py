@@ -34,7 +34,7 @@ class Main:
         self.counter = {}
 
     def run(self):
-        self.conllu_paths = self.args.conllu or dataalign.calculate_conllu_paths(self.args.input)
+        self.conllu_paths = self.args.conllu or dataalign.calculate_conllu_paths(self.args.input, False)
         iaf = dataalign.IterAlignedFiles(
             self.args.lang, self.args.input, self.conllu_paths,
             keep_nvmwes=(not self.args.discard_non_mwes), debug=self.args.debug)

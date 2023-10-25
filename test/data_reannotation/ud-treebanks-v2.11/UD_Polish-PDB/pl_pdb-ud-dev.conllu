@@ -1,0 +1,92 @@
+# sent_id = dev-s1251
+# text = O przyczynie śmierci kolegi niewiele potrafią powiedzieć, ale domyślają się, jak mogła ona wyglądać.
+# orig_file_sentence = 120-4-900001_morph_35.17-s#3220
+1	O	o	ADP	prep:loc	AdpType=Prep	2	case	2:case	Case=Loc
+2	przyczynie	przyczyna	NOUN	subst:sg:loc:f	Case=Loc|Gender=Fem|Number=Sing	7	obl:arg	7:obl:arg	_
+3	śmierci	śmierć	NOUN	subst:sg:gen:f	Case=Gen|Gender=Fem|Number=Sing	2	nmod	2:nmod	_
+4	kolegi	kolega	NOUN	subst:sg:gen:m1	Animacy=Hum|Case=Gen|Gender=Masc|Number=Sing	3	nmod	3:nmod	_
+5	niewiele	niewiele	DET	num:pl:acc:n:rec:ncol	Case=Acc|Gender=Neut|Number=Plur|NumType=Card|PronType=Ind	7	obj	7:obj	_
+6	potrafią	potrafić	VERB	fin:pl:ter:imperf	Aspect=Imp|Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin|Voice=Act	0	root	0:root	_
+7	powiedzieć	powiedzieć	VERB	inf:perf	Aspect=Perf|VerbForm=Inf|Voice=Act	6	xcomp	6:xcomp	SpaceAfter=No
+8	,	,	PUNCT	interp	PunctType=Comm	10	punct	10:punct	_
+9	ale	ale	CCONJ	conj	_	10	cc	10:cc	_
+10	domyślają	domyślać	VERB	fin:pl:ter:imperf	Aspect=Imp|Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin|Voice=Act	6	conj	0:root|6:conj	_
+11	się	się	PRON	part	PronType=Prs|Reflex=Yes	10	expl:pv	10:expl:pv	SpaceAfter=No
+12	,	,	PUNCT	interp	PunctType=Comm	14	punct	14:punct	_
+13	jak	jak	ADV	adv:pos	Degree=Pos|PronType=Int	14	advmod	14:advmod	_
+14	mogła	móc	VERB	praet:sg:f:imperf	Aspect=Imp|Gender=Fem|Mood=Ind|Number=Sing|Tense=Past|VerbForm=Fin|Voice=Act	10	ccomp	10:ccomp	_
+15	ona	on	PRON	ppron3:sg:nom:f:ter:akc:npraep	Case=Nom|Gender=Fem|Number=Sing|Person=3|PrepCase=Npr|PronType=Prs|Variant=Long	14	nsubj	14:nsubj	_
+16	wyglądać	wyglądać	VERB	inf:imperf	Aspect=Imp|VerbForm=Inf|Voice=Act	14	xcomp	14:xcomp	SpaceAfter=No
+17	.	.	PUNCT	interp	PunctType=Peri	6	punct	6:punct	_
+
+# sent_id = dev-s1
+# text = Dziewczynki w kolorowych strojach i chustach na głowach stoją w dużej grupie.
+# orig_file_sentence = CDScorpus_841_B#1085
+1	Dziewczynki	dziewczynka	NOUN	subst:pl:nom:f	Case=Nom|Gender=Fem|Number=Plur	9	nsubj	9:nsubj	_
+2	w	w	ADP	prep:loc:nwok	AdpType=Prep|Variant=Short	4	case	4:case|6:case	Case=Loc
+3	kolorowych	kolorowy	ADJ	adj:pl:loc:m3:pos	Animacy=Inan|Case=Loc|Degree=Pos|Gender=Masc|Number=Plur	4	amod	4:amod	_
+4	strojach	strój	NOUN	subst:pl:loc:m3	Animacy=Inan|Case=Loc|Gender=Masc|Number=Plur	1	nmod	1:nmod	_
+5	i	i	CCONJ	conj	_	6	cc	6:cc	_
+6	chustach	chusta	NOUN	subst:pl:loc:f	Case=Loc|Gender=Fem|Number=Plur	4	conj	1:nmod|4:conj	_
+7	na	na	ADP	prep:loc	AdpType=Prep	8	case	8:case	Case=Loc
+8	głowach	głowa	NOUN	subst:pl:loc:f	Case=Loc|Gender=Fem|Number=Plur	6	nmod	6:nmod	_
+9	stoją	stać	VERB	fin:pl:ter:imperf	Aspect=Imp|Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin|Voice=Act	0	root	0:root	_
+10	w	w	ADP	prep:loc:nwok	AdpType=Prep|Variant=Short	12	case	12:case	Case=Loc
+11	dużej	duży	ADJ	adj:sg:loc:f:pos	Case=Loc|Degree=Pos|Gender=Fem|Number=Sing	12	amod	12:amod	_
+12	grupie	grupa	NOUN	subst:sg:loc:f	Case=Loc|Gender=Fem|Number=Sing	9	obl	9:obl	SpaceAfter=No
+13	.	.	PUNCT	interp	PunctType=Peri	9	punct	9:punct	_
+
+# sent_id = dev-s2
+# text = Pies płynie z małą, żółtą piłką w pysku.
+# orig_file_sentence = CDScorpus_5751_B#576
+1	Pies	pies	NOUN	subst:sg:nom:m2	Animacy=Nhum|Case=Nom|Gender=Masc|Number=Sing	2	nsubj	2:nsubj	_
+2	płynie	płynąć	VERB	fin:sg:ter:imperf	Aspect=Imp|Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin|Voice=Act	0	root	0:root	_
+3	z	z	ADP	prep:inst:nwok	AdpType=Prep|Variant=Short	7	case	7:case	Case=Ins
+4	małą	mały	ADJ	adj:sg:inst:f:pos	Case=Ins|Degree=Pos|Gender=Fem|Number=Sing	7	amod	7:amod	SpaceAfter=No
+5	,	,	PUNCT	interp	PunctType=Comm	6	punct	6:punct	_
+6	żółtą	żółty	ADJ	adj:sg:inst:f:pos	Case=Ins|Degree=Pos|Gender=Fem|Number=Sing	4	conj	4:conj|7:amod	_
+7	piłką	piłka	NOUN	subst:sg:inst:f	Case=Ins|Gender=Fem|Number=Sing	2	obl:arg	2:obl:arg	_
+8	w	w	ADP	prep:loc:nwok	AdpType=Prep|Variant=Short	9	case	9:case	Case=Loc
+9	pysku	pysk	NOUN	subst:sg:loc:m3	Animacy=Inan|Case=Loc|Gender=Masc|Number=Sing	7	nmod	7:nmod	SpaceAfter=No
+10	.	.	PUNCT	interp	PunctType=Peri	2	punct	2:punct	_
+
+# sent_id = dev-s3
+# text = Dwie dziewczyny stoją pod drzwiami, jedna z nich trzyma torbę, a druga pali papierosa.
+# orig_file_sentence = CDScorpus_2231_A#1224
+1	Dwie	dwa	NUM	num:pl:nom:f:congr	Case=Nom|Gender=Fem|Number=Plur|NumForm=Word	2	nummod	2:nummod	_
+2	dziewczyny	dziewczyna	NOUN	subst:pl:nom:f	Case=Nom|Gender=Fem|Number=Plur	3	nsubj	3:nsubj	_
+3	stoją	stać	VERB	fin:pl:ter:imperf	Aspect=Imp|Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin|Voice=Act	0	root	0:root	_
+4	pod	pod	ADP	prep:inst:nwok	AdpType=Prep|Variant=Short	5	case	5:case	Case=Ins
+5	drzwiami	drzwi	NOUN	subst:pl:inst:n:pt	Case=Ins|Gender=Neut|Number=Ptan	3	obl	3:obl	SpaceAfter=No
+6	,	,	PUNCT	interp	PunctType=Comm	10	punct	10:punct	_
+7	jedna	jeden	ADJ	adj:sg:nom:f:pos	Case=Nom|Degree=Pos|Gender=Fem|Number=Sing	10	nsubj	10:nsubj	_
+8	z	z	ADP	prep:gen:nwok	AdpType=Prep|Variant=Short	9	case	9:case	Case=Gen
+9	nich	on	PRON	ppron3:pl:gen:f:ter:akc:praep	Case=Gen|Gender=Fem|Number=Plur|Person=3|PrepCase=Pre|PronType=Prs|Variant=Long	7	obl	7:obl	_
+10	trzyma	trzymać	VERB	fin:sg:ter:imperf	Aspect=Imp|Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin|Voice=Act	3	conj	0:root|3:conj	_
+11	torbę	torba	NOUN	subst:sg:acc:f	Case=Acc|Gender=Fem|Number=Sing	10	obj	10:obj	SpaceAfter=No
+12	,	,	PUNCT	interp	PunctType=Comm	15	punct	15:punct	_
+13	a	a	CCONJ	conj	_	15	cc	15:cc	_
+14	druga	drugi	ADJ	adj:sg:nom:f:pos	Case=Nom|Degree=Pos|Gender=Fem|Number=Sing	15	nsubj	15:nsubj	_
+15	pali	palić	VERB	fin:sg:ter:imperf	Aspect=Imp|Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin|Voice=Act	10	conj	3:conj|10:conj	_
+16	papierosa	papieros	NOUN	subst:sg:acc:m2	Animacy=Nhum|Case=Acc|Gender=Masc|Number=Sing	15	obj	15:obj	SpaceAfter=No
+17	.	.	PUNCT	interp	PunctType=Peri	3	punct	3:punct	_
+
+# sent_id = dev-s4
+# text = Mały chłopiec gra na zabawkowej gitarze, mając przed sobą kolorowy, plastikowy mikrofon.
+# orig_file_sentence = CDScorpus_2981_B#299
+1	Mały	mały	ADJ	adj:sg:nom:m1:pos	Animacy=Hum|Case=Nom|Degree=Pos|Gender=Masc|Number=Sing	2	amod	2:amod	_
+2	chłopiec	chłopiec	NOUN	subst:sg:nom:m1	Animacy=Hum|Case=Nom|Gender=Masc|Number=Sing	3	nsubj	3:nsubj	_
+3	gra	grać	VERB	fin:sg:ter:imperf	Aspect=Imp|Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin|Voice=Act	0	root	0:root	_
+4	na	na	ADP	prep:loc	AdpType=Prep	6	case	6:case	Case=Loc
+5	zabawkowej	zabawkowy	ADJ	adj:sg:loc:f:pos	Case=Loc|Degree=Pos|Gender=Fem|Number=Sing	6	amod	6:amod	_
+6	gitarze	gitara	NOUN	subst:sg:loc:f	Case=Loc|Gender=Fem|Number=Sing	3	obl:arg	3:obl:arg	SpaceAfter=No
+7	,	,	PUNCT	interp	PunctType=Comm	8	punct	8:punct	_
+8	mając	mieć	VERB	pcon:imperf	Aspect=Imp|Tense=Pres|VerbForm=Conv|Voice=Act	3	advcl	3:advcl	_
+9	przed	przed	ADP	prep:inst:nwok	AdpType=Prep|Variant=Short	10	case	10:case	Case=Ins
+10	sobą	siebie	PRON	siebie:inst	Case=Ins|PronType=Prs|Reflex=Yes	8	obl	8:obl	_
+11	kolorowy	kolorowy	ADJ	adj:sg:acc:m3:pos	Animacy=Inan|Case=Acc|Degree=Pos|Gender=Masc|Number=Sing	14	amod	14:amod	SpaceAfter=No
+12	,	,	PUNCT	interp	PunctType=Comm	13	punct	13:punct	_
+13	plastikowy	plastikowy	ADJ	adj:sg:acc:m3:pos	Animacy=Inan|Case=Acc|Degree=Pos|Gender=Masc|Number=Sing	11	conj	11:conj|14:amod	_
+14	mikrofon	mikrofon	NOUN	subst:sg:acc:m3	Animacy=Inan|Case=Acc|Gender=Masc|Number=Sing	8	iobj	8:iobj	SpaceAfter=No
+15	.	.	PUNCT	interp	PunctType=Peri	3	punct	3:punct	_
+

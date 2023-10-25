@@ -1,8 +1,91 @@
-test:
-  stage: test
-  script:
+image: python:latest
+
+# Change pip's cache directory to be inside the project directory since we can
+# only cache local items.
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+
+# Define the pipeline stages
+stages:
+  - test_level_1
+  - test_level_2
+  - deploy
+
+# Cache the directories for apt and pip packages
+cache:
+  # the cache is created and shared separately for each branch or tag. 
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - /var/cache/apt/archives/
+    # - /usr/local/lib/python3.9/site-packages/
+    - .cache/pip
+
+before_script:
+  # Update and cache apt packages
   - apt-get update -qy
-  - apt-get install -y python3-pip
+  - apt-get install -y --no-install-recommends python3-pip
+  - apt-get install -y nodejs
+  - apt-get install -y npm
+  - python -V               # Print out python version for debugging
   - pip3 install -U folia
+  - pip3 install regex
+  - npm install -g ajv-cli
   - export TERM=xterm
-  - ./test/test.sh
+
+# Stage: Run tests
+# test_script_reannotate_morphosyntax:
+#   stage: test_level_1
+#   script: 
+#     - echo "Testing the morphosyntax reannotation script"
+#     - ./test/test_reannotate-morphosyntax.sh
+#   artifacts:
+#     paths:
+#       - ./test/data_reannotation/REANNOTATION/
+#     expire_in: 2 days
+
+test_parseme_validate:
+  stage: test_level_1
+  script: 
+    - echo "Functional Testing of the script parseme_validate.py"
+    - ./test/test_parseme_validate.py
+
+test_json:
+  stage: test_level_1
+  script: 
+    - echo "Testing the configuration files for the re-annotation script"
+    - ./test/validate-config.sh
+
+test_cupt_level_1:
+  stage: test_level_1
+  script:
+    - echo "Testing the format cupt"
+    - ./test/test_cupt_level_1.sh
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+    - if: $CI_PIPELINE_SOURCE == "push"
+
+test_all:
+  stage: test_level_1
+  script:
+    - echo "Testing if we can run all scripts to completion"
+    - ./test/test.sh
+
+test_cupt_level_2:
+  stage: test_level_2
+  script:
+    - echo "Testing the PARSEME and UD concepts"
+    - ./test/test_cupt_level_2.sh
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+    - if: $CI_PIPELINE_SOURCE == "push"
+
+release:
+  stage: deploy
+  script:
+    - echo "Next release for PARSEME Shared Task"
+    - ./test/release_script.sh
+  only:
+    - schedules
+    
