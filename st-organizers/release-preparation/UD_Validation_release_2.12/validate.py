@@ -1,6 +1,7 @@
 #! /usr/bin/env python3
 # Original code (2015) by Filip Ginter and Sampo Pyysalo.
 # DZ 2018-11-04: Porting the validator to Python 3.
+# DZ: Many subsequent changes. See the git history.
 import fileinput
 import sys
 import io
@@ -56,15 +57,16 @@ warn_on_missing_files = set() # langspec files which you should warn about in ca
 warn_on_undoc_feats = '' # filled after reading docfeats.json; printed when an unknown feature is encountered in the data
 warn_on_undoc_deps = '' # filled after reading docdeps.json; printed when an unknown relation is encountered in the data
 warn_on_undoc_edeps = '' # filled after reading edeprels.json; printed when an unknown enhanced relation is encountered in the data
+mwt_typo_span_end = None # if Typo=Yes at multiword token, what is the end of the multiword span?
 spaceafterno_in_effect = False # needed to check that no space after last word of sentence does not co-occur with new paragraph or document
 featdata = {} # key: language code (feature-value-UPOS data loaded from feats.json)
 auxdata = {} # key: language code (auxiliary/copula data loaded from data.json)
 depreldata = {} # key: language code (deprel data loaded from deprels.json)
 edepreldata = {} # key: language code (edeprel data loaded from edeprels.json)
 
-def warn(msg, error_type, testlevel=0, testid='some-test', lineno=True, nodelineno=0, nodeid=0):
+def warn(msg, error_type, testlevel=0, testid='some-test', lineno=True, nodelineno=0, nodeid=0, explanation=None):
     """
-    Print the warning.
+    Print the error/warning message.
     If lineno is True, print the number of the line last read from input. Note
     that once we have read a sentence, this is the number of the empty line
     after the sentence, hence we probably do not want to print it.
@@ -72,6 +74,9 @@ def warn(msg, error_type, testlevel=0, testid='some-test', lineno=True, nodeline
     the number of the line where the node appears, we can supply it via
     nodelineno. Nonzero nodelineno means that lineno value is ignored.
     If lineno is False, print the number and starting line of the current tree.
+    If explanation contains a string and this is the first time we are reporting
+    an error of this type, the string will be appended to the main message. It
+    can be used as an extended explanation of the situation.
     """
     global curr_fname, curr_line, sentence_line, sentence_id, error_counter, tree_counter, args
     error_counter[error_type] = error_counter.get(error_type, 0)+1
@@ -81,6 +86,8 @@ def warn(msg, error_type, testlevel=0, testid='some-test', lineno=True, nodeline
         elif args.max_err > 0 and error_counter[error_type] > args.max_err:
             pass # suppressed
         else:
+            if explanation and error_counter[error_type] == 1:
+                msg += ' ' + explanation
             if len(args.input) > 1: # several files, should report which one
                 if curr_fname=='-':
                     fn = '(in STDIN) '
@@ -216,7 +223,7 @@ def trees(inp, tag_sets, args):
                 lines.append(cols)
                 validate_cols_level1(cols)
                 if args.level > 1:
-                    validate_cols(cols,tag_sets,args)
+                    validate_cols(cols, tag_sets, args)
         else: # A line which is neither a comment nor a token/word, nor empty. That's bad!
             testid = 'invalid-line'
             testmessage = "Spurious line: '%s'. All non-empty lines should start with a digit or the # character." % (line)
@@ -338,28 +345,28 @@ def validate_ID_sequence(tree):
         if not is_empty_node(cols):
             next_empty_id = 1    # reset sequence
         if is_word(cols):
-            t_id=int(cols[ID])
+            t_id = int(cols[ID])
             current_word_id = t_id
             words.append(t_id)
             # Not covered by the previous interval?
-            if not (tokens and tokens[-1][0]<=t_id and tokens[-1][1]>=t_id):
-                tokens.append((t_id,t_id)) # nope - let's make a default interval for it
+            if not (tokens and tokens[-1][0] <= t_id and tokens[-1][1] >= t_id):
+                tokens.append((t_id, t_id)) # nope - let's make a default interval for it
         elif is_multiword_token(cols):
-            match=interval_re.match(cols[ID]) # Check the interval against the regex
+            match = interval_re.match(cols[ID]) # Check the interval against the regex
             if not match: # This should not happen. The function is_multiword_token() would then not return True.
                 testid = 'invalid-word-interval'
                 testmessage = "Spurious word interval definition: '%s'." % cols[ID]
                 warn(testmessage, testclass, testlevel=testlevel, testid=testid)
                 ok = False
                 continue
-            beg,end=int(match.group(1)),int(match.group(2))
+            beg, end = int(match.group(1)), int(match.group(2))
             if not ((not words and beg >= 1) or (words and beg >= words[-1] + 1)):
                 testid = 'misplaced-word-interval'
                 testmessage = 'Multiword range not before its first word.'
                 warn(testmessage, testclass, testlevel=testlevel, testid=testid)
                 ok = False
                 continue
-            tokens.append((beg,end))
+            tokens.append((beg, end))
         elif is_empty_node(cols):
             word_id, empty_id = (int(i) for i in parse_empty_node_id(cols))
             if word_id != current_word_id or empty_id != next_empty_id:
@@ -368,9 +375,19 @@ def validate_ID_sequence(tree):
                 warn(testmessage, testclass, testlevel=testlevel, testid=testid)
                 ok = False
             next_empty_id += 1
-    # Now let's do some basic sanity checks on the sequences
+            # Interaction of multiword tokens and empty nodes if there is an empty
+            # node between the first word of a multiword token and the previous word:
+            # This sequence is correct: 4 4.1 5-6 5 6
+            # This sequence is wrong:   4 5-6 4.1 5 6
+            if word_id == current_word_id and tokens and word_id < tokens[-1][0]:
+                testid = 'misplaced-empty-node'
+                testmessage = "Empty node id %s must occur before multiword token %s-%s." % (cols[ID], tokens[-1][0], tokens[-1][1])
+                warn(testmessage, testclass, testlevel=testlevel, testid=testid)
+                ok = False
+    # Now let's do some basic sanity checks on the sequences.
+    # Expected sequence of word IDs is 1, 2, ...
+    expstrseq = ','.join(str(x) for x in range(1, len(words) + 1))
     wrdstrseq = ','.join(str(x) for x in words)
-    expstrseq = ','.join(str(x) for x in range(1, len(words)+1)) # Words should form a sequence 1,2,...
     if wrdstrseq != expstrseq:
         testid = 'word-id-sequence'
         testmessage = "Words do not form a sequence. Got '%s'. Expected '%s'." % (wrdstrseq, expstrseq)
@@ -426,7 +443,7 @@ def validate_token_ranges(tree):
         covered |= set(range(start, end+1))
 
 def validate_newlines(inp):
-    if inp.newlines and inp.newlines!='\n':
+    if inp.newlines and inp.newlines != '\n':
         testlevel = 1
         testclass = 'Format'
         testid = 'non-unix-newline'
@@ -547,6 +564,10 @@ def validate_text_meta(comments, tree):
                 testid = 'nospaceafter-yes'
                 testmessage = "'NoSpaceAfter=Yes' should be replaced with 'SpaceAfter=No'."
                 warn(testmessage, testclass, testlevel=testlevel, testid=testid, nodelineno=sentence_line+iline)
+            if len([x for x in cols[MISC].split('|') if re.match(r'^SpaceAfter=', x) and x != 'SpaceAfter=No']) > 0:
+                testid = 'spaceafter-value'
+                testmessage = "Unexpected value of the 'SpaceAfter' attribute in MISC. Did you mean 'SpacesAfter'?"
+                warn(testmessage, testclass, testlevel=testlevel, testid=testid, nodelineno=sentence_line+iline)
             if '.' in cols[ID]: # empty node
                 if 'SpaceAfter=No' in cols[MISC]: # I leave this without the split("|") to catch all
                     testid = 'spaceafter-empty-node'
@@ -624,9 +645,16 @@ def validate_token_empty_vals(cols):
     This is required by UD guidelines although it is not a problem in general,
     therefore a level 2 test.
     """
+    global mwt_typo_span_end
     assert is_multiword_token(cols), 'internal error'
     for col_idx in range(LEMMA, MISC): # all columns except the first two (ID, FORM) and the last one (MISC)
-        if cols[col_idx] != '_':
+        # Exception: The feature Typo=Yes may occur in FEATS of a multi-word token.
+        if col_idx == FEATS and cols[col_idx] == 'Typo=Yes':
+            # If a multi-word token has Typo=Yes, its component words must not have it.
+            # We must remember the span of the MWT and check it in validate_features().
+            m = interval_re.match(cols[ID])
+            mwt_typo_span_end = m.group(2)
+        elif cols[col_idx] != '_':
             testlevel = 2
             testclass = 'Format'
             testid = 'mwt-nonempty-field'
@@ -706,6 +734,7 @@ def validate_features(cols, tag_sets, args):
     To disallow non-universal features, test on level 4 with language 'ud'.)
     """
     global warn_on_undoc_feats
+    global mwt_typo_span_end
     testclass = 'Morpho'
     if FEATS >= len(cols):
         return # this has been already reported in trees()
@@ -722,14 +751,14 @@ def validate_features(cols, tag_sets, args):
         lang = altlang
         featset = get_featdata_for_language(altlang)
     feat_list=feats.split('|')
-    if [f.lower() for f in feat_list]!=sorted(f.lower() for f in feat_list):
+    if [f.lower() for f in feat_list] != sorted(f.lower() for f in feat_list):
         testlevel = 2
         testid = 'unsorted-features'
         testmessage = "Morphological features must be sorted: '%s'." % feats
         warn(testmessage, testclass, testlevel=testlevel, testid=testid)
-    attr_set=set() # I'll gather the set of features here to check later that none is repeated.
+    attr_set = set() # I'll gather the set of features here to check later that none is repeated.
     for f in feat_list:
-        match=attr_val_re.match(f)
+        match = attr_val_re.match(f)
         if match is None:
             testlevel = 2
             testid = 'invalid-feature'
@@ -738,9 +767,9 @@ def validate_features(cols, tag_sets, args):
             attr_set.add(f) # to prevent misleading error "Repeated features are disallowed"
         else:
             # Check that the values are sorted as well
-            attr=match.group(1)
+            attr = match.group(1)
             attr_set.add(attr)
-            values=match.group(2).split(',')
+            values = match.group(2).split(',')
             if len(values) != len(set(values)):
                 testlevel = 2
                 testid = 'repeated-feature-value'
@@ -762,6 +791,12 @@ def validate_features(cols, tag_sets, args):
                 # If only universal feature-value pairs are allowed, test on level 4 with lang='ud'.
                 if args.level > 3:
                     testlevel = 4
+                    # The feature Typo=Yes is the only feature allowed on a multi-word token line.
+                    # If it occurs there, it cannot be duplicated on the lines of the component words.
+                    if attr == 'Typo' and mwt_typo_span_end and cols[ID] <= mwt_typo_span_end:
+                        testid = 'mwt-typo-repeated-at-word'
+                        testmessage = "Feature Typo cannot occur at a word if it already occurred at the corresponding multi-word token."
+                        warn(testmessage, testclass, testlevel=testlevel, testid=testid)
                     # In case of code switching, the current token may not be in the default language
                     # and then its features are checked against a different feature set. An exception
                     # is the feature Foreign, which always relates to the default language of the
@@ -787,7 +822,7 @@ def validate_features(cols, tag_sets, args):
                             warn(testmessage, testclass, testlevel=testlevel, testid=testid)
                         else:
                             lfrecord = effective_featset[attr]
-                            if lfrecord['permitted']==0:
+                            if lfrecord['permitted'] == 0:
                                 testid = 'feature-not-permitted'
                                 testmessage = "Feature %s is not permitted in language [%s]." % (attr, effective_lang)
                                 if not altlang and len(warn_on_undoc_feats) > 0:
@@ -822,6 +857,8 @@ def validate_features(cols, tag_sets, args):
         testid = 'repeated-feature'
         testmessage = "Repeated features are disallowed: '%s'." % feats
         warn(testmessage, testclass, testlevel=testlevel, testid=testid)
+    if mwt_typo_span_end and int(mwt_typo_span_end) <= int(cols[ID]):
+        mwt_typo_span_end = None
 
 def features_present():
     """
@@ -1128,7 +1165,6 @@ def validate_misc(tree):
     that are described in the UD documentation.
     """
     testlevel = 2
-    testclass = 'Format'
     node_line = sentence_line - 1
     for cols in tree:
         node_line += 1
@@ -1141,11 +1177,47 @@ def validate_misc(tree):
         misc = [ma.split('=', 1) for ma in cols[MISC].split('|')]
         mamap = {}
         for ma in misc:
-            if re.match(r"^(SpaceAfter|Lang|Translit|LTranslit|Gloss|LId|LDeriv)$", ma[0]):
+            if len(ma) == 1 and ma[0] == '':
+                testclass = 'Warning' # warning only
+                testid = 'empty-misc'
+                testmessage = "Empty attribute in MISC; possible misinterpreted vertical bar?"
+                warn(testmessage, testclass, testlevel=testlevel, testid=testid, nodelineno=node_line)
+            elif ma[0] == '':
+                testclass = 'Warning' # warning only
+                testid = 'empty-misc-key'
+                testmessage = "Empty MISC attribute name in '%s=%s'." % (ma[0], ma[1])
+                warn(testmessage, testclass, testlevel=testlevel, testid=testid, nodelineno=node_line)
+            elif re.match(r'^\s', ma[0]):
+                testclass = 'Warning' # warning only
+                testid = 'misc-extra-space'
+                testmessage = "MISC attribute name starts with space in '%s=%s'." % (ma[0], ma[1])
+                warn(testmessage, testclass, testlevel=testlevel, testid=testid, nodelineno=node_line)
+            elif re.search(r'\s$', ma[0]):
+                testclass = 'Warning' # warning only
+                testid = 'misc-extra-space'
+                testmessage = "MISC attribute name ends with space in '%s=%s'." % (ma[0], ma[1])
+                warn(testmessage, testclass, testlevel=testlevel, testid=testid, nodelineno=node_line)
+            elif len(ma) > 1 and re.match(r'^\s', ma[1]):
+                testclass = 'Warning' # warning only
+                testid = 'misc-extra-space'
+                testmessage = "MISC attribute value starts with space in '%s=%s'." % (ma[0], ma[1])
+                warn(testmessage, testclass, testlevel=testlevel, testid=testid, nodelineno=node_line)
+            elif len(ma) > 1 and re.search(r'\s$', ma[1]):
+                testclass = 'Warning' # warning only
+                testid = 'misc-extra-space'
+                testmessage = "MISC attribute value ends with space in '%s=%s'." % (ma[0], ma[1])
+                warn(testmessage, testclass, testlevel=testlevel, testid=testid, nodelineno=node_line)
+            if re.match(r'^(SpaceAfter|Lang|Translit|LTranslit|Gloss|LId|LDeriv)$', ma[0]):
                 mamap.setdefault(ma[0], 0)
                 mamap[ma[0]] = mamap[ma[0]] + 1
+            elif re.match(r'^\s*(spaceafter|lang|translit|ltranslit|gloss|lid|lderiv)\s*$', ma[0], re.IGNORECASE):
+                testclass = 'Warning' # warning only
+                testid = 'misc-attr-typo'
+                testmessage = "Possible typo (case or spaces) in MISC attribute '%s=%s'." % (ma[0], ma[1])
+                warn(testmessage, testclass, testlevel=testlevel, testid=testid, nodelineno=node_line)
         for a in list(mamap):
             if mamap[a] > 1:
+                testclass = 'Format' # this one is real error
                 testid = 'repeated-misc'
                 testmessage = "MISC attribute '%s' not supposed to occur twice" % a
                 warn(testmessage, testclass, testlevel=testlevel, testid=testid, nodelineno=node_line)
@@ -1518,8 +1590,9 @@ def validate_single_subject(id, tree):
         testlevel = 3
         testclass = 'Syntax'
         testid = 'too-many-subjects'
-        testmessage = "Node has multiple subjects not subtyped as ':outer': %s. Outer subjects are allowed if a clause acts as the predicate of another clause." % str(subjects)
-        warn(testmessage, testclass, testlevel=testlevel, testid=testid, nodeid=id, nodelineno=tree['linenos'][id])
+        testmessage = "Multiple subjects %s not subtyped as ':outer'." % str(subjects)
+        explanation = "Outer subjects are allowed if a clause acts as the predicate of another clause."
+        warn(testmessage, testclass, testlevel=testlevel, testid=testid, nodeid=id, nodelineno=tree['linenos'][id], explanation=explanation)
 
 def validate_orphan(id, tree):
     """
@@ -1539,11 +1612,14 @@ def validate_orphan(id, tree):
         # A similar pattern also occurs with acl, e.g. in Latvian:
         # viņš ēd tos ābolus, ko pirms tam [ēda] tārpi ('he eats the same apples, which where [eaten] by worms before that')
         # Other clausal heads (ccomp, csubj) may be eligible as well, e.g. in Latvian
-        # (see also issue 635 19.9.2019):
+        # (see also issue 635 2019-09-19):
         # atjēdzos, ka bez angļu valodas nekur [netikšu] '[I] realised, that [I will get] nowhere without English'
+        # 2023-04-14: Reclassifying the test as warning only. Due to promotion,
+        # the parent of orphan may receive many other relations. See issue 635
+        # for details and a Latin example.
         if not re.match(r"^(conj|parataxis|root|csubj|ccomp|advcl|acl|reparandum)$", pdeprel):
             testlevel = 3
-            testclass = 'Syntax'
+            testclass = 'Warning'
             testid = 'orphan-parent'
             testmessage = "The parent of 'orphan' should normally be 'conj' but it is '%s'." % (pdeprel)
             warn(testmessage, testclass, testlevel=testlevel, testid=testid, nodeid=id, nodelineno=tree['linenos'][id])
@@ -2420,6 +2496,8 @@ def validate_misc_entity(comments, sentence):
                         else:
                             # If the closing bracket does not occur where expected, it is currently only a warning.
                             # We have crossing mention spans in CorefUD 1.0 and it has not been decided yet whether all of them should be illegal.
+                            ###!!! Note that this will not catch ill-nested mentions whose only intersection is one node. The bracketing will
+                            ###!!! not be a problem in such cases because one mention will be closed first, then the other will be opened.
                             if beid != open_entity_mentions[-1]['beid']:
                                 testid = 'ill-nested-entities-warning'
                                 testmessage = "Entity mentions are not well nested: closing '%s' while the innermost open entity is '%s' from line %d: %s." % (beid, open_entity_mentions[-1]['beid'], open_entity_mentions[-1]['line'], str(open_entity_mentions))
@@ -2552,6 +2630,10 @@ def validate_misc_entity(comments, sentence):
                             tgteid = match.group(2)
                             relation = match.group(3) # optional
                             bridgekey = srceid+'<'+tgteid
+                            if srceid == tgteid:
+                                testid = 'spurious-bridge-relation'
+                                testmessage = "Bridge must not point from an entity to itself: '%s'." % (b)
+                                warn(testmessage, testclass, testlevel=testlevel, testid=testid, nodelineno=sentence_line+iline)
                             if not tgteid in starting_mentions:
                                 testid = 'misplaced-bridge-statement'
                                 testmessage = "Bridge relation '%s' must be annotated at the beginning of a mention of entity '%s'." % (b, tgteid)
