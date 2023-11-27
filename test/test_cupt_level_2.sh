@@ -4,7 +4,7 @@ set -o errexit  # Exit on error, do not continue quietly
 exec </dev/null   # Don't hang if a script tries to read from stdin
 
 HERE="$(cd "$(dirname "$0")" && pwd)"
-VALIDATE=$HERE/../st-organizers/release-preparation/parseme_validate.py
+VALIDATE=$HERE/../st-organizers/release-preparation/CI-CD/parseme_validate.py
 DIR_CUPT=$HERE/data_reannotation/validate_level_2
 
 cd "$HERE"

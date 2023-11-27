@@ -22,8 +22,8 @@ import regex as re
 
 THISDIR=os.path.dirname(os.path.realpath(os.path.abspath(__file__))) # The folder where this script resides.
 # UD Validation release 2.11
-# https://github.com/UniversalDependencies/tools/tree/r2.11
-UD_VALIDATE = f"{THISDIR}/UD_Validation_release_2.11/validate.py"
+# https://github.com/UniversalDependencies/tools/tree/r2.12
+UD_VALIDATE = f"{THISDIR}/UD_Validation_release_2.13/validate.py"
 
 # Constants for the column indices
 COLCOUNT=11
@@ -268,7 +268,7 @@ def validate_cols_level1(cols):
     # Number of columns is not match to global.columns
     if len(COLNAMES) != len(cols):
         testid = 'number-columns'
-        testmessage = 'Number of columns is not match to global.columns (Got %d. Expected %d)' % (len(cols), len(COLNAMES))
+        testmessage = 'Number of columns does not match global.columns (Got %d. Expected %d)' % (len(cols), len(COLNAMES))
         warn(testmessage, testclass, testlevel=testlevel, testid=testid)
     else:
         # Must never be empty
@@ -741,9 +741,9 @@ def run_parseme_validation() -> int:
 
     # Messages
     if not args.quiet:
-        print("========================================================================================")
-        print("============================***PARSEME Validation***====================================")
-        print("========================================================================================")
+        print("========================================================================================", file=sys.stderr)
+        print("============================***PARSEME Validation***====================================", file=sys.stderr)
+        print("========================================================================================", file=sys.stderr)
     
     # all MWEs are underspecified as "_"
     if args.underspecified_mwes:
