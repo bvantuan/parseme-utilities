@@ -23,7 +23,7 @@ import regex as re
 THISDIR=os.path.dirname(os.path.realpath(os.path.abspath(__file__))) # The folder where this script resides.
 # UD Validation release 2.11
 # https://github.com/UniversalDependencies/tools/tree/r2.12
-UD_VALIDATE = f"{THISDIR}/UD_Validation_release_2.12/validate.py"
+UD_VALIDATE = f"{THISDIR}/UD_Validation_release_2.13/validate.py"
 
 # Constants for the column indices
 COLCOUNT=11

@@ -1,0 +1,37 @@
+{
+  "language": "AR",
+  "language_repository": "/home/tuan/Documents/parseme_dev/1.4/parseme_corpus_ar",
+  "verbose": false,
+  "source": [
+    {
+      "corpus": "train.cupt",
+      "method": "udtreebank",
+      "treebank": [
+        "/home/tuan/Documents/parseme_dev/1.4/ud-treebanks-v2.13/UD_Arabic-PADT"
+      ],
+      "uri": [
+        "http://hdl.handle.net/11234/1-5287"
+      ]
+    },
+    {
+      "corpus": "dev.cupt",
+      "method": "udtreebank",
+      "treebank": [
+        "/home/tuan/Documents/parseme_dev/1.4/ud-treebanks-v2.13/UD_Arabic-PADT"
+      ],
+      "uri": [
+        "http://hdl.handle.net/11234/1-5287"
+      ]
+    },
+    {
+      "corpus": "test.cupt",
+      "method": "udtreebank",
+      "treebank": [
+        "/home/tuan/Documents/parseme_dev/1.4/ud-treebanks-v2.13/UD_Arabic-PADT"
+      ],
+      "uri": [
+        "http://hdl.handle.net/11234/1-5287"
+      ]
+    }
+  ]
+}
