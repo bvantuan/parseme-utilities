@@ -32,7 +32,7 @@ before_script:
   - npm install -g ajv-cli
   - export TERM=xterm
 
-Stage: Run tests
+# Stage: Run tests
 test_script_reannotate_morphosyntax:
   stage: test_level_1
   script: 
