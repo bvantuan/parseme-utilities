@@ -32,16 +32,16 @@ before_script:
   - npm install -g ajv-cli
   - export TERM=xterm
 
-# Stage: Run tests
-# test_script_reannotate_morphosyntax:
-#   stage: test_level_1
-#   script: 
-#     - echo "Testing the morphosyntax reannotation script"
-#     - ./test/test_reannotate-morphosyntax.sh
-#   artifacts:
-#     paths:
-#       - ./test/data_reannotation/REANNOTATION/
-#     expire_in: 2 days
+Stage: Run tests
+test_script_reannotate_morphosyntax:
+  stage: test_level_1
+  script: 
+    - echo "Testing the morphosyntax reannotation script"
+    - ./test/test_reannotate-morphosyntax.sh
+  artifacts:
+    paths:
+      - ./test/data_reannotation/not_to_release/
+    expire_in: 2 days
 
 test_parseme_validate:
   stage: test_level_1

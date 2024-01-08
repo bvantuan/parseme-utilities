@@ -1,0 +1,25 @@
+# global.columns = ID FORM LEMMA UPOS XPOS FEATS HEAD DEPREL DEPS MISC PARSEME:MWE
+# source_sent_id = . ar_padt-ud-dev-part2.folia.xml afp.20000715.0040:p1u1
+# newdoc id = afp.20000715.0040
+# newpar id = afp.20000715.0040:p1
+# sent_id = afp.20000715.0040:p1u1
+# text = ايران تعلن عن اختبار جديد ناجح لصاروخ شهاب 3
+1	ايران	إِيرَان	NOUN	N------S1I	Case=Nom|Definite=Ind|Number=Sing	2	nsubj	2:nsubj	Vform=إِيرَانُ|Gloss=Iran|Root='IrAn|Translit=ʾīrānu|LTranslit=ʾīrān	*
+2	تعلن	أَعلَن	VERB	VIIA-3FS--	Aspect=Imp|Gender=Fem|Mood=Ind|Number=Sing|Person=3|VerbForm=Fin|Voice=Act	0	root	0:root	Vform=تُعلِنُ|Gloss=announce,declare|Root=BACKQUOTE_l_n|Translit=tuʿlinu|LTranslit=ʾaʿlan	1:LVC.full
+3	عن	عَن	ADP	P---------	AdpType=Prep	4	case	4:case	Vform=عَن|Gloss=about,from|Root=BACKQUOTEan|Translit=ʿan|LTranslit=ʿan	*
+4	اختبار	اِختِبَار	NOUN	N------S2I	Case=Gen|Definite=Ind|Number=Sing	2	obl:arg	2:obl:arg:عَن:gen	Vform=اِختِبَارٍ|Gloss=testing,experimenting,probing|Root=_h_b_r|Translit=iḫtibārin|LTranslit=iḫtibār	1
+5	جديد	جَدِيد	ADJ	A-----MS2I	Case=Gen|Definite=Ind|Gender=Masc|Number=Sing	4	amod	4:amod	Vform=جَدِيدٍ|Gloss=new,modern|Root=^g_d_d|Translit=ǧadīdin|LTranslit=ǧadīd	*
+6	ناجح	نَاجِح	ADJ	A-----MS2I	Case=Gen|Definite=Ind|Gender=Masc|Number=Sing	4	amod	4:amod	Vform=نَاجِحٍ|Gloss=successful|Root=n_^g_.h|Translit=nāǧiḥin|LTranslit=nāǧiḥ	*
+7-8	لصاروخ	_	_	_	_	_	_	_	_	*
+7	ل	لِ	ADP	P---------	AdpType=Prep	8	case	8:case	Vform=لِ|Gloss=for,to|Root=l|Translit=li|LTranslit=li	*
+8	صاروخ	صَارُوخ	NOUN	N------S2R	Case=Gen|Definite=Cons|Number=Sing	4	obl	4:obl:لِ:gen	Vform=صَارُوخِ|Gloss=missile,rocket|Root=.s_r__h|Translit=ṣārūḫi|LTranslit=ṣārūḫ	*
+9	شهاب	شهاب	X	U---------	_	8	nmod	8:nmod	Vform=شهاب|Root=OOV|Translit=šhāb	*
+10	3	3	NUM	Q---------	NumForm=Digit	9	nummod	9:nummod	Vform=٣|Translit=3	*
+
+# source_sent_id = . TestExtract7.folia.xml xinhua.20030503.0158:p2u1
+# newpar id = xinhua.20030503.0158:p2
+# sent_id = xinhua.20030503.0158:p2u1
+# text = القاهرة 3 مايو
+1	القاهرة	قَاهِرَة	NOUN	N------S1D	Case=Nom|Definite=Def|Number=Sing	0	root	0:root	Vform=اَلقَاهِرَةُ|Gloss=Cairo|Root=q_h_r|Translit=al-qāhiratu|LTranslit=qāhirat	*
+2	3	3	NUM	Q---------	NumForm=Digit	1	dep	1:dep	Vform=٣|Translit=3	*
+3	مايو	مَايُو	NOUN	N------S2I	Case=Gen|Definite=Ind|Number=Sing	2	nmod	2:nmod:gen	Vform=مَايُو|Gloss=May|Root=mAyU|Translit=māyū|LTranslit=māyū	*

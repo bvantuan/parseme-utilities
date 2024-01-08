@@ -1,0 +1,89 @@
+# newdoc id = xinhua.20030503.0145
+# newpar id = xinhua.20030503.0145:p1
+# sent_id = xinhua.20030503.0145:p1u1
+# text = تشاور بين مصر وبريطانيا بشأن خريطة الطريق
+# orig_file_sentence XIN_ARB_20030503.0145#1
+1	تشاور	تشاور	X	U---------	_	0	root	0:root	Vform=تشاور|Root=OOV|Translit=tšāwr
+2	بين	بَينَ	ADP	PI------4-	AdpType=Prep|Case=Acc	3	case	3:case	Vform=بَينَ|Gloss=between,among|Root=b_y_n|Translit=bayna|LTranslit=bayna
+3	مصر	مِصر	NOUN	N------S2R	Case=Gen|Definite=Cons|Number=Sing	1	nmod	1:nmod:بَينَ:gen	Vform=مِصرِ|Gloss=Egypt|Root=m_.s_r|Translit=miṣri|LTranslit=miṣr
+4-5	وبريطانيا	_	_	_	_	_	_	_	_
+4	و	وَ	CCONJ	C---------	_	5	cc	5:cc	Vform=وَ|Gloss=and|Root=wa|Translit=wa|LTranslit=wa
+5	بريطانيا	برِيطَانِيَا	X	X---------	Foreign=Yes	3	conj	1:nmod:بَينَ:gen|3:conj	Vform=برِيطَانِيَا|Gloss=Britain|Root=brI.tAn|Translit=brīṭāniyā|LTranslit=brīṭāniyā
+6-7	بشأن	_	_	_	_	_	_	_	_
+6	ب	بِ	ADP	P---------	AdpType=Prep	8	case	8:case	Vform=بِ|Gloss=by,with|Root=bi|Translit=bi|LTranslit=bi
+7	شأن	شَأن	NOUN	N------S2R	Case=Gen|Definite=Cons|Number=Sing	6	fixed	6:fixed	Vform=شَأنِ|Gloss=matter,affair,concern,regard|Root=^s_'_n|Translit=šaʾni|LTranslit=šaʾn
+8	خريطة	خَرِيطَة	NOUN	N------S2R	Case=Gen|Definite=Cons|Number=Sing	1	nmod	1:nmod:بِ_شَأن:gen	Vform=خَرِيطَةِ|Gloss=map,chart|Root=_h_r_.t|Translit=ḫarīṭati|LTranslit=ḫarīṭat
+9	الطريق	طَرِيق	NOUN	N------S2D	Case=Gen|Definite=Def|Number=Sing	8	nmod	8:nmod:gen	Vform=اَلطَّرِيقِ|Gloss=road,way|Root=.t_r_q|Translit=aṭ-ṭarīqi|LTranslit=ṭarīq
+
+# newpar id = xinhua.20030503.0145:p2
+# sent_id = xinhua.20030503.0145:p2u1
+# text = القاهرة 3 مايو
+# orig_file_sentence XIN_ARB_20030503.0145#2
+1	القاهرة	قَاهِرَة	NOUN	N------S1D	Case=Nom|Definite=Def|Number=Sing	0	root	0:root	Vform=اَلقَاهِرَةُ|Gloss=Cairo|Root=q_h_r|Translit=al-qāhiratu|LTranslit=qāhirat
+2	3	3	NUM	Q---------	NumForm=Digit	1	dep	1:dep	Vform=٣|Translit=3
+3	مايو	مَايُو	NOUN	N------S2I	Case=Gen|Definite=Ind|Number=Sing	2	nmod	2:nmod:gen	Vform=مَايُو|Gloss=May|Root=mAyU|Translit=māyū|LTranslit=māyū
+
+# newpar id = xinhua.20030503.0145:p3
+# sent_id = xinhua.20030503.0145:p3u1
+# text = استقبل وزير الخارجية المصرى احمد ماهر السفير البريطانى لدى مصر جون سويرز هنا اليوم السبت حيث تشاور الطرفان بشأن القضايا المتعلقة بخريطة الطريق التى اعدتها اللجنة الرباعية بهدف حل النزاع الفلسطينى الإسرائيلى .
+# orig_file_sentence XIN_ARB_20030503.0145#3
+1	استقبل	اِستَقبَل	VERB	VP-A-3MS--	Aspect=Perf|Gender=Masc|Number=Sing|Person=3|Voice=Act	0	root	0:root	Vform=اِستَقبَلَ|Gloss=receive,greet,meet|Root=q_b_l|Translit=istaqbala|LTranslit=istaqbal
+2	وزير	وَزِير	NOUN	N------S1R	Case=Nom|Definite=Cons|Number=Sing	1	nsubj	1:nsubj	Vform=وَزِيرُ|Gloss=minister|Root=w_z_r|Translit=wazīru|LTranslit=wazīr
+3	الخارجية	خَارِجِيَّة	NOUN	N------S2D	Case=Gen|Definite=Def|Number=Sing	2	nmod	2:nmod:gen	Vform=اَلخَارِجِيَّةِ|Gloss=foreign_ministry,foreign_office|Root=_h_r_^g|Translit=al-ḫāriǧīyati|LTranslit=ḫāriǧīyat
+4	المصرى	مِصرِيّ	ADJ	A-----MS1D	Case=Nom|Definite=Def|Gender=Masc|Number=Sing	2	amod	2:amod	Vform=اَلمِصرِيُّ|Gloss=Egyptian|Root=m_.s_r|Translit=al-miṣrīyu|LTranslit=miṣrīy
+5	احمد	أَحمَد	ADJ	A-----MS1R	Case=Nom|Definite=Cons|Gender=Masc|Number=Sing	6	amod	6:amod	Vform=أَحمَدُ|Gloss=more_praiseworthy|Root=.h_m_d|Translit=ʾaḥmadu|LTranslit=ʾaḥmad
+6	ماهر	ماهر	X	U---------	_	2	nmod	2:nmod	Vform=ماهر|Root=OOV|Translit=māhr
+7	السفير	سَفِير	NOUN	N------S4D	Case=Acc|Definite=Def|Number=Sing	1	obj	1:obj	Vform=اَلسَّفِيرَ|Gloss=ambassador|Root=s_f_r|Translit=as-safīra|LTranslit=safīr
+8	البريطانى	برِيطَانِيّ	ADJ	A-----MS4D	Case=Acc|Definite=Def|Gender=Masc|Number=Sing	7	amod	7:amod	Vform=اَلبرِيطَانِيَّ|Gloss=British|Root=brI.tAn|Translit=al-brīṭānīya|LTranslit=brīṭānīy
+9	لدى	لَدَى	ADP	P---------	AdpType=Prep	10	case	10:case	Vform=لَدَى|Gloss=with,by|Root=l_d_y|Translit=ladā|LTranslit=ladā
+10	مصر	مِصر	NOUN	N------S2R	Case=Gen|Definite=Cons|Number=Sing	7	obl	7:obl:لَدَى:gen	Vform=مِصرِ|Gloss=Egypt|Root=m_.s_r|Translit=miṣri|LTranslit=miṣr
+11	جون	جُون	X	X---------	Foreign=Yes	12	nmod	12:nmod	Vform=جُون|Gloss=John|Root=^gUn|Translit=ǧūn|LTranslit=ǧūn
+12	سويرز	سويرز	X	U---------	_	7	nmod	7:nmod	Vform=سويرز|Root=OOV|Translit=swyrz
+13	هنا	هُنَا	ADV	D---------	_	1	advmod	1:advmod	Vform=هُنَا|Gloss=here|Root=hunA|Translit=hunā|LTranslit=hunā
+14	اليوم	يَوم	NOUN	N------S4D	Case=Acc|Definite=Def|Number=Sing	1	obl	1:obl:acc	Vform=اَليَومَ|Gloss=day,today|Root=y_w_m|Translit=al-yawma|LTranslit=yawm
+15	السبت	سَبت	NOUN	N------S4D	Case=Acc|Definite=Def|Number=Sing	1	obl	1:obl:acc	Vform=اَلسَّبتَ|Gloss=Saturday,Sabbath|Root=s_b_t|Translit=as-sabta|LTranslit=sabt
+16	حيث	حَيثُ	CCONJ	C---------	_	17	cc	17:cc	Vform=حَيثُ|Gloss=where,whereby,since,given_that|Root=.h_y__t|Translit=ḥayṯu|LTranslit=ḥayṯu
+17	تشاور	تَشَاوَر	VERB	VP-A-3MS--	Aspect=Perf|Gender=Masc|Number=Sing|Person=3|Voice=Act	1	conj	0:root|1:conj	Vform=تَشَاوَرَ|Gloss=deliberate,consult|Root=^s_w_r|Translit=tašāwara|LTranslit=tašāwar
+18	الطرفان	طَرَف	NOUN	N------D1D	Case=Nom|Definite=Def|Number=Dual	17	nsubj	17:nsubj	Vform=اَلطَّرَفَانِ|Gloss=party,side|Root=.t_r_f|Translit=aṭ-ṭarafāni|LTranslit=ṭaraf
+19-20	بشأن	_	_	_	_	_	_	_	_
+19	ب	بِ	ADP	P---------	AdpType=Prep	21	case	21:case	Vform=بِ|Gloss=by,with|Root=bi|Translit=bi|LTranslit=bi
+20	شأن	شَأن	NOUN	N------S2R	Case=Gen|Definite=Cons|Number=Sing	19	fixed	19:fixed	Vform=شَأنِ|Gloss=matter,affair,concern,regard|Root=^s_'_n|Translit=šaʾni|LTranslit=šaʾn
+21	القضايا	قَضِيَّة	NOUN	N------P2D	Case=Gen|Definite=Def|Number=Plur	17	obl:arg	17:obl:arg:بِ_شَأن:gen	Vform=اَلقَضَايَا|Gloss=problem,issue|Root=q_.d_y|Translit=al-qaḍāyā|LTranslit=qaḍīyat
+22	المتعلقة	مُتَعَلِّق	ADJ	A-----FS2D	Case=Gen|Definite=Def|Gender=Fem|Number=Sing	21	amod	21:amod	Vform=اَلمُتَعَلِّقَةِ|Gloss=attached,connected,concerning|Root=`_l_q|Translit=al-mutaʿalliqati|LTranslit=mutaʿalliq
+23-24	بخريطة	_	_	_	_	_	_	_	_
+23	ب	بِ	ADP	P---------	AdpType=Prep	24	case	24:case	Vform=بِ|Gloss=by,with|Root=bi|Translit=bi|LTranslit=bi
+24	خريطة	خَرِيطَة	NOUN	N------S2R	Case=Gen|Definite=Cons|Number=Sing	22	nmod	22:nmod:بِ:gen|27:nsubj	Vform=خَرِيطَةِ|Gloss=map,chart|Root=_h_r_.t|Translit=ḫarīṭati|LTranslit=ḫarīṭat
+25	الطريق	طَرِيق	NOUN	N------S2D	Case=Gen|Definite=Def|Number=Sing	24	nmod	24:nmod:gen	Vform=اَلطَّرِيقِ|Gloss=road,way|Root=.t_r_q|Translit=aṭ-ṭarīqi|LTranslit=ṭarīq
+26	التى	اَلَّذِي	DET	SR----FS2-	Case=Gen|Gender=Fem|Number=Sing|PronType=Rel	27	nsubj	24:ref	Vform=اَلَّتِي|Gloss=that,which|Root=l|Translit=allatī|LTranslit=allaḏī
+27-28	اعدتها	_	_	_	_	_	_	_	_
+27	أعدت	أَعَدّ	VERB	VP-A-3FS--	Aspect=Perf|Gender=Fem|Number=Sing|Person=3|Voice=Act	24	acl:relcl	24:acl:relcl	Vform=أَعَدَّت|Gloss=prepare,make_ready|Root=`_d_d|Translit=ʾaʿaddat|LTranslit=ʾaʿadd
+28	ها	هُوَ	PRON	SP---3FS4-	Case=Acc|Gender=Fem|Number=Sing|Person=3|PronType=Prs	27	obj	27:obj	Vform=هَا|Gloss=he,she,it|Translit=hā|LTranslit=huwa
+29	اللجنة	لَجنَة	NOUN	N------S1D	Case=Nom|Definite=Def|Number=Sing	27	nsubj	27:nsubj	Vform=اَللَّجنَةُ|Gloss=council,committee,commission|Root=l_^g_n|Translit=al-laǧnatu|LTranslit=laǧnat
+30	الرباعية	رُبَاعِيّ	ADJ	A-----FS1D	Case=Nom|Definite=Def|Gender=Fem|Number=Sing	29	amod	29:amod	Vform=اَلرُّبَاعِيَّةُ|Gloss=four_-_part,four_-_sided,quadrangle|Root=r_b_`|Translit=ar-rubāʿīyatu|LTranslit=rubāʿīy
+31-32	بهدف	_	_	_	_	_	_	_	_
+31	ب	بِ	ADP	P---------	AdpType=Prep	33	case	33:case	Vform=بِ|Gloss=by,with|Root=bi|Translit=bi|LTranslit=bi
+32	هدف	هَدَف	NOUN	N------S2R	Case=Gen|Definite=Cons|Number=Sing	31	fixed	31:fixed	Vform=هَدَفِ|Gloss=goal,objective,intention|Root=h_d_f|Translit=hadafi|LTranslit=hadaf
+33	حل	حَلّ	NOUN	N------S2R	Case=Gen|Definite=Cons|Number=Sing	27	obl	27:obl:بِ_هَدَف:gen	Vform=حَلِّ|Gloss=solution,dissolution,cancellation|Root=.h_l_l|Translit=ḥalli|LTranslit=ḥall
+34	النزاع	نِزَاع	NOUN	N------S2D	Case=Gen|Definite=Def|Number=Sing	33	nmod	33:nmod:gen	Vform=اَلنِّزَاعِ|Gloss=conflict,struggle|Root=n_z_`|Translit=an-nizāʿi|LTranslit=nizāʿ
+35	الفلسطينى	فِلَسطِينِيّ	ADJ	A-----MS2D	Case=Gen|Definite=Def|Gender=Masc|Number=Sing	34	amod	34:amod	Vform=اَلفِلَسطِينِيِّ|Gloss=Palestinian|Root=filas.tIn|Translit=al-filasṭīnīyi|LTranslit=filasṭīnīy
+36	الإسرائيلى	إِسرَائِيلِيّ	ADJ	A-----MS2D	Case=Gen|Definite=Def|Gender=Masc|Number=Sing	34	amod	34:amod	Vform=اَلإِسرَائِيلِيِّ|Gloss=Israeli|Root='isrA'Il|Translit=al-ʾisrāʾīlīyi|LTranslit=ʾisrāʾīlīy
+37	.	.	PUNCT	G---------	_	1	punct	1:punct	Vform=.|Translit=.
+
+# newdoc id = xinhua.20030503.0158
+# newpar id = xinhua.20030503.0158:p1
+# sent_id = xinhua.20030503.0158:p1u1
+# text = انخفاض الاحتياطيات الدولية فى مصر
+# orig_file_sentence XIN_ARB_20030503.0158#1
+1	انخفاض	اِنخِفَاض	NOUN	N------S1R	Case=Nom|Definite=Cons|Number=Sing	0	root	0:root	Vform=اِنخِفَاضُ|Gloss=decrease,reduction|Root=_h_f_.d|Translit=inḫifāḍu|LTranslit=inḫifāḍ
+2	الاحتياطيات	اِحتِيَاطِيّ	NOUN	N------P2D	Case=Gen|Definite=Def|Number=Plur	1	nmod	1:nmod:gen	Vform=اَلِاحتِيَاطِيَّاتِ|Gloss=reserve|Root=.h_w_.t|Translit=al-i-ʼḥtiyāṭīyāti|LTranslit=iḥtiyāṭīy
+3	الدولية	دُوَلِيّ	ADJ	A-----FS2D	Case=Gen|Definite=Def|Gender=Fem|Number=Sing	2	amod	2:amod	Vform=اَلدُّوَلِيَّةِ|Gloss=international,world|Root=d_w_l|Translit=ad-duwalīyati|LTranslit=duwalīy
+4	فى	فِي	ADP	P---------	AdpType=Prep	5	case	5:case	Vform=فِي|Gloss=in|Root=fI|Translit=fī|LTranslit=fī
+5	مصر	مِصر	NOUN	N------S2R	Case=Gen|Definite=Cons|Number=Sing	1	obl	1:obl:فِي:gen	Vform=مِصرِ|Gloss=Egypt|Root=m_.s_r|Translit=miṣri|LTranslit=miṣr
+
+# newpar id = xinhua.20030503.0158:p2
+# sent_id = xinhua.20030503.0158:p2u1
+# text = القاهرة 3 مايو
+# orig_file_sentence XIN_ARB_20030503.0158#2
+1	القاهرة	قَاهِرَة	NOUN	N------S1D	Case=Nom|Definite=Def|Number=Sing	0	root	0:root	Vform=اَلقَاهِرَةُ|Gloss=Cairo|Root=q_h_r|Translit=al-qāhiratu|LTranslit=qāhirat
+2	3	3	NUM	Q---------	NumForm=Digit	1	dep	1:dep	Vform=٣|Translit=3
+3	مايو	مَايُو	NOUN	N------S2I	Case=Gen|Definite=Ind|Number=Sing	2	nmod	2:nmod:gen	Vform=مَايُو|Gloss=May|Root=mAyU|Translit=māyū|LTranslit=māyū

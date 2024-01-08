@@ -1364,7 +1364,7 @@ class AbstractFileIterator:
                            for id in sorted(self.id2mwe_ranks)]
             for meta in self.mwe_metadata.values():
                 s.warn("Metadata with mweid {mweid!r} refers to unknown MWE", mweid=meta.mweid)
-                s.kv_pairs.append(meta)
+                # s.kv_pairs.append(meta)
         except KeyError as e:
             self.warn("MWE has no category: {categ}", categ=e.args[0])
         self._new_sent()
