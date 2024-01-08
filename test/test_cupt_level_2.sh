@@ -21,7 +21,7 @@ bold_echo() {
 # Runs command and discards its output.
 run_devnull() {
     bold_echo "=> $@" >&2
-    "$@" >/dev/null  # Run command and discard output
+    "$@" # >/dev/null  # Run command and discard output
 }
 
 # find all cupt files

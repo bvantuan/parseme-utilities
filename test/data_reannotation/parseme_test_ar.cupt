@@ -23,3 +23,4 @@
 1	القاهرة	قَاهِرَة	NOUN	N------S1D	Case=Nom|Definite=Def|Number=Sing	0	root	0:root	Vform=اَلقَاهِرَةُ|Gloss=Cairo|Root=q_h_r|Translit=al-qāhiratu|LTranslit=qāhirat	*
 2	3	3	NUM	Q---------	NumForm=Digit	1	dep	1:dep	Vform=٣|Translit=3	*
 3	مايو	مَايُو	NOUN	N------S2I	Case=Gen|Definite=Ind|Number=Sing	2	nmod	2:nmod:gen	Vform=مَايُو|Gloss=May|Root=mAyU|Translit=māyū|LTranslit=māyū	*
+
