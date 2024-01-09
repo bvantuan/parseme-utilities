@@ -31,8 +31,6 @@ ID,FORM,LEMMA,UPOS,XPOS,FEATS,HEAD,DEPREL,DEPS,MISC,MWE=range(COLCOUNT)
 MWE_COLNAME = 'PARSEME:MWE'
 ID_COLNAME = 'ID'
 COLNAMES = ''
-# Set of all valid languages in PARSEME corpora
-LANGS = load_languages_set('languages.code')
 
 # default values for columns
 DEFAULT_ID = 1
@@ -827,8 +825,10 @@ def main():
     args = opt_parser.parse_args() #Parsed command-line arguments
     error_counter = {} # Incremented by warn()  {key: error type value: its count}
     tree_counter = 0   # number of trees
+    # Set of all valid languages in PARSEME corpora
+    langs = load_languages_set('languages.code')
 
-    if args.lang.upper() not in LANGS:
+    if args.lang.upper() not in langs:
         warn('Invalid language code!', 'Format')
     
     # Level of validation
