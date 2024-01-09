@@ -1,0 +1,61 @@
+image: python:3.11
+
+# Change pip's cache directory to be inside the project directory since we can
+# only cache local items.
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+
+# Define the pipeline stages
+stages:
+  - test_level_1
+  - test_level_2
+
+# Cache the directories for apt and pip packages
+cache:
+  # the cache is created and shared separately for each branch or tag. 
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - /var/cache/apt/archives/
+    # - /usr/local/lib/python3.9/site-packages/
+    - .cache/pip
+
+before_script:
+  # Update and cache apt packages
+  - apt-get update -qy
+  - apt-get install -y --no-install-recommends python3-pip
+  - python -V               # Print out python version for debugging
+  - pip3 install regex
+  - export TERM=xterm
+
+# Stage: Run tests
+test_corpus_files:
+  stage: test_level_1
+  script:
+    - echo "Testing the presence of CUPT files, README.md, and not_to_release folder in a directory and ensures no other files are present"
+    - ./not_to_release/.CI-CD/test_corpus_files.sh
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+    - if: $CI_PIPELINE_SOURCE == "push"
+
+test_cupt_level_1:
+  stage: test_level_1
+  script:
+    - echo "Testing the cupt format"
+    - ./not_to_release/.CI-CD/test_cupt_level_1.sh
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+    - if: $CI_PIPELINE_SOURCE == "push"
+
+test_cupt_level_2:
+  stage: test_level_2
+  script:
+    - echo "Testing the PARSEME and UD concepts"
+    - ./not_to_release/.CI-CD/test_cupt_level_2.sh
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+    - if: $CI_PIPELINE_SOURCE == "push"
+
+    
