@@ -21,9 +21,9 @@ import regex as re
 
 
 THISDIR=os.path.dirname(os.path.realpath(os.path.abspath(__file__))) # The folder where this script resides.
-# UD Validation release 2.11
-# https://github.com/UniversalDependencies/tools/tree/r2.12
-UD_VALIDATE = f"{THISDIR}/UD_Validation_release_2.13/validate.py"
+# UD Validation release 2.13
+# https://github.com/UniversalDependencies/tools/tree/r2.13
+UD_VALIDATE = f"{THISDIR}/UD_Validation/validate.py"
 
 # Constants for the column indices
 COLCOUNT=11
@@ -31,8 +31,6 @@ ID,FORM,LEMMA,UPOS,XPOS,FEATS,HEAD,DEPREL,DEPS,MISC,MWE=range(COLCOUNT)
 MWE_COLNAME = 'PARSEME:MWE'
 ID_COLNAME = 'ID'
 COLNAMES = ''
-# Set of all valid languages in PARSEME corpora
-LANGS = set("UD AR BG CS DE EL EN ES EU FA FR GA HE HR HU HI IT LT MT PL PT RO SL SR SV TR ZH".split())
 
 # default values for columns
 DEFAULT_ID = 1
@@ -81,6 +79,13 @@ def load_file(filename):
             if not line or line.startswith('#'):
                 continue
             res.add(line)
+    return res
+
+def load_languages_set(filename):
+    """
+    Loads the list of permitted languages and returns it as a set.
+    """
+    res = load_file(os.path.join(THISDIR, 'data', filename))
     return res
 
 def load_mwe_set(filename, lcode):
@@ -820,8 +825,10 @@ def main():
     args = opt_parser.parse_args() #Parsed command-line arguments
     error_counter = {} # Incremented by warn()  {key: error type value: its count}
     tree_counter = 0   # number of trees
+    # Set of all valid languages in PARSEME corpora
+    langs = load_languages_set('languages.code')
 
-    if args.lang.upper() not in LANGS:
+    if args.lang.upper() not in langs:
         warn('Invalid language code!', 'Format')
     
     # Level of validation
