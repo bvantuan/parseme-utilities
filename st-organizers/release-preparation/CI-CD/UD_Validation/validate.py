@@ -78,35 +78,34 @@ def warn(msg, testclass, testlevel, testid, lineno=0, nodeid=0, explanation=None
     """
     global curr_fname, curr_line, sentence_line, sentence_id, error_counter, args
     error_counter[testclass] = error_counter.get(testclass, 0)+1
-    if not args.quiet:
-        if args.max_err > 0 and error_counter[testclass] == args.max_err:
+    if args.max_err > 0 and error_counter[testclass] > args.max_err:
+        if error_counter[testclass] == args.max_err + 1:
             print(('...suppressing further errors regarding ' + testclass), file=sys.stderr)
-        elif args.max_err > 0 and error_counter[testclass] > args.max_err:
-            pass # suppressed
+        pass # supressed
+    elif not args.quiet:
+        if explanation and error_counter[testclass] == 1:
+            msg += ' ' + explanation
+        if len(args.input) > 1: # several files, should report which one
+            if curr_fname=='-':
+                fn = '(in STDIN) '
+            else:
+                fn = '(in '+os.path.basename(curr_fname)+') '
         else:
-            if explanation and error_counter[testclass] == 1:
-                msg += ' ' + explanation
-            if len(args.input) > 1: # several files, should report which one
-                if curr_fname=='-':
-                    fn = '(in STDIN) '
-                else:
-                    fn = '(in '+os.path.basename(curr_fname)+') '
-            else:
-                fn = ''
-            sent = ''
-            node = ''
-            # Global variable (last read sentence id): sentence_id
-            # Originally we used a parameter sid but we probably do not need to override the global value.
-            if sentence_id:
-                sent = ' Sent ' + sentence_id
-            if nodeid:
-                node = ' Node ' + str(nodeid)
-            if lineno > 0:
-                print("[%sLine %d%s%s]: [L%d %s %s] %s" % (fn, lineno, sent, node, testlevel, testclass, testid, msg), file=sys.stderr)
-            elif lineno < 0:
-                print("[%sLine %d%s%s]: [L%d %s %s] %s" % (fn, sentence_line, sent, node, testlevel, testclass, testid, msg), file=sys.stderr)
-            else:
-                print("[%sLine %d%s%s]: [L%d %s %s] %s" % (fn, curr_line, sent, node, testlevel, testclass, testid, msg), file=sys.stderr)
+            fn = ''
+        sent = ''
+        node = ''
+        # Global variable (last read sentence id): sentence_id
+        # Originally we used a parameter sid but we probably do not need to override the global value.
+        if sentence_id:
+            sent = ' Sent ' + sentence_id
+        if nodeid:
+            node = ' Node ' + str(nodeid)
+        if lineno > 0:
+            print("[%sLine %d%s%s]: [L%d %s %s] %s" % (fn, lineno, sent, node, testlevel, testclass, testid, msg), file=sys.stderr)
+        elif lineno < 0:
+            print("[%sLine %d%s%s]: [L%d %s %s] %s" % (fn, sentence_line, sent, node, testlevel, testclass, testid, msg), file=sys.stderr)
+        else:
+            print("[%sLine %d%s%s]: [L%d %s %s] %s" % (fn, curr_line, sent, node, testlevel, testclass, testid, msg), file=sys.stderr)
 
 ###### Support functions
 ws_re = re.compile(r"^\s+$")
@@ -1531,6 +1530,34 @@ def validate_upos_vs_deprel(id, tree):
         testmessage = "'fixed' should not be used for proper nouns."
         warn(testmessage, testclass, testlevel, testid, nodeid=id, lineno=tree['linenos'][id])
 
+def validate_flat_foreign(id, tree):
+    """
+    flat:foreign is an optional subtype of flat. It is used to connect two words
+    in a code-switched segment of foreign words if the annotators did not want
+    to provide the analysis according to the source language. If flat:foreign
+    is used, both the parent and the child should have the Foreign=Yes feature
+    and their UPOS tag should be X.
+    """
+    testlevel = 3
+    testclass = 'Warning' # or Morpho
+    child = tree['nodes'][id]
+    if MISC >= len(child):
+        return # this has been already reported in trees()
+    if id == 0:
+        return
+    if child[DEPREL] != 'flat:foreign':
+        return
+    pid = int(child[HEAD])
+    parent = tree['nodes'][pid]
+    if child[UPOS] != 'X' or child[FEATS] != 'Foreign=Yes':
+        testid = 'flat-foreign-upos-feats'
+        testmessage = "The child of a flat:foreign relation should have UPOS X and Foreign=Yes (but no other features)."
+        warn(testmessage, testclass, testlevel, testid, nodeid=id, lineno=tree['linenos'][id])
+    if parent[UPOS] != 'X' or parent[FEATS] != 'Foreign=Yes':
+        testid = 'flat-foreign-upos-feats'
+        testmessage = "The parent of a flat:foreign relation should have UPOS X and Foreign=Yes (but no other features)."
+        warn(testmessage, testclass, testlevel, testid, nodeid=pid, lineno=tree['linenos'][pid])
+
 def validate_left_to_right_relations(id, tree):
     """
     Certain UD relations must always go left-to-right.
@@ -1919,6 +1946,7 @@ def validate_annotation(tree):
     for node in tree['nodes']:
         id = int(node[ID])
         validate_upos_vs_deprel(id, tree)
+        validate_flat_foreign(id, tree)
         validate_left_to_right_relations(id, tree)
         validate_single_subject(id, tree)
         validate_orphan(id, tree)
