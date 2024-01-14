@@ -827,6 +827,8 @@ def main():
     tree_counter = 0   # number of trees
     # Set of all valid languages in PARSEME corpora
     langs = load_languages_set('languages.code')
+    # No language-specific tests
+    langs.add("UD")
 
     if args.lang.upper() not in langs:
         warn('Invalid language code!', 'Format')
