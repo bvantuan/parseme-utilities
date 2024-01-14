@@ -1,0 +1,19 @@
+{
+  "language": "CS",
+  "language_repository": "/home/tuan/Documents/parseme_dev/1.4/parseme_corpus_cs",
+  "verbose": false,
+  "source": [
+    {
+      "corpus": "train.cupt",
+      "method": "udpipe",
+      "tagger": true,
+      "parser": true
+    },
+    {
+      "corpus": "test.cupt",
+      "method": "udpipe",
+      "tagger": true,
+      "parser": true
+    }
+  ]
+}
