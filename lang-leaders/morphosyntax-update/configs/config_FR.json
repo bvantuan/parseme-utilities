@@ -1,13 +1,13 @@
 {
   "language": "FR",
-  "language_repository": "/home/tuan/Documents/parseme_dev/1.4/parseme_corpus_fr",
+  "language_repository": "/home/savary/PARSEME/PARSEME-corpora/Gitlab/parseme_corpus_languages/parseme_corpus_fr",
   "verbose": false,
   "source": [
     {
       "corpus": "fr_gsd-ud-dev.cupt",
       "method": "udtreebank",
       "treebank": [
-        "/home/tuan/Documents/parseme_dev/1.4/ud-treebanks-v2.12/UD_French-GSD"
+        "/home/savary/Recherche/Rozne/Zasoby/UD/ud-treebanks-v2.12/UD_French-GSD"
       ],
       "uri": [
         "http://hdl.handle.net/11234/1-5150"
@@ -17,7 +17,7 @@
       "corpus": "fr_gsd-ud-test.cupt",
       "method": "udtreebank",
       "treebank": [
-        "/home/tuan/Documents/parseme_dev/1.4/ud-treebanks-v2.12/UD_French-GSD"
+        "/home/savary/Recherche/Rozne/Zasoby/UD/ud-treebanks-v2.12/UD_French-GSD"
       ],
       "uri": [
         "http://hdl.handle.net/11234/1-5150"
@@ -27,7 +27,7 @@
       "corpus": "fr_gsd-ud-train.cupt",
       "method": "udtreebank",
       "treebank": [
-        "/home/tuan/Documents/parseme_dev/1.4/ud-treebanks-v2.12/UD_French-GSD"
+        "/home/savary/Recherche/Rozne/Zasoby/UD/ud-treebanks-v2.12/UD_French-GSD"
       ],
       "uri": [
         "http://hdl.handle.net/11234/1-5150"
@@ -37,7 +37,7 @@
       "corpus": "fr_partut-ud-dev.cupt",
       "method": "udtreebank",
       "treebank": [
-        "/home/tuan/Documents/parseme_dev/1.4/ud-treebanks-v2.12/UD_French-ParTUT"
+        "/home/savary/Recherche/Rozne/Zasoby/UD/ud-treebanks-v2.12/UD_French-ParTUT"
       ],
       "uri": [
         "http://hdl.handle.net/11234/1-5150"
@@ -47,7 +47,7 @@
       "corpus": "fr_partut-ud-test.cupt",
       "method": "udtreebank",
       "treebank": [
-        "/home/tuan/Documents/parseme_dev/1.4/ud-treebanks-v2.12/UD_French-ParTUT"
+        "/home/savary/Recherche/Rozne/Zasoby/UD/ud-treebanks-v2.12/UD_French-ParTUT"
       ],
       "uri": [
         "http://hdl.handle.net/11234/1-5150"
@@ -57,7 +57,7 @@
       "corpus": "fr_partut-ud-train.cupt",
       "method": "udtreebank",
       "treebank": [
-        "/home/tuan/Documents/parseme_dev/1.4/ud-treebanks-v2.12/UD_French-ParTUT"
+        "/home/savary/Recherche/Rozne/Zasoby/UD/ud-treebanks-v2.12/UD_French-ParTUT"
       ],
       "uri": [
         "http://hdl.handle.net/11234/1-5150"
@@ -67,27 +67,7 @@
       "corpus": "fr_pud-ud-test.cupt",
       "method": "udtreebank",
       "treebank": [
-        "/home/tuan/Documents/parseme_dev/1.4/ud-treebanks-v2.12/UD_French-PUD"
-      ],
-      "uri": [
-        "http://hdl.handle.net/11234/1-5150"
-      ]
-    },
-    {
-      "corpus": "fr_sequoia-ud-test.cupt",
-      "method": "udtreebank",
-      "treebank": [
-        "/home/tuan/Documents/parseme_dev/1.4/ud-treebanks-v2.12/UD_French-Sequoia"
-      ],
-      "uri": [
-        "http://hdl.handle.net/11234/1-5150"
-      ]
-    },
-    {
-      "corpus": "fr_sequoia-ud-train.cupt",
-      "method": "udtreebank",
-      "treebank": [
-        "/home/tuan/Documents/parseme_dev/1.4/ud-treebanks-v2.12/UD_French-Sequoia"
+        "/home/savary/Recherche/Rozne/Zasoby/UD/ud-treebanks-v2.12/UD_French-PUD"
       ],
       "uri": [
         "http://hdl.handle.net/11234/1-5150"
@@ -97,7 +77,27 @@
       "corpus": "fr_sequoia-ud-dev.cupt",
       "method": "udtreebank",
       "treebank": [
-        "/home/tuan/Documents/parseme_dev/1.4/ud-treebanks-v2.12/UD_French-Sequoia"
+        "/home/savary/Recherche/Rozne/Zasoby/UD/ud-treebanks-v2.12/UD_French-Sequoia"
+      ],
+      "uri": [
+        "http://hdl.handle.net/11234/1-5150"
+      ]
+    },
+    {
+      "corpus": "fr_sequoia-ud-test.cupt",
+      "method": "udtreebank",
+      "treebank": [
+        "/home/savary/Recherche/Rozne/Zasoby/UD/ud-treebanks-v2.12/UD_French-Sequoia"
+      ],
+      "uri": [
+        "http://hdl.handle.net/11234/1-5150"
+      ]
+    },
+    {
+      "corpus": "fr_sequoia-ud-train.cupt",
+      "method": "udtreebank",
+      "treebank": [
+        "/home/savary/Recherche/Rozne/Zasoby/UD/ud-treebanks-v2.12/UD_French-Sequoia"
       ],
       "uri": [
         "http://hdl.handle.net/11234/1-5150"
