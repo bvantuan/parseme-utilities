@@ -288,7 +288,7 @@ function get_ud_line_number_with_the_same_text() {
     declare -A line_number_sent_ids
 
     # all line numbers contain parseme sentence id
-    line_numbers=$(grep -nr '^# sent_id =' $2 | grep "# sent_id = $1$" | cut -d: -f1,2,3)
+    line_numbers=$(grep -nr '^# sent_id =' $2 | grep "# sent_id = $1$")
 
     # If it have a line number that contain parseme sentence id
     if [ ! -z "$line_numbers" ]; then
@@ -424,7 +424,10 @@ function replace_source_sent_id_and_text() {
     # Line starting with # source_sent_id =
     old_metadata_source_sent_id=$(grep '^# source_sent_id =' <<< "$1")
     # Sentence id of the text in the UD
-    new_sentence_id=$(grep -n '^# sent_id =' <<< "$2" | cut -d: -f2 | cut -d' ' -f4)
+    new_sentence_id=$(grep -n '^# sent_id =' <<< "$2")
+    # sent_id can contain ':' delimiter
+    IFS=':' read -r line_number sentence_id <<< "$new_sentence_id"
+    new_sentence_id=$(cut -d' ' -f4 <<< "$sentence_id")
 
     # Replace the old identifier by the sentence identifier of the text sentence in the UD
     new_metadata_source_sent_id=$(echo "$old_metadata_source_sent_id" | awk -v replacement="$new_sentence_id" '{ $6=replacement; print }')

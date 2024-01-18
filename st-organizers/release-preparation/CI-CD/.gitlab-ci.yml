@@ -9,7 +9,6 @@ variables:
 stages:
   - test_level_1
   - test_level_2
-  - deploy
 
 # Cache the directories for apt and pip packages
 cache:
@@ -24,68 +23,39 @@ before_script:
   # Update and cache apt packages
   - apt-get update -qy
   - apt-get install -y --no-install-recommends python3-pip
-  - apt-get install -y nodejs
-  - apt-get install -y npm
   - python -V               # Print out python version for debugging
-  - pip3 install -U folia
   - pip3 install regex
-  - npm install -g ajv-cli
   - export TERM=xterm
 
 # Stage: Run tests
-test_script_reannotate_morphosyntax:
-  stage: test_level_1
-  script: 
-    - echo "Testing the morphosyntax reannotation script"
-    - ./test/test_reannotate-morphosyntax.sh
-  artifacts:
-    paths:
-      - ./test/data_reannotation/not_to_release/
-    expire_in: 2 days
-
-test_parseme_validate:
-  stage: test_level_1
-  script: 
-    - echo "Functional Testing of the script parseme_validate.py"
-    - ./test/test_parseme_validate.py
-
-test_json:
-  stage: test_level_1
-  script: 
-    - echo "Testing the configuration files for the re-annotation script"
-    - ./test/validate-config.sh
-
-test_cupt_level_1:
+test_corpus_files:
   stage: test_level_1
   script:
-    - echo "Testing the format cupt"
-    - ./test/test_cupt_level_1.sh
+    - echo "Testing the presence of CUPT files, README.md, and not_to_release folder in a directory and ensures no other files are present"
+    - ./not_to_release/.CI-CD/test_corpus_files.sh
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_PIPELINE_SOURCE == "schedule"
     - if: $CI_PIPELINE_SOURCE == "push"
 
-test_all:
+test_cupt_level_1:
   stage: test_level_1
   script:
-    - echo "Testing if we can run all scripts to completion"
-    - ./test/test.sh
+    - echo "Testing the cupt format"
+    - ./not_to_release/.CI-CD/test_cupt_level_1.sh
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+    - if: $CI_PIPELINE_SOURCE == "push"
 
 test_cupt_level_2:
   stage: test_level_2
   script:
     - echo "Testing the PARSEME and UD concepts"
-    - ./test/test_cupt_level_2.sh
+    - ./not_to_release/.CI-CD/test_cupt_level_2.sh
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_PIPELINE_SOURCE == "schedule"
     - if: $CI_PIPELINE_SOURCE == "push"
 
-release:
-  stage: deploy
-  script:
-    - echo "Next release for PARSEME Shared Task"
-    - ./test/release_script.sh
-  only:
-    - schedules
     
