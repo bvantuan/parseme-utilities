@@ -23,6 +23,8 @@ done < "$LANGUAGES_CODE_FILE"
 for language in "${languages[@]}"; do
     # convert a language code to lowercase
     language_code=$(echo "$language" | tr '[:upper:]' '[:lower:]')
+    # remove leading and trailing spaces
+    language_code=$(echo "$language_code" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
     echo "Language: $language"
     # clone the language repository
     git clone git@gitlab.com:parseme/parseme_corpus_$language_code.git
